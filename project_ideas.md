@@ -69,3 +69,12 @@ We can then:
 
 The approach is slightly similar but less fancy (no MCMC) and here we focus on individuals rather than matrices.
 
+
+
+## TODO (after meeting with Gavin on 02/10):
+
+ * [ ] Get two clades of birds ("Seagulls" and Parrots) from the Jetz tree + from the bird beak pca data on slack.
+ * [ ] Test: fuzzy ancestral traits estimations
+ * [ ] Test: elaboration/exploration scores from different base vectors
+ * [ ] Test: current elaboration/exploration in both groups
+ * [ ] Test: elaboration/exploration through time in both groups
