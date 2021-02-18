@@ -4,3 +4,7 @@
 *.rda
 *.RData
 *.Rapp.history
+
+## The data folders
+Data/Raw/Beak_data/*
+Data/Raw/Tree_data/*
