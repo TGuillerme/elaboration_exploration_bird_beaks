@@ -1,0 +1,4 @@
+This folder contains two sub-folders
+
+ * `Beak_data`: which is the scanned beak raw data (accessed through Gavin's google drive)
+ * `Tree_data`: which is the Jetz tree
