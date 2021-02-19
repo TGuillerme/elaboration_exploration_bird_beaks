@@ -8,7 +8,89 @@ output:
     fig_height: 6
 ---
 
+```{r}
+library(ape)
+library(dispRity)
+```
+
 # Data preparation
 
- - [ ] Selecting the data from the subclade and their subtrees.
- - [ ] Running the procrustes superimposition
+Here I'm going to focus on the Psittaciformes (parrots and stuff) and Charadriiformes (sea gulls and stuff).
+
+ - [x] Selecting the data from the subclade and their subtrees.
+ - [x] Selecting the shape data
+
+## Tree data
+
+For this pilote analysis, I will only select 10 random trees between both Ericson and Hackett backbone trees from Jetz et al big trees (5 each).
+To find the mrca to get the subtrees, we will use the pairs `"Micropsitta"` and `"  Nestor"` for the parrots and `"Ichthyaetus"` and `"Burhinus"` for the sea gulls
+
+```{r, eval = FALSE}
+## Get the pairs of birds for both clades
+psita_clade <- c("Micropsitta_meeki", "Nestor_notabilis")
+chara_clade <- c("Burhinus_oedicnemus", "Larus_saundersi")
+
+## Number of trees to select
+n_trees <- 10
+
+## Reading the trees
+ericson_tree_1_1000 <- read.tree("../Data/Raw/Tree_data/AllBirdsEricson1.tre")
+hackett_tree_1_1000 <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
+
+## Selecting n/2 random trees for both tree
+selected_trees <- replicate(2, sample(1:1000, n_trees/2))
+
+## Sampling the trees
+ericson_tree_5 <- ericson_tree_1_1000[selected_trees[,1]]
+hackett_tree_5 <- hackett_tree_1_1000[selected_trees[,2]]
+## Combine the trees
+all_birds_10 <- c(ericson_tree_5, hackett_tree_5)
+
+## Extracting the different clades from the different trees
+wrap.extract.clade <- function(tree, tips) {
+    ## Extract the clade
+    return(extract.clade(tree, node = getMRCA(tree, tip = tips)))
+}
+
+## Get the two trees
+chara_trees_10 <- lapply(all_birds_10, wrap.extract.clade, tip = chara_clade)
+psita_trees_10 <- lapply(all_birds_10, wrap.extract.clade, tip = psita_clade)
+class(chara_trees_10) <- class(psita_trees_10) <- "multiPhylo"
+
+## Save as a list of trees
+trees_list <- list("charadriiformes" = chara_trees_10,
+                   "psittaciformes"  = psita_trees_10)
+save(trees_list, file = "../Data/Processed/trees_list.rda")
+```
+
+## Beak data
+
+```{r}
+## Loading the tree data (to have the species list)
+load("../Data/Processed/trees_list.rda")
+```
+
+Note that here we are extracting the sets of birds (orders) from the global (full) shape space.
+This means that for the following analyses we're only looking at sub-parts in that space, i.e. the PCA does not contain all the data.
+If this is undersirable, I guess we can always do the whole pipeline again (select species > procrustes per order > pca per order).
+
+```{r}
+## Loading the whole shapespace
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
+
+## Select the subspecies per shapespace
+psita_space <- shapespace$PCscores[rownames(shapespace$PCscores) %in% trees_list$psittaciformes[[1]]$tip.label, ]
+chara_space <- shapespace$PCscores[rownames(shapespace$PCscores) %in% trees_list$charadriiformes[[1]]$tip.label, ]
+
+## Clean the tree lists and the dataset
+cleaned_psita <- clean.data(psita_space, trees_list$psittaciformes)
+cleaned_chara <- clean.data(chara_space, trees_list$charadriiformes)
+
+## Re-saving the trees and saving the spaces
+spaces_list <- list(psittaciformes  = cleaned_psita$data,
+                    charadriiformes = cleaned_chara$data)
+trees_list  <- list(psittaciformes  = cleaned_psita$tree,
+                    charadriiformes = cleaned_chara$tree)
+save(trees_list,  file = "../Data/Processed/trees_list.rda")
+save(spaces_list, file = "../Data/Processed/spaces_list.rda")
+```
