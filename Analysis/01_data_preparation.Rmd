@@ -25,6 +25,8 @@ Here I'm going to focus on the Psittaciformes (parrots and stuff) and Charadriif
 For this pilote analysis, I will only select 10 random trees between both Ericson and Hackett backbone trees from Jetz et al big trees (5 each).
 To find the mrca to get the subtrees, we will use the pairs `"Micropsitta"` and `"  Nestor"` for the parrots and `"Ichthyaetus"` and `"Burhinus"` for the sea gulls
 
+> Note
+
 ```{r, eval = FALSE}
 ## Get the pairs of birds for both clades
 psita_clade <- c("Micropsitta_meeki", "Nestor_notabilis")
@@ -89,8 +91,15 @@ cleaned_chara <- clean.data(chara_space, trees_list$charadriiformes)
 ## Re-saving the trees and saving the spaces
 spaces_list <- list(psittaciformes  = cleaned_psita$data,
                     charadriiformes = cleaned_chara$data)
-trees_list  <- list(psittaciformes  = cleaned_psita$tree,
-                    charadriiformes = cleaned_chara$tree)
+
+## Adding the node labels for each selected trees
+psita_trees <- lapply(cleaned_psita$tree, function(tree) {tree$node.label <- paste0("n", 1:Nnode(tree)); return(tree)})
+chara_trees <- lapply(cleaned_chara$tree, function(tree) {tree$node.label <- paste0("n", 1:Nnode(tree)); return(tree)})
+class(psita_trees) <- class(chara_trees) <- "multiPhylo"
+
+trees_list  <- list(psittaciformes  = psita_trees,
+                    charadriiformes = chara_trees)
+
 save(trees_list,  file = "../Data/Processed/trees_list.rda")
 save(spaces_list, file = "../Data/Processed/spaces_list.rda")
 ```
