@@ -10,6 +10,13 @@ output:
 
 # Elaboration/exploration analyses
 
+```{r}
+## Loading the packages and data
+library(dispRity)
+load(file = "../Data/Processed/disparity_matrices.rda")
+load(file = "../Data/Processed/trees_list.rda")
+```
+
 ## Elaboration/exploration metrics
 
 Measure the different elaboration vs exploration metrics with different vectors:
