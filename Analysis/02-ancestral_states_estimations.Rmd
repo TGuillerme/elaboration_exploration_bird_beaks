@@ -10,7 +10,8 @@ output:
 
 ```{r}
 library(ape)
-library(castor)
+library(dispRity)
+source("../FUnctions/ancestral.states.fun.R")
 ```
 
 # Ancestral traits estimations
@@ -45,79 +46,7 @@ From each ancestral character estimation, we will extract either:
  * [ ] one random character value from within the 95% confidence interval
  * [ ] ten random character values from the 95% CI
 
-
-```{r}
-# ##DEBUG
-# matrix <- matrix(rnorm(100), 10, 5)
-# trees <- rmtree(7, 10)
-# trees <- lapply(trees, function(tree) {tree$node.label <- paste0("n", 1:Nnode(tree)); return(tree)})
-# class(trees) <- "multiPhylo"
-# tree <- trees[[1]]
-# rownames(matrix) <- tree$tip.label
-
-## Function for running the ace on the whole matrix (i.e. for all the traits)
-one.ace <- function(traits, tree) {
-    cat(".")
-    results <- ace(traits, tree)
-    results$labels <- tree$node.label
-    return(results)
-}
-run.full.ace <- function(tree, matrix) {
-    cat("Estimating one matrix:")
-    ace_results <- apply(matrix, 2, one.ace, tree)
-    cat("Done\n")
-    return(ace_results)
-}
-
-# ##DEBUG
-# all_results <- lapply(trees, run.full.ace, matrix)
-# ace_result <- all_results[[1]]
-
-## Function for extracting the ace values of interest
-#' @param ace the output from run.full.ace
-#' @param what either "max" for the most likely value, or any integer for a number of random values (e.g. 1 or 10)
-#' @param sampling the sampling distribution can be "uniform" (default) or "normal"0
-#' 
-## Extracting random values from the ace_results 95% (uniform or normal)
-fun.uniform <- function(ci95, what) {
-    return(runif(what, min = ci95[1], max = ci95[2]))
-}
-fun.normal <- function(ci95, what) {
-    return(rnorm(what, mean = mean(x), sd = sd(x)/3))
-}
-extract.ace <- function(ace_result, what, sampling = "uniform", matrix) {
-    ## Switching between both type of results
-    if(what == "max") {
-        ## Extracting the most likely states
-        node_states <- do.call(cbind, lapply(ace_result, function(x) return(x$ace)))
-        rownames(node_states) <- ace_result[[1]]$labels
-        return(rbind(matrix, node_states))
-    } else {
-        ## Toggle the sampling function
-        fun.sample <- ifelse(sampling == "uniform", fun.uniform, fun.normal)
-        trait_results <- lapply(ace_result, function(trait, fun.sample, what) apply(trait$CI95, 1, fun.sample, what = what), fun.sample, what)
-
-        if(what == 1) {
-            ## Return single samples
-            node_states <- do.call(cbind, trait_results)
-            rownames(node_states) <- ace_result[[1]]$labels
-            return(rbind(matrix, node_states))            
-        } else {
-            ## Return multiple samples
-            node_states <- list()
-            for(i in 1:what) {
-                node_states[[i]] <- do.call(cbind, lapply(trait_results, function(X, i) return(X[i, ]), i))
-                rownames(node_states[[i]]) <- ace_result[[1]]$labels
-            }
-            return(lapply(node_states, function(X, matrix) rbind(matrix, X), matrix))
-        }
-    }
-}
-# ## DEBUG
-# #all_trees_max_lik <- lapply(all_results, extract.ace, what = "max", matrix = matrix)
-```
-
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ## Running the ace for all the characters for both spaces
 psita_ace <- lapply(trees_list$psittaciformes, run.full.ace,
                     matrix = spaces_list$psittaciformes)
@@ -127,6 +56,38 @@ save(psita_ace, file = "../Data/Processed/psita_ace.rda")
 save(chara_ace, file = "../Data/Processed/chara_ace.rda")
 ```
 
+### Extracting the ancestral estimates
 
+Here we will select the ancestral traits estimations two ways:
+ * First by selecting the most likely estimations (i.e. highest lik log) for each node;
+ * Second by randomly sampling 10 values using a normal distribution around the 95% estimation interval (mean = mean(ci95); sd = diff(ci95)/4; the diff(ci95) is because there are roughly 4 standard deviations in the 95% range of a normal distribution).
+
+```{r}
+## Loading the precaculated results
+load("../Data/Processed/psita_ace.rda")
+load("../Data/Processed/chara_ace.rda")
+
+## Building the matrices
+psita_max_ace <- lapply(psita_ace, extract.ace, what = "max",
+                         matrix = spaces_list$psittaciformes)
+psita_10n_ace <- lapply(psita_ace, extract.ace, what = 10, sampling = "normal",
+                         matrix = spaces_list$psittaciformes)
+chara_max_ace <- lapply(chara_ace, extract.ace, what = "max",
+                         matrix = spaces_list$charadriiformes)
+chara_10n_ace <- lapply(psita_ace, extract.ace, what = 10, sampling = "normal",
+                         matrix = spaces_list$psittaciformes)
+```
 
 ## Make the dispRity objects
+
+> TODO: add the trees to these matrices for the next dispRitree package!
+
+```{r}
+## Converting the lists into dispRity objects
+disparity_matrices <- list(
+    "psita_max" = make.dispRity(data = psita_max_ace),
+    "psita_10n" = make.dispRity(data = unlist(psita_10n_ace, recursive = FALSE)),
+    "chara_max" = make.dispRity(data = chara_max_ace),
+    "chara_10n" = make.dispRity(data = unlist(chara_10n_ace, recursive = FALSE)))
+save(disparity_matrices, file = "../Data/Processed/disparity_matrices.rda")
+```
