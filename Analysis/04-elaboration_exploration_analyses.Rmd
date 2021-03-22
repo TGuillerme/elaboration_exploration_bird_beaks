@@ -1,0 +1,234 @@
+---
+title: "04-elaboration exploration analyses"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_width: 12
+    fig_height: 6
+---
+
+# Elaboration/exploration analyses
+
+```{r}
+## Loading the packages and data
+library(dispRity)
+load(file = "../Data/Processed/disparity_matrices.rda")
+load(file = "../Data/Processed/trees_list.rda")
+load(file = "../Data/Processed/spaces_list.rda")
+load(file = "../Data/Processed/tmp_simple_matrices.rda")
+```
+
+We can add some evo perspective to the basic Endler's elaboration/exploration idea by making the base vector "evolutionary" and by looking at elaboration/exploration through time!
+
+> TODO: I haven't done implementing all the fuzzy space thingies in `dispRity` so for now it's just going to be a naive 1 tree 1 ace 1 answer version of it
+
+## Elaboration/exploration evolutionary metrics
+
+Measure the different elaboration vs exploration metrics with different vectors:
+ 
+ - [ ] MRCA trajectory: the vector between the root of the tree and the OTU's descendant (`"root-anc"`)
+ - [ ] MRCA average trajectory: the vector between the centroid of the group's nodes and the root of the tree (`"cent-anc"`)
+ - [ ] Evolutionary living average trajectory: the vector between the root of the tree and the centroid of the living taxa (`"root-tip"`)
+ - [ ] Evolutionary overall average trajectory: the vector between the root of the tree and the centroid of the tips and nodes (`"root-cent"`)
+ - [ ] Maximum living trajectory: the vector between the two most distant OTUs (`"tip-span"`)
+ - [ ] Maximum evolutionary trajectory: the vector between the root and the OTU most nodes away from the root (`"root-nested"`)
+
+```{r}
+## Utility functions
+project.reject <- function(data, vector, absolute = TRUE) {
+
+    ## Get the projection
+    projection <- projections.tree(
+          matrix = data$matrix[[1]], 
+          tree = data$tree[[1]],
+          measure = "position", type = vector)
+
+    ## Get the rejection
+    rejection <- projections.tree(
+          matrix = data$matrix[[1]], 
+          tree = data$tree[[1]],
+          measure = "distance", type = vector)
+
+    ## Combine and out
+    if(absolute) {
+      return(cbind(abs(projection), rejection))
+    } else {
+      return(cbind(projection, rejection))
+    }
+}
+plot.project.reject <- function(results, data, xlab = "Elaboration", ylab = "Exploration", col = "black", main = "Project/Reject") {
+
+    pch <- c(19, 21)
+    col <- c("grey", col)
+
+    ## Find the first node to separate nodes/tips
+    root <- which(rownames(data$matrix[[1]]) == "n1")
+    ## Split the plot data
+    tips_block <- c(1:root-1)
+    nodes_block <- c(root:nrow((data$matrix[[1]])))
+    ## Split the colours and pch
+    colours <- c(rep(col[1], length(nodes_block)),
+                 rep(col[2], length(tips_block)))
+    pchs <- c(rep(pch[1], length(nodes_block)),
+              rep(pch[2], length(tips_block)))
+    ## plot the results
+    plot(results[c(nodes_block, tips_block), ], xlab = xlab, ylab = ylab, col = colours, pch = pchs, main = main)
+}
+plot.project.reject.log <- function(results, data, xlab = "Elaboration (log)", ylab = "Exploration (log)", col = "black", main = "Project/Reject") {
+
+    plot.project.reject(log(results), data, xlab, ylab, col, main)
+}
+
+```
+
+
+```{r, fig.height = 12, fig.width = 12}
+## MRCA trajectory 
+psita_results <- project.reject(tmp_simple_matrices$psita,
+                                 vector = c("root", "ancestor"))
+chara_results <- project.reject(tmp_simple_matrices$chara,
+                                 vector = c("root", "ancestor"))
+
+par(mfrow = c(2,2))
+plot.project.reject(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - root/ancestor")
+plot.project.reject(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - root/ancestor")
+plot.project.reject.log(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - root/ancestor")
+plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - root/ancestor")
+```
+
+```{r, fig.height = 6, fig.width = 12}
+## Centroid (tips) ancestor trajectory 
+psita_results <- project.reject(tmp_simple_matrices$psita,
+                                 vector = c("tips", "ancestor"))
+chara_results <- project.reject(tmp_simple_matrices$chara,
+                                 vector = c("tips", "ancestor"))
+
+par(mfrow = c(1,2))
+plot.project.reject.log(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - tips/ancestor")
+plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - tips/ancestor")
+```
+
+```{r, fig.height = 6, fig.width = 12}
+## Centroid (nodes) ancestor trajectory 
+psita_results <- project.reject(tmp_simple_matrices$psita,
+                                 vector = c("nodes", "ancestor"))
+chara_results <- project.reject(tmp_simple_matrices$chara,
+                                 vector = c("nodes", "ancestor"))
+
+par(mfrow = c(1,2))
+plot.project.reject.log(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - nodes/ancestor")
+plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - nodes/ancestor")
+```
+
+```{r, fig.height = 6, fig.width = 12}
+## Centroid (root) tips trajectory 
+psita_results <- project.reject(tmp_simple_matrices$psita,
+                                 vector = c("root", "tips"))
+chara_results <- project.reject(tmp_simple_matrices$chara,
+                                 vector = c("root", "tips"))
+
+par(mfrow = c(1,2))
+plot.project.reject.log(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - root/tips")
+plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - root/tips")
+```
+
+
+## Elaboration/exploration in the present
+
+Apply these metrics on both clades to get two scores for each taxa (elaboration vs. exploration plots).
+
+## Elaboration/exploration through time
+
+Do some time-slicing and run these metrics through time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ## Annex: some potentially interesting ratio thingy
+
+```{r, fig.height = 6, fig.width = 6, eval = FALSE, print = FALSE}
+## Loading the whole shape space
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")$PCscores
+## Getting the vector from that space
+space_vector <- apply(shapespace, 2, quantile, prob = c(0.25, 0.75))
+psita_space_proj <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ])
+psita_space_reje <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
+chara_space_proj <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ])
+chara_space_reje <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
+## Groups
+group <- list("Psittaciformes" = trees_list$psittaciformes[[1]]$tip.label,
+              "Charadriiformes" = trees_list$charadriiformes[[1]]$tip.label,
+              "Others" = rownames(shapespace)[!(rownames(shapespace) %in% c(trees_list$psittaciformes[[1]]$tip.label, trees_list$charadriiformes[[1]]$tip.label))])
+## Full space plot
+plot(custom.subsets(shapespace, group = group), col = c("blue", "orange", "grey"), pch = c(19, 19, 21), main = "Bird beak shape space")
+arrows(x0 = space_vector[1,1], y0 = space_vector[1,2],
+       x1 = space_vector[2,1], y1 = space_vector[2,2], col = "black", lwd = 4)
+```
+
+```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
+par(mfrow = c(2, 2))
+## The elaboration/exploration profiles
+plot(psita_space_proj, psita_space_reje, pch = 19, col = "blue",
+    xlab = "Elaboration", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
+plot(chara_space_proj, chara_space_reje, pch = 19, col = "orange",
+    xlab = "Elaboration", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
+
+## The elaboration/exploration profiles
+plot(abs(psita_space_proj), psita_space_reje, pch = 19, col = "blue",
+    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
+plot(abs(chara_space_proj), chara_space_reje, pch = 19, col = "orange",
+    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
+```
+
+Meh... But we can also do ratios: the one between the within group elaboration/exploration and the total elaboration/exploration.
+This can help us find the big time explorers/elaborators? (here: the one in the top 99% CI)
+
+
+```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
+## Get the ratio
+reje_ratio <- psita_reje/psita_space_reje
+proj_ratio <- abs(psita_proj)/abs(psita_space_proj)
+
+## Find the 99% top explorers/elaborators
+top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
+top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
+top_explo_names <- rownames(spaces_list$psittaciformes)[top_explo]
+top_elab_names <- rownames(spaces_list$psittaciformes)[top_elab]
+
+plot(proj_ratio, reje_ratio, pch = 19, col = "blue",
+    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Psittaciformes")
+text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
+text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
+```
+
+```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
+## Get the ratio
+reje_ratio <- chara_reje/chara_space_reje
+proj_ratio <- abs(chara_proj)/abs(chara_space_proj)
+
+## Find the 99% top explorers/elaborators
+top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
+top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
+top_explo_names <- rownames(spaces_list$charadriiformes)[top_explo]
+top_elab_names <- rownames(spaces_list$charadriiformes)[top_elab]
+
+plot(proj_ratio, reje_ratio, pch = 19, col = "orange",
+    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Charadriiformes")
+text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
+text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
+```
+
+Maybe it's picking up some weird birds...
+ -->
