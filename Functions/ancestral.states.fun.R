@@ -26,14 +26,14 @@ fun.normal <- function(ci95, what) {
     return(rnorm(what, mean = mean(ci95), sd = diff(ci95)/4))
 }
 extract.ace <- function(ace_result, what, sampling = "uniform", matrix) {
-    ## Switching between both type of results
+    ## Switching between both type of results
     if(what == "max") {
         ## Extracting the most likely states
         node_states <- do.call(cbind, lapply(ace_result, function(x) return(x$ace)))
         rownames(node_states) <- ace_result[[1]]$labels
         return(rbind(matrix, node_states))
     } else {
-        ## Toggle the sampling function
+        ## Toggle the sampling function
         fun.sample <- ifelse(sampling == "uniform", fun.uniform, fun.normal)
         trait_results <- lapply(ace_result, function(trait, fun.sample, what) apply(trait$CI95, 1, fun.sample, what = what), fun.sample, what)
 
