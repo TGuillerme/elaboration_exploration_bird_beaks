@@ -11,7 +11,7 @@ output:
 ```{r}
 library(ape)
 library(dispRity)
-source("../FUnctions/ancestral.states.fun.R")
+source("../Functions/ancestral.states.fun.R")
 ```
 
 # Ancestral traits estimations
@@ -56,6 +56,10 @@ save(psita_ace, file = "../Data/Processed/psita_ace.rda")
 save(chara_ace, file = "../Data/Processed/chara_ace.rda")
 ```
 
+> TODO: improve the ACE speed exploring castor::asr_independent_contrasts, castor::asr_squared_change_parsimony or castor::asr_subtree_averaging
+
+
+
 ### Extracting the ancestral estimates
 
 Here we will select the ancestral traits estimations two ways:
@@ -67,15 +71,15 @@ Here we will select the ancestral traits estimations two ways:
 load("../Data/Processed/psita_ace.rda")
 load("../Data/Processed/chara_ace.rda")
 
-## Building the matrices
+## Building the matrices
 psita_max_ace <- lapply(psita_ace, extract.ace, what = "max",
                          matrix = spaces_list$psittaciformes)
 psita_10n_ace <- lapply(psita_ace, extract.ace, what = 10, sampling = "normal",
                          matrix = spaces_list$psittaciformes)
 chara_max_ace <- lapply(chara_ace, extract.ace, what = "max",
                          matrix = spaces_list$charadriiformes)
-chara_10n_ace <- lapply(psita_ace, extract.ace, what = 10, sampling = "normal",
-                         matrix = spaces_list$psittaciformes)
+chara_10n_ace <- lapply(chara_ace, extract.ace, what = 10, sampling = "normal",
+                         matrix = spaces_list$charadriiformes)
 ```
 
 ## Make the dispRity objects
@@ -90,4 +94,22 @@ disparity_matrices <- list(
     "chara_max" = make.dispRity(data = chara_max_ace),
     "chara_10n" = make.dispRity(data = unlist(chara_10n_ace, recursive = FALSE)))
 save(disparity_matrices, file = "../Data/Processed/disparity_matrices.rda")
+```
+
+## Visualisation
+
+```{r, fig.height = 18, fig.width = 12}
+par(mfrow = c(3, 2))
+
+## Loading the full space
+plot.dispRity(spaces_list$psittaciformes, col = "blue", main = "Psittaciformes section of the shape space", xlab = "PC1", ylab = "PC2")
+plot.dispRity(spaces_list$charadriiformes, col = "orange", main = "Charadriiformes section of the shape space", xlab = "PC1", ylab = "PC2")
+
+## Full space with max ancestor
+plot(custom.subsets(psita_max_ace[[1]], group = list("Nodes" = 342:681, "Tips" = 1:341)), col = c("grey", "blue"), pch = c(19, 19), main = "Psittaciformes with nodes (max. lik.; tree 1)", xlab = "PC1", ylab = "PC2")
+plot(custom.subsets(chara_max_ace[[1]], group = list("Nodes" = 360:717, "Tips" = 1:359)), col = c("grey", "orange"), pch = c(19, 19), main = "Charadriiformes with nodes (max. lik.; tree 1)", xlab = "PC1", ylab = "PC2")
+
+## Full space with random ancestor
+plot(custom.subsets(psita_10n_ace[[1]], group = list("Nodes" = 342:681, "Tips" = 1:341)), col = c("grey", "blue"), pch = c(19, 19), main = "Psittaciformes with nodes (random; tree 1)", xlab = "PC1", ylab = "PC2")
+plot(custom.subsets(chara_10n_ace[[1]], group = list("Nodes" = 360:717, "Tips" = 1:359)), col = c("grey", "orange"), pch = c(19, 19), main = "Charadriiformes with nodes (random; tree 1)", xlab = "PC1", ylab = "PC2")
 ```
