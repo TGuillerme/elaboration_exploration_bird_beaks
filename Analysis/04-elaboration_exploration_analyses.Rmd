@@ -134,9 +134,26 @@ plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange"
 ```
 
 
+```{r, fig.height = 6, fig.width = 12}
+## Centroid (tips) ancestor trajectory 
+psita_results <- project.reject(tmp_simple_matrices$psita,
+                                 vector = c("root", colMeans))
+chara_results <- project.reject(tmp_simple_matrices$chara,
+                                 vector = c("tips", "ancestor"))
+
+par(mfrow = c(1,2))
+plot.project.reject.log(psita_results, tmp_simple_matrices$psita, col = "blue", main = "Psittaciformes - tips/ancestor")
+plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = "orange", main = "Charadriiformes - tips/ancestor")
+```
+
+
+
 ## Elaboration/exploration in the present
 
 Apply these metrics on both clades to get two scores for each taxa (elaboration vs. exploration plots).
+
+Measure the exploration/elaboration for all clades in the whole bird trees and see which ones are particularly low/high?
+
 
 ## Elaboration/exploration through time
 
@@ -144,91 +161,48 @@ Do some time-slicing and run these metrics through time.
 
 
 
+## Ideas for getting the axis of "elaboration"
 
+```{r, fig.height = 8, fig.width = 8}
+library(dads)
 
+## Simulate a pure-bd tree with a BM trait
+data <- dads(stop.rule = list(max.living = 300), bd.params = list(speciation = 2), traits = make.traits(n = 3))
+plot(data, main = "One trait through time")
 
+## The node ages
+ages <- tree.age(data$tree)
+node_ages <- ages[which(ages$elements %in% data$tree$node.label),]
 
-
-
-
-
-
-
-
-
-<!-- ## Annex: some potentially interesting ratio thingy
-
-```{r, fig.height = 6, fig.width = 6, eval = FALSE, print = FALSE}
-## Loading the whole shape space
-shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")$PCscores
-## Getting the vector from that space
-space_vector <- apply(shapespace, 2, quantile, prob = c(0.25, 0.75))
-psita_space_proj <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ])
-psita_space_reje <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
-chara_space_proj <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ])
-chara_space_reje <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
-## Groups
-group <- list("Psittaciformes" = trees_list$psittaciformes[[1]]$tip.label,
-              "Charadriiformes" = trees_list$charadriiformes[[1]]$tip.label,
-              "Others" = rownames(shapespace)[!(rownames(shapespace) %in% c(trees_list$psittaciformes[[1]]$tip.label, trees_list$charadriiformes[[1]]$tip.label))])
-## Full space plot
-plot(custom.subsets(shapespace, group = group), col = c("blue", "orange", "grey"), pch = c(19, 19, 21), main = "Bird beak shape space")
-arrows(x0 = space_vector[1,1], y0 = space_vector[1,2],
-       x1 = space_vector[2,1], y1 = space_vector[2,2], col = "black", lwd = 4)
+## A model of trait through time [TODO: use some time regression or something line that]
+# time_trait <- cbind(time = rev(node_ages$ages), trait = data$data[data$tree$node.label, ])
+# model <- lm(data$data[data$tree$node.label,] ~ 0 + node_ages$ages)
+arrows(y0 = 0, x0 = max(node_ages$ages), y1 = mean(data$data[data$tree$tip.label, ]), x1 = 0, lwd = 3)
 ```
 
-```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
-par(mfrow = c(2, 2))
-## The elaboration/exploration profiles
-plot(psita_space_proj, psita_space_reje, pch = 19, col = "blue",
-    xlab = "Elaboration", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
-plot(chara_space_proj, chara_space_reje, pch = 19, col = "orange",
-    xlab = "Elaboration", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
+```{r}
+library(rgl)
+open3d()
+plot(data, trait = c(1:2), use.3D = TRUE)
+time_trait_arrow <- matrix(NA, 2, 3)
+time_trait_arrow[1,] <- c(max(node_ages$ages),
+                          0,
+                          0)
+time_trait_arrow[2,] <- c(0,
+                          mean(data$data[data$tree$tip.label, 1]),
+                          mean(data$data[data$tree$tip.label, 2]))
+segments3d(time_trait_arrow, lwd = 3)
 
-## The elaboration/exploration profiles
-plot(abs(psita_space_proj), psita_space_reje, pch = 19, col = "blue",
-    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
-plot(abs(chara_space_proj), chara_space_reje, pch = 19, col = "orange",
-    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
+## 3D version
+open3d()
+plot(data, trait = c(1,2,3), use.3D = TRUE)
+data_trait_arrow <- matrix(NA, 2, 3)
+data_trait_arrow[1,] <- c(0,
+                          0,
+                          0)
+data_trait_arrow[2,] <- c(mean(data$data[data$tree$tip.label, 1]),
+                          mean(data$data[data$tree$tip.label, 2]),
+                          mean(data$data[data$tree$tip.label, 3]))
+segments3d(data_trait_arrow, lwd = 3)
+
 ```
-
-Meh... But we can also do ratios: the one between the within group elaboration/exploration and the total elaboration/exploration.
-This can help us find the big time explorers/elaborators? (here: the one in the top 99% CI)
-
-
-```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
-## Get the ratio
-reje_ratio <- psita_reje/psita_space_reje
-proj_ratio <- abs(psita_proj)/abs(psita_space_proj)
-
-## Find the 99% top explorers/elaborators
-top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
-top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
-top_explo_names <- rownames(spaces_list$psittaciformes)[top_explo]
-top_elab_names <- rownames(spaces_list$psittaciformes)[top_elab]
-
-plot(proj_ratio, reje_ratio, pch = 19, col = "blue",
-    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Psittaciformes")
-text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
-text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
-```
-
-```{r, fig.height = 8, fig.width = 8, eval = FALSE, print = FALSE}
-## Get the ratio
-reje_ratio <- chara_reje/chara_space_reje
-proj_ratio <- abs(chara_proj)/abs(chara_space_proj)
-
-## Find the 99% top explorers/elaborators
-top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
-top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
-top_explo_names <- rownames(spaces_list$charadriiformes)[top_explo]
-top_elab_names <- rownames(spaces_list$charadriiformes)[top_elab]
-
-plot(proj_ratio, reje_ratio, pch = 19, col = "orange",
-    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Charadriiformes")
-text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
-text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
-```
-
-Maybe it's picking up some weird birds...
- -->

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Thomas Guillerme" />
 
-<meta name="date" content="2021-03-22" />
+<meta name="date" content="2021-03-23" />
 
 <title>04-elaboration exploration analyses</title>
 
@@ -180,7 +180,7 @@ summary {
 
 <h1 class="title toc-ignore">04-elaboration exploration analyses</h1>
 <h4 class="author">Thomas Guillerme</h4>
-<h4 class="date">2021-03-22</h4>
+<h4 class="date">2021-03-23</h4>
 
 </div>
 
@@ -298,90 +298,72 @@ plot.project.reject.log(chara_results, tmp_simple_matrices$chara, col = &quot;or
 <div id="elaborationexploration-in-the-present" class="section level2">
 <h2>Elaboration/exploration in the present</h2>
 <p>Apply these metrics on both clades to get two scores for each taxa (elaboration vs. exploration plots).</p>
+<p>Measure the exploration/elaboration for all clades in the whole bird trees and see which ones are particularly low/high?</p>
 </div>
 <div id="elaborationexploration-through-time" class="section level2">
 <h2>Elaboration/exploration through time</h2>
 <p>Do some time-slicing and run these metrics through time.</p>
-<!-- ## Annex: some potentially interesting ratio thingy
-
-
-```r
-## Loading the whole shape space
-shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")$PCscores
+</div>
+<div id="annex-some-potentially-interesting-ratio-thingy" class="section level2">
+<h2>Annex: some potentially interesting ratio thingy</h2>
+<pre class="r"><code>## Loading the whole shape space
+shapespace &lt;- readRDS(&quot;../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds&quot;)$PCscores
 ## Getting the vector from that space
-space_vector <- apply(shapespace, 2, quantile, prob = c(0.25, 0.75))
-psita_space_proj <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ])
-psita_space_reje <- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
-chara_space_proj <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ])
-chara_space_reje <- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = "distance")
+space_vector &lt;- apply(shapespace, 2, quantile, prob = c(0.25, 0.75))
+psita_space_proj &lt;- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ])
+psita_space_reje &lt;- projections(spaces_list$psittaciformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = &quot;distance&quot;)
+chara_space_proj &lt;- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ])
+chara_space_reje &lt;- projections(spaces_list$charadriiformes, point1 = space_vector[1,], point2 = space_vector[2, ], measure = &quot;distance&quot;)
 ## Groups
-group <- list("Psittaciformes" = trees_list$psittaciformes[[1]]$tip.label,
-              "Charadriiformes" = trees_list$charadriiformes[[1]]$tip.label,
-              "Others" = rownames(shapespace)[!(rownames(shapespace) %in% c(trees_list$psittaciformes[[1]]$tip.label, trees_list$charadriiformes[[1]]$tip.label))])
+group &lt;- list(&quot;Psittaciformes&quot; = trees_list$psittaciformes[[1]]$tip.label,
+              &quot;Charadriiformes&quot; = trees_list$charadriiformes[[1]]$tip.label,
+              &quot;Others&quot; = rownames(shapespace)[!(rownames(shapespace) %in% c(trees_list$psittaciformes[[1]]$tip.label, trees_list$charadriiformes[[1]]$tip.label))])
 ## Full space plot
-plot(custom.subsets(shapespace, group = group), col = c("blue", "orange", "grey"), pch = c(19, 19, 21), main = "Bird beak shape space")
+plot(custom.subsets(shapespace, group = group), col = c(&quot;blue&quot;, &quot;orange&quot;, &quot;grey&quot;), pch = c(19, 19, 21), main = &quot;Bird beak shape space&quot;)
 arrows(x0 = space_vector[1,1], y0 = space_vector[1,2],
-       x1 = space_vector[2,1], y1 = space_vector[2,2], col = "black", lwd = 4)
-```
-
-
-```r
-par(mfrow = c(2, 2))
+       x1 = space_vector[2,1], y1 = space_vector[2,2], col = &quot;black&quot;, lwd = 4)</code></pre>
+<pre class="r"><code>par(mfrow = c(2, 2))
 ## The elaboration/exploration profiles
-plot(psita_space_proj, psita_space_reje, pch = 19, col = "blue",
-    xlab = "Elaboration", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
-plot(chara_space_proj, chara_space_reje, pch = 19, col = "orange",
-    xlab = "Elaboration", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
+plot(psita_space_proj, psita_space_reje, pch = 19, col = &quot;blue&quot;,
+    xlab = &quot;Elaboration&quot;, ylab = &quot;Exploration&quot;, main = &quot;Psitta explo/elaboration profile (total)&quot;)
+plot(chara_space_proj, chara_space_reje, pch = 19, col = &quot;orange&quot;,
+    xlab = &quot;Elaboration&quot;, ylab = &quot;Exploration&quot;, main = &quot;Chara explo/elaboration profile (total)&quot;)
 
 ## The elaboration/exploration profiles
-plot(abs(psita_space_proj), psita_space_reje, pch = 19, col = "blue",
-    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Psitta explo/elaboration profile (total)")
-plot(abs(chara_space_proj), chara_space_reje, pch = 19, col = "orange",
-    xlab = "Elaboration (absolute)", ylab = "Exploration", main = "Chara explo/elaboration profile (total)")
-```
-
-Meh... But we can also do ratios: the one between the within group elaboration/exploration and the total elaboration/exploration.
-This can help us find the big time explorers/elaborators? (here: the one in the top 99% CI)
-
-
-
-```r
-## Get the ratio
-reje_ratio <- psita_reje/psita_space_reje
-proj_ratio <- abs(psita_proj)/abs(psita_space_proj)
+plot(abs(psita_space_proj), psita_space_reje, pch = 19, col = &quot;blue&quot;,
+    xlab = &quot;Elaboration (absolute)&quot;, ylab = &quot;Exploration&quot;, main = &quot;Psitta explo/elaboration profile (total)&quot;)
+plot(abs(chara_space_proj), chara_space_reje, pch = 19, col = &quot;orange&quot;,
+    xlab = &quot;Elaboration (absolute)&quot;, ylab = &quot;Exploration&quot;, main = &quot;Chara explo/elaboration profile (total)&quot;)</code></pre>
+<p>Meh… But we can also do ratios: the one between the within group elaboration/exploration and the total elaboration/exploration. This can help us find the big time explorers/elaborators? (here: the one in the top 99% CI)</p>
+<pre class="r"><code>## Get the ratio
+reje_ratio &lt;- psita_reje/psita_space_reje
+proj_ratio &lt;- abs(psita_proj)/abs(psita_space_proj)
 
 ## Find the 99% top explorers/elaborators
-top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
-top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
-top_explo_names <- rownames(spaces_list$psittaciformes)[top_explo]
-top_elab_names <- rownames(spaces_list$psittaciformes)[top_elab]
+top_explo &lt;- which(reje_ratio &gt;= quantile(reje_ratio, prob = 0.99))
+top_elab &lt;- which(proj_ratio &gt;= quantile(proj_ratio, prob = 0.99))
+top_explo_names &lt;- rownames(spaces_list$psittaciformes)[top_explo]
+top_elab_names &lt;- rownames(spaces_list$psittaciformes)[top_elab]
 
-plot(proj_ratio, reje_ratio, pch = 19, col = "blue",
-    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Psittaciformes")
+plot(proj_ratio, reje_ratio, pch = 19, col = &quot;blue&quot;,
+    xlab = &quot;Group/space elaboration&quot;, ylab = &quot;Group/space exploration&quot;, main = &quot;Psittaciformes&quot;)
 text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
-text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
-```
-
-
-```r
-## Get the ratio
-reje_ratio <- chara_reje/chara_space_reje
-proj_ratio <- abs(chara_proj)/abs(chara_space_proj)
+text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)</code></pre>
+<pre class="r"><code>## Get the ratio
+reje_ratio &lt;- chara_reje/chara_space_reje
+proj_ratio &lt;- abs(chara_proj)/abs(chara_space_proj)
 
 ## Find the 99% top explorers/elaborators
-top_explo <- which(reje_ratio >= quantile(reje_ratio, prob = 0.99))
-top_elab <- which(proj_ratio >= quantile(proj_ratio, prob = 0.99))
-top_explo_names <- rownames(spaces_list$charadriiformes)[top_explo]
-top_elab_names <- rownames(spaces_list$charadriiformes)[top_elab]
+top_explo &lt;- which(reje_ratio &gt;= quantile(reje_ratio, prob = 0.99))
+top_elab &lt;- which(proj_ratio &gt;= quantile(proj_ratio, prob = 0.99))
+top_explo_names &lt;- rownames(spaces_list$charadriiformes)[top_explo]
+top_elab_names &lt;- rownames(spaces_list$charadriiformes)[top_elab]
 
-plot(proj_ratio, reje_ratio, pch = 19, col = "orange",
-    xlab = "Group/space elaboration", ylab = "Group/space exploration", main = "Charadriiformes")
+plot(proj_ratio, reje_ratio, pch = 19, col = &quot;orange&quot;,
+    xlab = &quot;Group/space elaboration&quot;, ylab = &quot;Group/space exploration&quot;, main = &quot;Charadriiformes&quot;)
 text(cbind(proj_ratio, reje_ratio)[top_explo, ], labels = top_explo_names, pos = 4)
-text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)
-```
-
-Maybe it's picking up some weird birds...
- -->
+text(cbind(proj_ratio, reje_ratio)[top_elab, ], labels = top_elab_names, pos = 1)</code></pre>
+<p>Maybe it’s picking up some weird birds…</p>
 </div>
 </div>
 
