@@ -24,6 +24,6 @@ The whole discussion from last meeting was on how to determine the axis of elabo
 Here I am going to explore the major axis from the var-covar matrix from (`MCMCglmm::...()$VCV)` and do this TODO list:
 
  - [ ] rerun part 1 to 4 using the beak PCA *with* centroid size (`"2020_08_07_MMB_MORPHO_FORMSPACE_FULL.rds"`)
- - [ ] Use the 95% axis from the mcmcglmm vcv matrix
+ - [ ] Use the 95% axis from the mcmcglmm vcv matrix (check [here](https://github.com/andbeck/mcmc-plus-tensor))
  - [ ] Use the 95% axis from a vcv matrix from a MANOVA (h-matrix/e-matrix)
- - [ ] Use the x axis from the Phylo-PCA or a Phylo aligned PCA (`geomorph::gm.prcomp()`; see section 3 and 3(4) here https://cran.r-project.org/web/packages/geomorph/vignettes/geomorph.PCA.html)
+ - [ ] Use the x axis from the Phylo-PCA or a Phylo aligned PCA (`geomorph::gm.prcomp()`; see section 3 and 3(4) [here](https://cran.r-project.org/web/packages/geomorph/vignettes/geomorph.PCA.html))
