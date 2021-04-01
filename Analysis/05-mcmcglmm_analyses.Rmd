@@ -38,12 +38,14 @@ library(geomorph)
 ## Loading the landmarks and the tree
 data(plethspecies) 
 
-## For the sake of visualisation I'm just going to rename everything from A to I
+## For the sake of visualisation I'm just going to rename everything from A to I
 dimnames(plethspecies$land)[[3]] <- plethspecies$phy$tip.label <- LETTERS[1:9]
 
 ## Procrustes blabla
 procrustes <- gpagen(plethspecies$land, print.progress = F)
 tree <- plethspecies$phy
+## Making the tree ultrametric
+tree$edge.length[which(tree$edge[,2] == 7)] <- tree$edge.length[which(tree$edge[,2] == 7)] + 0.000001
 ```
 
 ```{r}
@@ -79,7 +81,63 @@ I need to double check that one as well.
 
 ## MCMCglmm
 
-```{r}
+```{r, eval = FALSE, print = FALSE}
+library(MCMCglmm)
+## Running a MCMCglmm model on with all the traits in the PCA
+morpho <- as.data.frame(pca$x)
+mcmcglmm_data <- data.frame(pca$x, animal = rownames(pca$x))
+tree_inverse <- inverseA(tree)$Ainv
+priors <- list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V = 1, nu = 0.002)))
+
+phenotype <- pca$x[,1, drop = FALSE]
+
+# simulate phylogenetic and residual effects with unit variance
+test.data <- data.frame(phenotype = phenotype, animal = row.names(phenotype))
+
+model1 <- MCMCglmm(fixed = Comp1 ~ 1, random = ~animal, pedigree = tree,
+ data = test.data, prior = priors, verbose = TRUE, nitt = 1300, burnin = 300, thin = 1)
+
+
+
+
+
+
+
+
+
+
+
+
+test <- MCMCglmm(fixed = cbind(morpho$Comp1, morpho$Comp2) ~ Comp-1, random = ~species, pedigree = tree, prior = priors, data = morpho, verbose = TRUE, nitt = 1300, burnin = 300, thin = 1)
+
+
+
+
+
+
+data(bird.families) 
+
+phylo.effect <- rbv(bird.families, 1, nodes="TIPS") 
+phenotype <- phylo.effect + rnorm(dim(phylo.effect)[1], 0, 1)  
+
+
+
+plot(model2$VCV)
+
+
+
+
+pca$x ~ pca$x[,1]-1, random = ~
+family = c(rep("gaussian"), ncol(pca$x))
+
+
+formula = 
+MCMCglmm::MCMCglmm(fixed = formula, random = mulTree.data$random.terms, pedigree = mulTree.data$phy[[tree]], prior = priors, data = mulTree.data$data, verbose = FALSE, nitt = parameters[1], thin = parameters[2], burnin = parameters[3])
+
+
+
+model1.1<-MCMCglmm(cbind(trait1, trait2, trait3, trait4, trait5)  ~ trait-1, random=~us(trait):sire, rcov=~us(trait):units, family=c("gaussian","gaussian","gaussian","gaussian", "gaussian"), prior=prior1, data=data1[[1]], verbose=FALSE, burnin=50000, thin=100, nitt=150000)
+
 print("ha")
 ```
 
@@ -107,7 +165,7 @@ project.reject <- function(data, vector, absolute = FALSE) {
           point2 = vector[2,],
           measure = "position")
 
-    ## Get the rejection
+    ## Get the rejection
     rejection <- projections(
           matrix = data, 
           point1 = vector[[1]],
