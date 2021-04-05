@@ -79,66 +79,126 @@ plot(Pa_pca, phylo = TRUE, main = "PCA trait space\n(with phylo aligned)")
 This one is the new [Collyer and Adams 2020](https://www.researchgate.net/profile/Michael-Collyer-4/publication/344900621_Phylogenetically_Aligned_Component_Analysis/links/5fa4123b458515157bec1bcb/Phylogenetically-Aligned-Component-Analysis.pdf) method where the phylogenetic signal is "distilled in the first PC axes".
 I need to double check that one as well.
 
+
 ## MCMCglmm
 
-```{r, eval = FALSE, print = FALSE}
+```{r, eval = TRUE, print = TRUE, echo = FALSE}
 library(MCMCglmm)
-## Running a MCMCglmm model on with all the traits in the PCA
-morpho <- as.data.frame(pca$x)
-mcmcglmm_data <- data.frame(pca$x, animal = rownames(pca$x))
-tree_inverse <- inverseA(tree)$Ainv
-priors <- list(R = list(V = 1, nu = 0.002), G = list(G1 = list(V = 1, nu = 0.002)))
 
-phenotype <- pca$x[,1, drop = FALSE]
+## Add the animal and clade (which is more like a clade + a grade) column to data
+mcmcglmm_data <- as.data.frame(pca$x)
+mcmcglmm_data <- cbind(mcmcglmm_data,
+                       clade = as.factor(c(rep("clade", 5), rep("grade", 4))),
+                       animal = rownames(pca$x))
+## Selecting the traits that have a non zero variance (0 =< 1e-6: for some reason that's what MCMCglmm likes: TODO:fix: see bugs with Choleski decomposition and rounding estimates errors in MCMCglmm)
+select_traits <- apply(pca$x, 2, var) > 2e-5
 
-# simulate phylogenetic and residual effects with unit variance
-test.data <- data.frame(phenotype = phenotype, animal = row.names(phenotype))
+## TEST WITH ONLY THREE TRAITS
+select_traits <- c(1,1)
 
-model1 <- MCMCglmm(fixed = Comp1 ~ 1, random = ~animal, pedigree = tree,
- data = test.data, prior = priors, verbose = TRUE, nitt = 1300, burnin = 300, thin = 1)
+## MCMC params
+MCMCparams <- list(nitt   = 110000,
+                   burnin = 10000,
+                   thin   = 100)
+
+## Making the fixed terms formula
+#TODO: do some wrapping to get all the variable names automatically
+formula_noclade = cbind(Comp1, Comp2) ~ trait-1
+formula_clade = cbind(Comp1, Comp2) ~ trait:clade-1
+
+## Base model
+#GT: The simplest model simply estimates the overal covariance matrix for the whole data set
+## The base model residuals
+base_residuals <- ~ us(trait):units
+## Running the base model
+model_base <- MCMCglmm(fixed  = formula_noclade,
+                       family = rep("gaussian", sum(select_traits)),
+                       rcov   = base_residuals,
+                       data   = mcmcglmm_data,
+                       nitt   = MCMCparams$nitt,
+                       burnin = MCMCparams$burnin,
+                       thin   = MCMCparams$thin)
+
+## Clade model
+#GT: The next model, still without phylogeny, involves modelling clade effect. Note that we are using clade both in the fixed effects and in the random effects. The random effects relate to covariances and main effects to means
+## The residuals for the clade model
+#TODO: generate automatically from the levels of the data
+clade_residuals <- ~ us(at.level(clade,1):trait):units + us(at.level(clade,2):trait):units
+## The clade model
+model_clade <- MCMCglmm(fixed  = formula_clade,
+                        family = rep("gaussian", sum(select_traits)),
+                        rcov   = clade_residuals,
+                        data   = mcmcglmm_data,
+                        nitt   = MCMCparams$nitt,
+                        burnin = MCMCparams$burnin,
+                        thin   = MCMCparams$thin)
+ 
+## Phylogeny model
+#GT: Now we will add phylogeny. To begin with we will not include the clade (gull, plover, sandpiper) effect and instead just partition covariances into phylogenetic and non-phylogenetic effects. At this point the model is becoming more complex and we need to specific a prior.
+## Priors for the phylo model
+#TODO: select the priors
+nu <- 0.002
+prior_phylo <- list(R = list(R1 = list(V = diag(sum(select_traits)), nu = nu)),
+                    G = list(G1 = list(V = diag(sum(select_traits)), nu = nu)))
+## The random terms for the phylo model
+random_phylo <- ~ us(trait):animal
+## The phylo model
+#TODO: this is prone to crash due to random samples in the MCMC (I think it's rounding problems with the Cholesky decomposition)
+model_phylo <- MCMCglmm(fixed = formula_noclade,
+                        family = rep("gaussian", sum(select_traits)),
+                        random = random_phylo,
+                        rcov   = base_residuals,
+                        prior  = prior_phylo,
+                        pedigree = tree,
+                        data   = mcmcglmm_data,
+                        nitt   = MCMCparams$nitt,
+                        burnin = MCMCparams$burnin,
+                        thin   = MCMCparams$thin)
+
+## Phylo and clade model
+#GT: Now we will add phylogeny with the clade (gull, plover, sandpiper) effect. This model has a single overall phylogenetic effects and clade specific non-phylogenetic effects. Note the changes to the prior specification as well as the main model. This is the model that I would suggest using to test for changes in clade covariances relative to phylogeny to test which clades innovate/elaborate
+
+#TODO: make the priors choice
+prior_phylo_clade <- list(R = list(R1 = list(V = diag(sum(select_traits)), nu = nu),
+                                   R2 = list(V = diag(sum(select_traits)), nu = nu)), 
+                          G = list(G1 = list(V = diag(sum(select_traits)), nu = nu)))
 
 
+## The phylo+clade model
+model_phy_clade <- MCMCglmm(fixed  = formula_clade,
+                            family = rep("gaussian", sum(select_traits)),
+                            random = random_phylo,
+                            rcov   = clade_residuals,
+                            prior  = prior_phylo_clade,
+                            pedigree = tree,
+                            data   = mcmcglmm_data,
+                            nitt   = MCMCparams$nitt,
+                            burnin = MCMCparams$burnin,
+                            thin   = MCMCparams$thin)
 
+## Phylo_clade and clade
+#GT: Now we will add phylogeny with phylogenetic and non-phylogenetic clade (gull, plover, sandpiper) effects. This model has a single overall phylogenetic effects and clade specific non-phylogenetic effects. Note the changes to the prior specification as well as the main model. This is the model that I would suggest using to test for changes in clade covariances relative to phylogeny to test which clades innovate/elaborate
 
+## The phylo_clade random terms
+random_phylo_clade <- ~ us(at.level(clade,1):trait):animal + us(at.level(clade,2):trait):animal
 
+#TODO: make these priors automatic (again!)
+prior_phy_cla_cla <- list(R = list(R1 = list(V = diag(sum(select_traits)), nu = nu),
+                                   R2 = list(V = diag(sum(select_traits)), nu = nu)), 
+                          G = list(G1 = list(V = diag(sum(select_traits)), nu = nu),
+                                   G2 = list(V = diag(sum(select_traits)), nu = nu)))
 
-
-
-
-
-
-
-test <- MCMCglmm(fixed = cbind(morpho$Comp1, morpho$Comp2) ~ Comp-1, random = ~species, pedigree = tree, prior = priors, data = morpho, verbose = TRUE, nitt = 1300, burnin = 300, thin = 1)
-
-
-
-
-
-
-data(bird.families) 
-
-phylo.effect <- rbv(bird.families, 1, nodes="TIPS") 
-phenotype <- phylo.effect + rnorm(dim(phylo.effect)[1], 0, 1)  
-
-
-
-plot(model2$VCV)
-
-
-
-
-pca$x ~ pca$x[,1]-1, random = ~
-family = c(rep("gaussian"), ncol(pca$x))
-
-
-formula = 
-MCMCglmm::MCMCglmm(fixed = formula, random = mulTree.data$random.terms, pedigree = mulTree.data$phy[[tree]], prior = priors, data = mulTree.data$data, verbose = FALSE, nitt = parameters[1], thin = parameters[2], burnin = parameters[3])
-
-
-
-model1.1<-MCMCglmm(cbind(trait1, trait2, trait3, trait4, trait5)  ~ trait-1, random=~us(trait):sire, rcov=~us(trait):units, family=c("gaussian","gaussian","gaussian","gaussian", "gaussian"), prior=prior1, data=data1[[1]], verbose=FALSE, burnin=50000, thin=100, nitt=150000)
-
-print("ha")
+## The phylo_clade + clade model
+model_phy_clade <- MCMCglmm(fixed  = formula_clade,
+                            family = rep("gaussian", sum(select_traits)),
+                            random = random_phylo_clade,
+                            rcov   = clade_residuals,
+                            prior  = prior_phy_cla_cla,
+                            pedigree = tree,
+                            data   = mcmcglmm_data,
+                            nitt   = MCMCparams$nitt,
+                            burnin = MCMCparams$burnin,
+                            thin   = MCMCparams$thin)
 ```
 
 Here we used [Robinson and Beckerman 2013](https://onlinelibrary.wiley.com/doi/abs/10.1111/ele.12047) to get the VCV matrix that we can use to get the base vector.
@@ -206,21 +266,6 @@ plot.ord(pca$x, vector, main = "PCA")
 plot.project.reject(results, main = "Vector: pca 95%")
 ```
 
-```{r}
-# par(mfrow = c(1,2))
-# ## The MCMCglmm main axis on the PCA
-# vector <- rbind("point1" = rep(0, ncol(Pa_pca$x)),
-#                 "point2" = c(max(Pa_pca$x[,1]),
-#                              rep(0, ncol(Pa_pca$x)-1)))
-# results <- project.reject(Pa_pca$x, vector)
-
-# plot.ord(Pa_pca$x, vector, main = "Pa PCA")
-# plot.project.reject(results, main = "Vector: Pa pca PC1")
-
-print("ha")
-```
-
-
 ```{r, fig.height = 6, fig.width = 12}
 par(mfrow = c(1,2))
 ## The first axis (range unit-scaled) of the PCA
@@ -257,3 +302,19 @@ results <- project.reject(Pa_pca$x, vector)
 plot.ord(Pa_pca$x, vector, main = "Pa PCA")
 plot.project.reject(results, main = "Vector: Pa pca PC1")
 ```
+
+
+```{r}
+# par(mfrow = c(1,2))
+# ## The MCMCglmm main axis on the PCA
+# vector <- rbind("point1" = rep(0, ncol(Pa_pca$x)),
+#                 "point2" = c(max(Pa_pca$x[,1]),
+#                              rep(0, ncol(Pa_pca$x)-1)))
+# results <- project.reject(Pa_pca$x, vector)
+
+# plot.ord(Pa_pca$x, vector, main = "Pa PCA")
+# plot.project.reject(results, main = "Vector: Pa pca PC1")
+
+print("ha")
+```
+
