@@ -8,3 +8,7 @@
 ## The data folders
 Data/Raw/Beak_data/*
 Data/Raw/Tree_data/*
+
+## The example pipelines
+Analysis/mcmc-plus-tensor-master/*
+Analysis/MCMCglmm_covar/*
