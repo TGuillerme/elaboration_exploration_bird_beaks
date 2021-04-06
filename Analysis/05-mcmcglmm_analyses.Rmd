@@ -108,7 +108,7 @@ formula_clade = cbind(Comp1, Comp2) ~ trait:clade-1
 
 ## Base model
 #GT: The simplest model simply estimates the overal covariance matrix for the whole data set
-## The base model residuals
+## The base model residuals
 base_residuals <- ~ us(trait):units
 ## Running the base model
 model_base <- MCMCglmm(fixed  = formula_noclade,
