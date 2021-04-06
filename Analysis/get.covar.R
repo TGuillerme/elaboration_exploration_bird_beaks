@@ -5,6 +5,7 @@
 #' @param data The MCMCglmm object
 #' @param n The number of samples
 # @param levels Optional, the level(s) to get the covariance from (if missing, all levels are returned)
+#' @param simplify logical, whether to output the results as a matrix of lists (simplify = FALSE) where rows are the levels and columns are the replicates or whether to return it as a list containing n levels elements each containing the replicates (simplify = TRUE).
 #' 
 #' @examples
 #'
@@ -13,34 +14,18 @@
 #' @author Thomas Guillerme, Gavin Thomas
 #' @export
 
-get.covar <- function(data, n){ #, levels) { #TG: levels not handled yet: returns everything
+get.covar <- function(data, n, simplify = TRUE){ #, levels) { #TG: levels not handled yet: returns everything
     
     ## The number of traits
     n_traits <- length(strsplit(paste(data$Fixed$formula)[2], ",")[[1]])  
-    ## The number of levels
+    ## The number of levels
     n_levels <- c(
       ## The number of random effects
       "random" = length(grep("animal", colnames(data$VCV)))/(n_traits^2),
       ## The number of groups (residuals)
       "residual" = length(grep("units", colnames(data$VCV)))/(n_traits^2))
 
-    ## Sample n covar matrices
-    covar_matrices <- replicate(n, get.one.covar(data, n_levels, n_traits), simplify = TRUE)
-
-    ## Function for recombining the "rows" in the output from replicate() (into a list of lists)
-    combine.replicates <- function(replicates) {
-        return(list(
-            ## Get all the VCV
-            VCV = lapply(replicates, function(x) return(x$VCV)),
-            ## Get all the Sol
-            Sol = lapply(replicates, function(x) return(x$Sol))
-        ))
-    }
-
-    ## Recombine all the replicates
-    covar_matrices <- apply(covar_matrices, 1, combine.replicates)
-
-    ## Add the names of the levels
+    ## Get the names of the levels
     param_names <- character()
     if(n_levels["random"] != 0) {
         if(n_levels["random"] > 1) {
@@ -52,12 +37,39 @@ get.covar <- function(data, n){ #, levels) { #TG: levels not handled yet: return
     if(n_levels["residual"] != 0) {
        param_names <- c(param_names, unique(unlist(lapply(strsplit(colnames(data$Sol), ":"), `[[`, 2))))
     }
-    ## Naming the list
-    if(length(param_names) == length(covar_matrices)) {
-        names(covar_matrices) <- param_names
-    }
 
-    return(covar_matrices)
+    ## Sample n covar matrices
+    covar_matrices <- replicate(n, get.one.covar(data, n_levels, n_traits), simplify = TRUE)
+
+    if(simplify) {
+
+        ## Function for recombining the "rows" in the output from replicate() (into a list of lists)
+        combine.replicates <- function(replicates) {
+            return(list(
+                ## Get all the VCV
+                VCV = lapply(replicates, function(x) return(x$VCV)),
+                ## Get all the Sol
+                Sol = lapply(replicates, function(x) return(x$Sol))
+            ))
+        }
+
+        ## Recombine all the replicates
+        covar_matrices <- apply(covar_matrices, 1, unlist, recursive = FALSE)
+
+        ## Naming the list
+        if(length(param_names) == length(covar_matrices)) {
+            names(covar_matrices) <- param_names
+        }
+
+        return(covar_matrices)
+    } else {
+
+        if(length(param_names) == nrow(covar_matrices)) {
+            rownames(covar_matrices) <- param_names
+        }
+        
+        return(covar_matrices)
+    }
 }
 
 ## Internal function to get one covariance matrix
@@ -73,7 +85,7 @@ get.one.covar <- function(data, n_levels, n_traits) {
 
     ## Loop through each level
     for(one_level in 1:sum(n_levels)) {  
-        ## Selecting the adjustment level (for selecting the elements in the vector of results according to the correct level)
+        ## Selecting the adjustment level (for selecting the elements in the vector of results according to the correct level)
         level_adjust <- (one_level-1) * n_traits^2
 
         ## Sample values for the requested level for all traits
@@ -107,7 +119,7 @@ get.sol <- function(posterior_sol, n_levels, one_level, n_traits, level_adjust) 
             warning("Random effects centred on zero")
             return(rep(0, n_traits))
         }
-        ## Is another residual
+        ## Is another residual
         return(posterior_sol[1:n_traits + (one_level - 2) * n_traits])
     }
 
