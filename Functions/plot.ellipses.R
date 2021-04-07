@@ -5,9 +5,13 @@
 #' @param data the MCMCglmm data
 #' @param n the number of ellipses (default is 1)
 #' @param dimensions in which dimensions to plot the ellipses
-#' @param levels which level to get the ellipses from
-#' @param points the number of points to draw from the ellipse (default is 50)
-#' @param centre
+#' @param col a series of colours by levels
+#' @param use.transparent whether to make the colours semi transparent (TRUE; default) or fully opaque (FALSE)
+#' @param npoints the number of points to draw from the ellipse (default is 50)
+#' @param centre either "zero" to centre all the ellipses on 0 (default), "level" to centre the ellipses on their average centre per level, "none" to not centre the ellipses.
+#' 
+#' logical whether to centre the ellipses (TRUE, default) or not (FALSE) or a list of centring coordinates
+#' @param add logical whether to add the ellipses to an existing plot (TRUE) or not (FALSE, default)
 #' 
 #' @examples
 #' \dontrun{
@@ -33,13 +37,17 @@
 #' @author Thomas Guillerme, Gavin Thomas
 #' @export
 
-plot.ellipses <- function(data, n, dimensions = c(1,2), npoints = 50, col, use.transparent = TRUE, ...) {
+plot.ellipses <- function(data, n, dimensions = c(1,2), npoints = 50, col, use.transparent = TRUE, centre = "zero", add = FALSE, ...) {
 
     ## Get the covariance matrices
     covar_matrices <- get.covar(data, n = n, simplify = FALSE)
 
     ## Get all the ellipses
-    all_ellipses <- apply(covar_matrices,1, get.all.ellipses, dimensions, npoints)
+    # all_ellipses <- list()
+    # for(level in 1:nrow(covar_matrices)) {
+    #     all_ellipses[[level]] <- get.all.ellipses(covar_matrices[level, ], dimensions, npoints, centre = centres[[level]])
+    # }
+    all_ellipses <- apply(covar_matrices, 1, get.all.ellipses, dimensions, npoints, centre)
 
     ## Get the plot arguments
     plot_args <- list(x = NULL, y = NULL, ...)
@@ -82,8 +90,10 @@ plot.ellipses <- function(data, n, dimensions = c(1,2), npoints = 50, col, use.t
     }
 
     ## Empty plot
-    empty_plot <- plot_args
-    do.call(plot, empty_plot)
+    if(!add) {
+        empty_plot <- plot_args
+        do.call(plot, empty_plot)
+    }
 
     draw.one.ellipse <- function(data, col, args, adjust) {
         ## Set up the plotting arguments
@@ -104,13 +114,33 @@ plot.ellipses <- function(data, n, dimensions = c(1,2), npoints = 50, col, use.t
 }
 
 ## Internal
-get.one.ellipse <- function(one_sample, dimensions, npoints){
-    return(ellipse::ellipse(
-        x = one_sample$VCV[dimensions, dimensions],
-        centre = one_sample$Sol[dimensions],
-        npoints = npoints))
+get.one.ellipse <- function(one_sample, dimensions, npoints, centre){
+    if(is.na(centre)) {
+        return(ellipse::ellipse(
+            x = one_sample$VCV[dimensions, dimensions],
+            centre = one_sample$Sol[dimensions],
+            npoints = npoints))
+    } else {
+        return(ellipse::ellipse(
+            x = one_sample$VCV[dimensions, dimensions],
+            centre = centre,
+            npoints = npoints))
+    }
 }
 
-get.all.ellipses <- function(one_row, dimensions, npoints) {
-    return(lapply(one_row, get.one.ellipse, dimensions, npoints))
+get.all.ellipses <- function(one_row, dimensions, npoints, centre) {
+
+    ## Get the centre for all ellipses
+    if(centre == "none") {
+        centre <- NA
+    } else {
+        if(centre == "level") {
+            centre <- colMeans(do.call(rbind, lapply(one_row, `[[`, "Sol"))[, c(dimensions)])
+        } else {
+            ## Centre is 0 by default
+            centre <- rep(0, length(dimensions))
+        }
+    }
+
+    return(lapply(one_row, get.one.ellipse, dimensions, npoints, centre))
 }
