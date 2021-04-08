@@ -87,6 +87,24 @@ centres <- list(
 
  -->
 
+We can then measure different stuff from these ellipses (e.g. going full statistics from Robinson & Beckerman).
+
+However, here I'm just going to focus on the elaboration/exploration of these ellipses. For the three clades, I'm going to measure:
+ * the angle of the clade's ellipse to the general one (which will be their degree of exploration);
+ * their scaled projection (where the ellipses all start from the point 0,0): showing how much the clade elaborates on the major phylo axis;
+ * and their scaled rejection (how much they explore).
+
+For these three metrics I expect:
+ * the gulls and plovers to elaborate quiet a lot (angle ~90) compared to the sandpipers (angle ~90)
+ * the gulls to explore the more followed by the plovers and then the sandpipers
+ * the sandpipers to ellaborate the more followed by the gulls and then the plovers
+
+Note that the three metrics are measured independently of the ellipse position in space and are measured in 3D.
+
+```{r}
+
+```
+
 
 ### Phylo clade + clade model
 
