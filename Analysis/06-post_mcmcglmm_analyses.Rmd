@@ -146,7 +146,7 @@ par(mfrow = c(1,2))
 plot.all.axes(uncentered_major_axes,
          col = c("grey",colour_vector),
          add = FALSE, main = "Major axes (un-centred)")
-plot.all.axes(uncentered_major_axes,
+plot.all.axes(level_centred_major_axes,
          col = c("grey",colour_vector),
          add = FALSE, main = "Major axes (level-centred)")
 ```
