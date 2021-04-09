@@ -2,8 +2,8 @@
 #'
 #' @description Plot n ellipses out of an MCMCglmm object 
 #'
-#' @param data the MCMCglmm data
-#' @param n the number of ellipses (default is 1)
+#' @param data the MCMCglmm data or a matrix or list of covar matrtices
+#' @param n if data is MCMCglmm, the number of ellipses (default is 1)
 #' @param dimensions in which dimensions to plot the ellipses
 #' @param col a series of colours by levels
 #' @param use.transparent whether to make the colours semi transparent (TRUE; default) or fully opaque (FALSE)
@@ -39,14 +39,16 @@
 
 plot.ellipses <- function(data, n, dimensions = c(1,2), npoints = 50, col, use.transparent = TRUE, centre = "zero", add = FALSE, ...) {
 
-    ## Get the covariance matrices
-    covar_matrices <- get.covar(data, n = n, simplify = FALSE)
+    if(is(data, "MCMCglmm")) {
+        ## Get the covariance matrices
+        covar_matrices <- get.covar(data, n = n, simplify = FALSE)
+    } else {
+        ## TODO: handle different input formats
+        covar_matrices <- data
+        n <- dim(covar_matrices)[2]
+    }
 
     ## Get all the ellipses
-    # all_ellipses <- list()
-    # for(level in 1:nrow(covar_matrices)) {
-    #     all_ellipses[[level]] <- get.all.ellipses(covar_matrices[level, ], dimensions, npoints, centre = centres[[level]])
-    # }
     all_ellipses <- apply(covar_matrices, 1, get.all.ellipses, dimensions, npoints, centre)
 
     ## Get the plot arguments
