@@ -139,7 +139,24 @@ plot.all.axes(level_centred_major_axes,
          add = TRUE)
 ```
 
-Or without all the points n stuff
+Note that the major axes look slightly off for some of the ellipses.
+I think this is due to the difference in aspect ratio in both plots that exagerates vertical positions and deforms the ellipses:
+
+```{r}
+plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
+     col = colour_vector[morphdat$clade],
+     xlab = "PC1 (90.5%)",
+     ylab = "PC1 (6.86%)",
+     main = "Major axes of the ellipses\n(aspect ratio = 1)",xlim = c(-1.5, 1.5), ylim = c(-1.5, 1.5))
+plot.ellipses(covar_matrices, centre = "level",
+              col = c("grey",colour_vector),
+              add = TRUE)
+plot.all.axes(level_centred_major_axes,
+         col = c("grey",colour_vector),
+         add = TRUE)
+```
+
+This is an example with just the major axes (projected in 2D):
 
 ```{r, fig.height = 4, fig.width = 8}
 par(mfrow = c(1,2))
