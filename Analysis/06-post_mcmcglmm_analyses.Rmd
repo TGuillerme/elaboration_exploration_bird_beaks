@@ -60,12 +60,20 @@ First we can visualise some of these ellipses (100, randomly drawn from the post
 ```{r}
 source("../Functions/plot.ellipses.R")
 source("../Functions/get.covar.R")
+
+## Selecting 100 random covariance matrices from the MCMCglmm
+covar_matrices <- get.covar(model_phylo1_clade3,
+                            n = 100,
+                            simplify = FALSE)
+
+## Plotting the results
 plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
      col = colour_vector[morphdat$clade],
      xlab = "PC1 (90.5%)",
      ylab = "PC1 (6.86%)")
-plot.ellipses(model_phylo1_clade3, n = 100,
-              centre = "none", add = TRUE, col = c("grey",colour_vector))
+plot.ellipses(covar_matrices, centre = "none",
+              col = c("grey",colour_vector),
+              add = TRUE)
 ```
 
 Because this is really messy, we can centre these ellipses on the groups ellipses average centres:
@@ -75,17 +83,10 @@ plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
      col = colour_vector[morphdat$clade],
      xlab = "PC1 (90.5%)",
      ylab = "PC1 (6.86%)")
-plot.ellipses(model_phylo1_clade3, n = 100,
-              centre = "level", add = TRUE, col = c("grey",colour_vector))
+plot.ellipses(covar_matrices, centre = "level",
+              col = c("grey",colour_vector),
+              add = TRUE)
 ```
-<!-- ## Get the ellipses centres
-centres <- list(
-    "phylo" = colMeans(morphdat[, c(1,2)]),
-    "gulls" = colMeans(morphdat[which(morphdat$clade == "gulls"), c(1,2)]),
-    "plovers" = colMeans(morphdat[which(morphdat$clade == "plovers"), c(1,2)]),
-    "sandpipers" = colMeans(morphdat[which(morphdat$clade == "sandpipers"), c(1,2)]))
-
- -->
 
 We can then measure different stuff from these ellipses (e.g. going full statistics from Robinson & Beckerman).
 
@@ -102,8 +103,55 @@ For these three metrics I expect:
 Note that the three metrics are measured independently of the ellipse position in space and are measured in 3D.
 
 ```{r}
-
+source("../Functions/get.axes.R")
+## Get all the phylo main axes
+level_centred_major_axes <- get.axes(covar_matrices, centre = "level")
+uncentered_major_axes <- get.axes(covar_matrices, centre = "none")
 ```
+
+And this is what it looks like for the uncentred ones:
+
+```{r}
+plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
+     col = colour_vector[morphdat$clade],
+     xlab = "PC1 (90.5%)",
+     ylab = "PC1 (6.86%)")
+plot.ellipses(covar_matrices, centre = "none",
+              col = c("grey",colour_vector),
+              add = TRUE)
+plot.all.axes(uncentered_major_axes,
+         col = c("grey",colour_vector),
+         add = TRUE)
+```
+
+And for the centred ones:
+
+```{r}
+plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
+     col = colour_vector[morphdat$clade],
+     xlab = "PC1 (90.5%)",
+     ylab = "PC1 (6.86%)")
+plot.ellipses(covar_matrices, centre = "level",
+              col = c("grey",colour_vector),
+              add = TRUE)
+plot.all.axes(level_centred_major_axes,
+         col = c("grey",colour_vector),
+         add = TRUE)
+```
+
+Or without all the points n stuff
+
+```{r, fig.height = 4, fig.width = 8}
+par(mfrow = c(1,2))
+plot.all.axes(uncentered_major_axes,
+         col = c("grey",colour_vector),
+         add = FALSE, main = "Major axes (un-centred)")
+plot.all.axes(uncentered_major_axes,
+         col = c("grey",colour_vector),
+         add = FALSE, main = "Major axes (level-centred)")
+```
+
+
 
 
 ### Phylo clade + clade model
