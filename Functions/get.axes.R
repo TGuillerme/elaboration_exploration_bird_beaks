@@ -20,16 +20,21 @@
 # n <- 1
 # covar_matrices <- get.covar(data, n = n, simplify = FALSE)
 # covar <- covar_matrices[1,][[1]]$VCV
-get.one.axes <- function(covar, axis = 1, centre = 0, level = 0.95) {
+get.one.axes <- function(covar, axis = 1, centre = 0, level = 0.95, dimensions) {
 
-    ## Get the right size for the centre
-    if((diff <- dim(covar)[1]) - length(centre) != 0) {
-        centre <- c(centre, rep(centre[1], abs(diff)-1))
-    }
-    
+    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
+
+    ## Select the right dimensions
+    covar <- covar[dimensions, dimensions]
+
     ## Get the data dimensionality
     dims <- dim(covar)[1]
 
+    ## Get the right size for the centre
+    if((diff <- dims) - length(centre) != 0) {
+        centre <- c(centre, rep(centre[1], abs(diff)-1))
+    }
+    
     ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
     unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
     ## The "front" (e.g. "top", "right") units
@@ -51,30 +56,58 @@ get.one.axes <- function(covar, axis = 1, centre = 0, level = 0.95) {
     ## Move the matrix around
     edges <- edges + rep(centre, each = dims*2)
 
+    ## Get the longest axes with dist
+    distances <- apply(edges, 1, dist)[1:dims]
+    axis <- which(distances == sort(distances, decreasing = TRUE)[axis])
+
+    # stop("DEBUG")
+    # ## Weird bug with asp?
+    # plot(ellipse(covar), type = "l", asp = 1)
+    # points(edges)
+    # lines(edges[c(1,3),], lty = 2)
+    # lines(edges[c(2,4),], lty = 2)
+
+
     ## Get the edges coordinates
     return(edges[c(axis, axis+dims), ])
 }
 
 
+
+
 #TODO: document!
 #' @param data see plot.ellipses
 #' @param centre see plot.ellipses
-get.axes <- function(data, centre) {
+get.axes <- function(data, centre, n = 1, dimensions) {
     if(is(data, "MCMCglmm")) {
         ## Get the covariance matrices
         covar_matrices <- get.covar(data, n = n, simplify = FALSE)
     } else {
         ## TODO: handle different input formats
-        covar_matrices <- data
+        if(is(data, "list")) {
+            ## Convert the list into a matrix
+            stop("DEBUG: allow lists as input.")
+        } else {
+            if(is(data, "matrix")) {
+                covar_matrices <- data
+            } else {
+                stop("data must be a MCMCglmm object, a list or a matrix of lists.")
+            }
+        }
         n <- dim(covar_matrices)[2]
+    }
+
+    ## Consider all dimensions by default
+    if(missing(dimensions)) {
+        dimensions <- 1:dim(covar_matrices[[1]][[1]])[1]
     }
 
     ## Get all the axes with different methods
     if(centre == "zero") {
-        axes <- apply(covar_matrices, 1, lapply, function(x) get.one.axes(x$VCV, centre = 0))
+        axes <- apply(covar_matrices, 1, lapply, function(x) get.one.axes(x$VCV, centre = 0, dimensions = dimensions))
     } 
     if(centre == "none") {
-        axes <- apply(covar_matrices, 1, lapply, function(x) get.one.axes(x$VCV, centre = x$Sol))        
+        axes <- apply(covar_matrices, 1, lapply, function(x) get.one.axes(x$VCV, centre = x$Sol[dimensions], dimensions = dimensions))
     }
     if(centre == "level") {
         ## Get the centre for each level
@@ -83,7 +116,7 @@ get.axes <- function(data, centre) {
         axes <- as.list(numeric(4))
         names(axes) <- rownames(covar_matrices)
         for(level in 1:nrow(covar_matrices)) {
-           axes[[level]] <- lapply(covar_matrices[level,], function(x) get.one.axes(x$VCV, centre = level_centre[level,]))
+           axes[[level]] <- lapply(covar_matrices[level,], function(x) get.one.axes(x$VCV, centre = level_centre[level,][dimensions], dimensions = dimensions))
        }
     }
     return(axes)
