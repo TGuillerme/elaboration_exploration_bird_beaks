@@ -199,3 +199,72 @@ plot.ellipses(model_phylo3_clade3, n = 100,
 
 ## Tip-wise approach
 
+For the tip wise approach, the method is pretty straightforward from what I've done previously: we just measure the projection/rejection (elaboration/exploration) on each for each axis that we've drawn above. We thus end up with 100 projection/rejection score for each element (tip) in the tree for:
+
+ * Each element against the phylo axes
+ * Each element against their clade axes
+
+```{r}
+library(dispRity)
+## Wrapping function
+lapply.projections <- function(one_axis, trait_space) {
+    return(list(
+        projection = projections(as.matrix(trait_space), point1 = one_axis[1,], point2 = one_axis[2,]),
+        rejection  = projections(as.matrix(trait_space), point1 = one_axis[1,], point2 = one_axis[2,], measure = "distance")))
+}
+## Plot rejection/projection profiles
+plot.proj.rej <- function(point_list, cols, data, main) {
+    ## Colour vector
+    colour_vector <- cols[morphdat$clade]
+    colour_vector <- adjustcolor(colour_vector, alpha.f = 1/10)
+    ## lims
+    lim <- range(unlist(point_list))
+    plot(NULL, xlim = lim, ylim = lim, xlab = "projection", ylab = "rejection", main = main)
+    ## Add each points
+    plot.points <- function(one_set, colour_vector) {
+        points_args <- list()
+        points_args$pch <- 19
+        points_args$col <- colour_vector
+        points_args$x <- one_set$projection
+        points_args$y <- one_set$rejection
+        do.call(points, points_args)
+    }
+
+    lapply(point_list, plot.points, colour_vector)
+    return(invisible())
+}
+
+## Getting the results
+phylo_results_uncentered <- lapply(uncentered_major_axes$phylogeny, lapply.projections, trait_space = morphdat[, c(1,2,3)])
+
+## Plot results
+plot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat, main = "Phylo elaboration/rejection")
+```
+ 
+But maybe it's easier to boxplot that to get the info by clade
+
+```{r}
+boxplot.proj.rej <- function(point_list, data, cols) {
+    ## Get the classifier
+    classifier <- data$clade    
+    sort.clade.rej <- function(data, classifier) {
+        return(cbind(data$rejection, classifier))
+    }
+    sort.clade.proj <- function(data, classifier) {
+        return(cbind(data$projection, classifier))
+    }
+    ## Sort the data per clade
+    rejections <- do.call(rbind, lapply(point_list, sort.clade.rej, classifier))
+    projections <- do.call(rbind, lapply(point_list, sort.clade.proj, classifier))
+    colnames(rejections)[1] <- colnames(projections)[1] <- "points"
+    par(mfrow = c(2,1))
+    boxplot(points ~ classifier, data = projections, col = cols, main = "Projections")
+    boxplot(points ~ classifier, data = rejections, rejections, col = cols, main = "Rejections")
+}
+
+boxplot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat)
+```
+
+
+
+
