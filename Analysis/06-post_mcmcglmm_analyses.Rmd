@@ -24,13 +24,13 @@ I'm going to look at it using two approaches:
 I'm going to focus on the data from Gavin and especially the models 5 and 6 that are:
 
  * model 6: `model_phylo1_clade3` with one phylogenetic random effect (across the whole tree) and three clade residual effects.
- * model 7: `model_phylo3_clade3` with three phylogenetic random effect (one for each clade) and three clade residual effects.
+ * model 7: `model_phylo4` with three phylogenetic random effect (one for each clade) and three clade residual effects.
 
 ```{r}
 ## Loading the correct models
 load("../Data/Processed/model_list.rda")
 model_phylo1_clade3 <- model_list[[4]]
-model_phylo3_clade3 <- model_list[[6]]
+model_phylo4 <- model_list[[7]]
 ```
 
 And here's what the trait space looks like:
@@ -160,40 +160,166 @@ plot.all.axes(level_centred_major_axes,
 
 This is an example with just the major axes (projected in 2D):
 
-```{r, fig.height = 4, fig.width = 8}
-par(mfrow = c(1,2))
+```{r}
 plot.all.axes(uncentered_major_axes,
          col = c("grey",colour_vector),
          add = FALSE, main = "Major axes (un-centred)")
-plot.all.axes(level_centred_major_axes,
-         col = c("grey",colour_vector),
-         add = FALSE, main = "Major axes (level-centred)")
+```
+
+We can then compare these vectors per blobs.
+We in order to facilitate the vectors comparisons, we will translate the groups vectors (clade ones) on the origin of the phylo vector.
+
+```{r}
+source("../Functions/vector.diff.R")
+## Get all the angles and stuff
+gull_results <- mapply(vector.diff, uncentered_major_axes$cladegulls, uncentered_major_axes$phylo)
+plovers_results <- mapply(vector.diff, uncentered_major_axes$cladeplovers, uncentered_major_axes$phylo)
+sandpipers_results <- mapply(vector.diff, uncentered_major_axes$cladesandpipers, uncentered_major_axes$phylo)
+
+## Sort the results per type
+angles <- cbind(gull_results["angle", ],
+                plovers_results["angle", ],
+                sandpipers_results["angle", ])
+projections <- cbind(gull_results["projection", ],
+                     plovers_results["projection", ],
+                     sandpipers_results["projection", ])
+rejections <- cbind(gull_results["rejection", ],
+                    plovers_results["rejection", ],
+                    sandpipers_results["rejection", ])
+colnames(angles) <- colnames(projections) <- colnames(rejections) <- levels(morphdat$clade)
+```
+
+```{r, fig.height = 18, fig.heigh = 6}
+## Plot the blob wise metrics
+par(mfrow = c(3, 1))
+boxplot(angles, col = colour_vector, ylab = "angle")
+boxplot(projections, col = colour_vector, ylab = "projection (scaled)")
+boxplot(rejections, col = colour_vector, ylab = "rejection (scaled)")
+```
+
+Same but with absolute values and angles modulo 90:
+
+
+```{r, fig.height = 18, fig.heigh = 6}
+## Plot the blob wise metrics
+par(mfrow = c(3, 1))
+boxplot(angles %% 90, col = colour_vector, ylab = "angle (modulo 90)")
+boxplot(abs(projections), col = colour_vector, ylab = "projection (scaled - absolute)")
+boxplot(abs(rejections), col = colour_vector, ylab = "rejection (scaled - absolute)")
 ```
 
 
 
 
-### Phylo clade + clade model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Phylo clade model
+
+For this example, the MCMCglmm model has four random (phylo) effects (one for the whole phylo and one per clade) rather than just the one for the whole phylogeny.
+The model seems to struggle converging and there are things off with the centring (they seem to be all centred no matter what) but that last bit should not be a problem for comparing the vectors since they are translated anyways.
+
 
 ```{r, warn = FALSE}
 plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
      col = colour_vector[morphdat$clade],
      xlab = "PC1 (90.5%)",
      ylab = "PC1 (6.86%)")
-plot.ellipses(model_phylo3_clade3, n = 100,
-              centre = "none", add = TRUE, col = c("black", colour_vector, colour_vector))
+plot.ellipses(model_phylo4, n = 100,
+              centre = "none", add = TRUE, col = c("grey",colour_vector, "pink"))
 ```
 
-This looks much more messier (and also probably not scaled correctly?)...
+The pink ellipse is representing the residuals.
+
+
+And we can still do the whole axis stuff, same way as above:
+
 
 ```{r}
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
-plot.ellipses(model_phylo3_clade3, n = 100,
-              centre = "level", add = TRUE, col = c("black", colour_vector, colour_vector))
+## Get the covariance matrices
+covar_matrices2 <- get.covar(model_phylo4,
+                            n = 100,
+                            simplify = FALSE)
+## Drop the residuals
+covar_matrices2 <- covar_matrices2[-5, ]
+
+## Get all the phylo main axes
+uncentered_major_axes2 <- get.axes(covar_matrices2, centre = "none")
+names(uncentered_major_axes2) <- c("phylo", "cladegulls", "cladeplovers", "cladesandpipers")
+
 ```
+
+Here's what the axes look like without the ellipses and stuff:
+
+```{r}
+plot.all.axes(uncentered_major_axes2,
+         col = c("grey",colour_vector),
+         add = FALSE, main = "Major axes (centred)")
+```
+
+```{r}
+source("../Functions/vector.diff.R")
+## Get all the angles and stuff
+gull_results <- mapply(vector.diff, uncentered_major_axes2$cladegulls, uncentered_major_axes2$phylo)
+plovers_results <- mapply(vector.diff, uncentered_major_axes2$cladeplovers, uncentered_major_axes2$phylo)
+sandpipers_results <- mapply(vector.diff, uncentered_major_axes2$cladesandpipers, uncentered_major_axes2$phylo)
+
+## Sort the results per type
+angles <- cbind(gull_results["angle", ],
+                plovers_results["angle", ],
+                sandpipers_results["angle", ])
+projections <- cbind(gull_results["projection", ],
+                     plovers_results["projection", ],
+                     sandpipers_results["projection", ])
+rejections <- cbind(gull_results["rejection", ],
+                    plovers_results["rejection", ],
+                    sandpipers_results["rejection", ])
+colnames(angles) <- colnames(projections) <- colnames(rejections) <- levels(morphdat$clade)
+```
+
+```{r, fig.height = 18, fig.heigh = 6}
+## Plot the blob wise metrics
+par(mfrow = c(3, 1))
+boxplot(angles, col = colour_vector, ylab = "angle")
+boxplot(projections, col = colour_vector, ylab = "projection (scaled)")
+boxplot(rejections, col = colour_vector, ylab = "rejection (scaled)")
+```
+
+```{r, fig.height = 18, fig.heigh = 6}
+## Plot the blob wise metrics
+par(mfrow = c(3, 1))
+boxplot(angles %% 90, col = colour_vector, ylab = "angle (modulo 90)")
+boxplot(abs(projections), col = colour_vector, ylab = "projection (scaled - absolute)")
+boxplot(abs(rejections), col = colour_vector, ylab = "rejection (scaled - absolute)")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -250,39 +376,61 @@ boxplot.proj.rej <- function(point_list, data, cols) {
     ## Get the classifier
     classifier <- data$clade    
     sort.clade.rej <- function(data, classifier) {
-        return(cbind(data$rejection, classifier))
+        return(data.frame("points" = data$rejection,
+                          "classifier" = classifier))
     }
     sort.clade.proj <- function(data, classifier) {
-        return(cbind(data$projection, classifier))
+        return(data.frame("points" = data$projection,
+                          "classifier" = classifier))
     }
     ## Sort the data per clade
     rejections <- do.call(rbind, lapply(point_list, sort.clade.rej, classifier))
     projections <- do.call(rbind, lapply(point_list, sort.clade.proj, classifier))
-    colnames(rejections)[1] <- colnames(projections)[1] <- "points"
     par(mfrow = c(2,1))
-    boxplot(points ~ classifier, data = projections, col = cols, main = "Projections")
-    boxplot(points ~ classifier, data = rejections, rejections, col = cols, main = "Rejections")
+    boxplot(points ~ classifier, data = projections, col = cols, main = "Phylo projections\n(projected on the whole phylo effect)")
+    boxplot(points ~ classifier, data = rejections, rejections, col = cols, main = "Phylo rejections")
 }
 
 boxplot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat)
 ```
 
+And now we can see the differences for the within clades (i.e. the elaboration/exploration within each clade).
+The idea here is to distinguish between extra special taxa.
+For example, in mammals the platypus and the naked mole rat are special, however, the platypus is actually not special among platypuses whereas the naked mole rat is special among rodents!
+
+
+```{r}
+## The within clades explo/elabo
+gulls_results_uncentered <- lapply(uncentered_major_axes$cladegulls, lapply.projections, trait_space = morphdat[which(morphdat$clade == "gulls"), c(1,2,3)])
+plover_results_uncentered <- lapply(uncentered_major_axes$cladeplovers, lapply.projections, trait_space = morphdat[which(morphdat$clade == "plovers"), c(1,2,3)])
+sandpipers_results_uncentered <- lapply(uncentered_major_axes$cladesandpipers, lapply.projections, trait_space = morphdat[which(morphdat$clade == "sandpipers"), c(1,2,3)])
 
 
 
-TODO:
+projection_list <- list("gulls"   = unlist(lapply(gulls_results_uncentered, `[[`, "projection")),
+             "plovers" = unlist(lapply(plover_results_uncentered, `[[`, "projection")),
+             "sandpipers" = unlist(lapply(sandpipers_results_uncentered, `[[`, "projection")))
 
- - run the blob wise and tip wise models
 
+rejection_list <- list("gulls"   = unlist(lapply(gulls_results_uncentered, `[[`, "rejection")),
+             "plovers" = unlist(lapply(plover_results_uncentered, `[[`, "rejection")),
+             "sandpipers" = unlist(lapply(sandpipers_results_uncentered, `[[`, "rejection")))
+par(mfrow = c(2,1))
+boxplot(projection_list, main = "projection within clades\n(projected on the clade specific effect)", col  = colour_vector)
+boxplot(rejection_list, main = "rejection within clades", col  = colour_vector)
+```
 
+They seem a bit off as well.
+Maybe it'll be worth centering their axis on their trait space centroid.
 
+TODO.
 
 
 
 # Ideas for the MCMC
 
  * Use the model7 with two nested clade levels?
- 
+
  * For speeding up the MCMC:
    1. Check on a big global model: a) how long it takes to get 1000 gen. (or so) and b) how long the burnin phase takes.
    2. Use info 1a and 1b to make design "mini chains" (i.e. chains that just go past the burnin and run for an extra ~1000 gen.); the conservative assumption is that post-burnin, the chain has reach a local optimum that exists within the distribution of the global (true) optimum.
