@@ -91,11 +91,13 @@ plot.ellipses(covar_matrices, centre = "level",
 We can then measure different stuff from these ellipses (e.g. going full statistics from Robinson & Beckerman).
 
 However, here I'm just going to focus on the elaboration/exploration of these ellipses. For the three clades, I'm going to measure:
+
  * the angle of the clade's ellipse to the general one (which will be their degree of exploration);
  * their scaled projection (where the ellipses all start from the point 0,0): showing how much the clade elaborates on the major phylo axis;
  * and their scaled rejection (how much they explore).
 
 For these three metrics I expect:
+
  * the gulls and plovers to elaborate quiet a lot (angle ~90) compared to the sandpipers (angle ~90)
  * the gulls to explore the more followed by the plovers and then the sandpipers
  * the sandpipers to ellaborate the more followed by the gulls and then the plovers
@@ -264,6 +266,30 @@ boxplot.proj.rej <- function(point_list, data, cols) {
 
 boxplot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat)
 ```
+
+
+
+
+TODO:
+
+ - run the blob wise and tip wise models
+
+
+
+
+
+
+# Ideas for the MCMC
+
+ * Use the model7 with two nested clade levels?
+ 
+ * For speeding up the MCMC:
+   1. Check on a big global model: a) how long it takes to get 1000 gen. (or so) and b) how long the burnin phase takes.
+   2. Use info 1a and 1b to make design "mini chains" (i.e. chains that just go past the burnin and run for an extra ~1000 gen.); the conservative assumption is that post-burnin, the chain has reach a local optimum that exists within the distribution of the global (true) optimum.
+   3. Run 3 mini chains per tree on 100 trees (resulting in 300 mini chains) to get phylogenetic uncertainty into account. For each triplet of models, discard any that's way off (Natalie thesis style for morpho measurements). This results in N models that have reach N local optimums while taking into account phylo uncertainty.
+   4. Discard any of the N models that is way off (outliers). We assume that these outliers were chains stuck on local optimums that were outside to global optimum distribution. We then end up with M (M<=N) models that are the most conservative representation of the model because they take into account phylo uncertainty AND optimum uncertainty (i.e. if running one big model, you have to make the assumption that the local optimum reached equal the global optimum, here we can skip that assumption by saying that our distribution of local optimums contains the global optimum).
+   5. Combine the results of all the MCMC into one BIG posterior distribution; randomly sample n (=Mx5?) samples (or any other number) from that distribution and work from there! (if we don't discard any models M = 300 mini chains of >=1000 samples each, thus the sample represents ~5% of all the data).
+
 
 
 
