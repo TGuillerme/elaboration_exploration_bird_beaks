@@ -57,8 +57,8 @@ get.one.axes <- function(covar, axis = 1, centre = 0, level = 0.95, dimensions) 
     edges <- edges + rep(centre, each = dims*2)
 
     ## Get the longest axes with dist
-    distances <- apply(edges, 1, dist)[1:dims]
-    axis <- which(distances == sort(distances, decreasing = TRUE)[axis])
+    # distances <- apply(edges, 1, dist)[1:dims]
+    # axis <- which(distances == sort(distances, decreasing = TRUE)[axis])
 
     # stop("DEBUG")
     # ## Weird bug with asp?
