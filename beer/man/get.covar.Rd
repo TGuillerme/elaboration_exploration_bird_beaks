@@ -2,20 +2,19 @@
 % Please edit documentation in R/get.covar.R
 \name{get.covar}
 \alias{get.covar}
-\title{get.covar}
+\title{Get covariance matrices}
 \usage{
-get.covar(MCMCglmm, n = 1)
+get.covar(data, n, simplify = TRUE)
 }
 \arguments{
-\item{MCMCglmm}{a MCMCglmm object}
+\item{data}{The MCMCglmm object}
 
-\item{n}{how many covariance matrices to sample (default is \code{1})}
-}
-\value{
-A \code{"beer"} object
+\item{n}{The number of samples}
+
+\item{simplify}{logical, whether to output the results as a matrix of lists (simplify = FALSE) where rows are the levels and columns are the replicates or whether to return it as a list containing n levels elements each containing the replicates (simplify = TRUE).}
 }
 \description{
-sample covariance matrices from a MCMCglmm object
+Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior (Solution) sorted by levels
 }
 \examples{
 
@@ -24,5 +23,5 @@ sample covariance matrices from a MCMCglmm object
 
 }
 \author{
-Thomas Guillerme
+Thomas Guillerme, Gavin Thomas
 }
