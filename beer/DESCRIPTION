@@ -1,0 +1,19 @@
+Package: beer
+Title: Beak Elaboration and Exploration in R
+Version: 0.0.1
+Date: 2021-04-22
+Author: Thomas Guillerme [aut, cre, cph]
+Maintainer: Thomas Guillerme <guillert@tcd.ie>
+Description: Wrapper package for the functions in the beak elaboration/exploration porject.
+Depends:
+    R (>= 4.0.0),
+    ape,
+    dispRity,
+    stats
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Suggests: 
+    testthat
