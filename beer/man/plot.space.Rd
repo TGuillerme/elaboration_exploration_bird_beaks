@@ -4,21 +4,37 @@
 \alias{plot.space}
 \title{plot.space}
 \usage{
-\method{plot}{space}(beer, dimensions, ..., add)
+\method{plot}{space}(
+  data,
+  levels,
+  dimensions = c(1, 2),
+  ...,
+  col,
+  add = FALSE,
+  legend,
+  scale.axes = FALSE
+)
 }
 \arguments{
-\item{beer}{the \code{"beer"} object.}
+\item{data}{a trait space.}
+
+\item{levels}{the levels (categories, eg. clades)}
 
 \item{dimensions}{which dimensions to plot (default is \code{c(1,2)}).}
 
 \item{...}{any plotting options to be passed to \code{\link{graphics}{lines}}}
 
 \item{add}{logical, whether to add the lines to an existing plot (\code{TRUE}, default) or not (\code{FALSE}).}
+
+\item{scale.axes}{logical, whether to set both axes on the same scale (\code{TRUE}) or not (\code{FALSE}, default).}
 }
 \description{
 Plotting axes from an ellipse
 }
 \examples{
+data(morphdat)
+data <- morphdat[, -c(4,5)]
+plot.space(data, levels = morphdat$clade)
 
 }
 \seealso{

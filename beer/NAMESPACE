@@ -2,6 +2,7 @@
 
 # Imports
 importFrom(graphics,lines)
+importFrom(grDevices,rainbow)
 
 
 # Plotting functions
