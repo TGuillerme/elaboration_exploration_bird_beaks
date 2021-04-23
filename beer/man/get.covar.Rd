@@ -4,17 +4,19 @@
 \alias{get.covar}
 \title{Get covariance matrices}
 \usage{
-get.covar(data, n, simplify = TRUE)
+get.covar(data, n = 1)
 }
 \arguments{
 \item{data}{The MCMCglmm object}
 
 \item{n}{The number of samples}
-
-\item{simplify}{logical, whether to output the results as a matrix of lists (simplify = FALSE) where rows are the levels and columns are the replicates or whether to return it as a list containing n levels elements each containing the replicates (simplify = TRUE).}
+}
+\value{
+Returns a \code{"beer"} object that is a list of length \code{n}.
+Each \code{n}th element is a list of of the same length as the number of random + residual terms in \code{data} containing one variance covariance matrix (\code{get.covar(data)[[1]][[1]]$VCV}) and the intercept ((\code{get.covar(data)[[1]][[1]]$Sol})).
 }
 \description{
-Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior (Solution) sorted by levels
+Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior intercept (solution) sorted by levels
 }
 \examples{
 

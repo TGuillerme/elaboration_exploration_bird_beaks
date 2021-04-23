@@ -1,11 +1,13 @@
 #' @title Get covariance matrices
 #'
-#' @description Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior (Solution) sorted by levels
+#' @description Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior intercept (solution) sorted by levels
 #'
 #' @param data The MCMCglmm object
 #' @param n The number of samples
-# @param levels Optional, the level(s) to get the covariance from (if missing, all levels are returned)
-#' @param simplify logical, whether to output the results as a matrix of lists (simplify = FALSE) where rows are the levels and columns are the replicates or whether to return it as a list containing n levels elements each containing the replicates (simplify = TRUE).
+#' 
+#' @return 
+#' Returns a \code{"beer"} object that is a list of length \code{n}.
+#' Each \code{n}th element is a list of of the same length as the number of random + residual terms in \code{data} containing one variance covariance matrix (\code{get.covar(data)[[1]][[1]]$VCV}) and the intercept ((\code{get.covar(data)[[1]][[1]]$Sol})).
 #' 
 #' @examples
 #'
@@ -13,138 +15,118 @@
 #' 
 #' @author Thomas Guillerme, Gavin Thomas
 #' @export
-
-get.covar <- function(data, n, simplify = TRUE){ #, levels) { #TG: levels not handled yet: returns everything
-    
+get.covar <- function(data, n = 1){   
     ## The number of traits
-    n_traits <- length(strsplit(paste(data$Fixed$formula)[2], ",")[[1]])
+    traits <- traits.MCMCglmm(data)
+    n_traits <- length(traits)
     ## The number of levels
-    n_levels <- c(
-      ## The number of random effects
-      "random" = length(grep("animal", colnames(data$VCV)))/(n_traits^2),
-      ## The number of groups (residuals)
-      "residual" = length(grep("units", colnames(data$VCV)))/(n_traits^2))
-
-    ## Get the names of the levels
-    param_names <- character()
-    if(n_levels["random"] != 0) {
-        if(n_levels["random"] > 1) {
-            param_names <- c(param_names, paste0("phylogeny", n_levels["random"]))
-        } else {
-            param_names <- c(param_names, "phylogeny")
-        }
-    }
-    if(n_levels["residual"] != 0) {
-       param_names <- c(param_names, unique(unlist(lapply(strsplit(colnames(data$Sol), ":"), `[[`, 2))))
-    }
+    levels <- levels.MCMCglmm(data)
+    n_levels <- length(levels)
 
     ## Sample n covar matrices
-    covar_matrices <- replicate(n, get.one.covar(data, n_levels, n_traits), simplify = TRUE)
+    covar_matrices <- replicate(n, get.one.covar(data, levels, traits), simplify = FALSE)
 
-    if(simplify) {
-
-        ## Function for recombining the "rows" in the output from replicate() (into a list of lists)
-        combine.replicates <- function(replicates) {
-            return(list(
-                ## Get all the VCV
-                VCV = lapply(replicates, function(x) return(x$VCV)),
-                ## Get all the Sol
-                Sol = lapply(replicates, function(x) return(x$Sol))
-            ))
-        }
-
-        ## Recombine all the replicates
-        covar_matrices <- apply(covar_matrices, 1, unlist, recursive = FALSE)
-
-        ## Naming the list
-        if(length(param_names) == length(covar_matrices)) {
-            names(covar_matrices) <- param_names
-        }
-
-        return(covar_matrices)
-    } else {
-
-        if(length(param_names) == nrow(covar_matrices)) {
-            rownames(covar_matrices) <- param_names
-        }
-        
-        return(covar_matrices)
-    }
+    ## Set the class to beer
+    class(covar_matrices) <- "beer"
+    return(covar_matrices)
 }
 
 ## Internal function to get one covariance matrix
-get.one.covar <- function(data, n_levels, n_traits) {
+get.one.covar <- function(data, levels, traits) {
 
     ## Select a random value      
     one_point <- sample(1:nrow(data$VCV), 1)
-    covtmp <- data$VCV[one_point, ]
-    soltmp <- data$Sol[one_point, ]
+    sample_estimates <- list(VCV = data$VCV[one_point, ],
+                             Sol = data$Sol[one_point, ])
 
-    ## Placeholders for the levels
-    levels_covar <- list()
-
-    ## Loop through each level
-    for(one_level in 1:sum(n_levels)) {  
-        ## Selecting the adjustment level (for selecting the elements in the vector of results according to the correct level)
-        level_adjust <- (one_level-1) * n_traits^2
-
-        ## Sample values for the requested level for all traits
-        levels_covar[[one_level]] <- list(
-                VCV = matrix(covtmp[(1:n_traits^2) + level_adjust], ncol = n_traits),
-                Sol = get.sol(soltmp, n_levels, one_level, n_traits))
+    ## Get one covar matrix
+    make.covar <- function(level, VCV, levels, n_traits) {
+        matrix(VCV[(1:n_traits^2) + (level-1) * n_traits^2], ncol = n_traits)
     }
 
-    ## Return the covariance matrices
+    ## Get the estimated solutions
+    make.sol <- function(level, Sol, levels, n_traits) {
+        if(names(levels[level]) == "random") {
+            return(rep(0, n_traits))
+        } else {
+            return(unname(Sol[1:n_traits + (level - (sum(names(levels) == "random") + 1)) * n_traits]))
+        }
+    }
+
+    ## Sapply wrapper
+    sapply.fun <- function(level, sample_estimates, levels, traits) {
+        list(VCV = make.covar(level, sample_estimates$VCV, levels, length(traits)),
+             Sol =   make.sol(level, sample_estimates$Sol, levels, length(traits)))
+    }
+
+    levels_covar <- sapply(1:length(levels), sapply.fun, sample_estimates, levels, traits, simplify = FALSE)
+    names(levels_covar) <- levels
+
+    ## Return the covariance matrices and origins
     return(levels_covar)
 }
 
-## Internal function for getting the posterior solution
-#TG: not sure about that one! needs checks!
-get.sol <- function(posterior_sol, n_levels, one_level, n_traits, level_adjust) {
-
-    ## Has no random effect
-    if(n_levels["random"] == 0) {
-        return(posterior_sol[1:n_traits + (one_level - 1) * n_traits])
-    }
-
-    ## Has one random effect and one level
-    if (n_levels["random"] == 1 && n_levels["residual"] == 1) {
-        return(rep(0, n_traits))
-    }
-
-    ## Has one random effect and more that one residual
-    if(n_levels["random"] == 1 && n_levels["residual"] > 1) {
-        ## Is the random effect
-        if(one_level == 1) {
-            warning("Random effects centred on zero")
-            return(rep(0, n_traits))
-        }
-        ## Is another residual
-        return(posterior_sol[1:n_traits + (one_level - 2) * n_traits])
-    }
-
-    ## Multiple randoms and the same number of residuals
-    if(n_levels["random"] > 1 && n_levels["random"] == n_levels["residual"])  {
-
-        ## The level is one of the random ones
-        if(one_level %in% 1:n_levels["random"]) {
-          return(posterior_sol[1:n_traits + (one_level - 1) * n_traits])
-        } else {
-            ## The level is one of the residual one
-            return(posterior_sol[1:n_traits + (one_level - n_levels["random"] - 1) * n_traits])
-            #TG: not sure about the following bit:
-            #TG: "(one_level - n_levels["random"] - 1)"
-            #TG: needs checking
-        }
-    }
-
-    ## No case was triggered return 0
-    return(rep(0, n_traits))
-}
-
 ## Internal: get the possible levels from a MCMCglmm
-levels.MCMCglmm <- function(MCMCglmm) {
+levels.MCMCglmm <- function(MCMCglmm, convert = TRUE) {
+    convert.term.name <- function(one_term) {
+        ## Return the term is simple, keep it like that
+        if(length(grep(":", one_term)) == 0) {
+            return(one_term)
+        } else {
+            ## Split the term 
+            elements <- strsplit(one_term, ":")[[1]]
+            ## Remove the trait component
+            if(any(grep("trait", elements))) {
+                elements <- elements[-grep("trait", elements)]
+            }
 
+            if(length(elements) == 1) {
+                ## That's the element name
+                return(gsub(" ", "", elements))
+            } else {
+                ## Remove spaces and get the most nested element
+                return(paste(rev(unname(sapply(elements, function(X) gsub(" ", "", gsub("[^[:alnum:] ]", "", rev(strsplit(X, "\\(")[[1]])[1]))))), collapse = ":"))
+            }
+
+        }
+    }
+
+    ## Get the random terms
+    random_formula <- as.character(MCMCglmm$Random$formula[2])
+    if(length(random_formula) == 0) {
+        random_terms <- NULL
+    } else {
+        random_terms <- strsplit(random_formula, "\\+")[[1]]
+    }
+    
+    ## Get the residuals terms
+    residuals_formula <- as.character(MCMCglmm$Residual$formula[2])
+    if(length(residuals_formula) == 0) {
+        residual_terms <- NULL
+    } else {
+        residual_terms <- strsplit(residuals_formula, "\\+")[[1]]
+    }
+
+    ## No terms!
+    if(is.null(random_terms) && is.null(residual_terms)) {
+        return(c("residual" = "units"))
+    }
+
+    ## Convert the names to make them look fancy
+    if(convert) {
+        if(!is.null(random_terms)) {
+            random_terms <- unname(sapply(random_terms, convert.term.name))
+        }
+        if(!is.null(residual_terms)) {
+            residual_terms <- unname(sapply(residual_terms, convert.term.name))
+        }
+    }
+
+    ## Get the terms names
+    all_terms <- c(random_terms, residual_terms)
+    names(all_terms) <- c(rep("random", length(random_terms)), rep("residual", length(residual_terms)))
+
+    return(all_terms)
 }
 
 ## Internal: get the number of traits from a MCMCglmm
@@ -153,7 +135,7 @@ traits.MCMCglmm <- function(MCMCglmm) {
     ## Get the variables
     variables <- as.character(MCMCglmm$Fixed$formula[2])
 
-    ## Are the variables bunched in an expression (e.g. "c()")?
+    ## Are the variables bunched in an expression (e.g. "c()")?
     if(any(grep("\\(", variables))) {
         ## Remove the brackets of the expression
         variables <- strsplit(strsplit(variables, "\\(")[[1]][2], "\\)")[[1]]
