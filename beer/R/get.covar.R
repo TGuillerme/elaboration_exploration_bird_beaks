@@ -17,7 +17,7 @@
 get.covar <- function(data, n, simplify = TRUE){ #, levels) { #TG: levels not handled yet: returns everything
     
     ## The number of traits
-    n_traits <- length(strsplit(paste(data$Fixed$formula)[2], ",")[[1]])  
+    n_traits <- length(strsplit(paste(data$Fixed$formula)[2], ",")[[1]])
     ## The number of levels
     n_levels <- c(
       ## The number of random effects
@@ -140,4 +140,30 @@ get.sol <- function(posterior_sol, n_levels, one_level, n_traits, level_adjust) 
 
     ## No case was triggered return 0
     return(rep(0, n_traits))
+}
+
+## Internal: get the possible levels from a MCMCglmm
+levels.MCMCglmm <- function(MCMCglmm) {
+
+}
+
+## Internal: get the number of traits from a MCMCglmm
+traits.MCMCglmm <- function(MCMCglmm) {
+
+    ## Get the variables
+    variables <- as.character(MCMCglmm$Fixed$formula[2])
+
+    ## Are the variables bunched in an expression (e.g. "c()")?
+    if(any(grep("\\(", variables))) {
+        ## Remove the brackets of the expression
+        variables <- strsplit(strsplit(variables, "\\(")[[1]][2], "\\)")[[1]]
+    }
+
+    ## Are there multiple variables in that expression (e.g. ",")?
+    if(any(grep(",", variables))) {
+        ## Remove the commas and spaces
+        variables <- gsub(" ", "", strsplit(variables, ",")[[1]])
+    }
+
+    return(variables)
 }
