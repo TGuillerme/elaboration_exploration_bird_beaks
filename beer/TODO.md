@@ -17,6 +17,6 @@ The wrapper pipeline package must contain
  - [ ] some function for running the tip-wise test: i.e. getting the projection and rejection for each taxa. `tip.results`
  - [ ] some function for plotting the results of groups comparisons: `plot.groups`
  - [ ] some function for plotting the tip-wise results in a circular phylogeny: `plot.tree` (wrapper from `phytools` simMap)
- - [ ] some function for plotting the trait space (wrapper from `dispRity::plot.preview`)
+ - [x] some function for plotting the trait space (wrapper from `dispRity::plot.preview`)
  - [ ] some function for plotting the ellipses (modif `get.ellipses`): `plot.ellipses`
  - [ ] some function for plotting the main axes (modif `get.axes`): `plot.axes`
