@@ -4,15 +4,29 @@
 \alias{get.axes}
 \title{get.axes}
 \usage{
-get.axes(beer, axes = 1)
+get.axes(beer, axis = 1, level = 0.95, dimensions, centre = "intercept")
 }
 \arguments{
 \item{beer}{the \code{"beer"} object}
 
-\item{axes}{which major axes to get (default is \code{1})}
+\item{axis}{which major axis to get (default is \code{1}: the major axis)}
+
+\item{level}{the level of the confidence interval for the ellipse (default is \code{0.95}).}
+
+\item{dimensions}{optional, a numeric vector of the dimensions to analyse (by default, all are used).}
+
+\item{centre}{optional, the centre of the axes (see details)}
 }
 \description{
 Get the major axes from a list of covar matrices
+}
+\details{
+\code{centre} can be one of the following:
+\itemize{
+\item \code{"intercept"} to use the estimated intercept is used (i.e. \code{MCMCglmm$Sol});
+\item a \code{numeric} of one or 2 elements to be used as the x/y coordinates of the centre
+\item a \code{function} to estimate the central tendency of the estimated intercepts (e.g. \code{mean})
+}
 }
 \examples{
 
