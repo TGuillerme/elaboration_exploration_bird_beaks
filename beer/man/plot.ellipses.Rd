@@ -4,17 +4,47 @@
 \alias{plot.ellipses}
 \title{plot.ellipses}
 \usage{
-\method{plot}{ellipses}(beer, ..., add)
+\method{plot}{ellipses}(
+  beer,
+  dimensions = c(1, 2),
+  npoints = 50,
+  centre = "intercept",
+  col,
+  add = TRUE,
+  legend,
+  use.transparent = TRUE,
+  ...
+)
 }
 \arguments{
 \item{beer}{the \code{"beer"} object.}
 
-\item{...}{any plotting options to be passed to \code{\link{graphics}{lines}}}
+\item{dimensions}{which dimensions to plot (default is \code{c(1,2)}).}
+
+\item{npoints}{the number of points per ellipses (for smoothing; default is \code{50}).}
+
+\item{centre}{optional, the centre of the ellipses (see details)}
+
+\item{col}{a colour vector.}
 
 \item{add}{logical, whether to add the lines to an existing plot (\code{TRUE}, default) or not (\code{FALSE}).}
+
+\item{use.transparent}{logical, whether to make the colours more transparent for overlaps (default is \code{TRUE}).}
+
+\item{...}{any plotting options to be passed to \code{\link{graphics}{lines}}}
+
+\item{scale.axes}{logical, whether to set both axes on the same scale (\code{TRUE}) or not (\code{FALSE}, default).}
 }
 \description{
 Plotting axes from an ellipse
+}
+\details{
+\code{centre} can be one of the following:
+\itemize{
+\item \code{"intercept"} to use the estimated intercept is used (i.e. \code{MCMCglmm$Sol});
+\item a \code{numeric} of one or 2 elements to be used as the x/y coordinates of the centre
+\item a \code{function} to estimate the central tendency of the estimated intercepts (e.g. \code{mean})
+}
 }
 \examples{
 

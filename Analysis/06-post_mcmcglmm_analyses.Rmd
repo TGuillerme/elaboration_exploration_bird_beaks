@@ -19,6 +19,17 @@ I'm going to look at it using two approaches:
  * the **blob-wise** one where I'll look at the differences between whole blobs (ellipses) in terms of elaboration/exploration (Robinson & Beckerman style);
  * and the **tip-wise** one where I'll look at the elaboration/exploration score of the tips on the tree (cf. their blobs) relative to the whole phylogeny and to their respective blobs (clades).
  
+We can do all that with the internal package `"beer"` that can be install via github (if you have access to the repo):
+
+```{r, eval = FALSE}
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+```
+
+```{r, eval = TRUE}
+library(beer)
+```
+
+
 ## Data
 
 I'm going to focus on the data from Gavin and especially the models 5 and 6 that are:
@@ -28,7 +39,7 @@ I'm going to focus on the data from Gavin and especially the models 5 and 6 that
 
 ```{r}
 ## Loading the correct models
-load("../Data/Processed/model_list.rda")
+data("model_list")
 model_phylo1_clade3 <- model_list[[4]]
 model_phylo4 <- model_list[[7]]
 ```
@@ -37,13 +48,14 @@ And here's what the trait space looks like:
 
 ```{r}
 ## Loading the data
-load("../Data/Processed/morphdat.rda")
+data("morphdat")
 ## Plotting it
 colour_vector <- c("orange", "blue", "darkgreen")
-plot(morphdat[, c(1,2)], pch = 19,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
+plot.space(morphdat,
+           col = colour_vector,
+           levels = morphdat$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)")
 legend("topleft", legend = levels(morphdat$clade), col = colour_vector, pch = 19)
 ```
 
@@ -58,32 +70,28 @@ Here we're basically comparing multidimensional ellipses (here 3D ones but I thi
 First we can visualise some of these ellipses (100, randomly drawn from the posterior):
 
 ```{r}
-source("../Functions/plot.ellipses.R")
-source("../Functions/get.covar.R")
-
-## Selecting 100 random covariance matrices from the MCMCglmm
-covar_matrices <- get.covar(model_phylo1_clade3,
-                            n = 100,
-                            simplify = FALSE)
+## Selecting 100 random covariance matrices from the MCMCglmm
+covar_matrices <- get.covar(model_phylo1_clade3, n = 100)
 
 ## Plotting the results
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
-plot.ellipses(covar_matrices, centre = "none",
-              col = c("grey",colour_vector),
+plot.space(morphdat,
+           col = colour_vector,
+           levels = morphdat$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)")
+plot.ellipses(covar_matrices, col = c("grey",colour_vector),
               add = TRUE)
 ```
 
 Because this is really messy, we can centre these ellipses on the groups ellipses average centres:
 
 ```{r}
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
-plot.ellipses(covar_matrices, centre = "level",
+plot.space(morphdat,
+           col = colour_vector,
+           levels = morphdat$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)")
+plot.ellipses(covar_matrices, centre = mean,
               col = c("grey",colour_vector),
               add = TRUE)
 ```
@@ -247,7 +255,7 @@ And we can still do the whole axis stuff, same way as above:
 
 
 ```{r}
-## Get the covariance matrices
+## Get the covariance matrices
 covar_matrices2 <- get.covar(model_phylo4,
                             n = 100,
                             simplify = FALSE)
@@ -383,7 +391,7 @@ boxplot.proj.rej <- function(point_list, data, cols) {
         return(data.frame("points" = data$projection,
                           "classifier" = classifier))
     }
-    ## Sort the data per clade
+    ## Sort the data per clade
     rejections <- do.call(rbind, lapply(point_list, sort.clade.rej, classifier))
     projections <- do.call(rbind, lapply(point_list, sort.clade.proj, classifier))
     par(mfrow = c(2,1))

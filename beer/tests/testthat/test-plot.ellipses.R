@@ -1,4 +1,10 @@
 ## Test
+data(model_list)
+data(morphdat)
 test_that("plot.ellipses works", {
-    expect_equal(plot.ellipses(), "prototype")
+    beer <- get.covar(model_list[[7]], n = 7)
+    plot.space(morphdat, levels = morphdat$clade)
+    expect_null(plot.ellipses(beer, use.transparent = TRUE))
+    expect_null(plot.ellipses(beer, centre = -1.5, add = FALSE))
+    expect_null(plot.ellipses(beer, centre = median, add = FALSE))
 })
