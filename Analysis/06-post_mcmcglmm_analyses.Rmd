@@ -113,10 +113,9 @@ For these three metrics I expect:
 Note that the three metrics are measured independently of the ellipse position in space and are measured in 3D.
 
 ```{r}
-source("../Functions/get.axes.R")
 ## Get all the phylo main axes
-level_centred_major_axes <- get.axes(covar_matrices, centre = "level")
-uncentered_major_axes <- get.axes(covar_matrices, centre = "none")
+level_centred_major_axes <- get.axes(covar_matrices, centre = mean)
+uncentered_major_axes <- get.axes(covar_matrices, centre = "intercept")
 ```
 
 And this is what it looks like for the uncentred ones:
@@ -126,10 +125,10 @@ plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
      col = colour_vector[morphdat$clade],
      xlab = "PC1 (90.5%)",
      ylab = "PC1 (6.86%)")
-plot.ellipses(covar_matrices, centre = "none",
+plot.ellipses(covar_matrices, centre = "intercept",
               col = c("grey",colour_vector),
               add = TRUE)
-plot.all.axes(uncentered_major_axes,
+plot.axes(uncentered_major_axes,
          col = c("grey",colour_vector),
          add = TRUE)
 ```
@@ -137,14 +136,15 @@ plot.all.axes(uncentered_major_axes,
 And for the centred ones:
 
 ```{r}
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
-plot.ellipses(covar_matrices, centre = "level",
+plot.space(morphdat,
+           col = colour_vector,
+           levels = morphdat$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)")
+plot.ellipses(covar_matrices, centre = mean,
               col = c("grey",colour_vector),
               add = TRUE)
-plot.all.axes(level_centred_major_axes,
+plot.axes(level_centred_major_axes,
          col = c("grey",colour_vector),
          add = TRUE)
 ```
@@ -153,15 +153,18 @@ Note that the major axes look slightly off for some of the ellipses.
 I think this is due to the difference in aspect ratio in both plots that exagerates vertical positions and deforms the ellipses:
 
 ```{r}
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)",
-     main = "Major axes of the ellipses\n(aspect ratio = 1)",xlim = c(-1.5, 1.5), ylim = c(-1.5, 1.5))
-plot.ellipses(covar_matrices, centre = "level",
+plot.space(morphdat,
+           col = colour_vector,
+           levels = morphdat$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)",
+           main = "Major axes of the ellipses\n(aspect ratio = 1)",
+           xlim = c(-1.5, 1.5),
+           ylim = c(-1.5, 1.5))
+plot.ellipses(covar_matrices, centre = mean,
               col = c("grey",colour_vector),
               add = TRUE)
-plot.all.axes(level_centred_major_axes,
+plot.axes(level_centred_major_axes,
          col = c("grey",colour_vector),
          add = TRUE)
 ```
@@ -169,7 +172,7 @@ plot.all.axes(level_centred_major_axes,
 This is an example with just the major axes (projected in 2D):
 
 ```{r}
-plot.all.axes(uncentered_major_axes,
+plot.axes(uncentered_major_axes,
          col = c("grey",colour_vector),
          add = FALSE, main = "Major axes (un-centred)")
 ```
@@ -177,7 +180,7 @@ plot.all.axes(uncentered_major_axes,
 We can then compare these vectors per blobs.
 We in order to facilitate the vectors comparisons, we will translate the groups vectors (clade ones) on the origin of the phylo vector.
 
-```{r}
+```{r, eval = FALSE}
 source("../Functions/vector.diff.R")
 ## Get all the angles and stuff
 gull_results <- mapply(vector.diff, uncentered_major_axes$cladegulls, uncentered_major_axes$phylo)
@@ -197,7 +200,7 @@ rejections <- cbind(gull_results["rejection", ],
 colnames(angles) <- colnames(projections) <- colnames(rejections) <- levels(morphdat$clade)
 ```
 
-```{r, fig.height = 18, fig.heigh = 6}
+```{r, fig.height = 18, fig.heigh = 6, eval = FALSE}
 ## Plot the blob wise metrics
 par(mfrow = c(3, 1))
 boxplot(angles, col = colour_vector, ylab = "angle")
@@ -208,7 +211,7 @@ boxplot(rejections, col = colour_vector, ylab = "rejection (scaled)")
 Same but with absolute values and angles modulo 90:
 
 
-```{r, fig.height = 18, fig.heigh = 6}
+```{r, fig.height = 18, fig.heigh = 6, eval = FALSE}
 ## Plot the blob wise metrics
 par(mfrow = c(3, 1))
 boxplot(angles %% 90, col = colour_vector, ylab = "angle (modulo 90)")
@@ -220,108 +223,42 @@ boxplot(abs(rejections), col = colour_vector, ylab = "rejection (scaled - absolu
 
 
 
+# Methods bits draft
 
 
+## The model
 
+We run a MCMCglmm with different levels.
 
+## The mini chains
 
+We used a mini chain approach to:
 
+ * accounted for phylogenetic uncertainty [healy.et.al]
+ * accounted for global parameter estimates uncertainty (local vs. global peak)
+ * greatly speeding the calculations through high parallelisation
 
+We then combine the mini chains
 
+## Exploration and elaboration analyses
 
+For each model, we randomly draw $N$ variance covariance matrices estimates.
+We then used them to analyse the exploration/elaboration component at the species level and at the clade level indepently.
 
+We extracted the major axes of each selected covariance matrices using blablbalba
 
+### At the clade level
 
+We then translated each set of major axes so that they align with each other (i.e. translated the clade major axes origin onto the global major axes origin).
 
-### Phylo clade model
+We then calculated the angle between the clade major axes and the global major axes as well as their projection and rejections.
 
-For this example, the MCMCglmm model has four random (phylo) effects (one for the whole phylo and one per clade) rather than just the one for the whole phylogeny.
-The model seems to struggle converging and there are things off with the centring (they seem to be all centred no matter what) but that last bit should not be a problem for comparing the vectors since they are translated anyways.
+### At the species level
 
-
-```{r, warn = FALSE}
-plot(morphdat[, c(1,2)], pch = 19, cex = 0.5,
-     col = colour_vector[morphdat$clade],
-     xlab = "PC1 (90.5%)",
-     ylab = "PC1 (6.86%)")
-plot.ellipses(model_phylo4, n = 100,
-              centre = "none", add = TRUE, col = c("grey",colour_vector, "pink"))
-```
-
-The pink ellipse is representing the residuals.
-
-
-And we can still do the whole axis stuff, same way as above:
-
-
-```{r}
-## Get the covariance matrices
-covar_matrices2 <- get.covar(model_phylo4,
-                            n = 100,
-                            simplify = FALSE)
-## Drop the residuals
-covar_matrices2 <- covar_matrices2[-5, ]
-
-## Get all the phylo main axes
-uncentered_major_axes2 <- get.axes(covar_matrices2, centre = "none")
-names(uncentered_major_axes2) <- c("phylo", "cladegulls", "cladeplovers", "cladesandpipers")
-
-```
-
-Here's what the axes look like without the ellipses and stuff:
-
-```{r}
-plot.all.axes(uncentered_major_axes2,
-         col = c("grey",colour_vector),
-         add = FALSE, main = "Major axes (centred)")
-```
-
-```{r}
-source("../Functions/vector.diff.R")
-## Get all the angles and stuff
-gull_results <- mapply(vector.diff, uncentered_major_axes2$cladegulls, uncentered_major_axes2$phylo)
-plovers_results <- mapply(vector.diff, uncentered_major_axes2$cladeplovers, uncentered_major_axes2$phylo)
-sandpipers_results <- mapply(vector.diff, uncentered_major_axes2$cladesandpipers, uncentered_major_axes2$phylo)
-
-## Sort the results per type
-angles <- cbind(gull_results["angle", ],
-                plovers_results["angle", ],
-                sandpipers_results["angle", ])
-projections <- cbind(gull_results["projection", ],
-                     plovers_results["projection", ],
-                     sandpipers_results["projection", ])
-rejections <- cbind(gull_results["rejection", ],
-                    plovers_results["rejection", ],
-                    sandpipers_results["rejection", ])
-colnames(angles) <- colnames(projections) <- colnames(rejections) <- levels(morphdat$clade)
-```
-
-```{r, fig.height = 18, fig.heigh = 6}
-## Plot the blob wise metrics
-par(mfrow = c(3, 1))
-boxplot(angles, col = colour_vector, ylab = "angle")
-boxplot(projections, col = colour_vector, ylab = "projection (scaled)")
-boxplot(rejections, col = colour_vector, ylab = "rejection (scaled)")
-```
-
-```{r, fig.height = 18, fig.heigh = 6}
-## Plot the blob wise metrics
-par(mfrow = c(3, 1))
-boxplot(angles %% 90, col = colour_vector, ylab = "angle (modulo 90)")
-boxplot(abs(projections), col = colour_vector, ylab = "projection (scaled - absolute)")
-boxplot(abs(rejections), col = colour_vector, ylab = "rejection (scaled - absolute)")
-```
-
-
-
-
-
-
-
-
-
-
-
+Here we only projected the species coordinates on either:
+ 
+ * the global major axes to measure the global elaboration/exploration
+ * the clade major axes to measure the nested elaboration/exploration
 
 
 
@@ -340,7 +277,7 @@ For the tip wise approach, the method is pretty straightforward from what I've d
  * Each element against the phylo axes
  * Each element against their clade axes
 
-```{r}
+```{r, eval = FALSE}
 library(dispRity)
 ## Wrapping function
 lapply.projections <- function(one_axis, trait_space) {
@@ -379,7 +316,7 @@ plot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat, m
  
 But maybe it's easier to boxplot that to get the info by clade
 
-```{r}
+```{r, eval = FALSE}
 boxplot.proj.rej <- function(point_list, data, cols) {
     ## Get the classifier
     classifier <- data$clade    
@@ -407,7 +344,7 @@ The idea here is to distinguish between extra special taxa.
 For example, in mammals the platypus and the naked mole rat are special, however, the platypus is actually not special among platypuses whereas the naked mole rat is special among rodents!
 
 
-```{r}
+```{r, eval = FALSE}
 ## The within clades explo/elabo
 gulls_results_uncentered <- lapply(uncentered_major_axes$cladegulls, lapply.projections, trait_space = morphdat[which(morphdat$clade == "gulls"), c(1,2,3)])
 plover_results_uncentered <- lapply(uncentered_major_axes$cladeplovers, lapply.projections, trait_space = morphdat[which(morphdat$clade == "plovers"), c(1,2,3)])
