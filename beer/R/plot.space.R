@@ -5,9 +5,10 @@
 #' @param data a trait space.
 #' @param levels the levels (categories, eg. clades)
 #' @param dimensions which dimensions to plot (default is \code{c(1,2)}).
-#' @param ... any plotting options to be passed to \code{\link{graphics}{lines}}
-#' @param scale.axes logical, whether to set both axes on the same scale (\code{TRUE}) or not (\code{FALSE}, default).
+#' @param col a colour vector.
 #' @param add logical, whether to add the lines to an existing plot (\code{TRUE}, default) or not (\code{FALSE}).
+#' @param scale.axes logical, whether to set both axes on the same scale (\code{TRUE}) or not (\code{FALSE}, default).
+#' @param ... any plotting options to be passed to \code{\link{graphics}{points}}
 #' 
 #' @examples
 #' data(morphdat)
@@ -20,7 +21,7 @@
 #' @importFrom graphics lines
 #' @export
 
-plot.space <- function(data, levels, dimensions = c(1,2), ..., col, add = FALSE, legend, scale.axes = FALSE) {
+plot.space <- function(data, levels, dimensions = c(1,2), col, add = FALSE, scale.axes = FALSE, ...) {
 
     ## Get the plotting arguments
     if(!scale.axes) {
@@ -38,6 +39,7 @@ plot.space <- function(data, levels, dimensions = c(1,2), ..., col, add = FALSE,
             col <- grDevices::rainbow(length(unique(levels)))
         }
     }
+
     ## Assigning the colour (by levels or not)
     plot_args$col <- col
     if(!missing(levels)) {
