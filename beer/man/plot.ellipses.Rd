@@ -11,7 +11,6 @@
   centre = "intercept",
   col,
   add = TRUE,
-  legend,
   use.transparent = TRUE,
   ...
 )

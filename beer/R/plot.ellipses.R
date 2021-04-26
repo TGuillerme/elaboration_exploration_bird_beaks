@@ -27,7 +27,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "intercept", col, add = TRUE, legend, use.transparent = TRUE, ...) {
+plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "intercept", col, add = TRUE, use.transparent = TRUE, ...) {
     ## Get the ellipses
     all_ellipses <- lapply(beer, level.ellipses, dimensions, npoints, centre)
     
@@ -39,7 +39,7 @@ plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "int
         col <- grDevices::rainbow(length(beer))
     }
     if(use.transparent) {
-        adjust <- 1/length(beer) + 1/length(all_ellipses)
+        adjust <- 1/length(beer) + 1/length(all_ellipses[[1]])
         col <- grDevices::adjustcolor(col, alpha.f = adjust)
     }
 
@@ -67,25 +67,32 @@ make.ellipse <- function(one_sample, dimensions, npoints){
 replace.intercept <- function(level_sample, value, dimensions) {
     lapply(level_sample, function(X) {X$Sol[dimensions] <- value[dimensions]; return(X)})
 }
-
-## Internal: making a list of ellipses for the level
-level.ellipses <- function(level_samples, dimensions, npoints, centre) {
-
+## Internal: changing the intercept wrapper
+recentre.levels <- function(level_sample, dimensions, centre) {
     ## Centre the ellipse
     if(is(centre, "function")) {
         ## Get the central tendency (as a function)
-        centre_values <- apply(do.call(rbind, lapply(level_samples, `[[`, "Sol")), 2, centre)
+        centre_values <- apply(do.call(rbind, lapply(level_sample, `[[`, "Sol")), 2, centre)
         ## Recentre the intercepts
-        level_samples <- replace.intercept(level_samples, value = centre_values, dimensions)
+        level_sample <- replace.intercept(level_sample, value = centre_values, dimensions)
     }
     if(is(centre, "numeric") || is(centre, "integer")) {
-        if((diff <- length(level_samples[[1]]$Sol) - length(centre)) > 0) {
+        if((diff <- length(level_sample[[1]]$Sol) - length(centre)) > 0) {
             centre <- c(centre, rep(centre, diff))
         }
         ## Manually recentre the intercepts
-        level_samples <- replace.intercept(level_samples, value = centre, dimensions)
+        level_sample <- replace.intercept(level_sample, value = centre, dimensions)
     }
+    return(level_sample)
+}
+
+
+## Internal: making a list of ellipses for the level
+level.ellipses <- function(level_sample, dimensions, npoints, centre) {
+
+    ## Recentreing the levels
+    level_sample <- recentre.levels(level_sample, dimensions, centre)
 
     ## Get the ellipses for the level
-    return(lapply(level_samples, make.ellipse, dimensions, npoints))
+    return(lapply(level_sample, make.ellipse, dimensions, npoints))
 }
