@@ -49,6 +49,6 @@ plot.axes <- function(data, dimensions = c(1,2), centre = "intercept", col, add 
     line_args <- plot_args
     for(one_level in 1:length(data)) {
         line_args$col <- col[one_level]
-        lapply(axes[[one_level]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
+        lapply(data[[one_level]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
     }
 }
