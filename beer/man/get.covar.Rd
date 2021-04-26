@@ -4,10 +4,10 @@
 \alias{get.covar}
 \title{Get covariance matrices}
 \usage{
-get.covar(data, n = 1)
+get.covar(MCMCglmm, n = 1)
 }
 \arguments{
-\item{data}{The MCMCglmm object}
+\item{MCMCglmm}{The MCMCglmm object}
 
 \item{n}{The number of samples}
 }

@@ -2,7 +2,7 @@
 #'
 #' @description Get a sub-sample of the covariance matrices from a MCMCglmm object and the associated MME posterior intercept (solution) sorted by levels
 #'
-#' @param data The MCMCglmm object
+#' @param MCMCglmm The MCMCglmm object
 #' @param n The number of samples
 #' 
 #' @return 
@@ -15,20 +15,27 @@
 #' 
 #' @author Thomas Guillerme, Gavin Thomas
 #' @export
-get.covar <- function(data, n = 1){   
+get.covar <- function(MCMCglmm, n = 1){   
     ## The number of traits
-    traits <- traits.MCMCglmm(data)
+    traits <- traits.MCMCglmm(MCMCglmm)
     n_traits <- length(traits)
     ## The number of levels
-    levels <- levels.MCMCglmm(data)
+    levels <- levels.MCMCglmm(MCMCglmm)
     n_levels <- length(levels)
 
     ## Sample n covar matrices
-    covar_matrices <- replicate(n, get.one.covar(data, levels, traits), simplify = FALSE)
+    covar_matrices <- unlist(replicate(n, get.one.covar(MCMCglmm, levels, traits), simplify = FALSE), recursive = FALSE)
+
+    ## Rearrange the list per levels
+    results_out <- list()
+    for(one_level in 1:n_levels) {
+        results_out[[one_level]] <- unname(covar_matrices[which(names(covar_matrices) == levels[one_level])])
+        names(results_out)[one_level] <- levels[one_level]
+    } 
 
     ## Set the class to beer
-    class(covar_matrices) <- "beer"
-    return(covar_matrices)
+    class(results_out) <- "beer"
+    return(results_out)
 }
 
 ## Internal function to get one covariance matrix

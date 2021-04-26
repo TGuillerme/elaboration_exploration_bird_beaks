@@ -57,9 +57,10 @@ test_that("get.one.covar/get.covar works", {
     ## replicate bit works
     test <- get.covar(model_list[[1]], n = 7)
     expect_is(test, "beer")
-    expect_equal(length(test), 7)
-
+    expect_equal(length(test), length(levels.MCMCglmm(model_list[[1]])))
+    expect_equal(length(test[[1]]), 7)
     test <- get.covar(model_list[[7]], n = 7)
     expect_is(test, "beer")
-    expect_equal(length(test), 7)
+    expect_equal(length(test), length(levels.MCMCglmm(model_list[[7]])))
+    expect_equal(length(test[[1]]), 7)
 })
