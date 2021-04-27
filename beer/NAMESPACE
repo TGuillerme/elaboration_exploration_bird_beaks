@@ -9,7 +9,7 @@ export(plot.axes)
 export(plot.ellipses)
 export(plot.space)
 export(plot.tree)
-export(plot.groups)
+export(plot.analyses.group)
 
 # Mini chains functions
 export(make.mini.chains)

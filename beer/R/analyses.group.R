@@ -31,5 +31,5 @@ analyses.group <- function(axes, base = 1, groups, ...) {
     group_vectors <- axes[groups]
 
     ## Run all the analyses
-    return(lapply(group_vectors, function(group, base_vectors, ...) mapply(vector.diff, group, base_vectors, MoreArgs = list(...)), base_vectors, ...))
+    return(lapply(group_vectors, function(group, base_vectors, ...) t(mapply(vector.diff, group, base_vectors, MoreArgs = list(...))), base_vectors, ...))
 }

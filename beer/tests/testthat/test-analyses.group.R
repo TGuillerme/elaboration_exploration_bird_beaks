@@ -13,6 +13,6 @@ test_that("group.results works", {
     test <- analyses.group(axes, groups = c(1, 2, 3), return = c("angle", "projection"))
     expect_equal(names(test), unname(levels.MCMCglmm(model_list[[7]])[1:3]))
     expect_is(test[[1]], "matrix")
-    expect_equal(dim(test[[1]]), c(2, 4))
-    expect_equal(rownames(test[[1]]), c("angle", "projection"))
+    expect_equal(dim(test[[1]]), c(4, 2))
+    expect_equal(colnames(test[[1]]), c("angle", "projection"))
 })
