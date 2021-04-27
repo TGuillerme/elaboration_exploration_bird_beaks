@@ -20,5 +20,5 @@ export(combine.mini.chains)
 # Analyses functions
 export(get.covar)
 export(get.axes)
-export(group.results)
-export(tip.results)
+export(analyses.group)
+export(analyses.tip)

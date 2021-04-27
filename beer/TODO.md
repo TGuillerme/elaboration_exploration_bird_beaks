@@ -13,8 +13,8 @@ The wrapper pipeline package must contain
  - [ ] some functions for combining the mini chains in a big `MCMCglmm` object `combine.mini.chains`
  - [x] some function to extract the posterior covar matrices from the `MCMCglmm` object (can be an object of class `"beer"`?): `get.covar`
  - [x] some function for extracting the major axis from the matrices: `get.axes`
- - [ ] some function for running the blob-wise test: i.e. doing the aligning and then calculating the angle projection and rejection from the axis. `group.results`
- - [ ] some function for running the tip-wise test: i.e. getting the projection and rejection for each taxa. `tip.results`
+ - [x] some function for running the blob-wise test: i.e. doing the aligning and then calculating the angle projection and rejection from the axis. `analyses.group`
+ - [ ] some function for running the tip-wise test: i.e. getting the projection and rejection for each taxa. `analyses.tip`
  - [ ] some function for plotting the results of groups comparisons: `plot.groups`
  - [ ] some function for plotting the tip-wise results in a circular phylogeny: `plot.tree` (wrapper from `phytools` simMap)
  - [x] some function for plotting the trait space (`plot.space`)
