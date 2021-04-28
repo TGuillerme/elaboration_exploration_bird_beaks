@@ -21,8 +21,13 @@ analyses.tip <- function(data, axes) {
 
     ## Run the analyses
     results <- lapply(axes, lapply.projections, data)
-    projections <- lapply(results, `[[`, "projection")
-    rejections <- lapply(results, `[[`, "rejection")
+    projections <- do.call(cbind, lapply(results, `[[`, "projection"))
+    rejections <- do.call(cbind, lapply(results, `[[`, "rejection"))
+    if(!is.null(rownames(data))) {
+        rownames(projections) <- rownames(rejections) <- rownames(data)
+    }
+
+
     return(list(projections = projections, rejections = rejections))
 }
 
