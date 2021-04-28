@@ -8,7 +8,7 @@ importFrom(ellipse, ellipse)
 export(plot.axes)
 export(plot.ellipses)
 export(plot.space)
-export(plot.tree)
+export(plot.analyses.tip)
 export(plot.analyses.group)
 
 # Mini chains functions
