@@ -180,44 +180,19 @@ plot.axes(uncentered_major_axes,
 We can then compare these vectors per blobs.
 We in order to facilitate the vectors comparisons, we will translate the groups vectors (clade ones) on the origin of the phylo vector.
 
-```{r, eval = FALSE}
-source("../Functions/vector.diff.R")
+```{r}
 ## Get all the angles and stuff
-gull_results <- mapply(vector.diff, uncentered_major_axes$cladegulls, uncentered_major_axes$phylo)
-plovers_results <- mapply(vector.diff, uncentered_major_axes$cladeplovers, uncentered_major_axes$phylo)
-sandpipers_results <- mapply(vector.diff, uncentered_major_axes$cladesandpipers, uncentered_major_axes$phylo)
-
-## Sort the results per type
-angles <- cbind(gull_results["angle", ],
-                plovers_results["angle", ],
-                sandpipers_results["angle", ])
-projections <- cbind(gull_results["projection", ],
-                     plovers_results["projection", ],
-                     sandpipers_results["projection", ])
-rejections <- cbind(gull_results["rejection", ],
-                    plovers_results["rejection", ],
-                    sandpipers_results["rejection", ])
-colnames(angles) <- colnames(projections) <- colnames(rejections) <- levels(morphdat$clade)
+group_results <- analyses.group(uncentered_major_axes, base = "animal")
+names(group_results) <- levels(morphdat$clade)
 ```
 
-```{r, fig.height = 18, fig.heigh = 6, eval = FALSE}
+```{r, fig.height = 18, fig.heigh = 6}
 ## Plot the blob wise metrics
-par(mfrow = c(3, 1))
-boxplot(angles, col = colour_vector, ylab = "angle")
-boxplot(projections, col = colour_vector, ylab = "projection (scaled)")
-boxplot(rejections, col = colour_vector, ylab = "rejection (scaled)")
+plot.analyses.group(group_results, col = colour_vector)
 ```
 
-Same but with absolute values and angles modulo 90:
 
 
-```{r, fig.height = 18, fig.heigh = 6, eval = FALSE}
-## Plot the blob wise metrics
-par(mfrow = c(3, 1))
-boxplot(angles %% 90, col = colour_vector, ylab = "angle (modulo 90)")
-boxplot(abs(projections), col = colour_vector, ylab = "projection (scaled - absolute)")
-boxplot(abs(rejections), col = colour_vector, ylab = "rejection (scaled - absolute)")
-```
 
 
 
@@ -278,40 +253,11 @@ For the tip wise approach, the method is pretty straightforward from what I've d
  * Each element against their clade axes
 
 ```{r, eval = FALSE}
-library(dispRity)
-## Wrapping function
-lapply.projections <- function(one_axis, trait_space) {
-    return(list(
-        projection = projections(as.matrix(trait_space), point1 = one_axis[1,], point2 = one_axis[2,]),
-        rejection  = projections(as.matrix(trait_space), point1 = one_axis[1,], point2 = one_axis[2,], measure = "distance")))
-}
-## Plot rejection/projection profiles
-plot.proj.rej <- function(point_list, cols, data, main) {
-    ## Colour vector
-    colour_vector <- cols[morphdat$clade]
-    colour_vector <- adjustcolor(colour_vector, alpha.f = 1/10)
-    ## lims
-    lim <- range(unlist(point_list))
-    plot(NULL, xlim = lim, ylim = lim, xlab = "projection", ylab = "rejection", main = main)
-    ## Add each points
-    plot.points <- function(one_set, colour_vector) {
-        points_args <- list()
-        points_args$pch <- 19
-        points_args$col <- colour_vector
-        points_args$x <- one_set$projection
-        points_args$y <- one_set$rejection
-        do.call(points, points_args)
-    }
-
-    lapply(point_list, plot.points, colour_vector)
-    return(invisible())
-}
-
-## Getting the results
-phylo_results_uncentered <- lapply(uncentered_major_axes$phylogeny, lapply.projections, trait_space = morphdat[, c(1,2,3)])
+## Global per tip analyses
+tip_results_global <- analyses.tip(data = morphdat, axes = uncentered_major_axes$phylogeny)
 
 ## Plot results
-plot.proj.rej(phylo_results_uncentered, cols = colour_vector, data = morphdat, main = "Phylo elaboration/rejection")
+plot.analyses.tip(tip_results_global, cols = colour_vector, group = split(rownames(morphdat), f = morphdat$clade)))
 ```
  
 But maybe it's easier to boxplot that to get the info by clade
