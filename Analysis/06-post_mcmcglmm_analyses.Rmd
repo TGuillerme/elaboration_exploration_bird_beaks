@@ -252,12 +252,12 @@ For the tip wise approach, the method is pretty straightforward from what I've d
  * Each element against the phylo axes
  * Each element against their clade axes
 
-```{r, eval = FALSE}
+```{r}
 ## Global per tip analyses
-tip_results_global <- analyses.tip(data = morphdat, axes = uncentered_major_axes$phylogeny)
+tip_results_global <- analyses.tip(data = morphdat[, c(1:3)], axes = uncentered_major_axes$animal)
 
 ## Plot results
-plot.analyses.tip(tip_results_global, cols = colour_vector, group = split(rownames(morphdat), f = morphdat$clade)))
+plot.analyses.tip(tip_results_global, cols = colour_vector, group = split(rownames(morphdat), f = morphdat$clade))
 ```
  
 But maybe it's easier to boxplot that to get the info by clade
