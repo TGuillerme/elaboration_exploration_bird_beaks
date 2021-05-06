@@ -4,7 +4,15 @@
 \alias{make.mini.chains}
 \title{make.mini.chains}
 \usage{
-make.mini.chains(data, dimensions, trees, model, parameters, priors)
+make.mini.chains(
+  data,
+  dimensions,
+  trees,
+  residuals = "global",
+  randoms = "global",
+  parameters,
+  priors
+)
 }
 \arguments{
 \item{data}{a full ordinated matrix}
@@ -13,7 +21,9 @@ make.mini.chains(data, dimensions, trees, model, parameters, priors)
 
 \item{trees}{the list of trees to run the models on}
 
-\item{model}{the model}
+\item{residuals}{the type of residuals (see details)}
+
+\item{randoms}{the type of randoms (see details)}
 
 \item{parameters}{the tunning parameters for the MCMCglmm}
 
@@ -21,6 +31,14 @@ make.mini.chains(data, dimensions, trees, model, parameters, priors)
 }
 \description{
 Making a list of mini.chains object (MCMCglmm primers)
+}
+\details{
+The types of model for the residuals and random terms can be:
+\itemize{
+\item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~ us(trait):unit}).
+\item \code{"clade"} for just as many levels of effects as there are clades in the data. This is used in the form \code{us(at.level(clade,1):trait):animal} for the random effects (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
+\item \code{c("global", "clade")} for the combination of both effects described above.
+}
 }
 \examples{
 
