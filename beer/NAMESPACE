@@ -12,6 +12,7 @@ export(plot.analyses.tip)
 export(plot.analyses.group)
 
 # Mini chains functions
+export(flat.prior)
 export(make.mini.chains)
 export(run.mini.chains)
 export(diagnose.mini.chains)
