@@ -8,10 +8,12 @@ make.mini.chains(
   data,
   dimensions,
   trees,
+  trait.family = "gaussian",
   residuals = "global",
   randoms = "global",
   parameters,
-  priors
+  priors = 0.02,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -21,13 +23,17 @@ make.mini.chains(
 
 \item{trees}{the list of trees to run the models on}
 
+\item{trait.family}{the family of the traits (default is "gaussian")}
+
 \item{residuals}{the type of residuals (see details)}
 
 \item{randoms}{the type of randoms (see details)}
 
-\item{parameters}{the tunning parameters for the MCMCglmm}
+\item{parameters}{the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test)}
 
-\item{priors}{the priors for the MCMCglmm}
+\item{priors}{A list of priors or a value of the overal nu parameter for generating flat priors for the MCMCglmm}
+
+\item{verbose}{whether to make the MCMCglmm verbose (TRUE; default) or not (FALSE).}
 }
 \description{
 Making a list of mini.chains object (MCMCglmm primers)
