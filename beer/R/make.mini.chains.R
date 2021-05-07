@@ -4,7 +4,7 @@
 #'
 #' @param data a full ordinated matrix
 #' @param dimensions the list of dimensions to include
-#' @param trees the list of trees to run the models on
+#' @param tree the list of trees to run the models on
 #' @param trait.family the family of the traits (default is "gaussian")
 #' @param residuals the type of residuals (see details)
 #' @param randoms the type of randoms (see details)
@@ -27,7 +27,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-make.mini.chains <- function(data, dimensions, trees, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE) {
+make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE) {
 
     ## Setting the fixed effect model
     ## Is there any clade effect in the model?
@@ -68,46 +68,38 @@ make.mini.chains <- function(data, dimensions, trees, trait.family = "gaussian",
     random <- NULL
     n_randoms <- 0
     if("clade" %in% randoms) {
-        ## Adding the clade terms
-        random <- clade.terms(n_clades, type = "animal")
-        n_randoms <- n_randoms + n_clades
-
-        ## Adding the global terms if needed
         if("global" %in% randoms) {
-            random <- update.formula(random, ~ . + us(trait):animal)
-            tmp2 <- random[[2]][[3]][[2]]
-            tmp1 <- random[[2]][[3]][[3]]
-            random[[2]][[3]][[2]] <- tmp1
-            random[[2]][[3]][[3]] <- tmp2
-            n_randoms <- n_randoms + 1
+            ## Clade terms + global
+            random <- clade.terms(n_clades, type = "animal", add.global = TRUE)
+            n_randoms <- n_clades + 1
+        } else {
+            ## Clade terms
+            random <- clade.terms(n_clades, type = "animal", add.global = FALSE)
+            n_randoms <- n_clades
         }
     } else {
-        ## Adding the clade terms
+        ## Global term
         random <- ~ us(trait):animal        
-        n_randoms <- n_randoms + 1
+        n_randoms <- 1
     }
 
     ## Residuals effect
     rcov <- NULL
     n_residuals <- 0
     if("clade" %in% residuals) {
-        ## Adding the clade terms
-        rcov <- clade.terms(n_clades, type = "units")
-        n_residuals <- n_residuals + n_clades
-
-        ## Adding the global terms if needed
         if("global" %in% residuals) {
-            rcov <- update.formula(rcov, ~ . + us(trait):units)
-            tmp2 <- rcov[[2]][[3]][[2]]
-            tmp1 <- rcov[[2]][[3]][[3]]
-            rcov[[2]][[3]][[2]] <- tmp1
-            rcov[[2]][[3]][[3]] <- tmp2
-            n_residuals <- n_residuals + 1
+            ## Clade terms + global
+            rcov <- clade.terms(n_clades, type = "units", add.global = TRUE)
+            n_residuals <- n_clades + 1
+        } else {
+            ## Clade terms
+            rcov <- clade.terms(n_clades, type = "units", add.global = FALSE)
+            n_residuals <- n_clades
         }
     } else {
-        ## Adding the clade terms
-        rcov <- ~ us(trait):units
-        n_residuals <- n_residuals + 1
+        ## Global term
+        rcov <- ~ us(trait):units        
+        n_residuals <- 1
     }
 
     ## Priors
@@ -167,12 +159,11 @@ make.mini.chains <- function(data, dimensions, trees, trait.family = "gaussian",
                                               thin     = parameters$thin)))
                     , fixed, random, rvoc, family, data, priors, verbose, parameters)
 
-
     class(output) <- c("beer", "mini.chains")
     return(output)
 }
 
-clade.terms <- function(n_clades, type) {
+clade.terms <- function(n_clades, type, add.global = FALSE) {
     ## Term for the first clade
     form <- as.formula(paste0("~us(at.level(clade,1):trait):", type))
 
@@ -183,12 +174,21 @@ clade.terms <- function(n_clades, type) {
         form <- update.formula(form, add_form)
     }
 
+    ## Add the global term?
+    if(add.global) {
+        add_global <- 1
+        add_form <- paste0(paste0("~ . + us(trait):", type))
+        form <- update.formula(form, add_form)
+    } else {
+        add_global <- 0
+    }
+
     ## Flip the terms around
-    for(i in 2:n_clades) {
-        eval(parse(text = paste0("tmp2 <- form", paste0(rep("[[2]]", n_clades - i + 1), collapse = ""), "[[3]][[2]]")))
-        eval(parse(text = paste0("tmp1 <- form", paste0(rep("[[2]]", n_clades - i + 1), collapse = ""), "[[3]][[3]]")))
-        eval(parse(text = paste0("form", paste0(rep("[[2]]", n_clades - i + 1), collapse = ""), "[[3]][[2]] <- tmp1")))
-        eval(parse(text = paste0("form", paste0(rep("[[2]]", n_clades - i + 1), collapse = ""), "[[3]][[3]] <- tmp2")))
+    for(i in 2:(n_clades+add_global)) {
+        eval(parse(text = paste0("tmp2 <- form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[2]]")))
+        eval(parse(text = paste0("tmp1 <- form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[3]]")))
+        eval(parse(text = paste0("form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[2]] <- tmp1")))
+        eval(parse(text = paste0("form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[3]] <- tmp2")))
     }
 
     return(form)

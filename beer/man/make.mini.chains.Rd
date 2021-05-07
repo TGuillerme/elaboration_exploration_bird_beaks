@@ -7,7 +7,7 @@
 make.mini.chains(
   data,
   dimensions,
-  trees,
+  tree,
   trait.family = "gaussian",
   residuals = "global",
   randoms = "global",
@@ -21,7 +21,7 @@ make.mini.chains(
 
 \item{dimensions}{the list of dimensions to include}
 
-\item{trees}{the list of trees to run the models on}
+\item{tree}{the list of trees to run the models on}
 
 \item{trait.family}{the family of the traits (default is "gaussian")}
 

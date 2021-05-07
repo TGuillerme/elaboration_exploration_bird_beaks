@@ -46,37 +46,83 @@ test_that("clade.terms works", {
 
 test_that("make.mini.chains works", {
 
-#     short_run <- list(nitt = 100, burnin = 10, thin = 10)
-#     flat_priors <- flat.prior(residuals = 1, randoms = 4, ntraits = 3, nu = 0.002)
+    tree_list <- list(tree, tree, tree)
+    class(tree_list) <- "multiPhylo"
 
-#     ## make.mini.chains produces the right output
-#     test <- make.mini.chains(parameters = short_run, prior = flat_priors, model = , dimensions = c(1:3), data = morphdat)
-#     expect_is(test, c("beer", "mini.chains"))
-#     expect_equal(length(test), 3)
-#     expect_equal(names(test), c("data", "tree", "run"))
-#     expect_is(test$run, "function")
+    ## Model 3
+    test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE)
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 3)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2)trait - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(trait):units")
 
-#     ## Testing the run
-#     tust <- test$run()
-#     expect_is(tust, "MCMCglmm")
+    ## Model 4
+    priors_list <- flat.prior(ntraits = 3, randoms = 1, residuals = 3, nu = 0.1)
+    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", priors = priors_list)
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 1)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2, PC3)trait:clade - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):units + us(at.level(clade, 2):trait):units + us(at.level(clade, 3):trait):units")
+    
+    ## Model 5
+    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", randoms = "clade")
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 1)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2, PC3)trait:clade - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):animal + us(at.level(clade, 2):trait):animal + us(at.level(clade, 3):trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):units + us(at.level(clade, 2):trait):units + us(at.level(clade, 3):trait):units")
+
+    ## Model 6
+    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", randoms = c("global", "clade"))
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 1)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2, PC3)trait:clade - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):animal + us(at.level(clade, 2):trait):animal + us(at.level(clade, 3):trait):animal + us(trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):units + us(at.level(clade, 2):trait):units + us(at.level(clade, 3):trait):units")
 
 
-# random_ok <- ~ us(at.level(clade,1):trait):animal + us(at.level(clade,2):trait):animal + us(at.level(clade,3):trait):animal
-
-
-# random_no <- ~ us(at.level(clade,1):trait):animal + us(at.level(clade,2):trait):animal + us(at.level(clade,3):trait):animal
-# random_test <- random_ok
-# random_test <- clade.terms(3, type = "animal")
-# random_test <- 
-
-
-
-
-# model7 <- MCMCglmm(cbind(PC1, PC2, PC3) ~ trait:clade-1, family = rep("gaussian", ntraits),
-#                        random = random_test
-#                          ,
-#                       rcov=
-#                          ~ us(trait):units,
-#                        prior= flat_priors, pedigree = tree, data = morphdat, nitt = 1000, burnin = 100, thin = 100) 
-
+    ## Model 7
+    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "global", randoms = c("global", "clade"))
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 1)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2, PC3)trait:clade - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(at.level(clade, 1):trait):animal + us(at.level(clade, 2):trait):animal + us(at.level(clade, 3):trait):animal + us(trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(trait):units")
 })
