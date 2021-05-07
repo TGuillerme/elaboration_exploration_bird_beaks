@@ -150,7 +150,7 @@ make.mini.chains <- function(data, dimensions, trees, trait.family = "gaussian",
     }
 
     ## Setting the tree(s)
-    output <- lapply(tree, function(tree, ...)
+    output <- lapply(tree, function(tree, fixed, random, rvoc, family, data, priors, verbose, parameters)
        return(list(data = data,
                    tree = tree,
                    ## The MCMCglmm function
