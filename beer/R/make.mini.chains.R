@@ -2,15 +2,15 @@
 #'
 #' @description Making a list of mini.chains object (MCMCglmm primers)
 #'
-#' @param data a full ordinated matrix
-#' @param dimensions the list of dimensions to include
-#' @param tree the list of trees to run the models on
-#' @param trait.family the family of the traits (default is "gaussian")
-#' @param residuals the type of residuals (see details)
-#' @param randoms the type of randoms (see details)
-#' @param parameters the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test)
-#' @param priors A list of priors or a value of the overal nu parameter for generating flat priors for the MCMCglmm
-#' @param verbose whether to make the MCMCglmm verbose (TRUE; default) or not (FALSE).
+#' @param data a full ordinated matrix with a column called \code{"animal"} and potentially one called \code{"clade"} (if needed).
+#' @param dimensions the list of dimensions to include.
+#' @param tree the \code{"phylo"} or \code{"multiPhylo"} object to run the models.
+#' @param trait.family the family of the traits (default is \code{"gaussian"}).
+#' @param residuals the type of residuals (see details).
+#' @param randoms the type of randoms (see details).
+#' @param parameters the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test).
+#' @param priors A list of priors or a value of the overal nu parameter for generating flat priors for the \code{\link[MCMCglmm]{MCMCglmm}}.
+#' @param verbose whether to make the \code{\link[MCMCglmm]{MCMCglmm}} verbose (\code{TRUE}; default) or not (\code{FALSE}).
 #' 
 #' @details
 #' The types of model for the residuals and random terms can be:

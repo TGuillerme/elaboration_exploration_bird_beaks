@@ -126,3 +126,16 @@ test_that("make.mini.chains works", {
     expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
                 "~us(trait):units")
 })
+
+
+test_that("run.mini.chains works", {
+
+    tree_list <- list(tree, tree, tree)
+    class(tree_list) <- "multiPhylo"
+
+    ## Model 7
+    mini_chain <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1:3), verbose = FALSE, residuals = "global", randoms = c("global", "clade"))
+    expect_is(mini_chain, c("beer", "mini.chains"))
+    expect_equal(length(mini_chain), 3)
+    expect_equal(names(mini_chain[[1]]), c("data", "tree", "run"))
+})
