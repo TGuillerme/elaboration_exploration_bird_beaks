@@ -141,7 +141,15 @@ test_that("run.mini.chains works", {
 
     ## Test the runnings
     test <- run.mini.chains(mini.chains, replicates = 10)
+    expect_is(test, c("beer", "mini.chains"))
     expect_equal(length(test), 10)
     expect_is(test[[1]], "MCMCglmm")
 
+    ## Test the combinings
+    tust <- combine.mini.chains(test)
+    expect_is(tust, "MCMCglmm")
+    ## Has the correct dimensions for the things that changed
+    expect_equal(attr(tust$Sol, "mcpar"), c(101, 8101, 100))
+    expect_equal(dim(tust$Sol), c(90, 2))
+    expect_equal(dim(tust$VCV), c(90, 8))
 })

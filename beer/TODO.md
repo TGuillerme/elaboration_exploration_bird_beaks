@@ -7,10 +7,10 @@
 
 The wrapper pipeline package must contain
 
- - [ ] some functions for preparing the mini chains `make.mini.chains`
- - [ ] some functions for running the mini chains `run.mini.chains`
+ - [x] some functions for preparing the mini chains `make.mini.chains`
+ - [x] some functions for running the mini chains `run.mini.chains`
  - [ ] some functions for analysing the mini chains results `diagnose.mini.chains`
- - [ ] some functions for combining the mini chains in a big `MCMCglmm` object `combine.mini.chains`
+ - [x] some functions for combining the mini chains in a big `MCMCglmm` object `combine.mini.chains`
  - [x] some function to extract the posterior covar matrices from the `MCMCglmm` object (can be an object of class `"beer"`?): `get.covar`
  - [x] some function for extracting the major axis from the matrices: `get.axes`
  - [x] some function for running the blob-wise test: i.e. doing the aligning and then calculating the angle projection and rejection from the axis. `analyses.group`
