@@ -133,9 +133,15 @@ test_that("run.mini.chains works", {
     tree_list <- list(tree, tree, tree)
     class(tree_list) <- "multiPhylo"
 
-    ## Model 7
-    mini_chain <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1:3), verbose = FALSE, residuals = "global", randoms = c("global", "clade"))
-    expect_is(mini_chain, c("beer", "mini.chains"))
-    expect_equal(length(mini_chain), 3)
-    expect_equal(names(mini_chain[[1]]), c("data", "tree", "run"))
+    ## Model 3
+    mini.chains <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE)
+    expect_is(mini.chains, c("beer", "mini.chains"))
+    expect_equal(length(mini.chains), 3)
+    expect_equal(names(mini.chains[[1]]), c("data", "tree", "run"))
+
+    ## Test the runnings
+    test <- run.mini.chains(mini.chains, replicates = 10)
+    expect_equal(length(test), 10)
+    expect_is(test[[1]], "MCMCglmm")
+
 })

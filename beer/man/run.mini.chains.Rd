@@ -4,12 +4,24 @@
 \alias{run.mini.chains}
 \title{run.mini.chains}
 \usage{
-run.mini.chains(mini.chains, parallel, path)
+run.mini.chains(
+  mini.chains,
+  replicates,
+  parallel,
+  path,
+  file.name = "mini.chains"
+)
 }
 \arguments{
-\item{mini.chains}{a "mini.chains" objects}
+\item{mini.chains}{a \code{"beer"} and \code{"mini.chains"} object.}
 
-\item{path}{}
+\item{replicates}{the number of replicates per mini chains.}
+
+\item{parallel}{the number of cores for the paralellisation.}
+
+\item{path}{optional, the path for saving the data.}
+
+\item{file}{the prefix for the file name (will be \code{prefix_replicates_date.rda}).}
 }
 \description{
 Runs a list of mini.chains objects (MCMCglmm)
