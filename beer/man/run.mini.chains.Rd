@@ -21,7 +21,7 @@ run.mini.chains(
 
 \item{path}{optional, the path for saving the data.}
 
-\item{file}{the prefix for the file name (will be \code{prefix_replicates_date.rda}).}
+\item{file}{the prefix for the file name (will be \code{prefix_replicates.rda}).}
 }
 \description{
 Runs a list of mini.chains objects (MCMCglmm)

@@ -7,7 +7,7 @@
 combine.mini.chains(mini.chains)
 }
 \arguments{
-\item{mini.chains}{a "mini.chains" objects}
+\item{mini.chains}{a \code{"mini.chains"} objects or the path to a mini.chains object}
 }
 \description{
 Combine the mini chains results into a big MCMCglmm object (MCMCglmm)

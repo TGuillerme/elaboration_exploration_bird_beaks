@@ -128,7 +128,7 @@ test_that("make.mini.chains works", {
 })
 
 
-test_that("run.mini.chains works", {
+test_that("run/combine.mini.chains works", {
 
     tree_list <- list(tree, tree, tree)
     class(tree_list) <- "multiPhylo"
@@ -152,4 +152,16 @@ test_that("run.mini.chains works", {
     expect_equal(attr(tust$Sol, "mcpar"), c(101, 8101, 100))
     expect_equal(dim(tust$Sol), c(90, 2))
     expect_equal(dim(tust$VCV), c(90, 8))
+
+    ## Test the runnings
+    test2 <- run.mini.chains(mini.chains, replicates = 2, path = "../", file.name = "test_name")
+
+    ## Test the combinings
+    tust <- combine.mini.chains("../test_name_2.rda")
+    expect_is(tust, "MCMCglmm")
+    ## Has the correct dimensions for the things that changed
+    expect_equal(attr(tust$Sol, "mcpar"), c(101, 1701, 100))
+    expect_equal(dim(tust$Sol), c(18, 2))
+    expect_equal(dim(tust$VCV), c(18, 8))
+    expect_true(file.remove("../test_name_2.rda"))
 })

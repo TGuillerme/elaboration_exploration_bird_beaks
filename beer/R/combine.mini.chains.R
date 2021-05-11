@@ -2,7 +2,7 @@
 #'
 #' @description Combine the mini chains results into a big MCMCglmm object (MCMCglmm)
 #'
-#' @param mini.chains a "mini.chains" objects
+#' @param mini.chains a \code{"mini.chains"} objects or the path to a mini.chains object
 #' 
 #' @examples
 #'
@@ -11,6 +11,12 @@
 #' @author Thomas Guillerme
 #' @export
 combine.mini.chains <- function(mini.chains) {
+
+    if(is(mini.chains, "character")) {
+        ## Mini.chains is the path
+        load(mini.chains)
+        mini.chains <- output
+    }
 
     ## Get the start end and thin values
     mcpar <- do.call(rbind, lapply(mini.chains, function(x) attr(x$Sol, "mcpar")))

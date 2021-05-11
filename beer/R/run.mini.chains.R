@@ -6,7 +6,7 @@
 #' @param replicates the number of replicates per mini chains.
 #' @param parallel the number of cores for the paralellisation.
 #' @param path optional, the path for saving the data.
-#' @param file the prefix for the file name (will be \code{prefix_replicates_date.rda}).
+#' @param file the prefix for the file name (will be \code{prefix_replicates.rda}).
 #' 
 #' @examples
 #'
@@ -27,7 +27,7 @@ run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name =
 
     ## Saving the business
     if(!missing(path)) {
-        save(output, file = paste0(c(path, file.name, "_", replicates, "_", format(Sys.time(), "%Y-%m-%d-%H%M%S"), ".rda"), collapse = ""))
+        save(output, file = paste0(c(path, file.name, "_", replicates, ".rda"), collapse = "")) #, "_", format(Sys.time(), "%Y-%m-%d-%H%M%S")
     } else {
         return(output)
     }
