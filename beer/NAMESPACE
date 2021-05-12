@@ -23,3 +23,6 @@ export(get.covar)
 export(get.axes)
 export(analyses.group)
 export(analyses.tip)
+
+# Other
+export(optim.replicate)
