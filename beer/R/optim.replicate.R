@@ -86,8 +86,12 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
 
     ## Set the function to be verbose or not
     if(verbose) {
-        ## Set the function to be verbose
-        run.fun <- eval.verbose.count(fun, count = count)
+        if(!parallel) {
+            ## Set the function to be verbose
+            run.fun <- eval.verbose.count(fun, count = count)
+        } else {
+            run.fun <- eval.verbose(fun)
+        }
     } else {
         run.fun <- fun
     }
