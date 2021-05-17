@@ -12,7 +12,11 @@
 #' @param verbose Whether to be verbose (\code{TRUE}) or not (\code{FALSE}; default)
 #' @param parallel Whether to use the \code{\link[future.apply]{future_replicate}} function for parallelisation (\code{TRUE}) or not (\code{FALSE}; default).
 #' @param par.plan If \code{parallel = TRUE}, which plan to use (see \code{\link[future]{plan}}; by default, the plan is "future::multisession").
+#' @param bkp.path Optional, a \code{"character"} string to be the path to a backup file. See details.
+#' @param bkp.name Optional, if \code{bkp.path} is not missing, a \code{"character"} for the name of the file to save (or to load). See details.
 #' @param ... Any optional arguments to be passed to the function.
+#' 
+#' @details When \code{bkp} is specified, the algorithm first looks if a file with \code{bkp.name} exists (by default, the name is \code{"optim.replicate.bkp"}). If not, the results will be saved after each series of replicates into this file. If it exist, the initial steps are skipped and the algorithm continues from the last backup point. \emph{NOTE} that this option slows down the simulations.
 #' 
 #' @return
 #' A list of:
@@ -28,7 +32,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = Inf, stop.variance = 0.05, increment, verbose = FALSE, parallel = FALSE, par.plan = "future::multisession", ...) {
+optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = Inf, stop.variance = 0.05, increment, verbose = FALSE, parallel = FALSE, par.plan = "future::multisession", bkp, ...) {
 
     ## Check increment
     if(missing(increment)) {
@@ -63,29 +67,58 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         run.fun <- fun
     }
 
-    ## Running the minimum number of iterations
-    if(verbose) {
-        message(paste0("Running the initial ", minimum, " replicates:"), appendLF = FALSE)
-    }
-    output <- rep.fun(minimum, run.fun(), ..., simplify = FALSE)
-    # output <- rep.fun(minimum, run.fun(), simplify = FALSE) ; warning("DEBUG")
-    
-    ## Saving the output and the number of iterations
-    output_save <- output
-    n_iterations <- minimum
-
-    ## Summarizing the results
-    results_table <- do.call(rbind, lapply(output, summarise))
-
-    ## Iterations done
-    if(verbose) {
-        message("Done.", appendLF = FALSE)
+    ## Set the bkp
+    bkp_save <- bkp_exists <- FALSE
+    if(!missing(bkp.path)) {
+        ## Do the backup
+        bkp_save <- TRUE
+        if(missing(bkp.name)) {
+            bkp.name <- "optim.replicate.bkp"
+        }
+        ## Does the backup file already exists?
+        bkp_exists <- length(list.files(path = bkp.path, pattern = bkp.name)) > 0
     }
 
-    ## Diagnosing the output variance
-    diagnosis <- apply(results_table, 2, diagnose)
-    diagnosis <- rbind(diagnosis, rep(0, length(diagnosis)))
-    rownames(diagnosis) <- c(minimum, 0)
+
+    if(!bkp_exists) {
+        ## Running the minimum number of iterations
+        if(verbose) {
+            message(paste0("Running the initial ", minimum, " replicates:"), appendLF = FALSE)
+        }
+        output <- rep.fun(minimum, run.fun(), ..., simplify = FALSE)
+        # output <- rep.fun(minimum, run.fun(), simplify = FALSE) ; warning("DEBUG")
+        
+        ## Saving the output and the number of iterations
+        output_save <- output
+        n_iterations <- minimum
+
+        ## Summarizing the results
+        results_table <- do.call(rbind, lapply(output, summarise))
+
+        ## Iterations done
+        if(verbose) {
+            message("Done.", appendLF = FALSE)
+        }
+
+        ## Diagnosing the output variance
+        diagnosis <- apply(results_table, 2, diagnose)
+        diagnosis <- rbind(diagnosis, rep(0, length(diagnosis)))
+        rownames(diagnosis) <- c(minimum, 0)
+
+        if(bkp_save) {
+            ## Save the progress
+            bkp <- list("results_table" = results_table, "diagnosis" = diagnosis, "output_save" = output_save, "n_iterations" = n_iterations)
+            save(bkp, file = paste0(bkp.path, bkp.name, collapse = ""))
+        }
+
+    } else {
+        ## Load the previous backup
+        load(file = paste0(bkp.path, bkp.name, collapse = ""))
+        n_iterations  <- bkp$n_iterations
+        output_save   <- bkp$output_save
+        results_table <- bkp$results_table
+        diagnosis     <- bkp$diagnosis
+    }
 
     ## Continue the runs if any of the diagnoses has not reached the correct variance
     while(any(!abs(diagnosis[1,]/diagnosis[2,] - 1) < stop.variance) || n_iterations >= maximum) {
@@ -118,6 +151,12 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         if(verbose) {
             message(paste0("\nDiagnosis change: ", paste0(round((diagnosis[2,]/diagnosis[1,]) - 1, digits = 3), collapse = ", ")), appendLF = FALSE)
         }
+
+        if(bkp_save) {
+            ## Save the progress
+            bkp <- list("results_table" = results_table, "diagnosis" = diagnosis, "output_save" = output_save, "n_iterations" = n_iterations)
+            save(bkp, file = paste0(bkp.path, bkp.name, collapse = ""))
+        }        
     }
 
     if(verbose) {
