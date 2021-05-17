@@ -5,7 +5,7 @@
 \title{Optimised replicates}
 \usage{
 optim.replicate(
-  fun,
+  input.fun,
   diagnose,
   summarise,
   minimum = 20,
@@ -21,11 +21,11 @@ optim.replicate(
 )
 }
 \arguments{
-\item{fun}{The function to execute. The function should output a single value or a vector or a list of values.}
+\item{input.fun}{The function to execute. The function should output a single value or a vector or a list of values.}
 
 \item{diagnose}{The diagnosis function should intake a vector of values.}
 
-\item{summarise}{Optional, if the output of \code{fun()} is complex, a function to summarise that output and pass it to \code{diagnose()}.}
+\item{summarise}{Optional, if the output of \code{input.fun()} is complex, a function to summarise that output and pass it to \code{diagnose()}.}
 
 \item{minimum}{The minimum of replicates to run (default is 20)}
 
