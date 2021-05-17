@@ -1,7 +1,7 @@
 #' @title Optimised replicates
 #'
 #' @description A wrapper for replicating a based on results variance
-#'
+#' 
 #' @param fun The function to execute. The function should output a single value or a vector or a list of values.
 #' @param diagnose The diagnosis function should intake a vector of values.
 #' @param summarise Optional, if the output of \code{fun()} is complex, a function to summarise that output and pass it to \code{diagnose()}.
@@ -32,7 +32,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = Inf, stop.variance = 0.05, increment, verbose = FALSE, parallel = FALSE, par.plan = "future::multisession", bkp, ...) {
+optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = Inf, stop.variance = 0.05, increment, verbose = FALSE, parallel = FALSE, par.plan = "future::multisession", bkp.path, bkp.name, ...) {
 
     ## Check increment
     if(missing(increment)) {
@@ -59,18 +59,10 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         rep.fun <- base::replicate
     }
 
-    ## Set the function to be verbose or not
-    if(verbose) {
-        ## Set the function to be verbose
-        run.fun <- eval.verbose(fun)
-    } else {
-        run.fun <- fun
-    }
-
     ## Set the bkp
     bkp_save <- bkp_exists <- FALSE
     if(!missing(bkp.path)) {
-        ## Do the backup
+        ## Do the backup
         bkp_save <- TRUE
         if(missing(bkp.name)) {
             bkp.name <- "optim.replicate.bkp"
@@ -79,11 +71,31 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         bkp_exists <- length(list.files(path = bkp.path, pattern = bkp.name)) > 0
     }
 
+    if(bkp_exists) {
+        ## Load the previous backup
+        load(file = paste0(bkp.path, bkp.name, collapse = ""))
+        n_iterations  <- bkp$n_iterations
+        output_save   <- bkp$output_save
+        results_table <- bkp$results_table
+        diagnosis     <- bkp$diagnosis
+        count <- n_iterations
+    } else {
+        ## Initialise the number of iterations
+        count <- 0
+    }
+
+    ## Set the function to be verbose or not
+    if(verbose) {
+        ## Set the function to be verbose
+        run.fun <- eval.verbose.count(fun, count = count)
+    } else {
+        run.fun <- fun
+    }
 
     if(!bkp_exists) {
         ## Running the minimum number of iterations
         if(verbose) {
-            message(paste0("Running the initial ", minimum, " replicates:"), appendLF = FALSE)
+            message(paste0("Running the initial ", minimum, " replicates:" ), appendLF = FALSE)
         }
         output <- rep.fun(minimum, run.fun(), ..., simplify = FALSE)
         # output <- rep.fun(minimum, run.fun(), simplify = FALSE) ; warning("DEBUG")
@@ -110,14 +122,6 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
             bkp <- list("results_table" = results_table, "diagnosis" = diagnosis, "output_save" = output_save, "n_iterations" = n_iterations)
             save(bkp, file = paste0(bkp.path, bkp.name, collapse = ""))
         }
-
-    } else {
-        ## Load the previous backup
-        load(file = paste0(bkp.path, bkp.name, collapse = ""))
-        n_iterations  <- bkp$n_iterations
-        output_save   <- bkp$output_save
-        results_table <- bkp$results_table
-        diagnosis     <- bkp$diagnosis
     }
 
     ## Continue the runs if any of the diagnoses has not reached the correct variance
@@ -127,7 +131,7 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         add_iterations <- ceiling(n_iterations*increment)
 
         if(verbose) {
-            message(paste0("\nRunning an additional ", add_iterations, " replicates:"), appendLF = FALSE)
+            message(paste0("\nRunning an additional ", add_iterations, " replicates:" ), appendLF = FALSE)
         }
         output <- rep.fun(add_iterations, run.fun(), ..., simplify = FALSE)
         # output <- rep.fun(add_iterations, run.fun(), simplify = FALSE) ; warning("DEBUG")
@@ -149,7 +153,14 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
         rownames(diagnosis)[1] <- n_iterations
 
         if(verbose) {
-            message(paste0("\nDiagnosis change: ", paste0(round((diagnosis[2,]/diagnosis[1,]) - 1, digits = 3), collapse = ", ")), appendLF = FALSE)
+            if(ncol(diagnosis) < 5) {
+                message(paste0("\nDiagnosis change:" , paste0(round((diagnosis[2,]/diagnosis[1,]) - 1, digits = 3), collapse = ", ")), appendLF = FALSE)
+            } else {
+                ## Overall diagnosis change
+                change <- (diagnosis[2,]/diagnosis[1,]) - 1
+                round(mean(change), digits = 3)
+                message(paste0("\nGlobal diagnosis change (n=", ncol(diagnosis), "): mean=", round(mean(change), digits = 3), "; sd=", round(sd(change), digits = 3), "."), appendLF = FALSE)
+            }
         }
 
         if(bkp_save) {
@@ -160,7 +171,14 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
     }
 
     if(verbose) {
-        message(paste0("\nResults converged after ", n_iterations, " iterations: additional variances (", paste0(round((diagnosis[2,]/diagnosis[1,]) - 1, digits = 3), collapse = ", "), ") all < ", stop.variance, "."), appendLF = FALSE)
+        if(ncol(diagnosis) < 5) {
+            message(paste0("\nResults converged after ", n_iterations, " iterations: additional variances (", paste0(round((diagnosis[2,]/diagnosis[1,]) - 1, digits = 3), collapse = ", "), ") all < ", stop.variance, "."), appendLF = FALSE)
+        } else {
+            ## Overall diagnosis change
+            change <- (diagnosis[2,]/diagnosis[1,]) - 1
+            round(mean(change), digits = 3)
+            message(paste0("\nResults converged after ", n_iterations, " iterations: additional global variances (n=", ncol(diagnosis), "): mean=", round(mean(change), digits = 3), "; sd=", round(sd(change), digits = 3), ". All < ", stop.variance, "."), appendLF = FALSE)
+        }
     }
 
     ## Return the output
@@ -170,6 +188,15 @@ optim.replicate <- function(fun, diagnose, summarise, minimum = 20, maximum = In
 eval.verbose <- function(fun, msg = ".") {
     new.fun <- function() {
         message(msg, appendLF = FALSE)
+        return(fun())
+    }
+    return(new.fun)
+}
+
+eval.verbose.count <- function(fun, count) {
+    new.fun <- function() {
+        count <<- count + 1
+        message(paste0(count, "."), appendLF = FALSE)
         return(fun())
     }
     return(new.fun)

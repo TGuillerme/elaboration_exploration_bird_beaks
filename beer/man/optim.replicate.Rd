@@ -15,6 +15,8 @@ optim.replicate(
   verbose = FALSE,
   parallel = FALSE,
   par.plan = "future::multisession",
+  bkp.path,
+  bkp.name,
   ...
 )
 }
@@ -39,6 +41,10 @@ optim.replicate(
 
 \item{par.plan}{If \code{parallel = TRUE}, which plan to use (see \code{\link[future]{plan}}; by default, the plan is "future::multisession").}
 
+\item{bkp.path}{Optional, a \code{"character"} string to be the path to a backup file. See details.}
+
+\item{bkp.name}{Optional, if \code{bkp.path} is not missing, a \code{"character"} for the name of the file to save (or to load). See details.}
+
 \item{...}{Any optional arguments to be passed to the function.}
 }
 \value{
@@ -51,6 +57,9 @@ A list of:
 }
 \description{
 A wrapper for replicating a based on results variance
+}
+\details{
+When \code{bkp} is specified, the algorithm first looks if a file with \code{bkp.name} exists (by default, the name is \code{"optim.replicate.bkp"}). If not, the results will be saved after each series of replicates into this file. If it exist, the initial steps are skipped and the algorithm continues from the last backup point. \emph{NOTE} that this option slows down the simulations.
 }
 \examples{
 
