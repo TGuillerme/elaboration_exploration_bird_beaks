@@ -50,6 +50,12 @@ test_that("optim.replicate works", {
     expect_equal(dim(test$results), c(1359, 2))
     expect_equal(dim(test$diagnoses), c(54, 2))
 
+    set.seed(1)
+    ## Verbose test
+    test <- optim.replicate(fun2, diagnose.fun, minimum = 100, maximum = 200, verbose = FALSE, stop.variance = 0.001, increment = .05)
+    expect_equal(length(test$outputs), 206)
+
+
     ## Test with a simple function
     set.seed(1)
     test <- optim.replicate(fun1, diagnose.fun)
@@ -86,17 +92,3 @@ test_that("optim.replicate backup works", {
     expect_equal(length(test2$outputs), 7907)
     expect_true(file.remove("./tust"))
 })
-
-
-# ## Test
-# test_that("optim.replicate works with the simulate.pipeline example (from other project)", {
-
-#     ## Some testing stuff
-#     sim.data = list(n.traits = 2, speciation = 1, n.taxa = 100)
-#     remove = c(0.4, 0.6)
-#     fun <- make.simulation.pipeline(type = "facilitation", sim.data = sim.data, remove = remove)
-
-#     out <- simulate.facilitation()
-
-
-# })
