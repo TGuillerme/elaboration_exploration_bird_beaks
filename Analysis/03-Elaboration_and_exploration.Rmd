@@ -2,6 +2,7 @@
 title: title: "Bird beak's elaboration and exploration"
 author: "Thomas Guillerme"
 date: "`r Sys.Date()`"
+bibliography: references.bib
 output:
   html_document:
     fig_width: 8
@@ -10,9 +11,32 @@ output:
 
 # Measuring elaboration and exploration
 
+<!-- We can do all that with the internal package `"beer"` that can be install via github (if you have access to the repo): -->
+
+```{r, eval = FALSE, echo = FALSE}
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+```
+
+```{r, eval = TRUE, echo = FALSE}
+library(beer)
+```
+
+
+## Extracting the variance covariance matrices from the MCMCglmm mini-chains
+
+
 ## Per clade
 
 ## Per species
+
+
+
+
+
+
+
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
@@ -23,16 +47,6 @@ In this script I'll be looking at how to analyse the outputs from the MCMCglmm m
 I'm going to look at it using two approaches:
  * the **blob-wise** one where I'll look at the differences between whole blobs (ellipses) in terms of elaboration/exploration (Robinson & Beckerman style);
  * and the **tip-wise** one where I'll look at the elaboration/exploration score of the tips on the tree (cf. their blobs) relative to the whole phylogeny and to their respective blobs (clades).
- 
-We can do all that with the internal package `"beer"` that can be install via github (if you have access to the repo):
-
-```{r, eval = FALSE}
-devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
-```
-
-```{r, eval = TRUE}
-library(beer)
-```
 
 
 ## Data
@@ -323,18 +337,7 @@ TODO.
 
 
 
-# Ideas for the MCMC
-
- * Use the model7 with two nested clade levels?
-
- * For speeding up the MCMC:
-   1. Check on a big global model: a) how long it takes to get 1000 gen. (or so) and b) how long the burnin phase takes.
-   2. Use info 1a and 1b to make design "mini chains" (i.e. chains that just go past the burnin and run for an extra ~1000 gen.); the conservative assumption is that post-burnin, the chain has reach a local optimum that exists within the distribution of the global (true) optimum.
-   3. Run 3 mini chains per tree on 100 trees (resulting in 300 mini chains) to get phylogenetic uncertainty into account. For each triplet of models, discard any that's way off (Natalie thesis style for morpho measurements). This results in N models that have reach N local optimums while taking into account phylo uncertainty.
-   4. Discard any of the N models that is way off (outliers). We assume that these outliers were chains stuck on local optimums that were outside to global optimum distribution. We then end up with M (M<=N) models that are the most conservative representation of the model because they take into account phylo uncertainty AND optimum uncertainty (i.e. if running one big model, you have to make the assumption that the local optimum reached equal the global optimum, here we can skip that assumption by saying that our distribution of local optimums contains the global optimum).
-   5. Combine the results of all the MCMC into one BIG posterior distribution; randomly sample n (=Mx5?) samples (or any other number) from that distribution and work from there! (if we don't discard any models M = 300 mini chains of >=1000 samples each, thus the sample represents ~5% of all the data).
 
 
 
-
-
+## References
