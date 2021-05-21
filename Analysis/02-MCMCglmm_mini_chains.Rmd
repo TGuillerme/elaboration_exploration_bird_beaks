@@ -2,14 +2,90 @@
 title: "Bird beak's elaboration and exploration"
 author: "Thomas Guillerme"
 date: "`r Sys.Date()`"
+bibliography: references.bib
 output:
   html_document:
     fig_width: 8
     fig_height: 8
 ---
 
+
+All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
+Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
+The following code snippets are used to illustrate the implementation of the functions.
+See §§§ for running the actual analyses.
+
+
+```{r install_beer, eval = FALSE}
+## Installing beer
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+```
+
+```{r load_beer, eval = TRUE}
+## Loading beer
+library(beer)
+
+## Loading the data
+data(morphdat)
+
+## Loading the trees
+data(trees)
+```
+
 # MCMCglmm mini chains analyses
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+To estimate the variance covariance matrix for the phylogeny and each clade (see [01-Data_preparation.Rmd](01-Data_preparation.Rmd)) we run multivariate generalised linear mixed model (MCMCglmm) using the `MCMCglmm` package [@MCMCglmm].
+
+## Model
+
+We ran a general multi-response model with `§§§N_traits` trait of the trait space being the the fixed effects (using a gaussian trait distribution) and and the residual covariance structure.
+We used `§§§N_clades + 1` random effects (one for the whole phylogeny and one for each clade).
+
+## Mini chains
+
+In order to improve the speed of the analysis and take phylogenetic uncertainty into account, we used a "mini chains" approach.
+This approach is not too dissimilar from @mulTree as it runs multiple MCMCglmm analyses on multiple trees and pull the results together into one larger MCMCglmm that contains more variation due to phylogenetic uncertainty.
+However, the "mini chains" approach differ by the size of the chains that is optimised for speed.
+
+### Mini-chains parametrization
+
+We first ran three independent MCMC chains with the model and data described above using three random trees and flat priors.
+We ran these models (for `§§§N_generations` with sampling every `§§§N_nitt` and no burnin) until the three chains reached an effective sample size >> 200 (§§§and other diagnosis).
+From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
+We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
+For these triplets of values (burnin and list of priors), we applied Cooper §§§' method <!-- Citing Natalie's thesis (or paper?) using this method --> to obtain an average while discarding any outlier estimate (we computed the average and standard deviation for each sample, discarded samples §§§ standard deviations from the average and recalculated this average).
+We then used these parameters (burnin and priors) for the mini chains.
+
+```{r, parametrise_the_model}
+## Set up the parametrising chains models
+
+
 ```
+
+
+### Running the mini-chains
+
+We set up a mini-chain to be a MCMCglmm running with 1) the model described above, 2) a random tree and 3) the estimated priors (with a degree of parameter belief of 5% `nu = 0.05`) to run for `nitt` generations were `nitt` is equal to the previously estimated burnin phase + 1000 sampled iterations (`nitt = burnin + thin * 1000`).
+Each mini-chain thus provided us with a 1000 exploitable posterior data points.
+The two main advantages of this mini-chains is that 1) they are much faster to run since no diagnoses is necessary and the chains are only ran for a relatively short time (which allow several chains to crash/fail without loosing all the data); and 2) they take into account tree uncertainty whitout having to run the complete MCMCglmm on all trees (c.f. @mulTree).
+
+
+```{r, parametrise_the_model}
+## Set up the mini-chains models
+
+
+```
+
+To make sure we reached consistent results, we run the a set of N mini-chains were N was determined using the following variance optimisation algorithm
+ 
+ * 1. run an initial $N = 20$ chains;
+ * 2. estimate the $V_{1}$, the pooled variances for each parameters in the chain (V1 is a vector of length §§§);
+ * 3. update N to N = N * 1.05 and run an additional 5% chains
+ * 4. estimate $V_{2}$, the pooled variances for each parameters in the chain;
+ * 5. calculate $\Delta_V$ the absolute change between $V_{1}$ and $V_{2}$ as ($\sqrt{(\frac{V_{1}}/{V_{2}} - 1)^{2}}$).
+ * 6. If $\Delta_V < 0.05$ (meaning an increase of 5% of the replicates resulted in an increase of the parameters of less than 5%), the desired number of mini-chains is reached. Else, set $V_{1} = V_{2}$ and repeat from step 3.
+
+After reaching the desired $N$ chains, we pulled all the posterior estimates together back into a "normal" big MCMCglmm with a posterior distribution including the effective results and the phylogenetic uncertainty.
+
+
+## References
