@@ -12,6 +12,8 @@ output:
 
 All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
 Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
+Some analyses in `beer` do take some time to run so we advice to not drive or operate heavy machinery while using it.
+Don't use it while driving.
 The following code snippets are used to illustrate the implementation of the functions.
 See §§§ for running the actual analyses.
 
@@ -25,11 +27,9 @@ devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
 ## Loading beer
 library(beer)
 
-## Loading the data
-data(morphdat)
-
-## Loading the trees
-data(trees)
+## Loading the demo data
+data(demo_data)
+data(demo_trees)
 ```
 
 # MCMCglmm mini chains analyses
@@ -58,8 +58,21 @@ We then used these parameters (burnin and priors) for the mini chains.
 
 ```{r, parametrise_the_model}
 ## Set up the parametrising chains models
+param_MCMCglmm <- make.mini.chains(data         = demo_data,
+                                   dimensions   = c(1:4),
+                                   tree         = demo_trees,
+                                   trait.family = "gaussian",
+                                   randoms      = c("global", "clade"),
+                                   residuals    = "global",
+                                   priors       = template,
+                                   verbose      = TRUE,
+                                   parameters   = list(
+                                       nitt   = 10000,
+                                       thin   = 100,
+                                       burnin = 0))
 
-
+## Running the three MCMCglmm models
+param_chains <- run.mini.chains(param_MCMCglmm, replicates = 3)
 ```
 
 
