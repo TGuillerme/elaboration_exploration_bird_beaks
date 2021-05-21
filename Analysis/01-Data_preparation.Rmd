@@ -2,14 +2,70 @@
 title: "Bird beak's elaboration and exploration: data preparation"
 author: "Thomas Guillerme"
 date: "`r Sys.Date()`"
+bibliography: references.bib
 output:
   html_document:
     fig_width: 8
     fig_height: 8
 ---
 
+
+
+All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
+Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
+The following code snippets are used to illustrate the implementation of the functions.
+See §§§ for running the actual analyses.
+
+
+```{r install_beer, eval = FALSE}
+## Installing beer
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+```
+
+```{r load_beer, eval = TRUE}
+## Loading beer
+library(beer)
+
+## Loading the demo data
+data(demo_data)
+data(demo_trees)
+```
+
+
 # Data preparation
+
+TODO: 
+
+ * [ ] what's the data, where is it from
+ * [ ] Procrustes
+ * [ ] Building the trait space
+   - [ ] form space version?
+   - [ ] shape space version?
+ * [ ] Clade data and grouping
+
+
+Trees were manipulated in `R` [@Rcore] using the package `ape` [@ape].
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
 ```
+
+
+## Demo data
+
+This is what the demo data looks like
+
+```{r, plot_the_data}
+## Plotting it
+colour_vector <- c("orange", "blue", "darkgreen")
+plot.space(demo_data,
+           col = colour_vector,
+           levels = demo_data$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)")
+legend("topleft", legend = levels(demo_data$clade), col = colour_vector, pch = 19)
+```
+
+
+## References
