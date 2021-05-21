@@ -52,7 +52,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     }
 
     ## Check the dimensionality of the data
-    if(!all(dim_check <- apply(morphdat[, dimensions], 2, is, "numeric"))) {
+    if(!all(dim_check <- apply(data[, dimensions], 2, is, "numeric"))) {
         stop(paste0("Invalid dimensions (not numeric?): ", paste(names(which(!dim_check)), collapse = ", "), "."))
     }
     
