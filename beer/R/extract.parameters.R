@@ -5,7 +5,7 @@
 #' @param chains The prior MCMCglmm chains
 #' @param parameters The parameters to extract (see details).
 #' @param buffer The buffer for the burnin (how many itteration to include past the first median estimate)
-#' @param credence The credence level: the degree of belief parameter (nu) for the priors.
+#' @param nu The degree of belief parameter (nu) for the priors.
 #' 
 #' @details
 #' The parameters that can be extracted are:
@@ -21,32 +21,50 @@
 #' @author Thomas Guillerme
 #' @export
 
-extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffer = 0.25, credence = 0.05) {
+extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffer = 0.25, nu = 0.05) {
+
+    ## Get the required parameters
+    param_out <- list()
+    if("burnin" %in% parameters) {
+        param_out$burnin <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))
+    }
+    if("priors" %in% parameters) {
+        ## Check for burnin
+        if(!is.null(param_out$burnin)) {
+            burnin <- param_out$burnin/attr(chains[[1]]$Sol, "mcpar")[3]
+        } else {
+            burnin <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))/attr(chains[[1]]$Sol, "mcpar")[3]
+        }
+        ## Get the list of priors
+        priors_lists <- lapply(chains, get.prior, nu = nu, burnin = burnin)
+
+    }
+
     return()
 }
 
-extract.one.chain <- function(chain, parameters) {
+# ## Get a corrected median value
+# corrected.median <- function(x) {
+    
+#     x <- sort(x)
 
-    ## Get the required parameters
-    parameters <- list()
-    if("burnin" %in% parameters) {
-        parameters$burnin <- get.burnin(chain)
-    }
+#     if(length(x) > 2) {
+#         ## Get all the differences
+#         range <- diff(range(x))
+#         differences <- diff(x)
 
-    if("priors" %in% parameters) {
-        # 
-    }
+#         ## Remove outliers
+#         differences/range > 0.5
+#         x <- x[-(outliers+1)]
+#     }
 
+#     ## Calculate the median
+#     return(median(x))
+# }
 
-
-
-
-
-
-    return(parameters)
-}
-
+## Get the burnin value
 get.burnin <- function(chain, buffer) {
+
     ## Find the median for each MCMC
     find.median <- function(estimate, buffer) {
         ## Get the first estimate past the median
@@ -57,7 +75,8 @@ get.burnin <- function(chain, buffer) {
     return(max(burnin_points * attr(chain$Sol, "mcpar")[3]))
 }
 
-get.prior <- function(chain, credence = 0.05) {
+## Get the priors from one chain
+get.prior <- function(chain, nu = 0.05, burnin = FALSE) {
 
     ## Get the set of parameters
     traits <- traits.MCMCglmm(chain)
@@ -69,10 +88,12 @@ get.prior <- function(chain, credence = 0.05) {
     n_res <- sum(names(levels) %in% "residual")
 
     ## Create the prior template
-    template <- flat.prior(ntraits = n_traits, residuals = n_res, randoms = n_ran), nu = credence)
+    template <- flat.prior(ntraits = n_traits, residuals = n_res, randoms = n_ran, nu = nu)
 
     ## Get the burnin
-    burnin <- as.integer(get.burnin(chain, buffer = 0.25)/attr(chain$Sol, "mcpar")[3])
+    if(missing(burnin)) {
+        burnin <- as.integer(get.burnin(chain, buffer = 0.25)/attr(chain$Sol, "mcpar")[3])
+    }
     burnin <- 1:burnin
 
     ## Handle the G-Structure bits
@@ -92,10 +113,6 @@ get.prior <- function(chain, credence = 0.05) {
     }
 
     return(template)
-
-    # R: R-structure (residuals)
-    # G: G-structure (randoms)
-    # B: fixed effects
-    # B$mu=0
-    # B$V=I*1e+10
 }
+
+
