@@ -53,8 +53,7 @@ We first ran three independent MCMC chains with the model and data described abo
 We ran these models (for `§§§N_generations` with sampling every `§§§N_nitt` and no burnin) until the three chains reached an effective sample size >> 200 (§§§and other diagnosis).
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
 We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
-For these triplets of values (burnin and list of priors), we applied Cooper §§§' method <!-- Citing Natalie's thesis (or paper?) using this method --> to obtain an average while discarding any outlier estimate (we computed the average and standard deviation for each sample, discarded samples §§§ standard deviations from the average and recalculated this average).
-We then used these parameters (burnin and priors) for the mini chains.
+For those values, we took the highest burnin as the overall burnin and the median of the three posteriors as the overall priors.
 
 ```{r, parametrise_the_model}
 ## Set up the parametrising chains models
@@ -64,7 +63,7 @@ param_MCMCglmm <- make.mini.chains(data         = demo_data,
                                    trait.family = "gaussian",
                                    randoms      = c("global", "clade"),
                                    residuals    = "global",
-                                   priors       = template,
+                                   priors       = 0.02,
                                    verbose      = TRUE,
                                    parameters   = list(
                                        nitt   = 10000,
