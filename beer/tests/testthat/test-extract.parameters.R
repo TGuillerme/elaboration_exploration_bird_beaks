@@ -12,7 +12,7 @@ test_that("get.burnin works", {
     expect_equal(test, 600)
 })
 
-test_that("extract.parameters works", {
+test_that("get.prior works", {
 
     test <- get.prior(chains[[1]])
     expect_equal(names(test), c("R", "G"))
@@ -29,12 +29,14 @@ test_that("extract.parameters works", {
     expect_equal(round(mean(test[[2]]$G1$V), 6), 0.030054)
 })
 
-
-
-
 test_that("extract.parameters works", {
-
-
-
-
+    test <- extract.parameters(chains)
+    expect_is(test, "list")
+    expect_equal(names(test), c("burnin", "priors"))
+    expect_equal(test$burnin, 900)
+    expect_equal(sum(round(test$priors$G$G1$V, 1)), 0.3)
+    expect_equal(sum(round(test$priors$G$G2$V, 1)), 0.2)
+    expect_equal(sum(round(test$priors$G$G3$V, 1)), 0.2)
+    expect_equal(sum(round(test$priors$G$G4$V, 1)), 0.3)
+    expect_equal(sum(round(test$priors$R$R1$V, 2)), 0.02)
 })

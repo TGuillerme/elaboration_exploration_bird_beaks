@@ -20,7 +20,6 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-
 extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffer = 0.25, nu = 0.05) {
 
     ## Get the required parameters
@@ -36,31 +35,43 @@ extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffe
             burnin <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))/attr(chains[[1]]$Sol, "mcpar")[3]
         }
         ## Get the list of priors
-        priors_lists <- lapply(chains, get.prior, nu = nu, burnin = burnin)
-
+        priors_list <- lapply(chains, get.prior, nu = nu, burnin = burnin)  
+        ## Merging the priors
+        param_out$priors <- merge.V(priors_list)
     }
 
-    return()
+    return(param_out)
 }
 
-# ## Get a corrected median value
-# corrected.median <- function(x) {
+## Merge the lists of priors V matrices
+merge.V <- function(priors_list) {
+    ## Get the number of levels
+    n_ran <- length(priors_list[[1]]$G)
+    n_res <- length(priors_list[[1]]$R)
+    n_traits <- dim(priors_list[[1]]$R$R1$V)[1]
+    nu <- priors_list[[1]]$R$R1$nu
+
+    ## Get the template to fill
+    template <- flat.prior(ntraits = n_traits, residuals = n_res, randoms = n_ran, nu = nu)
     
-#     x <- sort(x)
+    ## Get the length of the list
+    n_chains <- length(priors_list)
 
-#     if(length(x) > 2) {
-#         ## Get all the differences
-#         range <- diff(range(x))
-#         differences <- diff(x)
+    ## Fill the list for G
+    for(one_ran in 1:n_ran) {
+        ## Get the list of V matrices
+        V_list <- lapply(lapply(priors_list, `[[`, "G"), function(X, i) return(X[[i]]$V), i = one_ran)
+        template$G[[one_ran]]$V <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), median)
+    }
 
-#         ## Remove outliers
-#         differences/range > 0.5
-#         x <- x[-(outliers+1)]
-#     }
-
-#     ## Calculate the median
-#     return(median(x))
-# }
+    ## Fill the list for R
+    for(one_res in 1:n_res) {
+        ## Get the list of V matrices
+        V_list <- lapply(lapply(priors_list, `[[`, "R"), function(X, i) return(X[[i]]$V), i = one_res)
+        template$R[[one_res]]$V <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), median)
+    }
+    return(template)
+}
 
 ## Get the burnin value
 get.burnin <- function(chain, buffer) {
