@@ -27,6 +27,7 @@ devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
 set.seed(42)
 ## Loading beer
 library(beer)
+library(MCMCglmm)
 
 ## Loading the demo data
 data(demo_data)
@@ -34,7 +35,7 @@ data(demo_trees)
 data(demo_tree)
 
 ## Setting the consensus tree
-consensus_tree <- demo_tree[[1]]
+consensus_tree <- demo_tree
 ```
 
 # MCMCglmm mini chains analyses
@@ -57,7 +58,7 @@ However, the "mini chains" approach differ by the size of the chains that is opt
 We first ran three independent MCMC chains with the model and data described above using the consensus tree and flat priors.
 We ran these models (for `§§§N_generations` with sampling every `§§§N_nitt` and no burnin) until the three chains reached an effective sample size >> 200 (§§§and other diagnosis).
 
-```{r, parametrise_the_model}
+```{r, parametrise_the_model, eval = TRUE}
 ## Set up the parametrising chains models
 param_MCMCglmm <- make.mini.chains(data         = demo_data,
                                    dimensions   = c(1:4),
@@ -80,7 +81,7 @@ From these three chains, we first extracted the three burnin periods (defined as
 We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
 For those values, we took the highest burnin as the overall burnin and the median of the three posteriors as the overall priors.
 
-```{r, get_model_parameters}
+```{r, get_model_parameters, eval = TRUE}
 ## Extract the parameters from the parameter chains
 est_params <- extract.parameters(param_chains)
 ```
@@ -92,7 +93,7 @@ Each mini-chain thus provided us with a 100 exploitable posterior data points.
 The two main advantages of this mini-chains is that 1) they are much faster to run since no diagnoses is necessary and the chains are only ran for a relatively short time (which allow several chains to crash/fail without loosing all the data); and 2) they take into account tree uncertainty whitout having to run the complete MCMCglmm on all trees (c.f. @mulTree).
 
 
-```{r, parametrise_the_model}
+```{r, set_the_mini_chains, eval = TRUE}
 ## The thining parameter
 thin <- 100
 ## The number of samples per chains
@@ -115,12 +116,18 @@ mini_chains <- make.mini.chains(data         = demo_data,
 
 We then run the MCMCglmm over $N_trees$ to get an estimate of the variance co-variance matrices including phylogenetic uncertainty.
 
-```{r, running_replicates}
+```{r, running_replicates, eval = TRUE}
 ## The number of replicates
 n_reps <- 10
 
 ## Run the required chains
 results <- run.mini.chains(mini_chains, replicates = n_reps, path = "../Data/Processed/MCMC/")
+
+## Combining the results as one big MCMC
+combined_results <- combine.mini.chains(results)
+
+## Saving the results
+save(combined_results, file = "../Data/processed/combined_results.rda")
 ```
 
 
