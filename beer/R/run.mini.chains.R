@@ -28,9 +28,8 @@ run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name =
     ## Saving the business
     if(!missing(path)) {
         save(output, file = paste0(c(path, file.name, "_", replicates, ".rda"), collapse = "")) #, "_", format(Sys.time(), "%Y-%m-%d-%H%M%S")
-    } else {
-        return(output)
     }
+    return(output)
 }
 
 run.a.chain <- function(mini.chains) {
