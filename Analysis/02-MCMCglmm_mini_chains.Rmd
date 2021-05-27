@@ -15,7 +15,7 @@ Although `beer` is intentionally designed to be portable and shareable, we advic
 Some analyses in `beer` do take some time to run so we advice to not drive or operate heavy machinery while using it.
 Don't use it while driving.
 The following code snippets are used to illustrate the implementation of the functions.
-See §§§ for running the actual analyses.
+See <!-- §§§run_replicates_script --> for running the actual analyses.
 
 
 ```{r install_beer, eval = FALSE}
