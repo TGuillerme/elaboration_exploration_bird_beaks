@@ -43,17 +43,17 @@ plot.projections <- function(matrix, projections, rejections) {
     if(ncol(matrix) == 3) {
         for(i in 1:nrow(matrix)) {
             ## Plot the projections
-            segments3d(rbind(c(0,0,0), projections[i,]), col = "red", lwd = 2)
+            segments3d(rbind(c(0,0,0), projections[i,]), col = "blue", lwd = 2)
             ## Plot the rejection
-            segments3d(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "green", lwd = 2)
+            segments3d(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "orange", lwd = 2)
         }
 
     } else {
         for(i in 1:nrow(matrix)) {
             ## Plot the projections
-            lines(rbind(c(0,0), projections[i,]), col = "red")
+            lines(rbind(c(0,0), projections[i,]), col = "blue")
             ## Plot the rejection
-            lines(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "green")
+            lines(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "orange")
         }        
     }
 }
@@ -157,15 +157,8 @@ projections.debug <- function(matrix, point1 = 0, point2 = colMeans(matrix), mea
     return(values)
 }
 
-library(rgl)
-matrix <- point1 <- point2 <- base_vector <- projections <- rejections <- base_angl <- NULL
-set.seed(2) #1,4
-for(i in 1:10) {
-    test(seed = i, n = 2) #2, 4, 7
-    Sys.sleep(0.5)
-}
 
-test <- function(seed, n) {
+test.fun <- function(seed, n) {
     set.seed(seed)
     if(n == 3) {
         matrix <- matrix(rnorm(15), 5, 3)
@@ -179,6 +172,15 @@ test <- function(seed, n) {
     ## Test the algorithm visualy
     projections.debug(matrix, point1 = point1, point2 = point2, measure = "position", scaled = TRUE)
 }
+
+library(rgl)
+matrix <- point1 <- point2 <- base_vector <- projections <- rejections <- base_angl <- NULL
+set.seed(2) #1,4
+#for(i in 1:10) {
+i = 10
+    test.fun(seed = i, n = 2) #2, 4, 7
+    Sys.sleep(0.5)
+# }
 
 
 
