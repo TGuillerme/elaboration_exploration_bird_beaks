@@ -17,11 +17,12 @@ plot.base <- function(matrix, base_vector, lim) {
         text3d(matrix, texts = rownames(matrix), col = "grey")
         segments3d(base_vector, col = "grey")
     } else {
+        par(bty = "n")
         plot(NULL, xlim = lim, ylim = lim, xlab = "x", ylab = "y")
         abline(v = 0, col = "grey")
         abline(h = 0, col = "grey")
-        text(matrix[,1:2], labels = rownames(matrix), col = "grey")
-        lines(base_vector, col = "grey")
+        text(matrix[,1:2], labels = rownames(matrix), col = "grey", cex = 1.5)
+        lines(base_vector, col = "grey", lwd = 1.5)
     }
 }
 plot.recentred <- function(matrix, base_vector) {
@@ -32,11 +33,11 @@ plot.recentred <- function(matrix, base_vector) {
         }
         segments3d(base_vector, col = "black", lwd = 2)
     } else {
-        text(matrix, labels = rownames(matrix), col = "black")
+        text(matrix, labels = rownames(matrix), col = "black", cex = 1.5)
         for(i in 1:nrow(matrix)) {
-            lines(rbind(c(0,0), matrix[i,]), col = "grey")
+            lines(rbind(c(0,0), matrix[i,]), col = "grey", lwd = 1.5)
         }
-        lines(base_vector, col = "black")
+        lines(base_vector, col = "black", lwd = 1.5)
     }
 }
 plot.projections <- function(matrix, projections, rejections) {
@@ -51,9 +52,9 @@ plot.projections <- function(matrix, projections, rejections) {
     } else {
         for(i in 1:nrow(matrix)) {
             ## Plot the projections
-            lines(rbind(c(0,0), projections[i,]), col = "blue")
+            lines(rbind(c(0,0), projections[i,]), col = "blue", lwd = 1.5)
             ## Plot the rejection
-            lines(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "orange")
+            lines(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "orange", lwd = 1.5)
         }        
     }
 }
