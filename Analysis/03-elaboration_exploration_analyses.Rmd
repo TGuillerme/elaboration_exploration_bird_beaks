@@ -1,0 +1,104 @@
+---
+title: "Bird beak's elaboration and exploration"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
+Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
+Some analyses in `beer` do take some time to run so we advice to not drive or operate heavy machinery while using it.
+Don't use it while driving.
+The following code snippets are used to illustrate the implementation of the functions.
+See <!-- §§§run_replicates_script --> for running the actual analyses.
+
+# Elaboration and exploration analyses
+
+```{r, eval = FALSE, echo = FALSE}
+library(beer)
+## Loading the MCMCglmm
+load("../Data/processed/combined_results.rda")
+## Loading the tree and data
+data(demo_data)
+data(demo_tree)
+```
+
+## Extracting the variance covariance matrices from the MCMCglmm mini-chains
+
+To analyse the exploration and elaboration aspects of both clades and tips, we first selected a random 1000 covariance matrices from the combined MCMCglmm posterior variance-covariance matrices.
+
+```{r, eval = FALSE}
+set.seed(42)
+## Selecting 1000 random covariance matrices from the MCMCglmm
+covar_matrices <- get.covar(combined_results, n = 100)
+```
+
+We will use these covariance matrices as the basis of the phylogenetic main axes of variation.
+These axes correspond to the main axes of variation in the $N_DIMENSIONS$ trait space at different levels: 
+ * The whole bird phylogeny level ("phylogeny level");
+ * And the named node levels ("clade levels").
+
+These major axes where calculated as the longest distance within the 95% confidence interval hyper-ellipse from the variance-covariance matrix (i.e. the major axes of the 95% CI ellipse of matrix).
+In practice, the coordinates of these axes end points were calculated directly from the cross product between the 95% unit hypersphere scaled by the variance-covariance matrix's squared eigen values and the variance-covariance matrix's eigen vectors.
+
+### Details for getting the major axes from the variance co-variance matrices
+
+For $O_{n}$, the unit hypersphere matrix of _n_ dimensions and of radius being composed of the two identity matrices $I_{n}$ and $-I_{n}$ so that: 
+
+\begin{equation*}
+O_{n} = 
+    \begin{pmatrix}
+        1 & 0 & \cdots & 0 \\
+        0 & 1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & 1 \\
+        -1 & 0 & \cdots & 0 \\
+        0 & -1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & -1 \\
+    \end{pmatrix}
+\end{equation*}
+
+(in other words $O_{n}$ is the matrix representing each edge point of the unit hyper sphere of $n$ dimensions and of radius $1$);
+
+And $O'_{n}$ the scaled matrix hyper sphere to the right confidence interval size using the $\chi^2$ distribution:
+
+\begin{equation}
+    O'_{n} = O_{n} \sqrt{\chi^2(0.95)}
+\end{equation}
+
+For the variance-covariance matrix $VCV_{n}$ of $n$ dimensions
+
+\begin{equation*}
+VCV_{n} = 
+    \begin{pmatrix}
+        \sigma(a) & \sigma(a,b) & \cdots & \sigma(a,n) \\
+        \sigma(a,b) & \sigma(b) & \cdots & \sigma(b,n) \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        \sigma(n,a) & \sigma(n,b) & \cdots & \sigma(n) \\
+    \end{pmatrix}
+\end{equation*}
+
+
+and the eigenvectors **v** and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
+
+\begin{equation}
+    VCV_{n} \bold{v} = \lambda \bold{v}
+\end{equation}
+
+We can get $M_{n}$ matrix containing all the edges' coordinates of the 0.95 CI hypersphere from $VCV_{n}$ using the transposition of the cross product between the eigenvectors **v** and the product of the scale 0.95 CI unit sphere $O'_{n}$ and the eigenvalues $\lambda$:
+
+\begin{equation}
+    M_{n} = [(O'_{n}\sqrt{\lambda}) \times \bold{v}]^{\text{T}}
+\end{equation}
+
+Where $M_{1,n}$ is the major axes of the 0.95 CI hyper ellipse fitting the variance-covariance matrix, $M_{2,n}$ the second second axes (minor axes in 2D), etc...
+
+The detailed procedure was adapted from [李哲源's post on Stack Overflow](https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331) and implemented in `beer::get.axis` ([specific procedure on lines 40-73](https://github.com/TGuillerme/elaboration_exploration_bird_beaks/blob/master/beer/R/get.axes.R)).
+
+## References
