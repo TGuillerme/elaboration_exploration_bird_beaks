@@ -1,0 +1,84 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{enumerate}
+\usepackage[osf]{mathpazo}
+\usepackage{lastpage}
+\usepackage{url}
+\usepackage{hyperref}
+\pagenumbering{arabic}
+\linespread{1.66}
+
+\begin{document}
+
+\begin{flushright}
+Version dated: \today
+\end{flushright}
+\begin{center}
+
+%Title
+\noindent{\Large{\bf{Major axes estimation}}}\
+\bigskip
+%Author
+Thomas Guillerme\\href{mailto:t.guillerme@imperial.ac.uk}{t.guillerme@imperial.ac.uk}
+
+For \bold{O_{n}}, the unit hypersphere matrix of \textit{n} dimensions and of radius being composed of the two identity matrices $I_{n}$ and $-I_{n}$ so that: 
+
+\begin{equation*}
+O_{n} = 
+    \begin{pmatrix}
+        1 & 0 & \cdots & 0 \\
+        0 & 1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & 1 \\
+        -1 & 0 & \cdots & 0 \\
+        0 & -1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & -1 \\
+    \end{pmatrix}
+\end{equation*}
+
+(i.e $O_{n}$ is the matrix representing each edge point of the unit hyper sphere of \textit{n} dimensions and of radius 1);
+
+And \bodel{O'_{n}} the scaled matrix hyper sphere to the right confidence interval size using the $\chi^2$ distribution:
+
+\begin{equation}
+    \bold{O'_{n}} = \bold{O_{n}} \sqrt{\chi^2(0.95)}
+\end{equation}
+
+For the variance-covariance matrix \textit{VCV_{n}} of \textit{n} dimensions
+
+\begin{equation*}
+VCV_{n} = 
+    \begin{pmatrix}
+        \sigma(a) & \sigma(a,b) & \cdots & \sigma(a,n) \\
+        \sigma(a,b) & \sigma(b) & \cdots & \sigma(b,n) \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        \sigma(n,a) & \sigma(n,b) & \cdots & \sigma(n) \\
+    \end{pmatrix}
+\end{equation*}
+
+
+and the eigenvectors \bold{v} and the eigenvalues \lambda satisfying the following eigen decomposition:
+
+\begin{equation}
+    VCV_{n}\bold{v} = \lambda \bold{v}
+\end{equation}
+
+We can get $M_{n}$ matrix containing all the edges' coordinates of the 0.95 CI hypersphere from $VCV_{n}$ using the transposition of the cross product between the eigenvectors \bold{v} and the product of the scale 0.95 CI unit sphere \bold{O'_{n}} and the eigenvalues \lambda:
+
+\begin{equation}
+    M_{n} = [(\bold{O'_{n}}\sqrt{\lambda}) \times \bold{v}]^{\text{T}}
+\end{equation}
+
+Where M_{1,n} is the major axes of the 0.95 CI hyper ellipse fitting the variance-covariance matrix.
+
+
+
+\end{center}
+
+
+\end{document}
+
+
+
+
