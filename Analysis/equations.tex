@@ -72,9 +72,99 @@ We can get $M_{n}$ matrix containing all the edges' coordinates of the 0.95 CI h
 
 Where M_{1,n} is the major axes of the 0.95 CI hyper ellipse fitting the variance-covariance matrix.
 
-
-
 \end{center}
+
+For any vectors $\vec{a}$ and $\vec{b}$, defined either as one set or a pair of sets of coordinates in $n$ dimensions:
+
+\begin{equation}
+    \vec{a} = 
+    \begin{bmatrix}
+    x \\
+    y \\
+    ... \\
+    n \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    \vec{a} = 
+    \begin{bmatrix}
+    x_{1} & x_{2} \\
+    y_{1} & y_{2} \\
+    ... & ... \\
+    n_{1} & n_{2} \\
+    \end{bmatrix}
+\end{equation}
+
+We can calculate $\vec{a_{1}}$, the orthogonal projection of $\vec{a}$ onto $\vec{b}$ using:
+
+\begin{equation}
+    \vec{a_{1}} = \frac{\vec{a} \cdot \vec{b}}{\|\vec{b}\|}
+\end{equation}
+
+With $\|\vec{b}\| = \sqrt{\vec{b} \cdot \vec{b}}$ being the norm of $\vec{b}$.
+
+ And $\vec{a_{2}}$, the rejection of $\vec{a}$ onto $\vec{b}$:
+
+\begin{equation}
+    \vec{a_{2}} = \vec{a} - \vec{a_{1}}
+\end{equation}
+
+And $\theta$, the angle formed by $\vec{a}$ and $\vec{b}$:
+
+\begin{equation}
+    \theta = acos \left(\frac{\vec{a} \cdot \vec{b}}{\|\vec{a}\| \cdot \|\vec{b}\|} \right)
+\end{equation}
+
+
+Given a $n$ dimensional trait space $TS_{m,n}$ with $m$ elements defined as:
+
+\begin{equation*}
+TS_{m,n} = 
+    \begin{bmatrix}
+        x_{1} & x_{2} & \cdots & x_{m} \\
+        y_{1} & y_{2} & \cdots & y_{m} \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        n_{1} & n_{2} & \cdots & n_{m} \\
+    \end{bmatrix}
+\end{equation*}
+
+
+And a base vector $B_{n}$ defined as:
+
+\begin{equation*}
+B_{n} = 
+    \begin{bmatrix}
+        Bx_{1} & Bx_{2}\\
+        By_{1} & By_{2}\\
+        \vdots  & \vdots \\
+        Bn_{1} & Bn_{2}\\
+    \end{bmatrix}
+\end{equation*}
+
+
+\begin{equation}
+        cTS = TS - [Bx_{1}, By_{1}, \cdots, Bn_{1}]^{\text{T}}
+\end{equation}
+
+
+
+\begin{equation}
+I_{\vec{B}} - \vec{B}\vec{B}^\text{T} - \vec{\hat{\imath}}\vec{\hat{\imath}}^\text{T} + [\vec{B} \vec{\hat{\imath}}]     \begin{bmatrix}
+        cos(\theta) & -sin(\theta)\\
+        sin(\theta) & cos(\theta)\\
+    \end{bmatrix} [\vec{B} \vec{\hat{\imath}}]^\text{T}
+\end{equation}
+
+Where $\theta$ is:
+
+\begin{equation}
+    \theta = acos \left(\frac{\vec{B} \cdot \vec{\hat{\imath}}}{\|\vec{B}\| \cdot \|\vec{\hat{\imath}}\|} \right)
+\end{equation}
+
+Or $\theta = acos (B_x)$ since both \|\vec{B}\| and \|\vec{\hat{\imath}}\| are equal to 1 and \|\vec{\hat{\imath}}\| is the unit vector on the first axis.
+
+
 
 
 \end{document}
