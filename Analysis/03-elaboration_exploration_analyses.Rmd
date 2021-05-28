@@ -231,4 +231,61 @@ In practice we followed [this procedure](https://math.stackexchange.com/question
  5. Project/reject every element in the trait on $\vec{B}$ (that is now $\vec{\hat{\imath}}$). In practice, the first coordinate (x) of each element is now it's projection onto $\vec{B}$.
 
 
+
+Following the ways to:
+ 1. estimate the variance-covariance matrices of the phylogenetic effects in trait space (02-MCMCglmm_mini_chains.Rmd);
+ 2. extracting the major axes of variation of these VCV matrices for the different levels in the phylogeny;
+ 3. and calculating the elaboration and exploration scores for elements in the trait space based on these major axes;
+
+We can measure these scores for each clade and each species separately.
+
+## Elaboration and exploration by clade
+
+To run the analyses per clade we compared the major axes for each clade to the major axes for the overall phylogenetic effect (e.g. plovers' VCV vs. all birds' VCV, etc.).
+
+To do so, for randomly selected posterior variance-covariance matrix we defined $\vec{a}$ as the major axes for the clade of interest and projected it onto $\vec{B}$ as the major overall phylogenetic effect (see above).
+For each pair of $\vec{a}$ and $\vec{B}$, we translated the origin of $\vec{a}$ onto the origin of $\vec{B}$ and measured the projection (elaboration), rejection (exploration) and angle (degree of exploration).
+
+```{r}
+## Get all the angles and stuff
+group_results <- analyses.group(major_axes[1:4], base = "animal")
+names(group_results) <- levels(demo_data$clade)
+```
+
+The results are reported as boxplots of **log values** for each group indicating which group explores/elaborates more (and to which degree - angle) relatively to each other.
+
+```{r, fig.height = 18, fig.heigh = 6}
+## Plot the blob wise metrics
+plot.analyses.group(lapply(group_results, log), col = colour_vector)
+```
+
+## Elaboration and exploration by species
+
+Similarly to the analyses described above, we ran the analyses per species but here we directly compared each species position in the space to the same vector $\vec{B}$ described above and reported the results per groups.
+
+```{r}
+## Global analyses
+tip_results_global <- analyses.tip(data = demo_data[, c(1:4)], axes = major_axes$animal)
+```
+
+And here are the **log values** plotted by group:
+
+```{r}
+## Plot results
+plot.analyses.tip(lapply(tip_results_global, log), col = colour_vector, group = split(rownames(demo_data), f = demo_data$clade))
+```
+
+Note that here only the tips positions projected on the global phylogenetic axes.
+
+We also looked at the exploration elaboration profiles within each clades by replacing for each clade, the projection of the elements onto $\vec{B}$ to the projection onto their respective clade major axes $\vec{a}$.
+
+
+TODO!
+
+
+
+
+
+
+ 
 ## References
