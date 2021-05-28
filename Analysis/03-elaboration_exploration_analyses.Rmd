@@ -53,7 +53,7 @@ In practice, the coordinates of these axes end points were calculated directly f
 
 For $O_{n}$, the unit hypersphere matrix of _n_ dimensions and of radius being composed of the two identity matrices $I_{n}$ and $-I_{n}$ so that: 
 
-\begin{equation*}
+\begin{equation}
 O_{n} = 
     \begin{pmatrix}
         1 & 0 & \cdots & 0 \\
@@ -65,7 +65,7 @@ O_{n} =
         \vdots  & \vdots  & \ddots & \vdots  \\
         0 & 0 & \cdots & -1 \\
     \end{pmatrix}
-\end{equation*}
+\end{equation}
 
 (in other words $O_{n}$ is the matrix representing each edge point of the unit hyper sphere of $n$ dimensions and of radius $1$);
 
@@ -77,7 +77,7 @@ And $O'_{n}$ the scaled matrix hyper sphere to the right confidence interval siz
 
 For the variance-covariance matrix $VCV_{n}$ of $n$ dimensions
 
-\begin{equation*}
+\begin{equation}
 VCV_{n} = 
     \begin{pmatrix}
         \sigma(a) & \sigma(a,b) & \cdots & \sigma(a,n) \\
@@ -85,7 +85,7 @@ VCV_{n} =
         \vdots  & \vdots  & \ddots & \vdots  \\
         \sigma(n,a) & \sigma(n,b) & \cdots & \sigma(n) \\
     \end{pmatrix}
-\end{equation*}
+\end{equation}
 
 
 and the eigenvectors **v** and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
@@ -133,11 +133,102 @@ source("../Functions/test.rotation.R")
 ```
 Figure: in a space with 5 elements: A, B, C, D, E (in grey); where D and E represent the major axes (e.g. the major phylogenetic effect axes from the MCMCglmm), we can rotate and rescale each element so that D and E become the unit vector of length 1 (the black letters D and E) and get the exploration elaboration scores for either the elements (e.g. element A's projection in blue and its rejection in orange) or from any other axes (e.g. the major phylogenetic effect axes from the MCMCglmm from a specific clade).
 
-To measure the projection and rejection scores, we used the following algorithm:
+#### Measuring projection and rejection
 
- * Rotate
- * Rescale
- * Project/reject
+For any vectors $\vec{a}$ and $\vec{b}$, defined either as one set or a pair of sets of coordinates in $n$ dimensions:
+
+\begin{equation}
+    \vec{a} = 
+    \begin{bmatrix}
+    x \\
+    y \\
+    \cdots \\
+    n \\
+    \end{bmatrix}
+\end{equation}
+
+\begin{equation}
+    \vec{a} = 
+    \begin{bmatrix}
+    x_{1} & x_{2} \\
+    y_{1} & y_{2} \\
+    \cdots & \cdots \\
+    n_{1} & n_{2} \\
+    \end{bmatrix}
+\end{equation}
+
+We can calculate $\vec{a_{1}}$, the orthogonal projection of $\vec{a}$ onto $\vec{b}$ using:
+
+\begin{equation}
+    \vec{a_{1}} = \frac{\vec{a} \cdot \vec{b}}{\|\vec{b}\|}
+\end{equation}
+
+With $\|\vec{b}\| = \sqrt{\vec{b} \cdot \vec{b}}$ being the norm of $\vec{b}$.
+And $\vec{a_{2}}$, the rejection of $\vec{a}$ onto $\vec{b}$:
+
+\begin{equation}
+    \vec{a_{2}} = \vec{a} - \vec{a_{1}}
+\end{equation}
+
+
+#### Generalisation of projection onto any vector in a set space
+
+Using this, we can calculate the projection and rejection for any element within a trait space $TS_{m,n}$:
+
+\begin{equation}
+    TS_{m,n} = 
+    \begin{bmatrix}
+    x_{1} & x_{2} & \cdots & x_{m} \\
+    y_{1} & y_{2} & \cdots & y_{m} \\
+    \vdots  & \vdots  & \ddots & \vdots \\
+    n_{1} & n_{2} & \cdots & n_{m} \\
+    \end{bmatrix}
+\end{equation}
+
+And any base vector $\vec{B}$ defined as:
+
+\begin{equation}
+    B = 
+    \begin{bmatrix}
+    x_{1} & x_{2}\\
+    y_{1} & y_{2}\\
+    \vdots  & \vdots  \\
+    n_{1} & n_{2} \\
+    \end{bmatrix}
+\end{equation}
+
+By using the linear transformation $f_{\vec{B}}$ of the trait space $TS$ moving $\vec{B}$ onto $TS$'s first axes unit vector $\vec{\hat{\imath}}$:
+
+\begin{equation}
+    f_{\vec{B}}(TS) = \left( \frac{TS - [Bx_{1}, By_{1}, \cdots, Bn_{1}]^{\text{T}}}{\|\vec{B}\|} \right) \cdot R_{\vec{B}}
+\end{equation}
+
+With R_{\vec{B}} being the rotation matrix of the vector $\vec{B}$ onto $\vec{\hat{\imath}}$:
+
+\begin{equation}
+R_{\vec{B}} = I_{\vec{B}} - \vec{B}\vec{B}^\text{T} - \vec{\hat{\imath}}\vec{\hat{\imath}}^\text{T} + [\vec{B} \vec{\hat{\imath}}]     \begin{bmatrix}
+        cos(\theta) & -sin(\theta)\\
+        sin(\theta) & cos(\theta)\\
+    \end{bmatrix} [\vec{B} \vec{\hat{\imath}}]^\text{T}
+\end{equation}
+
+Where $\theta$ is:
+
+\begin{equation}
+    \theta = acos \left(\frac{\vec{B} \cdot \vec{\hat{\imath}}}{\|\vec{B}\| \cdot \|\vec{\hat{\imath}}\|} \right)
+\end{equation}
+
+Or $\theta = acos (B_x)$ since both $\|\vec{B}\|$ and $\|\vec{\hat{\imath}}\|$ are equal to 1 and $\|\vec{\hat{\imath}}\|$ is the unit vector on the first axis.
+
+#### Algorithm for calculating the projection/rejection of any element in a defined space
+
+In practice we followed [this procedure](https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions) and applied a modification of [this implementation](https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385) (see @aguilera2004 for the formal generalisation of this algorithm) using the following algorithm:
+
+ 1. In the trait space, define $\vec{B}$ as the base vector (typically $\vec{B}$ is defined as the pair of coordinates set from the major axis described above).
+ 2. Centre the trait space on the origin of $\vec{B}$ so that the first set of coordinates of $\vec{B}$ are 0.
+ 3. Scale the trait space to the norm of $\vec{B}$ so that the norm of $\vec{B}$ is now 1.
+ 4. Rotate the trait space using the rotation matrix $R_{\vec{B}}$ to satisfy the linear transformation $\vec{B} \arrow \vec{\hat{\imath}}$ (with $\vec{\hat{\imath}}$ being the first unit vector of the trait space - typically the x axes unit vector). 
+ 5. Project/reject every element in the trait on $\vec{B}$ (that is now $\vec{\hat{\imath}}$). In practice, the first coordinate (x) of each element is now it's projection onto $\vec{B}$.
 
 
 ## References
