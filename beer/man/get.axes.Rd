@@ -24,7 +24,7 @@ Get the major axes from a list of covar matrices
 \code{centre} can be one of the following:
 \itemize{
 \item \code{"intercept"} to use the estimated intercept is used (i.e. \code{MCMCglmm$Sol});
-\item a \code{numeric} of one or 2 elements to be used as the x/y coordinates of the centre
+\item a list of \code{numeric} coordinates to be applied to each level.
 \item a \code{function} to estimate the central tendency of the estimated intercepts (e.g. \code{mean})
 }
 }

@@ -66,10 +66,10 @@ replace.intercept <- function(level_sample, value, dimensions) {
     lapply(level_sample, function(X) {X$Sol[dimensions] <- value[dimensions]; return(X)})
 }
 ## Internal: changing the intercept wrapper
-recentre.levels <- function(level_sample, dimensions, centre) {
+recentre.levels <- function(level_sample, centre, dimensions) {
     ## Centre the ellipse
     if(is(centre, "function")) {
-        ## Get the central tendency (as a function)
+        ## Get the central tendency (as a function)
         centre_values <- apply(do.call(rbind, lapply(level_sample, `[[`, "Sol")), 2, centre)
         ## Recentre the intercepts
         level_sample <- replace.intercept(level_sample, value = centre_values, dimensions)
@@ -88,8 +88,8 @@ recentre.levels <- function(level_sample, dimensions, centre) {
 ## Internal: making a list of ellipses for the level
 level.ellipses <- function(level_sample, dimensions, npoints, centre) {
 
-    ## Recentreing the levels
-    level_sample <- recentre.levels(level_sample, dimensions, centre)
+    ## Recentreing the levels
+    level_sample <- recentre.levels(level_sample, centre, dimensions)
 
     ## Get the ellipses for the level
     return(lapply(level_sample, make.ellipse, dimensions, npoints))

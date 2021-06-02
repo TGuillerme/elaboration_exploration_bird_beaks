@@ -7,6 +7,6 @@ test_that("plot.axes works", {
     axes <- get.axes(beer)
     expect_is(axes, "list")
     expect_null(plot.axes(axes))
-    expect_null(plot.axes(axes, use.transparent = FALSE, add = FALSE))
+    expect_null(plot.axes(axes, transparent.scale = 0.5, add = FALSE))
     expect_null(plot.axes(axes, add = FALSE))
 })

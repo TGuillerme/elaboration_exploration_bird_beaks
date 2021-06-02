@@ -30,4 +30,11 @@ test_that("get.axes works", {
     expect_equal(names(test), unname(levels.MCMCglmm(model_list[[7]])))
     expect_equal(length(test[[1]]), 7)
     expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 3))
+    ## Centreing works
+    centre <- list(colMeans(morphdat[, c(1:3)]),
+                   colMeans(morphdat[morphdat$clade == "gulls", c(1:3)]),
+                   colMeans(morphdat[morphdat$clade == "plovers", c(1:3)]),
+                   colMeans(morphdat[morphdat$clade == "sandpipers", c(1:3)]))
+
+
 })

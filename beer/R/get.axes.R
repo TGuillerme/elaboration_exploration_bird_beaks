@@ -12,7 +12,7 @@
 #' \code{centre} can be one of the following:
 #' \itemize{
 #'      \item \code{"intercept"} to use the estimated intercept is used (i.e. \code{MCMCglmm$Sol});
-#'      \item a \code{numeric} of one or 2 elements to be used as the x/y coordinates of the centre
+#'      \item a list of \code{numeric} coordinates to be applied to each level.
 #'      \item a \code{function} to estimate the central tendency of the estimated intercepts (e.g. \code{mean})
 #' }
 #' 
@@ -29,8 +29,12 @@ get.axes <- function(beer, axis = 1, level = 0.95, dimensions, centre = "interce
         dimensions <- 1:dim(beer[[1]][[1]]$VCV)[1]
     }
 
-    ## Recentreing the levels
-    recentred_beer <- lapply(beer, recentre.levels, dimensions, centre)
+    ## Recentreing the levels
+    if(is(centre, "list")) {
+        recentred_beer <- mapply(recentre.levels, beer, centre, MoreArgs = list(dimensions = dimensions), SIMPLIFY = FALSE)
+    } else {
+        recentred_beer <- lapply(beer, recentre.levels, centre, dimensions)
+    }
 
     ## Get all the axes per level
     return(lapply(recentred_beer, lapply, get.one.axis, axis, level, dimensions))
@@ -47,7 +51,7 @@ get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
     ## Get the data dimensionality
     dims <- dim(data$VCV)[1]
 
-    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
+    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
     unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
     ## The "front" (e.g. "top", "right") units
     diag(unit_hypersphere1) <- 1
