@@ -9,12 +9,12 @@ output:
     fig_height: 8
 ---
 
-
-
 All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
 Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
 The following code snippets are used to illustrate the implementation of the functions.
 See §§§ for running the actual analyses.
+
+The method described in the next three markdown is essentially a mini chains with pseudo-metropolis coupling markov chain generalised linear mixed model method to determine clades and tips elaboration and exploration (`mcmcpmcmcmcglmmmctee`) but we will refrain using this acronym and method name.
 
 
 ```{r install_beer, eval = FALSE}

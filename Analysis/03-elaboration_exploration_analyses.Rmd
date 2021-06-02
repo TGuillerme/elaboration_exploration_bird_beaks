@@ -37,7 +37,7 @@ To analyse the exploration and elaboration aspects of both clades and tips, we f
 ```{r, eval = TRUE}
 set.seed(42)
 ## Selecting 1000 random covariance matrices from the MCMCglmm
-covar_matrices <- get.covar(combined_results, n = 100)
+covar_matrices <- get.covar(combined_results, n = 1000)[1:4]
 ```
 
 We will use these covariance matrices as the basis of the phylogenetic main axes of variation.
@@ -87,7 +87,6 @@ VCV_{n} =
     \end{pmatrix}
 \end{equation}
 
-
 and the eigenvectors **v** and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
 
 \begin{equation}
@@ -102,23 +101,67 @@ We can get $M_{n}$ matrix containing all the edges' coordinates of the 0.95 CI h
 
 Where $M_{1,n}$ is the major axes of the 0.95 CI hyper ellipse fitting the variance-covariance matrix, $M_{2,n}$ the second second axes (minor axes in 2D), etc...
 
-> The detailed procedure was adapted from [李哲源's post on Stack Overflow](https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331) and implemented in `beer::get.axis` ([specific procedure on lines 40-73](https://github.com/TGuillerme/elaboration_exploration_bird_beaks/blob/master/beer/R/get.axes.R)).
+Finally, the centred the matrix $M_{1,m}$ on the centroid of each clade.
+
+
+> The detailed procedure was adapted from [李哲源's post on Stack Overflow](https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331) and implemented in `beer::get.axes` ([specific procedure on lines 40-73](https://github.com/TGuillerme/elaboration_exploration_bird_beaks/blob/master/beer/R/get.axes.R)).
 
 ```{r}
+## Get the centre of each clade
+group_centres <- list(
+    "gulls"      = colMeans(demo_data[demo_data$clade == "gulls", c(1:4)]),
+    "plovers"    = colMeans(demo_data[demo_data$clade == "plovers", c(1:4)]),
+    "sandpipers" = colMeans(demo_data[demo_data$clade == "sandpipers", c(1:4)]),
+    "phylogeny"  = colMeans(demo_data[, c(1:4)]))
+
 ## Calculating the major axes
-major_axes <- get.axes(covar_matrices, centre = "intercept")
+major_axes <- get.axes(covar_matrices, centre = group_centres)
 ```
 
 One can visualise these ellipses and major axes in 2D using the `beer::plot.axes` and `beer::plot.ellipses` functions (based on @ellipse):
 
 ```{r}
+set.seed(51)
+## Sub-selecting 5 random VCV matrices for readibility
+sub_sample_matrices <- get.covar(combined_results, 5)[1:4]
+sub_sample_major_axes <- get.axes(sub_sample_matrices, centre = "intercept")
+
 ## Plotting the ellipses
-plot.ellipses(covar_matrices, col = c("grey",colour_vector),
-              add = FALSE)
-plot.axes(major_axes, col = c("grey",colour_vector),
-              add = TRUE)
-legend("topleft", legend = c("all_clades", levels(demo_data$clade)), col = c("grey", colour_vector), pch = 19)
+plot.ellipses(sub_sample_matrices, col = c("grey",colour_vector),
+              add = FALSE, transparent.scale = 0.7)
+plot.axes(sub_sample_major_axes, col = c("grey",colour_vector),
+              add = TRUE, transparent.scale = 0.7)
+legend("topleft", legend = c("phylogeny", levels(demo_data$clade)), col = c("grey", colour_vector), lty = 1)
 ```
+
+We can also visualise all the major axes in relation to the elements in the space.
+
+```{r, fig.height = 18, fig.width = 18}
+## Plotting it
+plot.space(demo_data,
+           col = colour_vector,
+           levels = demo_data$clade,
+           xlab = "PC1 (90.5%)",
+           ylab = "PC1 (6.86%)",
+           xlim = c(-2, 2),
+           ylim = c(-1, 1))
+points(do.call(rbind,group_centres)[,c(1,2)],
+       pch = 13, col = c(colour_vector, "grey"))
+plot.axes(major_axes["animal"], col = "grey",
+          add = TRUE, transparent.scale = 0.01,
+          centre = 0)
+plot.axes(major_axes["animal:clade1"], col = colour_vector[1],
+          add = TRUE, transparent.scale = 0.01,
+          centre = colMeans(demo_data[demo_data$clade == "gulls", c(1,2)]))
+plot.axes(major_axes["animal:clade2"], col = colour_vector[2],
+          add = TRUE, transparent.scale = 0.01,
+          centre = colMeans(demo_data[demo_data$clade == "plovers", c(1,2)]))
+plot.axes(major_axes["animal:clade3"], col = colour_vector[3],
+          add = TRUE, transparent.scale = 0.01,
+          centre = colMeans(demo_data[demo_data$clade == "sandpipers", c(1,2)]))
+legend("topleft", legend = c("phylogeny", levels(demo_data$clade)), col = c("grey", colour_vector), lty = c(1,1,1,1), pch = c(NA, 19, 19, 19))
+```
+
 
 We can then compare these axes either between each other or relative to the tips positions in the trait space using elaboration and exploration scores:
 
@@ -131,6 +174,7 @@ Given a major axis of evolutionary "trajectory" (in the sense of evolutionary tr
 ```{r, echo = FALSE, eval = TRUE}
 source("../Functions/test.rotation.R")
 ```
+
 Figure: in a space with 5 elements: A, B, C, D, E (in grey); where D and E represent the major axes (e.g. the major phylogenetic effect axes from the MCMCglmm), we can rotate and rescale each element so that D and E become the unit vector of length 1 (the black letters D and E) and get the exploration elaboration scores for either the elements (e.g. element A's projection in blue and its rejection in orange) or from any other axes (e.g. the major phylogenetic effect axes from the MCMCglmm from a specific clade).
 
 #### Measuring projection and rejection
@@ -248,15 +292,15 @@ For each pair of $\vec{a}$ and $\vec{B}$, we translated the origin of $\vec{a}$ 
 
 ```{r}
 ## Get all the angles and stuff
-group_results <- analyses.group(major_axes[1:4], base = "animal")
+group_results <- analyses.group(major_axes, base = "animal")
 names(group_results) <- levels(demo_data$clade)
 ```
 
-The results are reported as boxplots of **log values** for each group indicating which group explores/elaborates more (and to which degree - angle) relatively to each other.
+The results are reported as boxplots for each group indicating which group explores/elaborates more (and to which degree - angle) relatively to each other.
 
-```{r, fig.height = 18, fig.heigh = 6}
+```{r, fig.height = 10, fig.heigh = 10}
 ## Plot the blob wise metrics
-plot.analyses.group(lapply(group_results, log), col = colour_vector)
+plot.analyses.group(group_results, col = colour_vector)
 ```
 
 ## Elaboration and exploration by species
@@ -268,11 +312,11 @@ Similarly to the analyses described above, we ran the analyses per species but h
 tip_results_global <- analyses.tip(data = demo_data[, c(1:4)], axes = major_axes$animal)
 ```
 
-And here are the **log values** plotted by group:
+And here are the values plotted by group:
 
 ```{r}
 ## Plot results
-plot.analyses.tip(lapply(tip_results_global, log), col = colour_vector, group = split(rownames(demo_data), f = demo_data$clade))
+plot.analyses.tip(tip_results_global, col = colour_vector, group = split(rownames(demo_data), f = demo_data$clade))
 ```
 
 Note that here only the tips positions projected on the global phylogenetic axes.

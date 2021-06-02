@@ -11,7 +11,7 @@
 
 <meta name="author" content="Thomas Guillerme" />
 
-<meta name="date" content="2021-05-26" />
+<meta name="date" content="2021-06-02" />
 
 <title>Bird beak's elaboration and exploration</title>
 
@@ -166,12 +166,12 @@ pre code {
 
 <h1 class="title toc-ignore">Bird beak's elaboration and exploration</h1>
 <h4 class="author">Thomas Guillerme</h4>
-<h4 class="date">2021-05-26</h4>
+<h4 class="date">2021-06-02</h4>
 
 </div>
 
 
-<p>All the custom code and custom functions called in this document can be downloaded and installed in <code>R</code> as the standalone working package <code>beer</code> (Beak Elaboration and Exploration in R). Although <code>beer</code> is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs. Some analyses in <code>beer</code> do take some time to run so we advice to not drive or operate heavy machinery while using it. Don't use it while driving. The following code snippets are used to illustrate the implementation of the functions. See §§§ for running the actual analyses.</p>
+<p>All the custom code and custom functions called in this document can be downloaded and installed in <code>R</code> as the standalone working package <code>beer</code> (Beak Elaboration and Exploration in R). Although <code>beer</code> is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs. Some analyses in <code>beer</code> do take some time to run so we advice to not drive or operate heavy machinery while using it. Don't use it while driving. The following code snippets are used to illustrate the implementation of the functions. See <!-- §§§run_replicates_script --> for running the actual analyses.</p>
 <pre class="r"><code>## Installing beer
 devtools::install_github(&quot;TGuillerme/elaboration_exploration_bird_beaks/beer&quot;)</code></pre>
 <pre class="r"><code>set.seed(42)
@@ -318,282 +318,44 @@ mini_chains &lt;- make.mini.chains(data         = demo_data,
 n_reps &lt;- 10
 
 ## Run the required chains
-results &lt;- run.mini.chains(mini_chains, replicates = n_reps, path = &quot;../Data/Processed/MCMC/&quot;)</code></pre>
-<pre><code>## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000
-## 
-##                        MCMC iteration = 0
-## 
-##                        MCMC iteration = 1000
-## 
-##                        MCMC iteration = 2000
-## 
-##                        MCMC iteration = 3000
-## 
-##                        MCMC iteration = 4000
-## 
-##                        MCMC iteration = 5000
-## 
-##                        MCMC iteration = 6000
-## 
-##                        MCMC iteration = 7000
-## 
-##                        MCMC iteration = 8000
-## 
-##                        MCMC iteration = 9000
-## 
-##                        MCMC iteration = 10000
-## 
-##                        MCMC iteration = 11000</code></pre>
-<pre class="r"><code>## Combining the results as one big MCMC
+results &lt;- run.mini.chains(mini_chains, replicates = n_reps, path = &quot;../Data/Processed/MCMC/&quot;)
+
+## Combining the results as one big MCMC
 combined_results &lt;- combine.mini.chains(results)
 
 ## Saving the results
 save(combined_results, file = &quot;../Data/processed/combined_results.rda&quot;)</code></pre>
-<div id="number-of-runs-optimisation-to-be-developped" class="section level4">
-<h4>Number of runs optimisation (TO BE DEVELOPPED?)</h4>
-<pre class="r"><code>## Function for running one mini chain on a random tree (and saving the results)
-fun.mini.chains &lt;- function() {
-    run.mini.chains(mini_chains, replicates = 1, path = &quot;../Data/Processed/MCMC/&quot;, file.name = &quot;mini.chains&quot;)
-}</code></pre>
-<p>To make sure we reached consistent results, we run the a set of N mini-chains were N was determined using the following variance optimisation algorithm</p>
-<ul>
-<li><ol style="list-style-type: decimal">
-<li>run an initial <span class="math inline">\(N = 20\)</span> chains;</li>
-</ol></li>
-<li><ol start="2" style="list-style-type: decimal">
-<li>estimate the <span class="math inline">\(V_{1}\)</span>, the pooled variances for each parameters in the chain (V1 is a vector of length §§§);</li>
-</ol></li>
-<li><ol start="3" style="list-style-type: decimal">
-<li>update N to N = N * 1.05 and run an additional 5% chains</li>
-</ol></li>
-<li><ol start="4" style="list-style-type: decimal">
-<li>estimate <span class="math inline">\(V_{2}\)</span>, the pooled variances for each parameters in the chain;</li>
-</ol></li>
-<li><ol start="5" style="list-style-type: decimal">
-<li>calculate <span class="math inline">\(\Delta_V\)</span> the absolute change between <span class="math inline">\(V_{1}\)</span> and <span class="math inline">\(V_{2}\)</span> as (<span class="math inline">\(\sqrt{(\frac{V_{1}}/{V_{2}} - 1)^{2}}\)</span>).</li>
-</ol></li>
-<li><ol start="6" style="list-style-type: decimal">
-<li>If <span class="math inline">\(\Delta_V &lt; 0.05\)</span> (meaning an increase of 5% of the replicates resulted in an increase of the parameters of less than 5%), the desired number of mini-chains is reached. Else, set <span class="math inline">\(V_{1} = V_{2}\)</span> and repeat from step 3.</li>
-</ol></li>
-</ul>
-<pre class="r"><code>## The summary function</code></pre>
-<p>After reaching the desired <span class="math inline">\(N\)</span> chains, we pulled all the posterior estimates together back into a &quot;normal&quot; big MCMCglmm with a posterior distribution including the effective results and the phylogenetic uncertainty.</p>
-</div>
+<!-- 
+
+#### Number of runs optimisation (TO BE DEVELOPPED?)
+
+
+```r
+## Function for running one mini chain on a random tree (and saving the results)
+fun.mini.chains <- function() {
+    run.mini.chains(mini_chains, replicates = 1, path = "../Data/Processed/MCMC/", file.name = "mini.chains")
+}
+```
+
+To make sure we reached consistent results, we run the a set of N mini-chains were N was determined using the following variance optimisation algorithm
+ 
+ * 1. run an initial $N = 20$ chains;
+ * 2. estimate the $V_{1}$, the pooled variances for each parameters in the chain (V1 is a vector of length §§§);
+ * 3. update N to N = N * 1.05 and run an additional 5% chains
+ * 4. estimate $V_{2}$, the pooled variances for each parameters in the chain;
+ * 5. calculate $\Delta_V$ the absolute change between $V_{1}$ and $V_{2}$ as ($\sqrt{(\frac{V_{1}}/{V_{2}} - 1)^{2}}$).
+ * 6. If $\Delta_V < 0.05$ (meaning an increase of 5% of the replicates resulted in an increase of the parameters of less than 5%), the desired number of mini-chains is reached. Else, set $V_{1} = V_{2}$ and repeat from step 3.
+
+
+
+```r
+## The summary function
+```
+
+
+After reaching the desired $N$ chains, we pulled all the posterior estimates together back into a "normal" big MCMCglmm with a posterior distribution including the effective results and the phylogenetic uncertainty.
+
+-->
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">

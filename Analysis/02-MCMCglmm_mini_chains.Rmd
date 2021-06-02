@@ -116,7 +116,7 @@ mini_chains <- make.mini.chains(data         = demo_data,
 
 We then run the MCMCglmm over $N_trees$ to get an estimate of the variance co-variance matrices including phylogenetic uncertainty.
 
-```{r, running_replicates, eval = TRUE}
+```{r, running_replicates, eval = FALSE}
 ## The number of replicates
 n_reps <- 10
 
@@ -132,7 +132,7 @@ save(combined_results, file = "../Data/processed/combined_results.rda")
 
 
 
-
+<!-- 
 
 #### Number of runs optimisation (TO BE DEVELOPPED?)
 
@@ -161,5 +161,6 @@ To make sure we reached consistent results, we run the a set of N mini-chains we
 
 After reaching the desired $N$ chains, we pulled all the posterior estimates together back into a "normal" big MCMCglmm with a posterior distribution including the effective results and the phylogenetic uncertainty.
 
+-->
 
 ## References
