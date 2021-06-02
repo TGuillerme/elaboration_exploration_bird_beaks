@@ -9,7 +9,7 @@
 #' @param col a colour vector.
 #' @param add logical, whether to add the lines to an existing plot (\code{TRUE}, default) or not (\code{FALSE}).
 #' @param scale.axes logical, whether to set both axes on the same scale (\code{TRUE}) or not (\code{FALSE}, default).
-#' @param use.transparent logical, whether to make the colours more transparent for overlaps (default is \code{TRUE}).
+#' @param transparent.scale A numerical value to fade the colours (1 = no fade, 0 = no colours).
 #' @param ... any plotting options to be passed to \code{\link{graphics}{lines}}
 #' 
 #' @details
@@ -27,7 +27,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "intercept", col, add = TRUE, use.transparent = TRUE, ...) {
+plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "intercept", col, add = TRUE, transparent.scale = 1, ...) {
     ## Get the ellipses
     all_ellipses <- lapply(beer, level.ellipses, dimensions, npoints, centre)
     
@@ -38,10 +38,8 @@ plot.ellipses <- function(beer, dimensions = c(1,2), npoints = 50, centre = "int
     if(missing(col)) {
         col <- grDevices::rainbow(length(beer))
     }
-    if(use.transparent) {
-        adjust <- 1/length(beer) + 1/length(all_ellipses[[1]])
-        col <- grDevices::adjustcolor(col, alpha.f = adjust)
-    }
+    ## Scale the transparency
+    col <- grDevices::adjustcolor(col, alpha.f = transparent.scale)
 
     ## Do the base plot
     if(!add) {

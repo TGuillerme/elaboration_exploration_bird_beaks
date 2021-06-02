@@ -11,7 +11,7 @@
   centre = "intercept",
   col,
   add = TRUE,
-  use.transparent = TRUE,
+  transparent.scale = 1,
   ...
 )
 }
@@ -28,7 +28,7 @@
 
 \item{add}{logical, whether to add the lines to an existing plot (\code{TRUE}, default) or not (\code{FALSE}).}
 
-\item{use.transparent}{logical, whether to make the colours more transparent for overlaps (default is \code{TRUE}).}
+\item{transparent.scale}{A numerical value to fade the colours (1 = no fade, 0 = no colours).}
 
 \item{...}{any plotting options to be passed to \code{\link{graphics}{lines}}}
 
