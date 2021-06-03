@@ -128,15 +128,17 @@ sub_sample_major_axes <- get.axes(sub_sample_matrices, centre = "intercept")
 
 ## Plotting the ellipses
 plot.ellipses(sub_sample_matrices, col = c("grey",colour_vector),
-              add = FALSE, transparent.scale = 0.7)
+              add = FALSE, transparent.scale = 0.5)
 plot.axes(sub_sample_major_axes, col = c("grey",colour_vector),
               add = TRUE, transparent.scale = 0.7)
-legend("topleft", legend = c("phylogeny", levels(demo_data$clade)), col = c("grey", colour_vector), lty = 1)
+legend("topleft",
+       legend = c("phylogeny", levels(demo_data$clade)),
+       col = c("grey", colour_vector), lty = 1)
 ```
 
 We can also visualise all the major axes in relation to the elements in the space.
 
-```{r, fig.height = 18, fig.width = 18}
+```{r, fig.height = 10, fig.width = 10}
 ## Plotting it
 plot.space(demo_data,
            col = colour_vector,
@@ -159,7 +161,11 @@ plot.axes(major_axes["animal:clade2"], col = colour_vector[2],
 plot.axes(major_axes["animal:clade3"], col = colour_vector[3],
           add = TRUE, transparent.scale = 0.01,
           centre = colMeans(demo_data[demo_data$clade == "sandpipers", c(1,2)]))
-legend("topleft", legend = c("phylogeny", levels(demo_data$clade)), col = c("grey", colour_vector), lty = c(1,1,1,1), pch = c(NA, 19, 19, 19))
+legend("topleft",
+       legend = c("phylogeny", levels(demo_data$clade)),
+       col = c("grey", colour_vector),
+       lty = c(1,1,1,1),
+       pch = c(NA, 19, 19, 19))
 ```
 
 
@@ -266,15 +272,13 @@ Or $\theta = acos (B_x)$ since both $\|\vec{B}\|$ and $\|\vec{\hat{\imath}}\|$ a
 
 #### Algorithm for calculating the projection/rejection of any element in a defined space
 
-In practice we followed [this procedure](https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions) and applied a modification of [this implementation](https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385) (see @aguilera2004 for the formal generalisation of this algorithm) using the following algorithm:
+In practice we followed [this procedure](https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions) and applied a modification of [this implementation](https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385) (see @aguilera2004 for the formal generalisation of this algorithm) using the following algorithm implemented in `dispRity::projections` (@disprity):
 
  1. In the trait space, define $\vec{B}$ as the base vector (typically $\vec{B}$ is defined as the pair of coordinates set from the major axis described above).
  2. Centre the trait space on the origin of $\vec{B}$ so that the first set of coordinates of $\vec{B}$ are 0.
  3. Scale the trait space to the norm of $\vec{B}$ so that the norm of $\vec{B}$ is now 1.
  4. Rotate the trait space using the rotation matrix $R_{\vec{B}}$ to satisfy the linear transformation $\vec{B} \arrow \vec{\hat{\imath}}$ (with $\vec{\hat{\imath}}$ being the first unit vector of the trait space - typically the x axes unit vector). 
  5. Project/reject every element in the trait on $\vec{B}$ (that is now $\vec{\hat{\imath}}$). In practice, the first coordinate (x) of each element is now it's projection onto $\vec{B}$.
-
-
 
 Following the ways to:
  1. estimate the variance-covariance matrices of the phylogenetic effects in trait space (02-MCMCglmm_mini_chains.Rmd);
@@ -298,7 +302,7 @@ names(group_results) <- levels(demo_data$clade)
 
 The results are reported as boxplots for each group indicating which group explores/elaborates more (and to which degree - angle) relatively to each other.
 
-```{r, fig.height = 10, fig.heigh = 10}
+```{r}
 ## Plot the blob wise metrics
 plot.analyses.group(group_results, col = colour_vector)
 ```
@@ -309,23 +313,39 @@ Similarly to the analyses described above, we ran the analyses per species but h
 
 ```{r}
 ## Global analyses
-tip_results_global <- analyses.tip(data = demo_data[, c(1:4)], axes = major_axes$animal)
+tip_results_global <- analyses.tip(data = demo_data[, c(1:4)],
+                                   axes = major_axes$animal)
 ```
 
 And here are the values plotted by group:
 
 ```{r}
 ## Plot results
-plot.analyses.tip(tip_results_global, col = colour_vector, group = split(rownames(demo_data), f = demo_data$clade))
+plot.analyses.tip(tip_results_global,
+                  col = colour_vector,
+                  group = split(rownames(demo_data), f = demo_data$clade),
+                  main = "Tips vs. whole phylogeny")
 ```
 
 Note that here only the tips positions projected on the global phylogenetic axes.
 
-We also looked at the exploration elaboration profiles within each clades by replacing for each clade, the projection of the elements onto $\vec{B}$ to the projection onto their respective clade major axes $\vec{a}$.
+Finaly, we also looked at the exploration elaboration profiles within each clades by replacing for each clade, the projection of the elements onto $\vec{B}$ to the projection onto their respective clade major axes $\vec{a}$.
 
+```{r}
+## Results within groups
+tip_results_within <- analyses.tip(
+                    data = demo_data[, c(1:4)],
+                    axes = major_axes[-length(major_axes)],
+                    group = split(rownames(demo_data), f = demo_data$clade))
+```
 
-TODO!
-
+```{r}
+## Plot results
+plot.analyses.tip(tip_results_within,
+                  col = colour_vector,
+                  group = split(rownames(demo_data), f = demo_data$clade),
+                  main = "Tips vs. clade")
+```
 
 
 
