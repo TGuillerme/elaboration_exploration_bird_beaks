@@ -4,12 +4,14 @@
 \alias{analyses.tip}
 \title{Analyses per tips}
 \usage{
-analyses.tip(data, axes)
+analyses.tip(data, axes, group)
 }
 \arguments{
 \item{data}{the data set to make the projection/rejections}
 
-\item{axes}{the main axes to on which to project the data}
+\item{axes}{the main axes to on which to project the data or a list of main axes corresponding to the groups (if group is not missing)}
+
+\item{group}{optional, a list of groups to run the analyses within groups}
 }
 \description{
 Get results per tip
