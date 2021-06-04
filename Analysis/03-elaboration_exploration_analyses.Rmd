@@ -329,7 +329,7 @@ plot.analyses.tip(tip_results_global,
 
 Note that here only the tips positions projected on the global phylogenetic axes.
 
-Finaly, we also looked at the exploration elaboration profiles within each clades by replacing for each clade, the projection of the elements onto $\vec{B}$ to the projection onto their respective clade major axes $\vec{a}$.
+Finally, we also looked at the exploration elaboration profiles within each clades by replacing for each clade, the projection of the elements onto $\vec{B}$ to the projection onto their respective clade major axes $\vec{a}$.
 
 ```{r}
 ## Results within groups
@@ -347,7 +347,9 @@ plot.analyses.tip(tip_results_within,
                   main = "Tips vs. clade")
 ```
 
+But this is probably best to look at in a species by species fashion:
 
+TODO
 
 
 
