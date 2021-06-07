@@ -9,7 +9,6 @@ output:
     fig_height: 8
 ---
 
-
 All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
 Although `beer` is intentionally designed to be portable and shareable, we advise workers to use it with moderation and tailor its consumption to their specific research needs.
 Some analyses in `beer` do take some time to run so we advise you do not operate heavy machinery while using it.
@@ -40,26 +39,26 @@ consensus_tree <- demo_tree
 
 # MCMCglmm mini chains analyses
 
-To estimate the variance covariance matrix for the phylogeny and each clade (see [01-Data_preparation.Rmd](01-Data_preparation.Rmd)) we run multivariate generalised linear mixed models (MCMCglmm) using the `MCMCglmm` package [@MCMCglmm].
+To estimate the variance-covariance matrix for the phylogeny and each clade (see [01-Data_preparation.Rmd](01-Data_preparation.Rmd)) we run multivariate generalised linear mixed models (MCMCglmm) using the `MCMCglmm` package [@MCMCglmm].
 
 ## Model
 
 We ran a general multi-response model with `§§§N_traits` of the trait space as fixed effects (using a Gaussian distribution) and and the residual covariance structure.
 We used `§§§N_clades + 1` random effects (one for the whole phylogeny and one for each clade).
-% NC: I know this is in the data prep, but can you specify an example MCMCglmm model here to make it clearer what you mean?
+<!-- % NC: I know this is in the data prep, but can you specify an example MCMCglmm model here to make it clearer what you mean? -->
 
 ## Mini chains
 
 To increase the speed of the analysis and take phylogenetic uncertainty into account, we used a "mini chains" approach.
 It runs multiple MCMCglmm analyses on multiple trees and pulls the results together into one larger MCMCglmm that contains more variation due to phylogenetic uncertainty (similar to @mulTree - ADD LINK?).
-The size of the chains are optimised for speed. % NC: Editted as multree is not familiar to everyone, so keeping it general and linking to multree is better
+The size of the chains are optimised for speed. <!-- % NC: Editted as multree is not familiar to everyone, so keeping it general and linking to multree is better -->
 
 ### Mini-chains parametrization
 
 We first ran three independent MCMC chains with the model and data described above using the consensus tree and flat priors.
 We ran these models (for `§§§N_generations` sampling every `§§§N_nitt` with no burnin) until the three chains reached an effective sample size >> 200 (§§§and other diagnosis). 
-% NC: I thought in MCMCglmm the nitt parameter was total number of iterations, and thin gives how often the chain is sampled? I think you've called nitt generations here but better to be consistent with MCMCglmm?
-
+<!-- % NC: I thought in MCMCglmm the nitt parameter was total number of iterations, and thin gives how often the chain is sampled? I think you've called nitt generations here but better to be consistent with MCMCglmm?
+ -->
 ```{r, parametrise_the_model, eval = TRUE}
 ## Set up the parametrising chains models
 param_MCMCglmm <- make.mini.chains(data         = demo_data,
@@ -116,7 +115,7 @@ mini_chains <- make.mini.chains(data         = demo_data,
                                     burnin = est_params$burnin))
 ```
 
-We then run the MCMCglmm over $N_trees$ to get an estimate of the variance covariance matrices including phylogenetic uncertainty.
+We then run the MCMCglmm over $N_trees$ to get an estimate of the variance-covariance matrices including phylogenetic uncertainty.
 
 ```{r, running_replicates, eval = FALSE}
 ## The number of replicates
