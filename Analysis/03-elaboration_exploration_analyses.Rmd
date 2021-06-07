@@ -30,7 +30,7 @@ data(demo_tree)
 colour_vector <- c("orange", "blue", "darkgreen")
 ```
 
-## Extracting the variance covariance matrices from the MCMCglmm mini-chains
+## Extracting the variance-covariance matrices from the MCMCglmm mini-chains
 
 To analyse the exploration and elaboration aspects of both clades and tips, we first selected 1000 random covariance matrices from the combined MCMCglmm posterior variance-covariance matrices.
 
@@ -46,12 +46,30 @@ These axes correspond to the main axes of variation in the $N_DIMENSIONS$ trait 
  * The whole bird phylogeny level ("phylogeny level");
  * And the named node levels ("clade levels").
 
-These major axes were calculated as the longest distance within the 95% confidence interval hyper-ellipse from the variance-covariance matrix (i.e. the major axes of the 95% CI ellipse of matrix). % NC: A small figure here would help
+These major axes were calculated as the longest distance within the 95% confidence interval hyper-ellipse from the variance-covariance matrix (i.e. the major axes of the 95% CI ellipse of matrix). <!-- % NC: A small figure here would help -->
+
+```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5}
+set.seed(42)
+## Space plot
+cor_matrix <- matrix(cbind(1, 0.8, 0.8, 1), nrow = 2)
+space <- space.maker(50, 2, rnorm, cor.matrix = cor_matrix)
+lim <- c(floor(range(space)[1]), ceiling(range(space)[2]))
+plot(space, pch = 19, xlab = "Trait 1", ylab = "Trait 2", xlim = lim, ylim = lim)
+
+## Plotting the ellipse
+lines(ellipse::ellipse(cor_matrix), col = "blue", lwd = 3)
+## Plotting the major axis
+lines(get.axes(list(list(list(VCV = cor_matrix, Sol = c(0,0)))))[[1]][[1]], lwd = 3, col = "orange")
+```
+
+Figure: the main axis of variation (in orange) of the 95% CI ellipse of the variance-covariance matrix (in blue) of 20 elements in 2 dimensions (in black).
+
+
 In practice, the coordinates of these axes end points were calculated directly from the cross product between the 95% unit hypersphere scaled by the variance-covariance matrix's squared eigenvalues and the variance-covariance matrix's eigenvectors.
 
 ## Major axes calculation
-% NC: Mathematically seems sound, but I'm no expert. But very hard to parse for anyone who hasn't been looking at this in detail. Think fo the poor palaeontologists!
-
+<!-- % NC: Mathematically seems sound, but I'm no expert. But very hard to parse for anyone who hasn't been looking at this in detail. Think fo the poor palaeontologists!
+ -->
 For $O_{n}$, the unit hypersphere matrix of _n_ dimensions and a radius composed of the two identity matrices $I_{n}$ and $-I_{n}$ so that: 
 
 \begin{equation}
@@ -281,7 +299,7 @@ In practice we followed [this procedure](https://math.stackexchange.com/question
  4. Rotate the trait space using the rotation matrix $R_{\vec{B}}$ to satisfy the linear transformation $\vec{B} \arrow \vec{\hat{\imath}}$ (with $\vec{\hat{\imath}}$ being the first unit vector of the trait space - typically the x axes unit vector). 
  5. Project/reject every element in the trait on $\vec{B}$ (that is now $\vec{\hat{\imath}}$). In practice, the first coordinate (x) of each element is now its projection onto $\vec{B}$.
 
-Following the ways to: %NC: Not sure what you mean here
+Following the ways to: <!-- %NC: Not sure what you mean here -->
  1. estimate the variance-covariance matrices of the phylogenetic effects in trait space (02-MCMCglmm_mini_chains.Rmd);
  2. extracting the major axes of variation of these VCV matrices for the different levels in the phylogeny;
  3. and calculating the elaboration and exploration scores for elements in the trait space based on these major axes.
