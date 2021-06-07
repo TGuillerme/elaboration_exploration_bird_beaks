@@ -1,0 +1,17 @@
+---
+title: "Bird beak's elaboration and exploration"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This script can be used to repeat the full analyses.
+You can read about the methods overview [here](00-methods_overview.Rmd) or find details about the full analyses in the respective detailed descriptions of the [data](01-Data_preparation.Rmd), the [MCMCglmm mini chains](02-MCMCglmm_mini_chains.Rmd) and the [elaboration exploration analyses](03-elaboration_exploration_analyses.Rmd).
+You can reproduce the data preparation, models estimations and calculations of the elaboration and exploration from the [publication](§§§pub) with the [running script](04-full_analyses_run.Rmd).
+
+
+TODO
