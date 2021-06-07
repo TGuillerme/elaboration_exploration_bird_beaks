@@ -1,0 +1,37 @@
+---
+title: "Bird beak's elaboration and exploration"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
+Although `beer` is intentionally designed to be portable and shareable, we advise workers to use it with moderation and tailor its consumption to their specific research needs.
+Some analyses in `beer` do take some time to run so we advise users not to operate heavy machinery while using it.
+Don't use it while driving.
+The following code snippets are used to illustrate the implementation of the functions.
+See <!-- §§§run_replicates_script --> for running the actual analyses.
+
+The following contains an overview of the methods used in the paper.
+
+# Data
+
+The detailed and repeatable version of this section can be found [here](01-Data_preparation.Rmd).
+
+We used data.
+
+# MCMCglmm
+
+The detailed and repeatable version of this section can be found [here](02-MCMCglmm_mini_chains.Rmd).
+
+# Elaboration and exploration
+
+The detailed and repeatable version of this section can be found [here](03-elaboration_exploration_analyses.Rmd).
+
+ 
+## References
