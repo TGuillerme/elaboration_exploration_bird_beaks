@@ -14,4 +14,71 @@ You can read about the methods overview [here](00-methods_overview.Rmd) or find 
 You can reproduce the data preparation, models estimations and calculations of the elaboration and exploration from the [publication](§§§pub) with the [running script](04-full_analyses_run.Rmd).
 
 
-TODO
+```{r, load pkg and data}
+install.packages(c("devtools", "dispRity", "MCMCglmm"))
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+library(beer)
+library(MCMCglmm)
+data(chara_data)
+data(chara_tree)
+```
+
+```{r, run param chains}
+## Set up the parametrising chains models
+param_MCMCglmm <- make.mini.chains(data         = chara_data,
+                                   dimensions   = c(1:17),
+                                   tree         = chara_tree,
+                                   trait.family = "gaussian",
+                                   randoms      = c("global", "clade"),
+                                   residuals    = "global",
+                                   priors       = 0.02,
+                                   verbose      = TRUE,
+                                   parameters   = list(
+                                       nitt   = 5000000,
+                                       thin   = 1000,
+                                       burnin = 0))
+
+## Running the three MCMCglmm models
+param_chains <- run.mini.chains(param_MCMCglmm, replicates = 3)
+save(param_chains, file = "param_chains.rda")
+```
+
+```{r, get params}
+## Extract the parameters from the parameter chains
+est_params <- extract.parameters(param_chains)
+```
+
+```{r, set_the_mini_chains, eval = TRUE}
+## The thinning parameter
+thin <- 1000
+## The number of samples per chains
+samples <- 100
+
+## Set up the mini-chains models
+mini_chains <- make.mini.chains(data         = chara_data[, 1:17],
+                                dimensions   = c(1:17),
+                                tree         = chara_tree,
+                                trait.family = "gaussian",
+                                randoms      = c("global", "clade"),
+                                residuals    = "global",
+                                priors       = est_params$priors,
+                                verbose      = TRUE,
+                                parameters   = list(
+                                    nitt   = est_params$burnin + thin * samples,
+                                    thin   = thin,
+                                    burnin = est_params$burnin))
+```
+
+```{r, run the mini_chains}
+## The number of replicates
+n_reps <- 1000
+
+## Run the required chains
+results <- run.mini.chains(mini_chains, replicates = n_reps, path = "../Data/Processed/MCMC/")
+
+## Combining the results as one big MCMC
+combined_results <- combine.mini.chains(results)
+
+## Saving the results
+save(combined_results, file = "../Data/processed/combined_results.rda")
+```
