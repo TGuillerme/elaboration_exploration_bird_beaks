@@ -23,6 +23,14 @@ data(chara_data)
 data(chara_tree)
 ```
 
+## Check the following options:
+
+ * saving parameters
+ * number of dimensions
+ * numbers of iterations (especially rate)
+ * check options in brms
+
+
 ```{r, run param chains}
 ## Set up the parametrising chains models
 param_MCMCglmm <- make.mini.chains(data         = chara_data,
@@ -35,7 +43,7 @@ param_MCMCglmm <- make.mini.chains(data         = chara_data,
                                    verbose      = TRUE,
                                    parameters   = list(
                                        nitt   = 5000000,
-                                       thin   = 1000,
+                                       thin   = 5000,
                                        burnin = 0))
 
 ## Running the three MCMCglmm models
