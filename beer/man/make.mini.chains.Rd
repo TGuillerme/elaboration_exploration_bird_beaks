@@ -13,7 +13,8 @@ make.mini.chains(
   randoms = "global",
   parameters,
   priors = 0.02,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ make.mini.chains(
 \item{priors}{A list of priors or a value of the overal nu parameter for generating flat priors for the \code{\link[MCMCglmm]{MCMCglmm}}.}
 
 \item{verbose}{whether to make the \code{\link[MCMCglmm]{MCMCglmm}} verbose (\code{TRUE}; default) or not (\code{FALSE}).}
+
+\item{...}{any other parameters to be passed to \code{\link[MCMCglmm]{MCMCglmm}}.}
 }
 \description{
 Making a list of mini.chains object (MCMCglmm primers)
