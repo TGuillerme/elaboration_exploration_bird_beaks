@@ -158,6 +158,10 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
                                               burnin   = parameters$burnin,
                                               nitt     = parameters$nitt,
                                               thin     = parameters$thin,
+                                              saveX    = FALSE,
+                                              saveZ    = FALSE,
+                                              saveXL   = FALSE,
+                                              pl       = FALSE,
                                               ...)))
                     , fixed, random, rvoc, family, data, priors, verbose, parameters, ...)
 
