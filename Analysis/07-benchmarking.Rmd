@@ -31,13 +31,7 @@ Variables:
  * thinning rate
  * saving parameters from `MCMCglmm`
 
-Saving parameters:
- * `pr = TRUE/FALSE`: save the posteriors of the random effects (FALSE?)
- * `pl = TRUE/FALSE`: save the posteriors of the latent variable (TRUE?)
- * `DIC = TRUE/FALSE`: deviance and deviance information criterion are calculated
- * `saveX = TRUE/FALSE`: save fixed effect design matrix
- * `saveZ = TRUE/FALSE`: save random effect design matrix
- * `saveXL = TRUE/FALSE`: save structural parameter design matrix
+> Here I'm not going to test the saving parameters since it's pretty much a constant RAM saving. By removing all the un-necessary stuff to save, we have 4.2 times smaller output!
 
 Protocol:
  1. Run one chain with the set number of parameters for 10 iterations (thinning = 1)
@@ -46,104 +40,203 @@ Protocol:
  4. Run it again for 40 iterations (thinning = 1)
  5. Run it again for 50 iterations (thinning = 1)
 
+```{r}
+## Function for setting up the parameters
+set.params <- function(dimensions, thin, nitt) {
+  ## Set up the parametrising chains models
+  param1 <- make.mini.chains(data         = chara_data,
+                             dimensions   = c(1:dimensions),
+                             tree         = chara_tree,
+                             trait.family = "gaussian",
+                             randoms      = c("global", "clade"),
+                             residuals    = "global",
+                             priors       = 0.02,
+                             verbose      = TRUE,
+                             parameters   = list(
+                                 nitt   = nitt*1,
+                                 thin   = thin,
+                                 burnin = 0))
+  ## Set up the parametrising chains models
+  param2 <- make.mini.chains(data         = chara_data,
+                             dimensions   = c(1:dimensions),
+                             tree         = chara_tree,
+                             trait.family = "gaussian",
+                             randoms      = c("global", "clade"),
+                             residuals    = "global",
+                             priors       = 0.02,
+                             verbose      = TRUE,
+                             parameters   = list(
+                                 nitt   = nitt*2,
+                                 thin   = thin,
+                                 burnin = 0))
+  ## Set up the parametrising chains models
+  param3 <- make.mini.chains(data         = chara_data,
+                             dimensions   = c(1:dimensions),
+                             tree         = chara_tree,
+                             trait.family = "gaussian",
+                             randoms      = c("global", "clade"),
+                             residuals    = "global",
+                             priors       = 0.02,
+                             verbose      = TRUE,
+                             parameters   = list(
+                                 nitt   = nitt*3,
+                                 thin   = thin,
+                                 burnin = 0))
+  ## Set up the parametrising chains models
+  param4 <- make.mini.chains(data         = chara_data,
+                             dimensions   = c(1:dimensions),
+                             tree         = chara_tree,
+                             trait.family = "gaussian",
+                             randoms      = c("global", "clade"),
+                             residuals    = "global",
+                             priors       = 0.02,
+                             verbose      = TRUE,
+                             parameters   = list(
+                                 nitt   = nitt*4,
+                                 thin   = thin,
+                                 burnin = 0))
+  ## Set up the parametrising chains models
+  param5 <- make.mini.chains(data         = chara_data,
+                             dimensions   = c(1:dimensions),
+                             tree         = chara_tree,
+                             trait.family = "gaussian",
+                             randoms      = c("global", "clade"),
+                             residuals    = "global",
+                             priors       = 0.02,
+                             verbose      = TRUE,
+                             parameters   = list(
+                                 nitt   = nitt*5,
+                                 thin   = thin,
+                                 burnin = 0))
+  return(list(param1,
+              param2,
+              param3,
+              param4,
+              param5))
+}
+## Function for running the test
+test.params <- function(dimensions, thin, nitt) {
+  ## Setting up the parameters
+  param_list <- set.params(dimensions = dimensions, thin = thin, nitt = nitt)
 
+  ## First iteration
+  timer_base <- system.time(param_chains <- run.mini.chains(param_list[[1]], replicates = 1))["elapsed"]
+  chain_size_base <- object.size(param_chains)
 
-```{r, run param chains}
-## Set up the parametrising chains models
-param_10g_2d <- make.mini.chains(data         = chara_data,
-                                   dimensions   = c(1:2),
-                                   tree         = chara_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 10,
-                                       thin   = 1,
-                                       burnin = 0))
-## Set up the parametrising chains models
-param_20g_2d <- make.mini.chains(data         = chara_data,
-                                   dimensions   = c(1:2),
-                                   tree         = chara_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 20,
-                                       thin   = 1,
-                                       burnin = 0))
-## Set up the parametrising chains models
-param_30g_2d <- make.mini.chains(data         = chara_data,
-                                   dimensions   = c(1:2),
-                                   tree         = chara_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 30,
-                                       thin   = 1,
-                                       burnin = 0))
-## Set up the parametrising chains models
-param_40g_2d <- make.mini.chains(data         = chara_data,
-                                   dimensions   = c(1:2),
-                                   tree         = chara_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 40,
-                                       thin   = 1,
-                                       burnin = 0))
-## Set up the parametrising chains models
-param_50g_2d <- make.mini.chains(data         = chara_data,
-                                   dimensions   = c(1:2),
-                                   tree         = chara_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 50,
-                                       thin   = 1,
-                                       burnin = 0))
-param_list <- list(param_10g_2d,
-                   param_20g_2d,
-                   param_30g_2d,
-                   param_40g_2d,
-                   param_50g_2d)
+  ## Preping the results
+  parameters <- paste(thin, nitt, dimensions, sep = ", ")
+  data <- paste(timer_base, 0, timer_base/nitt, chain_size_base, 0, chain_size_base/nitt, sep = ", ")
+  ## Appending the file
+  system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
+
+  ## Second run
+  timer <- system.time(param_chains <- run.mini.chains(param_list[[2]], replicates = 1))["elapsed"]
+  chain_size <- object.size(param_chains)
+
+  ## Preping the results
+  parameters <- paste(thin, nitt*2, dimensions, sep = ", ")
+  data <- paste(timer, timer-timer_base, (timer-timer_base)/nitt*1, chain_size, chain_size-chain_size_base, (chain_size-chain_size_base)/nitt*1, sep = ", ")
+  ## Appending the file
+  system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
+
+  ## Third run
+  timer <- system.time(param_chains <- run.mini.chains(param_list[[3]], replicates = 1))["elapsed"]
+  chain_size <- object.size(param_chains)
+
+  ## Preping the results
+  parameters <- paste(thin, nitt*3, dimensions, sep = ", ")
+  data <- paste(timer, timer-timer_base, (timer-timer_base)/nitt*2, chain_size, chain_size-chain_size_base, (chain_size-chain_size_base)/nitt*2, sep = ", ")
+  ## Appending the file
+  system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
+
+  ## Fourth run
+  timer <- system.time(param_chains <- run.mini.chains(param_list[[4]], replicates = 1))["elapsed"]
+  chain_size <- object.size(param_chains)
+
+  ## Preping the results
+  parameters <- paste(thin, nitt*4, dimensions, sep = ", ")
+  data <- paste(timer, timer-timer_base, (timer-timer_base)/nitt*3, chain_size, chain_size-chain_size_base, (chain_size-chain_size_base)/nitt*3, sep = ", ")
+  ## Appending the file
+  system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
+
+  ## Fifth run
+  timer <- system.time(param_chains <- run.mini.chains(param_list[[5]], replicates = 1))["elapsed"]
+  chain_size <- object.size(param_chains)
+
+  ## Preping the results
+  parameters <- paste(thin, nitt*5, dimensions, sep = ", ")
+  data <- paste(timer, timer-timer_base, (timer-timer_base)/nitt*4, chain_size, chain_size-chain_size_base, (chain_size-chain_size_base)/nitt*4, sep = ", ")
+  ## Appending the file
+  system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
+
+  return(NULL)
+}
 ```
 
+## Running the tests for 1k generations (sampling every 100)
 
-
-```{r }
-## Recording the results
+```{r, eval = TRUE}
+## Initialising the results result table
 system(paste("echo \"thin, iterations, dimensions, time, d_time, r_time, size, d_size, r_size\" > recording.csv"))
 
-## First iteration
-timer_base <- system.time(param_chains <- run.mini.chains(param_list[[1]], replicates = 1))["elapsed"]
-chain_size_base <- object.size(param_chains)
-
-## Saving the results
-parameters <- paste(1, 10, 2, sep = ", ")
-data <- paste(timer_base, 0, timer_base/10, chain_size_base, 0, chain_size_base/10, sep = ", ")
-system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
-
-## Other iterations
-## Difference in iterations
-d_itt <- 10
-timer <- system.time(param_chains <- run.mini.chains(param_list[[2]], replicates = 1))["elapsed"]
-chain_size <- object.size(param_chains)
-parameters <- paste(1, 10 + d_itt, 2, sep = ", ")
-data <- paste(timer, timer-timer_base, (timer-timer_base)/d_itt, chain_size, chain_size-chain_size_base, (chain_size-chain_size_base)/d_itt, sep = ", ")
-system(paste("echo \"", paste(parameters, data, sep = ", "), "\" >> recording.csv"))
-
-
+## Running the test
+for(dim in 2:17) {
+  test.params(dimensions = dim, thin = 100, nitt = 1000)
+}
 ```
+
+```{r}
+## Upload the table
+rable <- read.csv("recording.csv")
+
+## Log values
+run_time <- log(rable[, "time"])
+run_size <- log(rable[, "size"])
+cols <- rainbow(16)
+
+par(mfrow = c(2,1))
+plot(NULL, xlim = c(1, 5), ylim = range(run_time), main = "Run time", xlab = "10s of samples (per 1k iterations)", ylab = "log elapsed seconds")
+for(i in 1:(nrow(rable)/5)) {
+  lines(run_time[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+
+plot(NULL, xlim = c(1, 5), ylim = range(run_size), main = "Object size", xlab = "10s of samples (per 1k iterations)", ylab = "log bytes")
+for(i in 1:(nrow(rable)/5)) {
+  lines(run_size[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+```
+
+
+## Running the tests for 10k generations (sampling every 1000)
+
+```{r, eval = TRUE}
+## Initialising the results result table
+system(paste("echo \"thin, iterations, dimensions, time, d_time, r_time, size, d_size, r_size\" > recording2.csv"))
+
+## Running the test
+for(dim in 2:17) {
+  test.params(dimensions = dim, thin = 1000, nitt = 10000)
+}
+```
+
+```{r}
+## Upload the table
+rable <- read.csv("recording2.csv")
+
+## Log values
+run_time <- log(rable[, "time"])
+run_size <- log(rable[, "size"])
+cols <- rainbow(16)
+
+par(mfrow = c(2,1))
+plot(NULL, xlim = c(1, 5), ylim = range(run_time), main = "Run time", xlab = "10s of samples (per 10k iterations)", ylab = "log elapsed seconds")
+for(i in 1:(nrow(rable)/5)) {
+  lines(run_time[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+
+plot(NULL, xlim = c(1, 5), ylim = range(run_size), main = "Object size", xlab = "10s of samples (per 10k iterations)", ylab = "log bytes")
+for(i in 1:(nrow(rable)/5)) {
+  lines(run_size[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+```
+
