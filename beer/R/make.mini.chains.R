@@ -11,6 +11,7 @@
 #' @param parameters the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test).
 #' @param priors A list of priors or a value of the overal nu parameter for generating flat priors for the \code{\link[MCMCglmm]{MCMCglmm}}.
 #' @param verbose whether to make the \code{\link[MCMCglmm]{MCMCglmm}} verbose (\code{TRUE}; default) or not (\code{FALSE}).
+#' @param ... any other parameters to be passed to \code{\link[MCMCglmm]{MCMCglmm}}.
 #' 
 #' @details
 #' The types of model for the residuals and random terms can be:
@@ -27,7 +28,7 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE) {
+make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE, ...) {
 
     ## Setting the fixed effect model
     ## Is there any clade effect in the model?
@@ -142,7 +143,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     }
 
     ## Setting the tree(s)
-    output <- lapply(tree, function(tree, fixed, random, rvoc, family, data, priors, verbose, parameters)
+    output <- lapply(tree, function(tree, fixed, random, rvoc, family, data, priors, verbose, parameters, ...)
        return(list(data = data,
                    tree = tree,
                    ## The MCMCglmm function
@@ -156,8 +157,9 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
                                               verbose  = verbose,
                                               burnin   = parameters$burnin,
                                               nitt     = parameters$nitt,
-                                              thin     = parameters$thin)))
-                    , fixed, random, rvoc, family, data, priors, verbose, parameters)
+                                              thin     = parameters$thin,
+                                              ...)))
+                    , fixed, random, rvoc, family, data, priors, verbose, parameters, ...)
 
     class(output) <- c("beer", "mini.chains")
     return(output)
