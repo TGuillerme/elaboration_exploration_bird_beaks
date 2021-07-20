@@ -1,0 +1,99 @@
+---
+title: "Bird beak's elaboration and exploration"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+Checking the ideal number of dimensions for running the model.
+
+```{r, load pkg and data}
+library(beer)
+library(MCMCglmm)
+data(chara_data)
+data(chara_tree)
+```
+
+```{r}
+## Get the groups
+beaks <- readRDS("MCMCglmm_covar/Data/2020_06_19_MMB_LANDMARKS_ALL.rds")
+order_groups <- lapply(as.list(unique(beaks$Order)), function(X) unique(beaks$TipLabel[beaks$Order %in% X]))
+names(order_groups) <- unique(beaks$Order)
+family_groups <- lapply(as.list(unique(beaks$Family)), function(X) unique(beaks$TipLabel[beaks$Family %in% X]))
+names(family_groups) <- unique(beaks$Family)
+
+## Get the PCA
+load("MCMCglmm_covar/full_PCAs.rda")
+
+## Selecting axis function
+# @params strict whether to have less than the threshold (strict) or at least the threshold (false)
+select.axis <- function(ordination, threshold = 0.99, group, details = FALSE, strict = FALSE) {
+    ## Set the group
+    if(missing(group)) {
+        group <- list(rownames(ordination))
+    }
+
+    ## Cum sum scaled variance
+    get.cum.var <- function(one_group, matrix) {
+        if(length(one_group) != 1) {
+            vars <- apply(matrix[one_group, ], 2, var)
+            return(cumsum(vars/sum(vars)))
+        } else {
+            return(c(0, rep(1, ncol(matrix)-1)))
+        }
+    }
+
+    ## Get the variances for each group
+    group_vars <- lapply(group, get.cum.var, matrix = ordination)
+
+    select.threshold <- function(x, threshold, strict) {
+        if(strict) {
+            return(which(x < threshold))
+        } else {
+            return(c(0, which(x < threshold)) + 1)
+        }
+    }
+
+    ## Get the axis per threshold
+    selected_dims <- lapply(group_vars, select.threshold, threshold = threshold, strict = strict)
+
+    ## Return the results
+    if(!details) {
+        return(unique(unlist(selected_dims)))
+    } else {
+        return(selected_dims)
+    }
+}
+
+## Preparing the result table
+thresholds <- seq(from = 0.9, to = 0.99, by = 0.01)
+results <- matrix(0, 6, length(thresholds))
+rownames(results) <- c("sizefree-all", "sizefree-order", "sizefree-family", "sizeform-all", "sizeform-order", "sizeform-family")
+colnames(results) <- thresholds
+
+for(i in 1:length(thresholds)) {
+  results[1,i] <- length(select.axis(full_PCAs$sizefree, threshold = thresholds[i]))
+  results[2,i] <- length(select.axis(full_PCAs$sizefree, threshold = thresholds[i], group = order_groups))
+  results[3,i] <- length(select.axis(full_PCAs$sizefree, threshold = thresholds[i], group = family_groups))
+  results[4,i] <- length(select.axis(full_PCAs$sizeform, threshold = thresholds[i]))
+  results[5,i] <- length(select.axis(full_PCAs$sizeform, threshold = thresholds[i], group = order_groups))
+  results[6,i] <- length(select.axis(full_PCAs$sizeform, threshold = thresholds[i], group = family_groups))
+}
+
+## Colour vector
+colours <- c("purple", "red", "orange",
+             "blue", "cyan", "green")
+
+## Plotting the results
+plot(NULL, xaxt = "n", xlim = c(1,10), ylim = range(results), ylab = "Dimensions", xlab = "Thresholds")
+axis(1, at = c(1:10), labels = thresholds)
+abline(h = 7, col = "lightgrey")
+for(i in 1:6) {
+  lines(results[i,], col = colours[i])
+}
+legend("topleft", legend = rownames(results), lty = 1, col = colours)
+```
