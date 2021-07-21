@@ -9,16 +9,18 @@ output:
     fig_height: 8
 ---
 
-Checking the ideal number of dimensions for running the model.
 
-```{r, load pkg and data}
+```{r, echo = FALSE, print = FALSE}
 library(beer)
 library(MCMCglmm)
 data(chara_data)
 data(chara_tree)
 ```
 
-```{r}
+## Number of dimensions required to capture at least X% of variance per group
+
+
+```{r, echo = FALSE}
 ## Get the groups
 beaks <- readRDS("MCMCglmm_covar/Data/2020_06_19_MMB_LANDMARKS_ALL.rds")
 order_groups <- lapply(as.list(unique(beaks$Order)), function(X) unique(beaks$TipLabel[beaks$Order %in% X]))
@@ -51,11 +53,11 @@ select.axis <- function(ordination, threshold = 0.99, group, details = FALSE, st
     group_vars <- lapply(group, get.cum.var, matrix = ordination)
 
     select.threshold <- function(x, threshold, strict) {
-        if(strict) {
+        # if(strict) {
             return(which(x < threshold))
-        } else {
-            return(c(0, which(x < threshold)) + 1)
-        }
+        # } else {
+        #     return(c(0, which(x < threshold)) + 1)
+        # }
     }
 
     ## Get the axis per threshold
@@ -85,8 +87,8 @@ for(i in 1:length(thresholds)) {
 }
 
 ## Colour vector
-colours <- c("purple", "red", "orange",
-             "blue", "cyan", "green")
+colours <- c("orange", "yellow", "pink",
+             "lightblue", "lightgreen", "cyan")
 
 ## Plotting the results
 plot(NULL, xaxt = "n", xlim = c(1,10), ylim = range(results), ylab = "Dimensions", xlab = "Thresholds")
@@ -96,4 +98,117 @@ for(i in 1:6) {
   lines(results[i,], col = colours[i])
 }
 legend("topleft", legend = rownames(results), lty = 1, col = colours)
+```
+
+This is the number of dimensions required per PCA contain X% of variance per group. The groups being either the full PCA (`all` - the classic way to measure the variance threshold) or each order (`order`) or family (`family`).
+The number of dimensions per group is measured either for the PCA with the size component removed (`sizefree`) and for the PCA with the size component (`sizeform`).
+
+## Variance per specific axis for the 37 first dimensions
+
+```{r, echo = FALSE, print = FALSE}
+## Calculating the variance for each dimension
+get.dim.vars <- function(ordination, group, n_dims) {
+    ## Set the group
+    if(missing(group)) {
+        group <- list(rownames(ordination))
+    }
+    if(missing(n_dims)) {
+        n_dims <- ncol(ordination)
+    }
+
+    ## Cum sum scaled variance
+    get.scaled.var <- function(one_group, matrix, n_dims) {
+        if(length(one_group) != 1) {
+            vars <- apply(matrix[one_group, ], 2, var)
+            return(c(vars/sum(vars))[1:n_dims])
+        } else {
+            return(c(1, rep(0, ncol(matrix)-1))[1:n_dims])
+        }
+    }
+    ## Get the variances for each group
+    return(lapply(group, get.scaled.var, matrix = ordination, n_dims = n_dims))
+}
+## Plotting results
+barplot.results <- function(result, main, threshold = c(0.95, 0.99), col = "orange") {
+  barplot(result, col = col, main = main, ylab = "Scaled variance")
+  abline(v = length(which(cumsum(result) < threshold[1])), lwd = 2)
+  abline(v = length(which(cumsum(result) < threshold[2])), lwd = 2, col = "grey")
+}
+
+## Get all the detailed results
+## Full PCA
+sizefree_fullpca <- get.dim.vars(full_PCAs$sizefree,
+                                 n_dims = 37)
+names(sizefree_fullpca) <- c("Sizefree: all species")
+## Orders
+sizefree_order   <- get.dim.vars(full_PCAs$sizefree,
+                                 group = order_groups,
+                                 n_dims = 37)
+names(sizefree_order) <- paste("Sizefree:", names(order_groups))
+sizefree_order <- sizefree_order[match(sort(names(sizefree_order)), names(sizefree_order))]
+## Family
+sizefree_family  <- get.dim.vars(full_PCAs$sizefree,
+                                 group = family_groups,
+                                 n_dims = 37)
+names(sizefree_family) <- paste("Sizefree:", names(family_groups))
+sizefree_family <- sizefree_family[match(sort(names(sizefree_family)), names(sizefree_family))]
+
+## Full PCA
+sizeform_fullpca <- get.dim.vars(full_PCAs$sizeform,
+                                 n_dims = 37)
+names(sizeform_fullpca) <- c("Sizeform: all species")
+## Orders
+sizeform_order   <- get.dim.vars(full_PCAs$sizeform,
+                                 group = order_groups,
+                                 n_dims = 37)
+names(sizeform_order) <- paste("Sizeform:", names(order_groups))
+sizeform_order <- sizeform_order[match(sort(names(sizeform_order)), names(sizeform_order))]
+## Family
+sizeform_family  <- get.dim.vars(full_PCAs$sizeform,
+                                 group = family_groups,
+                                 n_dims = 37)
+names(sizeform_family) <- paste("Sizeform:", names(family_groups))
+sizeform_family <- sizeform_family[match(sort(names(sizeform_family)), names(sizeform_family))]
+
+```
+
+Here I will display the scaled variance per axis for each group (as mentioned above).
+For example, for the full PCA, the results are pretty common and easy to grasp:
+
+
+```{r, fig.height = 4, fig.width = 4, echo = FALSE, print = FALSE, result = FALSE}
+## Plotting everything
+silent <- mapply(barplot.results, sizefree_fullpca, as.list(names(sizefree_fullpca)))
+## Plotting everything
+silent <- mapply(barplot.results, sizeform_fullpca, as.list(names(sizeform_fullpca)), MoreArgs = list(col = colours[4]))
+```
+
+When considering all the data, the first three axis contain 95% of the variance (black vertical line) and PC1 to 6 for 99% of the variance (grey vertical line).
+For the PCA with size, the first axes contains 95% of the variance and the PC1 to 3 contains 99%.
+The rest of the variance is distributed pretty log-normally as expected.
+
+
+We can then measure the same be measuring things per family or per order (i.e. within the PCA, how many axis are required to represent 95% of the variance of order/family X).
+The results vary much more depending on the order/family! For example, in Strigiformes, the first PC does not contain much variance at all compared to the other axes!
+Note that the order with just one bar at 100% just have one species so they don't count.
+
+
+```{r, fig.height = 4, fig.width = 4, echo = FALSE, print = FALSE, result = FALSE}
+## Plotting everything
+silent <- mapply(barplot.results, sizefree_order, as.list(names(sizefree_order)), MoreArgs = list(col = colours[2]))
+```
+
+```{r, fig.height = 4, fig.width = 4, echo = FALSE, print = FALSE, result = FALSE}
+## Plotting everything
+silent <- mapply(barplot.results, sizefree_family, as.list(names(sizefree_family)), MoreArgs = list(col = colours[3]))
+```
+
+```{r, fig.height = 4, fig.width = 4, echo = FALSE, print = FALSE, result = FALSE}
+## Plotting everything
+silent <- mapply(barplot.results, sizeform_order, as.list(names(sizeform_order)), MoreArgs = list(col = colours[5]))
+```
+
+```{r, fig.height = 4, fig.width = 4, echo = FALSE, print = FALSE, result = FALSE}
+## Plotting everything
+silent <- mapply(barplot.results, sizeform_family, as.list(names(sizeform_family)), MoreArgs = list(col = colours[6]))
 ```
