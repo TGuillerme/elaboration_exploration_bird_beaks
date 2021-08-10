@@ -175,7 +175,7 @@ test.params <- function(dimensions, thin, nitt) {
 
 ## Running the tests for 1k generations (sampling every 100)
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ## Initialising the results result table
 system(paste("echo \"thin, iterations, dimensions, time, d_time, r_time, size, d_size, r_size\" > recording.csv"))
 
@@ -209,10 +209,7 @@ for(i in 1:(nrow(rable)/5)) {
 
 ## Running the tests for 10k generations (sampling every 1000)
 
-```{r, eval = TRUE}
-## Initialising the results result table
-system(paste("echo \"thin, iterations, dimensions, time, d_time, r_time, size, d_size, r_size\" > recording2.csv"))
-
+```{r, eval = FALSE}
 ## Running the test
 for(dim in 2:17) {
   test.params(dimensions = dim, thin = 1000, nitt = 10000)
@@ -221,22 +218,41 @@ for(dim in 2:17) {
 
 ```{r}
 ## Upload the table
-rable <- read.csv("recording2.csv")
+rable <- read.csv("recording.csv")
+rable_1k <- rable[1:80, ]
+rable_10k <- rable[-c(1:80), ]
 
 ## Log values
-run_time <- log(rable[, "time"])
-run_size <- log(rable[, "size"])
+run_time_1k <- rable_1k[, "time"]
+run_size_1k <- rable_1k[, "size"]
+run_time_10k <- rable_10k[, "time"]
+run_size_10k <- rable_10k[, "size"]
+
 cols <- rainbow(16)
 
-par(mfrow = c(2,1))
-plot(NULL, xlim = c(1, 5), ylim = range(run_time), main = "Run time", xlab = "10s of samples (per 10k iterations)", ylab = "log elapsed seconds")
-for(i in 1:(nrow(rable)/5)) {
-  lines(run_time[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+par(mfrow = c(2,2))
+plot(NULL, xlim = c(1, 5), ylim = range(run_time_1k), main = "Run time", xlab = "iterations (thin = 100)", ylab = "elapsed seconds", xaxt = "n")
+axis(1, at = c(1:5), labels = seq(from = 1000, to = 5000, by = 1000))
+for(i in 1:(nrow(rable_1k)/5)) {
+  lines(run_time_1k[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
 }
 
-plot(NULL, xlim = c(1, 5), ylim = range(run_size), main = "Object size", xlab = "10s of samples (per 10k iterations)", ylab = "log bytes")
-for(i in 1:(nrow(rable)/5)) {
-  lines(run_size[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+plot(NULL, xlim = c(1, 5), ylim = range(run_time_10k), main = "Run time", xlab = "iterations (thin = 1000)", ylab = "elapsed seconds", xaxt = "n")
+axis(1, at = c(1:5), labels = seq(from = 10000, to = 50000, by = 10000))
+for(i in 1:(nrow(rable_10k)/5)) {
+  lines(run_time_10k[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+
+plot(NULL, xlim = c(1, 5), ylim = range(run_size_1k), main = "Object size", xlab = "iterations (thin = 100)", ylab = "bytes", xaxt = "n")
+axis(1, at = c(1:5), labels = seq(from = 1000, to = 5000, by = 1000))
+for(i in 1:(nrow(rable_1k)/5)) {
+  lines(run_size_1k[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
+}
+
+plot(NULL, xlim = c(1, 5), ylim = range(run_size_10k), main = "Object size", xlab = "iterations (thin = 1000)", ylab = "bytes", xaxt = "n")
+axis(1, at = c(1:5), labels = seq(from = 10000, to = 50000, by = 10000))
+for(i in 1:(nrow(rable_10k)/5)) {
+  lines(run_size_10k[(1+5*(i-1)):(5+5*(i-1))], col = cols[i])
 }
 ```
 
