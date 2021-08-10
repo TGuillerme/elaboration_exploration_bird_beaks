@@ -59,6 +59,7 @@ We first ran three independent MCMC chains with the model and data described abo
 We ran these models (for `§§§N_generations` sampling every `§§§N_nitt` with no burnin) until the three chains reached an effective sample size >> 200 (§§§and other diagnosis). 
 <!-- % NC: I thought in MCMCglmm the nitt parameter was total number of iterations, and thin gives how often the chain is sampled? I think you've called nitt generations here but better to be consistent with MCMCglmm?
  -->
+ 
 ```{r, parametrise_the_model, eval = TRUE}
 ## Set up the parametrising chains models
 param_MCMCglmm <- make.mini.chains(data         = demo_data,

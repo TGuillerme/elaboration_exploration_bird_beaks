@@ -163,7 +163,7 @@ plot.space(demo_data,
            col = colour_vector,
            levels = demo_data$clade,
            xlab = "PC1 (90.5%)",
-           ylab = "PC1 (6.86%)",
+           ylab = "PC2 (6.86%)",
            xlim = c(-2, 2),
            ylim = c(-1, 1))
 points(do.call(rbind,group_centres)[,c(1,2)],
