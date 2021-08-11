@@ -35,7 +35,14 @@ test_that("MCMCglmm.levels works", {
 })
 
 test_that("MCMCglmm.sample works", {
-
+    test1 <- MCMCglmm.sample(model_simple)
+    expect_equal(test1, seq(1:1000))
+    set.seed(1)
+    test2 <- MCMCglmm.sample(model_simple, n = 10)
+    expect_equal(test2, c(836, 679, 129, 930, 509, 471, 299, 270, 978, 187))
+    warn <- capture_warnings(test3 <- MCMCglmm.sample(model_simple, n = 1001))
+    expect_equal(length(test3), 1001)
+    expect_equal(warn[[1]], "The required number of samples 1001 is larger than the available number of samples 1000. Some samples will be used more than once.")
 })
 
 test_that("MCMCglmm.covars works", {

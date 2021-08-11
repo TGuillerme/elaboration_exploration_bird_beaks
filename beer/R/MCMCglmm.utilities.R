@@ -115,10 +115,15 @@ MCMCglmm.traits <- function(MCMCglmm, ...) {
 
 ## Get the samples from a MCMCglmm object
 MCMCglmm.sample <- function(MCMCglmm, n, ...) {
+    n_samples <- nrow(MCMCglmm$Sol)
     if(missing(n)) {
-        return(1:nrow(MCMCglmm$Sol))
+        return(1:n_samples)
     } else {
-        return(sample(1:nrow(MCMCglmm$Sol), n, replace = n > nrow(MCMCglmm$Sol)))
+        replace = n > n_samples
+        if(replace) {
+            warning(paste0("The required number of samples ", n, " is larger than the available number of samples ", n_samples, ". Some samples will be used more than once."))
+        }
+        return(sample(1:n_samples, n, replace = replace))
     }
 }
 
