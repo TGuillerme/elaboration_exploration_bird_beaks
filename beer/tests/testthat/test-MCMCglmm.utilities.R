@@ -46,5 +46,39 @@ test_that("MCMCglmm.sample works", {
 })
 
 test_that("MCMCglmm.covars works", {
-    
+    ## Checking the correct structure in the nested lists
+    correct.structure <- function(X) {expect_equal(length(X), 2); expect_is(X$VCV, "matrix"); expect_is(X$Sol, "numeric")}
+
+    test <- get.sample.covar(1, model_simple, MCMCglmm.levels(model_simple), MCMCglmm.traits(model_simple))
+    expect_is(test, "list")
+    expect_equal(names(test), unname(MCMCglmm.levels(model_simple)))
+    silent <- lapply(test, correct.structure)
+
+    ## Everything works!
+    for(i in 1:7) {
+        test <- get.sample.covar(421, model_list[[i]],
+              MCMCglmm.levels(model_list[[i]]),
+              MCMCglmm.traits(model_list[[i]]))
+        expect_is(test, "list")
+        expect_equal(names(test), unname(MCMCglmm.levels(model_list[[i]])))
+        silent <- lapply(test, correct.structure)
+    }
+
+    ## default (all samples) works
+    test <- MCMCglmm.covars(model_list[[1]])
+    expect_equal(length(test), length(MCMCglmm.levels(model_list[[1]])))
+    expect_equal(length(test[[1]]), 1000)
+    ## n argument works
+    test <- MCMCglmm.covars(model_list[[1]], n = 7)
+    expect_equal(length(test), length(MCMCglmm.levels(model_list[[1]])))
+    expect_equal(length(test[[1]]), 7)
+    ## sample argument works
+    test <- MCMCglmm.covars(model_list[[1]], sample = c(42, 5))
+    expect_equal(length(test), length(MCMCglmm.levels(model_list[[1]])))
+    expect_equal(length(test[[1]]), 2)
+    ## Only takes the n argument
+    warn <- capture_warnings(test <- MCMCglmm.covars(model_list[[7]], sample = 42, n = 7))
+    expect_equal(warn[[1]], "sample argument is ignored since n = 7 random samples are asked for.")
+    expect_equal(length(test), length(MCMCglmm.levels(model_list[[7]])))
+    expect_equal(length(test[[1]]), 7)
 })

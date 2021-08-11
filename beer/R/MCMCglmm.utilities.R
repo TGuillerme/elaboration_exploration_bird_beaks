@@ -7,7 +7,7 @@
 #' @usage MCMCglmm.traits(MCMglmm, ...)
 #' @usage MCMCglmm.levels(MCMglmm, ...)
 #' @usage MCMCglmm.sample(MCMglmm, n, ...)
-#' @usage MCMCglmm.covars(MCMglmm, sample, n, ...)
+#' @usage MCMCglmm.covars(MCMglmm, n, sample, ...)
 #'  
 #' @param MCMCglmm A \code{MCMCglmm} object.
 #' @param n        Optional, a number of random samples to extract.
@@ -129,67 +129,41 @@ MCMCglmm.sample <- function(MCMCglmm, n, ...) {
 
 ## Get some covar matrices
 MCMCglmm.covars <- function(MCMCglmm, sample, n, ...){   
-    
-    # warning("MCMCglmm.covars DEBUG")
-    # return(invisible())
 
-    # ## The number of traits
-    # traits <- MCMCglmm.traits(MCMCglmm)
-    # n_traits <- length(traits)
-    # ## The number of levels
-    # levels <- MCMCglmm.levels(MCMCglmm)
-    # n_levels <- length(levels)
+    ## The number of traits
+    traits <- MCMCglmm.traits(MCMCglmm)
+    n_traits <- length(traits)
+    ## The number of levels
+    levels <- MCMCglmm.levels(MCMCglmm)
+    n_levels <- length(levels)
 
-    # ## Sample n covar matrices
-    # if(missing(n)) {
-    #     n <- MCMCglmm.samples(MCMCglmm)
-    # }
-    #     covar_matrices <- unlist(replicate(n, get.one.covar(MCMCglmm, levels, traits), simplify = FALSE), recursive = FALSE)
-    #     }
-    # }
-
-    # ## Rearrange the list per levels
-    # results_out <- list()
-    # for(one_level in 1:n_levels) {
-    #     results_out[[one_level]] <- unname(covar_matrices[which(names(covar_matrices) == levels[one_level])])
-    #     names(results_out)[one_level] <- levels[one_level]
-    # } 
-
-    # ## Set the class to beer
-    # class(results_out) <- "beer"
-    # return(results_out)
-}
-
-## Internal function to get one covariance matrix
-get.one.covar <- function(one_sample, data, levels, traits) {
-    ## Select a specific sample
-    sample_estimates <- list(VCV = data$VCV[one_sample, ],
-                             Sol = data$Sol[one_sample, ])
-
-    ## Get one covar matrix
-    make.covar <- function(level, VCV, levels, n_traits) {
-        matrix(VCV[(1:n_traits^2) + (level-1) * n_traits^2], ncol = n_traits)
-    }
-
-    ## Get the estimated solutions
-    make.sol <- function(level, Sol, levels, n_traits) {
-        if(names(levels[level]) == "random") {
-            return(rep(0, n_traits))
+    ## Check the samples
+    if(missing(n)) {
+        if(missing(sample)) {
+            sample <- MCMCglmm.sample(MCMCglmm)
         } else {
-            return(unname(Sol[1:n_traits + (level - (sum(names(levels) == "random") + 1)) * n_traits]))
+            ## Check for incorect samples
+            if(length(incorect_sample <- which(sample > length(MCMCglmm.sample(MCMCglmm)))) > 0) {
+                    #dispRity_export in: MAKE dispRity STOP STYLE
+                    stop("Some samples are not available in the MCMCglmm object.")#dispRity_export out: 
+            }
         }
+    } else {
+        if(!missing(sample)) {
+            #dispRity_export in: MAKE dispRity WARNING STYLE
+            warning("sample argument is ignored since n = ", n, " random samples are asked for.")
+        }
+        sample <- MCMCglmm.sample(MCMCglmm, n)
     }
 
-    ## Sapply wrapper
-    sapply.fun <- function(level, sample_estimates, levels, traits) {
-        list(VCV = make.covar(level, sample_estimates$VCV, levels, length(traits)),
-             Sol =   make.sol(level, sample_estimates$Sol, levels, length(traits)))
-    }
+    ## Select the covar matrices
+    covar_matrices <- unlist(lapply(as.list(sample), get.sample.covar, MCMCglmm, levels, traits), recursive = FALSE)
 
-    levels_covar <- sapply(1:length(levels), sapply.fun, sample_estimates, levels, traits, simplify = FALSE)
-    names(levels_covar) <- levels
-
-    ## Return the covariance matrices and origins
-    return(levels_covar)
+    ## Rearrange the list per levels
+    results_out <- list()
+    for(one_level in 1:n_levels) {
+        results_out[[one_level]] <- unname(covar_matrices[which(names(covar_matrices) == levels[one_level])])
+        names(results_out)[one_level] <- levels[one_level]
+    } 
+    return(results_out)
 }
-
