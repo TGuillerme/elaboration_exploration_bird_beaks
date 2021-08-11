@@ -11,14 +11,21 @@ MCMCglmm.dispRity(data, posteriors, group, tree, rename.groups)
 
 \item{posteriors}{A MCMCglmm object, the posteriors of the model}
 
-\item{group}{Optional, which group to include from the posteriors (if left empty the residuals and random terms are used)}
+\item{group}{Optional, a named vector of which group to include from the posteriors (if left empty the random and residual terms are used). See details.}
 
-\item{tree}{Optional, the tree(s) used in the MCMCglmm analyses}
+\item{tree}{Optional, the tree(s) used in the MCMCglmm analyses.}
 
-\item{rename.groups}{optional, a vector of group names for renaming them.}
+\item{rename.groups}{optional, a vector of group names for renaming them. See details.}
 }
 \description{
 Creating a dispRity object from a MCMCglmm posterior output
+}
+\details{
+\itemize{
+\item For the \code{group} option, the group names must be ones found in the \code{posteriors} formula in the format \emph{<Type = Term:FactorLevel>} as returned by \code{MCMCglmm.levels(posteriors)}. For example, for returning two random effect, the phylogenetic one (\code{"animal"}) and one for a specific clade (say the 2nd clade) as well as two residual terms for a specific factor (say level 1 and 4) you can use \code{group = c(random = "animal", random = "animal:clade2", residual = "units:myfactor1", residual = "units:myfactor4")}.
+\item For the \code{rename.groups} option, the vector must be of class \code{"character"} and must of the same length as the number of random and residual terms in \code{posteriors} or of \code{group} argument (if used). If the \code{group} argument is left empty, the groups are extracted from the \code{posteriors} in the following order: the random terms first then the residual terms as specified in the \code{posteriors} object formulas (respectively \code{posteriors$Random$formula} and \code{posteriors$Residual$formula}).
+
+}
 }
 \examples{
 

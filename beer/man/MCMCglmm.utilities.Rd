@@ -12,7 +12,7 @@ MCMCglmm.levels(MCMglmm, ...)
 
 MCMCglmm.sample(MCMglmm, n, ...)
 
-MCMCglmm.covars(MCMglmm, sample, n, ...)
+MCMCglmm.covars(MCMglmm, n, sample, ...)
 }
 \arguments{
 \item{MCMCglmm}{A \code{MCMCglmm} object.}
