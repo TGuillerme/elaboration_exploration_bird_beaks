@@ -61,30 +61,6 @@ make.ellipse <- function(one_sample, dimensions, npoints){
                             npoints = npoints))
 }
 
-## Internal: changing the intercept ($Sol)
-replace.intercept <- function(level_sample, value, dimensions) {
-    lapply(level_sample, function(X) {X$Sol[dimensions] <- value[dimensions]; return(X)})
-}
-## Internal: changing the intercept wrapper
-recentre.levels <- function(level_sample, centre, dimensions) {
-    ## Centre the ellipse
-    if(is(centre, "function")) {
-        ## Get the central tendency (as a function)
-        centre_values <- apply(do.call(rbind, lapply(level_sample, `[[`, "Sol")), 2, centre)
-        ## Recentre the intercepts
-        level_sample <- replace.intercept(level_sample, value = centre_values, dimensions)
-    }
-    if(is(centre, "numeric") || is(centre, "integer")) {
-        if((diff <- length(level_sample[[1]]$Sol) - length(centre)) > 0) {
-            centre <- c(centre, rep(centre, diff))
-        }
-        ## Manually recentre the intercepts
-        level_sample <- replace.intercept(level_sample, value = centre, dimensions)
-    }
-    return(level_sample)
-}
-
-
 ## Internal: making a list of ellipses for the level
 level.ellipses <- function(level_sample, dimensions, npoints, centre) {
 
