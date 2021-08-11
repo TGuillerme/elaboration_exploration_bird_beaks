@@ -24,7 +24,7 @@ test_that("flat.prior works", {
 
 test_that("clade.terms works", {
 
-    ## Testing clade terms is correct
+    ## Testing clade terms is correct
     test <- clade.terms(7, type = "bob")
     expect_is(test, "formula")
     ## Fucking nestedness!
