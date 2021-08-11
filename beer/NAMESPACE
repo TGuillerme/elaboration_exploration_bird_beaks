@@ -27,3 +27,6 @@ export(analyses.tip)
 
 # Other
 export(optim.replicate)
+
+# For dispRity
+export(MCMCglmm.dispRity)

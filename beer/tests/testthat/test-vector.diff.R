@@ -9,14 +9,14 @@ test_that("vector.diff works", {
     ## Results works
     test <- vector.diff(vec$animal[[1]], vec$units[[1]])
     expect_equal(names(test), c("angle", "projection", "rejection"))
-    expect_equal(unname(round(test["angle"], 3)), 6.106)
-    expect_equal(unname(round(test["projection"], 3)), 2.249)
-    expect_equal(unname(round(test["rejection"], 3)), 0.241)
+    expect_equal(unname(round(test["angle"], 3)), 2.745)
+    expect_equal(unname(round(test["projection"], 3)), 2.805)
+    expect_equal(unname(round(test["rejection"], 3)), 0.135)
 
     ## Scaling works
     test <- vector.diff(vec$animal[[1]], vec$units[[1]], scale = FALSE)
     expect_equal(names(test), c("angle", "projection", "rejection"))
-    expect_equal(unname(round(test["angle"], 3)), 6.106)
-    expect_equal(unname(round(test["projection"], 3)), 1.277)
-    expect_equal(unname(round(test["rejection"], 3)), 0.455)
+    expect_equal(unname(round(test["angle"], 3)), 2.745)
+    expect_equal(unname(round(test["projection"], 3)), 1.602)
+    expect_equal(unname(round(test["rejection"], 3)), 0.528)
 })

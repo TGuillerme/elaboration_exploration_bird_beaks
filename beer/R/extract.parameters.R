@@ -90,10 +90,10 @@ get.burnin <- function(chain, buffer) {
 get.prior <- function(chain, nu = 0.05, burnin = FALSE) {
 
     ## Get the set of parameters
-    traits <- traits.MCMCglmm(chain)
+    traits <- MCMCglmm.traits(chain)
     n_traits <- length(traits)
     ## The number of levels
-    levels <- levels.MCMCglmm(chain)
+    levels <- MCMCglmm.levels(chain)
     n_levels <- length(levels)
     n_ran <- sum(names(levels) %in% "random")
     n_res <- sum(names(levels) %in% "residual")

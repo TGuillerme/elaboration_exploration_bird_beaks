@@ -1,6 +1,7 @@
 ## Test
 load("MCMCM_chains_test.rda")
 chains <- MCMCM_chains_test
+
 test_that("get.burnin works", {
     test <- get.burnin(chains[[1]], buffer = 0)
     expect_equal(test, 700)

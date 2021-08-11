@@ -27,7 +27,7 @@ test_that("get.one.axis works", {
 test_that("get.axes works", {
     test <- get.axes(get.covar(model_list[[7]], n = 7))
     ## Right output
-    expect_equal(names(test), unname(levels.MCMCglmm(model_list[[7]])))
+    expect_equal(names(test), unname(MCMCglmm.levels(model_list[[7]])))
     expect_equal(length(test[[1]]), 7)
     expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 3))
     ## Centreing works
