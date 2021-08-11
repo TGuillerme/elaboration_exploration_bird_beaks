@@ -30,3 +30,7 @@ export(optim.replicate)
 
 # For dispRity
 export(MCMCglmm.dispRity)
+export(MCMCglmm.traits)
+export(MCMCglmm.levels)
+export(MCMCglmm.sample)
+export(MCMCglmm.covars)
