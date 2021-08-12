@@ -56,12 +56,12 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
     posterior_terms <- lapply(posterior_levels, split.term.name)
 
     ## Extracting the formula
-    formula <- list(Fixed     = posteriors$Fixed$formula,
-                    Random    = posteriors$Random$formula,
-                    Residuals = posteriors$Residual$formula)
+    formula <- list(Fixed    = posteriors$Fixed$formula,
+                    Random   = posteriors$Random$formula,
+                    Residual = posteriors$Residual$formula)
     
     ## Extracting the group from the posteriors
-    extracted_group <- lapply(posterior_terms, get.one.group, group_classifier, elements)
+    extracted_group <- lapply(posterior_terms, get.one.group, group_classifier, elements = rownames(cleaned_data))
     names(extracted_group) <- posterior_levels
 
     ## Setting the groups
@@ -83,7 +83,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
     }
 
     ## Getting the covar matrices per group
-    covar_matrices <- MCMCglmm.traits(posteriors)
+    covar_matrices <- MCMCglmm.covars(posteriors)
 
     ## Renaming the groups
     if(!missing(rename.groups)) {
@@ -100,14 +100,16 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
         stop("do tree")
     } else {
         ## Create a dispRity style object without tree
-        return(make.dispRity(data = cleaned_data, call = list("subsets" = "MCMCglmm"), subsets = subsets, tree = tree))
+        output <- make.dispRity(data = cleaned_data, call = list("subsets" = "MCMCglmm", "dimensions" = dimensions), subsets = subsets)
+        output$MCMCglmm <- list(formula = formula, covars = covar_matrices)
+        return(output)
     }
 }
 
 ## create the group list
 get.one.group <- function(one_term, group_classifier, elements) {
     ## Animal term (phylogeny)
-    if(one_term$term == "animal" && is.null(one_term$factor) && is.null(one_term$level)) {
+    if(is.null(one_term$factor) && is.null(one_term$level)) {
         ## The group is the full phylogeny (dispRity format)
         #return(1:length(elements))
         return(list(elements = matrix(1:length(elements), ncol = 1)))
