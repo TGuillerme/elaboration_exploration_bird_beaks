@@ -67,6 +67,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
     ## Setting the groups
     if(missing(group)) {
         subsets <- extracted_group
+        selected_groups <- seq(1:length(extracted_group))
     } else {
         if(is.null(names(group))) {
             #dispRity_export in: MAKE dispRity STOP STYLE
@@ -83,7 +84,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
     }
 
     ## Getting the covar matrices per group
-    covar_matrices <- MCMCglmm.covars(posteriors)
+    covar_matrices <- MCMCglmm.covars(posteriors)[selected_groups]
 
     ## Renaming the groups
     if(!missing(rename.groups)) {
@@ -91,7 +92,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
             #dispRity_export in: MAKE dispRity STOP STYLE
             stop("rename.groups must the same length as group.")#dispRity_export out:
         }
-        names(subsets) <- rename.groups
+        names(subsets) <- names(covar_matrices) <- rename.groups
     }
 
     ## Adding the tree

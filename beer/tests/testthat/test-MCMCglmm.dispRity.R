@@ -12,12 +12,6 @@ test_that("MCMCglmm.dispRity works", {
     # tree (optional)
     # rename.groups (optional)
 
-    ## Working well
-    # Output has the right content (data, subsets, trees, subset "MCMCglmm" class)
-    # For dispRity: output has the dispRity class
-
-    # Try on all the models
-
     ## Model 1: 1 group residual
     test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[1]])
     expect_is(test, "dispRity")
@@ -68,7 +62,13 @@ test_that("MCMCglmm.dispRity works", {
     expect_equal(length(test$MCMCglmm$covars), 5)
     expect_equal(names(test$MCMCglmm$covars), c("animal:clade1", "animal:clade2", "animal:clade3", "animal", "units"))
 
-    # Try with not all subsets selected on a big modelw
-
+    # Try with not all subsets selected on a big model
+    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[7]], group = c(random = "animal", residual = "units"))
+    expect_equal(length(test$MCMCglmm$covars), 2)
+    expect_equal(names(test$MCMCglmm$covars), c("animal", "units"))
+    
     # Try with correct groups renaming
+    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[7]], rename.groups = c("clade1", "clade2", "clade3", "phylo", "residual"))
+    expect_equal(length(test$MCMCglmm$covars), 5)
+    expect_equal(names(test$MCMCglmm$covars), c("clade1", "clade2", "clade3", "phylo", "residual"))
 })
