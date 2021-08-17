@@ -13,7 +13,7 @@ sauron.plot(
   level = 0.95,
   dimensions = c(1, 2),
   centres = colMeans,
-  transparent.scale = 0,
+  transparent.scale,
   legend = FALSE,
   legend.pos = "topleft",
   ...
@@ -56,6 +56,7 @@ The argument \code{centres} allows to determine how to calculate the centre of e
 }
 
 \emph{NOTE} that if the input contains more dimensions than the visualised dimensions (by default \code{dimensions = c(1,2)}) the ellipses and major axes are projected from an n-dimensional space onto a 2D space which might make them look "off".
+\emph{NOTE} also that the ellipses and major axes are measured independently, when summarising both parameters (e.g. by using \code{ellipses = mean} and \code{major.axes = mean}), the displayed summarised major axes is not calculated from the summarised ellipse but from the coordinates of all major axes (and therefore might not match the coordinates of the ellipse).
 }
 \examples{
 

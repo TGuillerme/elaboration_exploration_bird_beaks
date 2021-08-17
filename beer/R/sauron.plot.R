@@ -24,6 +24,7 @@
 #' }
 #' 
 #' \emph{NOTE} that if the input contains more dimensions than the visualised dimensions (by default \code{dimensions = c(1,2)}) the ellipses and major axes are projected from an n-dimensional space onto a 2D space which might make them look "off".
+#' \emph{NOTE} also that the ellipses and major axes are measured independently, when summarising both parameters (e.g. by using \code{ellipses = mean} and \code{major.axes = mean}), the displayed summarised major axes is not calculated from the summarised ellipse but from the coordinates of all major axes (and therefore might not match the coordinates of the ellipse).
 #' 
 #' @examples
 #'
@@ -77,6 +78,9 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
             "numeric"  = replicate(length(data$subsets), adjust.centre(centres, data$call$dimensions), simplify = FALSE),
             "list"     = lapply(centres, adjust.centre, dim = data$call$dimension))
         names(centres) <- names(data$subsets)
+
+        ## recentre covar matrices
+        covars <- mapply(recentre, covars, centres, MoreArgs = list(dimensions = dimensions), SIMPLIFY = FALSE)
     } else {
         ## Handled by ellipses and axes
         centres <- "intercept"
@@ -94,9 +98,7 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
     ## Measuring the axes
     if(!is.null(major.axes)) {
         ## The axes
-        ##TODO: improve that section!
-        all_axes <- get.axes(covars, axis = 1, level = level, dimensions = data$call$dimensions, centre = centres)
-        
+        all_axes <- lapply(covars, lapply, get.one.axis, axis = 1, level = level, dimensions = dimensions)
         ## Summarising the axes (optional)
         if(is(major.axes, "standardGeneric") || is(major.axes, "function")) {
             ## Summarising the axes using the provided function
@@ -124,9 +126,13 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
     }
 
     ## Adjust the color
-    if(missing(transparent.scale)) {  
-        n_scale <- max(ifelse(!is.null(major.axes), length(all_axes[[1]]), 1), ifelse(!is.null(ellipses), length(all_ellipses[[1]]), 1))
-        transparent.scale <- ifelse(3/n_scale < 0.1, 0.1, 3/n_scale) 
+    if(missing(transparent.scale)) {
+        trans_axes     <- ifelse(!is.null(major.axes), length(all_axes[[1]]), 1)
+        trans_ellipses <- ifelse(!is.null(ellipses), length(all_ellipses[[1]]), 1)
+        trans_axes <- ifelse(3/trans_axes < 0.1, 0.1, 3/trans_axes) 
+        trans_ellipses <- ifelse(3/trans_ellipses < 0.1, 0.1, 3/trans_ellipses)
+    } else {
+        trans_axes <- trans_ellipses <- transparent.scale
     }
 
     ## Setting the plot parameters
@@ -147,6 +153,12 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
     }
     if(length(plot_args$cex) < length(data$subsets)) {
         plot_args$cex <- rep(plot_args$cex, length(data$subsets))
+    }
+    if(is.null(plot_args$lty)) {
+        plot_args$lty <- 1
+    }
+    if(length(plot_args$lty) < length(data$subsets)) {
+        plot_args$lty <- rep(plot_args$lty, length(data$subsets))
     }
     ## Get the plot limits
     if(is.null(plot_args$xlim)) {
@@ -196,7 +208,18 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
 
     ## Adding the points
     if(points) {
-        for(one_group in 1:length(data$subsets)) {
+
+        ## Select the groups worth plotting (i.e. ignore the global ones)
+        if(length(data$subsets) > 1) {
+            ## Select the groups to plot
+            plot_groups <- which(size.subsets(data) != nrow(data$matrix[[1]]))
+            ## Update the pch in plot_args
+            plot_args$pch[-plot_groups] <- NA
+        } else {
+            plot_groups <- 1:length(data$subsets)
+        }
+        
+        for(one_group in plot_groups) {
             ## Setting the points arguments
             points_args <- plot_args
             points_args$x <- data$matrix[[1]][c(data$subsets[[one_group]]$elements), dimensions[1]]
@@ -214,7 +237,7 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
         line_args <- plot_args
         ## Looping through the groups
         for(one_group in 1:length(data$subsets)) {
-            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = transparent.scale)
+            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = trans_ellipses)
             #TODO: Add transparency
             lapply(all_ellipses[[one_group]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
         }
@@ -225,7 +248,7 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
         ## Plot the axes
         line_args <- plot_args
         for(one_group in 1:length(data$subsets)) {
-            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = transparent.scale)
+            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = trans_axes)
             #TODO: Add transparency
             lapply(all_axes[[one_group]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
         }
@@ -236,6 +259,51 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
     }
 
     return(invisible())
+}
+
+## Internal: recentring the covar matrices (changing their Sol)
+recentre <- function(one_group, one_centre, dimensions) {
+    recentre.Sol <- function(covar, centre, dim) {
+        covar$Sol[dim] <- centre[dim]
+        return(covar)
+    }
+    return(lapply(one_group, recentre.Sol, centre = one_centre, dim = dimensions))
+}
+
+## Internal: get the coordinates of one axes
+get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
+
+    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
+
+    ## Select the right dimensions
+    data$VCV <- data$VCV[dimensions, dimensions]
+
+    ## Get the data dimensionality
+    dims <- dim(data$VCV)[1]
+
+    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
+    unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
+    ## The "front" (e.g. "top", "right") units
+    diag(unit_hypersphere1) <- 1
+    ## The "back" (e.g. "bottom", "left") units
+    diag(unit_hypersphere2) <- -1
+    unit_hypersphere <- rbind(unit_hypersphere1, unit_hypersphere2)
+    ## Scale the hypersphere (where level is the confidence interval)
+    unit_hypersphere <- unit_hypersphere * sqrt(qchisq(level, 2))
+
+    ## Do the eigen decomposition (symmetric - faster)
+    eigen_decomp <- eigen(data$VCV, symmetric = TRUE)
+
+    ## Re-scaling the unit hypersphere
+    scaled_edges <- unit_hypersphere * rep(sqrt(eigen_decomp$values), each = dims*2)
+    ## Rotating the edges coordinates
+    edges <- tcrossprod(scaled_edges, eigen_decomp$vectors)
+
+    ## Move the matrix around
+    edges <- edges + rep(data$Sol[dimensions], each = dims*2)
+
+    ## Get the edges coordinates
+    return(edges[c(axis, axis+dims), ])
 }
 
 ## Internal: making one ellipse
