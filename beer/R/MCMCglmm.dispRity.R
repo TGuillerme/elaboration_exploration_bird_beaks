@@ -73,7 +73,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
             #dispRity_export in: MAKE dispRity STOP STYLE
             stop("group must be a named character vector.")#dispRity_export out:
         } else {
-            if(!all(selected_groups <- posterior_levels %in% group)) {
+            if(!any(is.na(selected_groups <- match(group, posterior_levels)))) {
                 ## Select only the specific groups
                 subsets <- extracted_group[selected_groups]
             } else {
