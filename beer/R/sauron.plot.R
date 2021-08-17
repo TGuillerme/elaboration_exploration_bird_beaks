@@ -4,24 +4,27 @@
 #'
 #' @param data an MCMCglmm dispRity object
 #' @param n only selecting a random subset of the posteriors (if left missing, all the posteriors are used)
-#' @param major.axes can be NULL = no axes; "all" = all axes; function = a function for summarising the axes;
-#' @param ellipses can be NULL = no ellipses; "all" = all ellipses; function = a function for summarising the ellipses;
-#' @param level the confidence interval level of the axes and ellipses (default is \code{0.95});
-#' @param dimensions which dimensions (default is 1:2), could be 3D.
-#' @param centres optional, a way to determine ellipses or axes centres. Can be either a function (default is \code{colMeans}), a vector or a list of coordinates vectors or "intercept". See details.
 #' @param points logical, whether to plot the points (\code{TRUE}; default) or not (\code{FALSE}).
-#' @param transparent.scale if multiple axes/ellipses are plotted, a scaling factor for the transparency. If left empty, the transparency is set to \code{1/n} or \code{0.1} (whichever is higher).
+#' @param major.axes can be \code{NULL} or \code{FALSE} for no axes, \code{"all"} or \code{TRUE} for displaying the \code{n} posteriors or a \code{function} for summarising the major axes (e.g. \code{major.axes = mean}.
+#' @param ellipses can be \code{NULL} or \code{FALSE} for no ellipses, \code{"all"} or \code{TRUE} for displaying the \code{n} posteriors or a \code{function} for summarising the ellipses (e.g. \code{ellipses = mean}.
+#' @param level the confidence interval level of the major axes and ellipses (default is \code{0.95});
+#' @param dimensions which dimensions (default is 1:2), could be 3D.
+#' @param centres optional, a way to determine ellipses or major axes centres. Can be either a function (default is \code{colMeans}), a vector or a list of coordinates vectors or "intercept". See details.
+#' @param transparent.scale if multiple major axes/ellipses are plotted, a scaling factor for the transparency. If left empty, the transparency is set to \code{1/n} or \code{0.1} (whichever is higher).
 #' @param legend whether to add the automatic legend (\code{TRUE}) or not (\code{FALSE}; default).
 #' @param legend.pos the coordinates of where to add the legend (if \code{legend = TRUE}). Can a numeric vector or a character string like \code{"topleft"} (default), \code{"bottomright"}, etc..
 #' @param ... graphic parameters
 #' 
 #' @details
-#' The argument \code{centres} allows to determine how to calculate the centre of each ellipses or axes. The argument can be either:
+#' The argument \code{centres} allows to determine how to calculate the centre of each ellipses or major axes. The argument can be either:
 #' \itemize{
 #'      \item A function to calculate the centre from a group like the default \code{colMeans} function that calculates the centroid coordinates of each group;
 #'      \item A numeric value to be replicated as the coordinates for the centre of each group (e.g. \code{centres = 0} sets all the centres at the coordinates \code{c(0,0,0,...)}); or a vector of numeric values to be directly used as the coordinates for each group (e.g. \code{centres = c(1,2,3)} sets all the centres at the coordinates \code{c(1,2,3)}); or a list of numeric values or numeric vectors to be used as the coordinates for the centres of each group;
 #'      \item code{"intercept"} for using the estimated posterior intercept for each sample.
 #' }
+#' 
+#' \emph{NOTE} that if the input contains more dimensions than the visualised dimensions (by default \code{dimensions = c(1,2)}) the ellipses and major axes are projected from an n-dimensional space onto a 2D space which might make them look "off".
+#' 
 #' @examples
 #'
 #' @seealso
@@ -29,7 +32,7 @@
 #' @author Thomas Guillerme
 #' @export
 
-sauron.plot <- function(data, n, axes = NULL, ellipses = NULL, level = 0.95, dimensions = c(1,2), centres = colMeans, points = TRUE, transparent.scale = 0, legend = FALSE, legend.pos = "topleft", ...) {
+sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NULL, level = 0.95, dimensions = c(1,2), centres = colMeans, transparent.scale, legend = FALSE, legend.pos = "topleft", ...) {
 
     ## Some sanitizing to happen in dispRity on data
 
@@ -79,19 +82,36 @@ sauron.plot <- function(data, n, axes = NULL, ellipses = NULL, level = 0.95, dim
         centres <- "intercept"
     }
 
+    ## Translating the axes argument
+    if(is(major.axes, "logical")) {
+        if(major.axes) {
+            major.axes <- "all"
+        } else {
+            major.axes <- NULL
+        }
+    }
+
     ## Measuring the axes
-    if(!is.null(axes)) {
+    if(!is.null(major.axes)) {
         ## The axes
         ##TODO: improve that section!
         all_axes <- get.axes(covars, axis = 1, level = level, dimensions = data$call$dimensions, centre = centres)
         
         ## Summarising the axes (optional)
-        if(is(axes, "standardGeneric") || is(axes, "function")) {
+        if(is(major.axes, "standardGeneric") || is(major.axes, "function")) {
             ## Summarising the axes using the provided function
-            all_axes <- lapply(all_axes, function(one_group, fun) list(apply(simplify2array(one_group), 1:2, fun)), fun = axes)
+            all_axes <- lapply(all_axes, function(one_group, fun) list(apply(simplify2array(one_group), 1:2, fun)), fun = major.axes)
         }
     }
 
+    ## Translating the ellipses argument
+    if(is(ellipses, "logical")) {
+        if(ellipses) {
+            ellipses <- "all"
+        } else {
+            ellipses <- NULL
+        }
+    }
     ## Calculating the ellipses
     if(!is.null(ellipses)) {
         ## Get the ellipses
@@ -101,6 +121,12 @@ sauron.plot <- function(data, n, axes = NULL, ellipses = NULL, level = 0.95, dim
             ## Summarising the axes using the provided function
             all_ellipses <- lapply(all_ellipses, function(one_group, fun) list(apply(simplify2array(one_group), 1:2, fun)), fun = ellipses)
         }
+    }
+
+    ## Adjust the color
+    if(missing(transparent.scale)) {  
+        n_scale <- max(ifelse(!is.null(major.axes), length(all_axes[[1]]), 1), ifelse(!is.null(ellipses), length(all_ellipses[[1]]), 1))
+        transparent.scale <- ifelse(3/n_scale < 0.1, 0.1, 3/n_scale) 
     }
 
     ## Setting the plot parameters
@@ -124,37 +150,62 @@ sauron.plot <- function(data, n, axes = NULL, ellipses = NULL, level = 0.95, dim
     }
     ## Get the plot limits
     if(is.null(plot_args$xlim)) {
-        plot_args$xlim <- max(c(range(data$matrix[[1]]), range(unlist(all_axes))))
-        plot_args$xlim <- c(-plot_args$xlim, plot_args$xlim)
+        ## Default plot size
+        plot_args$xlim <- range(data$matrix[[1]])
+        ## Adding axes
+        if(!is.null(major.axes)) {
+            plot_args$xlim <- range(c(plot_args$xlim, unlist(all_axes)))
+        }
+        ## Adding ellipses (and preserving isometry)
+        if(!is.null(ellipses)) {
+            plot_args$xlim <- max(c(plot_args$xlim, range(unlist(all_ellipses))))
+            plot_args$xlim <- c(-plot_args$xlim, plot_args$xlim)
+        }
     }
     if(is.null(plot_args$ylim)) {
-        plot_args$ylim <- max(c(range(data$matrix[[1]]), range(unlist(all_axes))))
-        plot_args$ylim <- c(-plot_args$ylim, plot_args$ylim)
+        ## Default plot size
+        plot_args$ylim <- range(data$matrix[[1]])
+        ## Adding axes
+        if(!is.null(major.axes)) {
+            plot_args$ylim <- range(c(plot_args$ylim, unlist(all_axes)))
+        }
+        ## Adding ellipses (and preserving isometry)
+        if(!is.null(ellipses)) {
+            plot_args$ylim <- max(c(plot_args$ylim, range(unlist(all_ellipses))))
+            plot_args$ylim <- c(-plot_args$ylim, plot_args$ylim)
+        }
     }
 
-    ## Setting the labels
+    ## Setting the x/y labels
     percentage <- apply(data$matrix[[1]], 2, var)
     percentage <- paste0(round(percentage/sum(percentage)*100, 2), "%")
+    if(!is.null(colnames(data$matrix[[1]]))) {
+        column_names <- colnames(data$matrix[[1]])
+    } else {
+        column_names <- paste0("Dim.", 1:ncol(data$matrix[[1]]))
+    }
     if(is.null(plot_args$xlab)) {
-        plot_args$xlab <- paste0(colnames(data$matrix[[1]])[dimensions[1]], " (", percentage[dimensions[1]], ")")
+        plot_args$xlab <- paste0(column_names[dimensions[1]], " (", percentage[dimensions[1]], ")")
     }
     if(is.null(plot_args$ylab)) {
-        plot_args$ylab <- paste0(colnames(data$matrix[[1]])[dimensions[2]], " (", percentage[dimensions[2]], ")")
+        plot_args$ylab <- paste0(column_names[dimensions[2]], " (", percentage[dimensions[2]], ")")
     }
 
     ## Plotting the background
     do.call(plot, plot_args)
 
     ## Adding the points
-    for(one_group in 1:length(data$subsets)) {
-        ## Setting the points arguments
-        points_args <- plot_args
-        points_args$x <- data$matrix[[1]][c(data$subsets[[one_group]]$elements), dimensions[1]]
-        points_args$y <- data$matrix[[1]][c(data$subsets[[one_group]]$elements), dimensions[2]]
-        points_args$col <- plot_args$col[one_group]
-        points_args$cex <- plot_args$cex[one_group]
-        points_args$pch <- plot_args$pch[one_group]
-        do.call(points, points_args)
+    if(points) {
+        for(one_group in 1:length(data$subsets)) {
+            ## Setting the points arguments
+            points_args <- plot_args
+            points_args$x <- data$matrix[[1]][c(data$subsets[[one_group]]$elements), dimensions[1]]
+            points_args$y <- data$matrix[[1]][c(data$subsets[[one_group]]$elements), dimensions[2]]
+            points_args$col <- plot_args$col[one_group]
+            points_args$cex <- plot_args$cex[one_group]
+            points_args$pch <- plot_args$pch[one_group]
+            do.call(graphics::points, points_args)
+        }
     }
 
     ## Adding the ellipses
@@ -163,18 +214,18 @@ sauron.plot <- function(data, n, axes = NULL, ellipses = NULL, level = 0.95, dim
         line_args <- plot_args
         ## Looping through the groups
         for(one_group in 1:length(data$subsets)) {
-            line_args$col <- plot_args$col[one_group]
+            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = transparent.scale)
             #TODO: Add transparency
             lapply(all_ellipses[[one_group]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
         }
     }
 
     ## Adding the axes
-    if(!is.null(axes)) {
+    if(!is.null(major.axes)) {
         ## Plot the axes
         line_args <- plot_args
         for(one_group in 1:length(data$subsets)) {
-            line_args$col <- plot_args$col[one_group]
+            line_args$col <- adjustcolor(plot_args$col[one_group], alpha.f = transparent.scale)
             #TODO: Add transparency
             lapply(all_axes[[one_group]], function(data, line_args) {line_args$x <- data ; do.call(lines, line_args)}, line_args)
         }
