@@ -231,6 +231,10 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
         }
     }
 
+    if(legend){
+        legend(legend.pos, legend = names(data$subsets), col = plot_args$col, lty = plot_args$lty, pch = plot_args$pch)
+    }
+
     return(invisible())
 }
 
