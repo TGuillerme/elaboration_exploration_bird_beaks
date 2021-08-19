@@ -14,3 +14,40 @@ sample.n <- function(covar, n, selected_n) {
         return(lapply(covar, function(group, n) group[n], n = selected_n))
     }
 }
+
+
+## Internal: get the coordinates of one axes
+get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
+
+    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
+
+    ## Select the right dimensions
+    data$VCV <- data$VCV[dimensions, dimensions, drop = FALSE]
+
+    ## Get the data dimensionality
+    dims <- dim(data$VCV)[1]
+
+    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
+    unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
+    ## The "front" (e.g. "top", "right") units
+    diag(unit_hypersphere1) <- 1
+    ## The "back" (e.g. "bottom", "left") units
+    diag(unit_hypersphere2) <- -1
+    unit_hypersphere <- rbind(unit_hypersphere1, unit_hypersphere2)
+    ## Scale the hypersphere (where level is the confidence interval)
+    unit_hypersphere <- unit_hypersphere * sqrt(qchisq(level, 2))
+
+    ## Do the eigen decomposition (symmetric - faster)
+    eigen_decomp <- eigen(data$VCV, symmetric = TRUE)
+
+    ## Re-scaling the unit hypersphere
+    scaled_edges <- unit_hypersphere * rep(sqrt(eigen_decomp$values), each = dims*2)
+    ## Rotating the edges coordinates
+    edges <- tcrossprod(scaled_edges, eigen_decomp$vectors)
+
+    ## Move the matrix around
+    edges <- edges + rep(data$Sol[dimensions, drop = FALSE], each = dims*2)
+
+    ## Get the edges coordinates
+    return(edges[c(axis, axis+dims), , drop = FALSE])
+}

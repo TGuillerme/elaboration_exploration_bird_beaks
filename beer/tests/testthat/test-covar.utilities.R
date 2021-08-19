@@ -1,6 +1,5 @@
 ## Test
 require(MCMCglmm)
-data(model_list)
 set.seed(1)
 data(PlodiaPO)
 model_simple<-MCMCglmm(PO~1, random=~FSfamily, data=PlodiaPO, verbose=FALSE,
@@ -29,6 +28,49 @@ test_that("get.covar works", {
     expect_equal(length(test[[1]]), 7)
 })
 
+
+load("covar_char_data.Rda")
+load("covar_model_list.Rda")
+
 ## Test
+test_that("get.one.axis works", {
+    set.seed(1)
+    beer <- MCMCglmm.covars(covar_model_list[[7]], n = 1)
+    ## Right output
+    expect_is(get.one.axis(beer[[1]][[1]]), "matrix")
+    expect_equal(dim(get.one.axis(beer[[1]][[1]])), c(2,3))
+    ## Selects the right axes
+    test1 <- get.one.axis(beer[[1]][[1]], axis = 1)
+    test2 <- get.one.axis(beer[[1]][[1]], axis = 2)
+    test3 <- get.one.axis(beer[[1]][[1]], axis = 3)
+    expect_true(all(test1 != test2))
+    expect_true(all(test1 != test3))
+    expect_true(all(test2 != test3))
+    ## Levels works
+    test2 <- get.one.axis(beer[[1]][[1]], level = 1)
+    expect_true(all(is.nan(test2)))
+    test2 <- get.one.axis(beer[[1]][[1]], level = 0.5)
+    expect_true(all(test1 != test2))
+    ## Dimensions selection works
+    expect_equal(dim(get.one.axis(beer[[1]][[1]], dimensions = c(1,2))), c(2,2))
+})
+
 test_that("axis.covar works", {
+
+    ## Works with normal models
+    data <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[7]])
+    ## Get all the axis
+    test <- axis.covar(data, n = 7)
+    ## Right output
+    expect_equal(names(test), unname(MCMCglmm.levels(covar_model_list[[7]])))
+    expect_equal(length(test[[1]]), 7)
+    expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 3))
+    
+
+    ## Works with 1D data?
+    data_1D <- MCMCglmm.dispRity(data = PlodiaPO, posteriors = model_simple)
+    test <- axis.covar(data_1D, sample = c(1,2,3))
+    expect_equal(names(test), unname(MCMCglmm.levels(model_simple)))
+    expect_equal(length(test[[1]]), 3)
+    expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 1))
 })

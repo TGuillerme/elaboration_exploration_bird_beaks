@@ -20,7 +20,7 @@ export(diagnose.mini.chains)
 export(combine.mini.chains)
 
 # Analyses functions
-export(get.axes)
+# export(get.axes) DEPRECATED
 export(analyses.group)
 export(analyses.tip)
 

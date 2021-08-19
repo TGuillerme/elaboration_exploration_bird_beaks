@@ -8,8 +8,6 @@
 \usage{
 get.covar(data, n)
 
-ellipse.covar(data, n, level = 0.95)
-
 axis.covar(data, n, level = 0.95, axis = 1)
 }
 \arguments{

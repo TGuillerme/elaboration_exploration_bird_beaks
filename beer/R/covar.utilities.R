@@ -43,7 +43,18 @@ get.covar <- function(data, sample, n) {
     }
 }
 
-axis.covar <- function(data, sample, n, level = 0.95, axis = 1) {
-    return(NULL)
+axis.covar <- function(data, sample, n, dimensions, level = 0.95, axis = 1) {
+    
+    ## Get the covar matrices
+    selected_covars <- get.covar(data, sample, n)
+    
+    ## Sanitizing on level and axis
+
+    ## Selecting the dimensions (all by default)
+    if(missing(dimensions)) {
+        dimensions <- data$call$dimensions
+    }
+    ## Select all the axis
+    return(lapply(selected_covars, lapply, get.one.axis, axis = 1, level = level, dimensions = dimensions))
 }
 
