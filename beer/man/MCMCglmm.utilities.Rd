@@ -6,18 +6,16 @@
 \alias{MCMCglmm.traits}
 \title{MCMCglmm object utility functions}
 \usage{
-MCMCglmm.traits(MCMglmm, ...)
+MCMCglmm.traits(MCMglmm)
 
-MCMCglmm.levels(MCMglmm, ...)
+MCMCglmm.levels(MCMglmm)
 
-MCMCglmm.sample(MCMglmm, n, ...)
+MCMCglmm.sample(MCMglmm, n)
 
-MCMCglmm.covars(MCMglmm, n, sample, ...)
+MCMCglmm.covars(MCMglmm, n, sample)
 }
 \arguments{
 \item{MCMCglmm}{A \code{MCMCglmm} object.}
-
-\item{...}{Optional arguments to be passed to the function..}
 
 \item{n}{Optional, a number of random samples to extract.}
 
