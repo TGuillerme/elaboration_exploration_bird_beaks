@@ -30,7 +30,6 @@ export(optim.replicate)
 # For dispRity
 export(get.covar)
 export(axis.covar)
-export(ellipse.covar)
 export(sauron.plot)
 export(MCMCglmm.dispRity) #to be MCMCglmm.subsets
 export(MCMCglmm.traits)

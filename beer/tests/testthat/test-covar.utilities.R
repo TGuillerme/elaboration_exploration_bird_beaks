@@ -30,9 +30,5 @@ test_that("get.covar works", {
 })
 
 ## Test
-test_that("ellipse.covar works", {
-})
-
-## Test
 test_that("axis.covar works", {
 })

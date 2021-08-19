@@ -5,7 +5,6 @@
 #' @description Different utility functions to extract aspects of a \code{MCMCglmm} object.
 #'
 #' @usage get.covar(data, n)
-#' @usage ellipse.covar(data, n, level = 0.95)
 #' @usage axis.covar(data, n, level = 0.95, axis = 1)
 #'
 #' @param data a \code{dispRity} object with a \code{covar} element.
@@ -44,9 +43,6 @@ get.covar <- function(data, sample, n) {
     }
 }
 
-ellipse.covar <- function(data, sample, n, level = 0.95) {
-    return(NULL)
-}
 axis.covar <- function(data, sample, n, level = 0.95, axis = 1) {
     return(NULL)
 }
