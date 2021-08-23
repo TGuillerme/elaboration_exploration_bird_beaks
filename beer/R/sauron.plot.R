@@ -13,6 +13,7 @@
 #' @param transparent.scale if multiple major axes/ellipses are plotted, a scaling factor for the transparency. If left empty, the transparency is set to \code{1/n} or \code{0.1} (whichever is higher).
 #' @param legend whether to add the automatic legend (\code{TRUE}) or not (\code{FALSE}; default).
 #' @param legend.pos the coordinates of where to add the legend (if \code{legend = TRUE}). Can a numeric vector or a character string like \code{"topleft"} (default), \code{"bottomright"}, etc..
+#' @param add logical, whether to add the plot to an existing plot (\code{TRUE}) or not (\code{FALSE}; default).
 #' @param ... graphic parameters
 #' 
 #' @details
@@ -33,7 +34,7 @@
 #' @author Thomas Guillerme
 #' @export
 
-sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NULL, level = 0.95, dimensions = c(1,2), centres = colMeans, transparent.scale, legend = FALSE, legend.pos = "topleft", ...) {
+sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NULL, level = 0.95, dimensions = c(1,2), centres = colMeans, transparent.scale, legend = FALSE, legend.pos = "topleft", add = FALSE, ...) {
 
     ## Some sanitizing to happen in dispRity on data
 
@@ -191,7 +192,9 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
     }
 
     ## Plotting the background
-    do.call(plot, plot_args)
+    if(!add) {
+        do.call(plot, plot_args)
+    }
 
     ## Adding the points
     if(points) {
