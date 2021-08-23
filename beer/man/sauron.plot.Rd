@@ -16,6 +16,7 @@ sauron.plot(
   transparent.scale,
   legend = FALSE,
   legend.pos = "topleft",
+  add = FALSE,
   ...
 )
 }
@@ -41,6 +42,8 @@ sauron.plot(
 \item{legend}{whether to add the automatic legend (\code{TRUE}) or not (\code{FALSE}; default).}
 
 \item{legend.pos}{the coordinates of where to add the legend (if \code{legend = TRUE}). Can a numeric vector or a character string like \code{"topleft"} (default), \code{"bottomright"}, etc..}
+
+\item{add}{logical, whether to add the plot to an existing plot (\code{TRUE}) or not (\code{FALSE}; default).}
 
 \item{...}{graphic parameters}
 }
