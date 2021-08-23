@@ -247,29 +247,3 @@ sauron.plot <- function(data, n, points = TRUE, major.axes = NULL, ellipses = NU
 
     return(invisible())
 }
-
-## Internal: recentring the covar matrices (changing their Sol)
-recentre <- function(one_group, one_centre, dimensions) {
-    recentre.Sol <- function(covar, centre, dim) {
-        covar$Sol[dim] <- centre[dim]
-        return(covar)
-    }
-    return(lapply(one_group, recentre.Sol, centre = one_centre, dim = dimensions))
-}
-
-## Internal: making one ellipse
-make.ellipse <- function(one_sample, dimensions, npoints){
-    return(ellipse::ellipse(x       = one_sample$VCV[dimensions, dimensions],
-                            centre  = one_sample$Sol[dimensions],
-                            npoints = npoints))
-}
-
-## Internal: making a list of ellipses for the level
-level.ellipses <- function(level_sample, dimensions, npoints, centre) {
-
-    ## Recentreing the levels
-    level_sample <- recentre.levels(level_sample, centre, dimensions)
-
-    ## Get the ellipses for the level
-    return(lapply(level_sample, make.ellipse, dimensions, npoints))
-}

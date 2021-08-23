@@ -5,11 +5,11 @@ importFrom(grDevices,rainbow, adjustcolor)
 importFrom(ellipse, ellipse)
 
 # Plotting functions
-export(plot.axes)
-export(plot.ellipses)
-export(plot.space)
-export(plot.analyses.tip)
-export(plot.analyses.group)
+#export(plot.axes)
+#export(plot.ellipses)
+#export(plot.space)
+#export(plot.analyses.tip)
+#export(plot.analyses.group)
 
 # Mini chains functions
 export(extract.parameters)
@@ -21,8 +21,8 @@ export(combine.mini.chains)
 
 # Analyses functions
 # export(get.axes) DEPRECATED
-export(analyses.group)
-export(analyses.tip)
+#export(analyses.group)
+#export(analyses.tip)
 
 # Other
 export(optim.replicate)

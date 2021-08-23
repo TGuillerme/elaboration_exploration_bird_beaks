@@ -4,15 +4,14 @@
 #'
 #' @description Different utility functions to extract aspects of a \code{MCMCglmm} object.
 #'
-#' @usage MCMCglmm.traits(MCMglmm, ...)
-#' @usage MCMCglmm.levels(MCMglmm, ...)
-#' @usage MCMCglmm.sample(MCMglmm, n, ...)
-#' @usage MCMCglmm.covars(MCMglmm, n, sample, ...)
+#' @usage MCMCglmm.traits(MCMglmm)
+#' @usage MCMCglmm.levels(MCMglmm)
+#' @usage MCMCglmm.sample(MCMglmm, n)
+#' @usage MCMCglmm.covars(MCMglmm, n, sample)
 #'  
 #' @param MCMCglmm A \code{MCMCglmm} object.
 #' @param n        Optional, a number of random samples to extract.
 #' @param sample   Optional, the specific samples to extract (is ignored if \code{n} is present).
-#' @param ...      Optional arguments to be passed to the function..
 #'
 #' @details
 #' \itemize{
@@ -30,7 +29,7 @@
 #' @export
 
 ## Get the possible levels from a MCMCglmm
-MCMCglmm.levels <- function(MCMCglmm, convert = TRUE, ...) {
+MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
     convert.term.name <- function(one_term) {
         ## Return the term is simple, keep it like that
         if(length(grep(":", one_term)) == 0) {
@@ -93,7 +92,7 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE, ...) {
 }
 
 ## Get the number of traits from a MCMCglmm
-MCMCglmm.traits <- function(MCMCglmm, ...) {
+MCMCglmm.traits <- function(MCMCglmm) {
 
     ## Get the variables
     variables <- as.character(MCMCglmm$Fixed$formula[2])
@@ -114,7 +113,7 @@ MCMCglmm.traits <- function(MCMCglmm, ...) {
 }
 
 ## Get the samples from a MCMCglmm object
-MCMCglmm.sample <- function(MCMCglmm, n, ...) {
+MCMCglmm.sample <- function(MCMCglmm, n) {
     n_samples <- nrow(MCMCglmm$Sol)
     if(missing(n)) {
         return(1:n_samples)
@@ -128,7 +127,7 @@ MCMCglmm.sample <- function(MCMCglmm, n, ...) {
 }
 
 ## Get some covar matrices
-MCMCglmm.covars <- function(MCMCglmm, sample, n, ...){   
+MCMCglmm.covars <- function(MCMCglmm, sample, n){   
 
     ## The number of traits
     traits <- MCMCglmm.traits(MCMCglmm)
