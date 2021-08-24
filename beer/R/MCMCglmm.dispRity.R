@@ -101,7 +101,7 @@ MCMCglmm.dispRity <- function(data, posteriors, group, tree, rename.groups) {
         stop("do tree")
     } else {
         ## Create a dispRity style object without tree
-        output <- make.dispRity(data = cleaned_data, call = list("subsets" = "MCMCglmm", "dimensions" = dimensions), subsets = subsets)
+        output <- dispRity::make.dispRity(data = cleaned_data, call = list("subsets" = "MCMCglmm", "dimensions" = dimensions), subsets = subsets)
         output$MCMCglmm <- list(formula = formula, covars = covar_matrices)
         return(output)
     }
