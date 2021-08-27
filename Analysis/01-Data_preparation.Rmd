@@ -128,11 +128,9 @@ all_groups <- c(groups_level1$list, groups_level2$list)
 How many dimensions do we need to represent at least 95% of the variance in each group
 
 ```{r}
-## Make a dispRity object
-shapespace <- custom.subsets(shapespace, group = all_groups)
-formspace  <- custom.subsets(formspace, group = all_groups)
-shape_axes <- select.axes(shapespace)
-form_axes  <- select.axes(formspace)
+## Make a dispRity object and get axes data
+shape_axes <- select.axes(custom.subsets(shapespace, group = all_groups))
+form_axes  <- select.axes(custom.subsets(formspace, group = all_groups))
 ```
 
 ```{r, echo = FALSE}
@@ -161,9 +159,11 @@ By analysing the distribution of the variance within each group, we will need `r
 
 ```{r}
 ## Add the clade columns and the animal column to the spaces
+shapespace <- as.data.frame(shapespace)
 shapespace$level1 <- groups_level1$col
 shapespace$level2 <- groups_level2$col
 shapespace$animal <- rownames(shapespace)
+formspace <- as.data.frame(formspace)
 formspace$level1 <- groups_level1$col
 formspace$level2 <- groups_level2$col
 formspace$animal <- rownames(formspace)
@@ -172,7 +172,9 @@ formspace$animal <- rownames(formspace)
 form_shape_space_1tree_2levels <- list(
     "consensus_tree" = consensus_tree,
     "shape_space"    = shapespace,
+    "shape_dim"      = shape_axes$dimensions,
     "form_space"     = formspace,
+    "form_dim"       = form_axes$dimensions,
     "groups_list"    = all_groups)
 
 save(form_shape_space_1tree_2levels, file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
