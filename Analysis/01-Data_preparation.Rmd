@@ -72,6 +72,7 @@ consensus_tree <- drop.tip(consensus_tree, tip = consensus_tree$tip.label[!match
 ```
 
  * The clade data
+We used the different clade levels (the 11 magnificent 7 + the families). For each level/group, we removed any groups with less than 20 species.
 
 ```{r}
 ## Reading the clades list
@@ -85,31 +86,40 @@ clades_list <- clades_list[rownames(clades_list) %in% rownames(shapespace), ]
 make.level.list <- function(table, level, threshold = 20) {
   ## Select the level
   table_level <- table[, level]
-  ## Remove the empties
-  table_level <- as.factor(as.character(table_level[-which(table_level == "")]))
+  ## Find the empty level
+  empty_level <- which(levels(table_level) == "")
+  if(length(empty_level) != 0) {
+      ## Remove the empties
+      level_list <- as.factor(as.character(table_level[-which(table_level == "")]))
+  }
+  empty_level <- ""
   ## Select the levels below the threshold
-  remove_levels <- which(table(table_level) < threshold)
+  remove_levels <- which(table(level_list) < threshold)
   ## Remove the levels
   while(length(remove_levels) > 0) {
-    table_level <- as.factor(as.character(table_level[-which(table_level == names(remove_levels)[1])]))
+    level_list <- as.factor(as.character(level_list[-which(level_list == names(remove_levels)[1])]))
+    table_level[which(table_level == names(remove_levels)[1])] <- empty_level
+    table_level <- as.factor(as.character(table_level))
     remove_levels <- remove_levels[-1]
   }
   ## Convert into a list
-  factors <- levels(table_level)
-  levels_list <- list()
+  factors <- levels(level_list)
+  list_levels <- list()
   while(length(factors) > 0) {
-    levels_list[[length(levels_list) + 1]] <- which(table_level == factors[1])
+    list_levels[[length(list_levels) + 1]] <- which(level_list == factors[1])
     factors <- factors[-1]
   }
   ## Name the elements correctly
-  names(levels_list) <- levels(table_level)
-  return(levels_list)
+  names(list_levels) <- levels(level_list)
+
+  ## Also returns the new column
+  return(list(col = table_level, list = list_levels))
 }
 
 ## Reading the clades list
 groups_level1 <- make.level.list(clades_list, level = 1, threshold = 20)
 groups_level2 <- make.level.list(clades_list, level = 2, threshold = 20)
-all_groups <- c(groups_level1, groups_level2)
+all_groups <- c(groups_level1$list, groups_level2$list)
 ```
 
 
