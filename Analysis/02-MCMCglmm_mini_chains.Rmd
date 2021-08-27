@@ -27,14 +27,10 @@ set.seed(42)
 ## Loading beer
 library(beer)
 library(MCMCglmm)
+library(dispRity)
 
-## Loading the demo data
-data(demo_data)
-data(demo_trees)
-data(demo_tree)
-
-## Setting the consensus tree
-consensus_tree <- demo_tree
+## Loading the parametrisation data
+load(file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
 ```
 
 # MCMCglmm mini chains analyses
@@ -61,29 +57,36 @@ We ran these models (for `§§§N_generations` sampling every `§§§N_nitt` wit
  -->
  
 ```{r, parametrise_the_model, eval = TRUE}
+## Select the data
+shapespace <- form_shape_space_1tree_2levels$shape_space
+groups_list <- form_shape_space_1tree_2levels$groups_list
+selected_dim <- form_shape_space_1tree_2levels$shape_dim
+consensus_tree <- form_shape_space_1tree_2levels$consensus_tree
+
 ## Set up the parametrising chains models
-param_MCMCglmm <- make.mini.chains(data         = demo_data,
-                                   dimensions   = c(1:4),
+param_MCMCglmm <- make.mini.chains(data         = shapespace,
+                                   dimensions   = selected_dim,
                                    tree         = consensus_tree,
                                    trait.family = "gaussian",
-                                   randoms      = c("global", "clade"),
+                                   randoms      = c("global", "level1", "level2"),
                                    residuals    = "global",
                                    priors       = 0.02,
                                    verbose      = TRUE,
                                    parameters   = list(
-                                       nitt   = 10000,
-                                       thin   = 100,
+                                       nitt   = 1000000,
+                                       thin   = 500,
                                        burnin = 0))
 
 ## Running the three MCMCglmm models
-param_chains <- run.mini.chains(param_MCMCglmm, replicates = 3)
+params_shapespace_8D_31levels <- run.mini.chains(param_MCMCglmm, replicates = 1)
+save(param_chains, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_31levels_chain1.rda")
 ```
 
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
 We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
 For those values, we took the highest burnin as the overall burnin and the median of the three posteriors as the overall priors.
 
-```{r, get_model_parameters, eval = TRUE}
+```{r, get_model_parameters, eval = FALSE}
 ## Extract the parameters from the parameter chains
 est_params <- extract.parameters(param_chains)
 ```
@@ -95,7 +98,7 @@ Each mini-chain thus provided us with 100 posterior data points.
 The two main advantages of this mini-chain approach is that 1) they are much faster to run since no diagnosis of convergence is necessary and the chains are only run for a relatively short time (which allow several chains to crash/fail without losing all the outputs); and 2) they take into account tree uncertainty without having to run the complete MCMCglmm on all trees (c.f. @mulTree).
 
 
-```{r, set_the_mini_chains, eval = TRUE}
+```{r, set_the_mini_chains, eval = FALSE}
 ## The thinning parameter
 thin <- 100
 ## The number of samples per chains
