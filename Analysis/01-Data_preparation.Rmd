@@ -160,12 +160,21 @@ By analysing the distribution of the variance within each group, we will need `r
 ### Saving the data
 
 ```{r}
+## Add the clade columns and the animal column to the spaces
+shapespace$level1 <- groups_level1$col
+shapespace$level2 <- groups_level2$col
+shapespace$animal <- rownames(shapespace)
+formspace$level1 <- groups_level1$col
+formspace$level2 <- groups_level2$col
+formspace$animal <- rownames(formspace)
+
 ## Save the data to be analysed in Data/Processed
 form_shape_space_1tree_2levels <- list(
     "consensus_tree" = consensus_tree,
     "shape_space"    = shapespace,
     "form_space"     = formspace,
     "groups_list"    = all_groups)
+
 save(form_shape_space_1tree_2levels, file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
 ```
 
