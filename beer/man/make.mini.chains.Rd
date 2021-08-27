@@ -42,11 +42,10 @@ make.mini.chains(
 Making a list of mini.chains object (MCMCglmm primers)
 }
 \details{
-The types of model for the residuals and random terms can be:
+The types of model for the residuals and random terms can be a combination of any of the following:
 \itemize{
-\item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~ us(trait):unit}).
-\item \code{"clade"} for just as many levels of effects as there are clades in the data. This is used in the form \code{us(at.level(clade,1):trait):animal} for the random effects (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
-\item \code{c("global", "clade")} for the combination of both effects described above.
+\item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~us(trait):unit}).
+\item the name of the column(s) containing the factors for just as many levels of effects as there are non-empty levels in the data (\code{""} or \code{<NA>} are considered as empty levels). For example for the column \code{"clade"} the added random effects will be something like \code{us(at.level(clade,1):trait):animal} (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
 }
 }
 \examples{

@@ -1,7 +1,7 @@
 Package: beer
 Title: Beak Elaboration and Exploration in R
-Version: 0.0.3
-Date: 2021-07-14
+Version: 0.0.4
+Date: 2021-08-27
 Author: Thomas Guillerme [aut, cre, cph]
 Maintainer: Thomas Guillerme <guillert@tcd.ie>
 Description: Wrapper package for the functions in the beak elaboration/exploration porject.

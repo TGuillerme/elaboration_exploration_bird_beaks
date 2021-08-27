@@ -14,11 +14,10 @@
 #' @param ... any other parameters to be passed to \code{\link[MCMCglmm]{MCMCglmm}}.
 #' 
 #' @details
-#' The types of model for the residuals and random terms can be:
+#' The types of model for the residuals and random terms can be a combination of any of the following:
 #' \itemize{
-#'  \item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~ us(trait):unit}).
-#'  \item \code{"clade"} for just as many levels of effects as there are clades in the data. This is used in the form \code{us(at.level(clade,1):trait):animal} for the random effects (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
-#' \item \code{c("global", "clade")} for the combination of both effects described above.
+#'  \item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~us(trait):unit}).
+#'  \item the name of the column(s) containing the factors for just as many levels of effects as there are non-empty levels in the data (\code{""} or \code{<NA>} are considered as empty levels). For example for the column \code{"clade"} the added random effects will be something like \code{us(at.level(clade,1):trait):animal} (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
 #' }
 #' 
 #' 
@@ -31,25 +30,55 @@
 make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE, ...) {
 
     ## Setting the fixed effect model
+    ## Get the global terms        
+    global_randoms   <- which(randoms == "global")
+    global_residuals <- which(residuals == "global")
+    other_randoms    <- which(randoms != "global")
+    other_residuals  <- which(residuals != "global")
+
     ## Is there any clade effect in the model?
-    if(length(grep("clade", c(residuals, randoms))) == 0) {
-        clade_term <- FALSE
+    if(length(other_residuals) == 0 && length(other_randoms) == 0) {
+        other_terms <- FALSE
+        ## Setting the fixed model
         fixed_model <- ~trait-1
     } else {
-        clade_term <- TRUE
-        fixed_model <- ~trait:clade-1    
+        other_terms <- TRUE
+        if(length(other_randoms) != 0 && length(other_residuals) != 0) {
+            adding_terms <- unique(randoms[other_randoms], residuals[other_residuals])
+        } else {
+            if(length(other_randoms) != 0) {
+                adding_terms <- unique(randoms[other_randoms])
+            } else {
+                adding_terms <- unique(residuals[other_residuals])
+            }
+        }
+
+        ## Setting the fixed model
+        fixed_model <- as.formula(paste("~", paste(paste0("trait:", adding_terms), collapse = " + "), "- 1"))
     }
 
     ## Find the number of clades
-    if(clade_term) {
-        if(!("clade" %in% colnames(data))) {
-            stop("Missing clade column in data.")
-        } else {
-            if(!is(data$clade, "factor")) {
-                data$clade <- as.factor(data$clade)           
+    if(other_terms) {
+        if(any(wrongs <- !(adding_terms %in% colnames(data)))) {
+            stop(paste0("The following column", ifelse(sum(wrongs) > 1, "s ", " "), "cannot be found in data:", paste(adding_terms[wrongs], collapse = ", "), "."))
+        } 
+        ## Check if the other terms are factors
+        n_groups <- list()
+        for(i in 1:length(adding_terms)) {
+            if(!is(data[, adding_terms[i]], "factor")) {
+                data[, adding_terms[i]] <- as.factor(data[, adding_terms[i]])     
             }
+            ## Getting the group numbers
+            n_groups[[i]] <- seq_along(levels(data[, adding_terms[i]]))
+            ## Removing empties
+            empties <- which(levels(data[, adding_terms[i]]) == "" | is.na(levels(data[, adding_terms[i]])))
+            if(length(empties) > 0) {
+                n_groups[[i]] <- n_groups[[i]][-empties]
+            }
+            ## Making the level names
+            n_groups[[i]] <- paste(adding_terms[i], n_groups[[i]], sep = ",")
         }
-        n_clades <- length(levels(data$clade))
+        n_groups <- unname(unlist(n_groups))
     }
 
     ## Check the dimensionality of the data
@@ -61,22 +90,22 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     ## Setting the fixed formula (initialising)
     fixed <- fixed_model
     ## Moving the model to the second component of the formula (third)
-    fixed[[3]] <- fixed[[2]]
+    fixed[[length(fixed_model) + 1]] <- fixed[[length(fixed_model)]]
     ## Adding the trait model as the first component (first)
-    fixed[[2]] <- as.formula(paste0("~cbind(", paste(colnames(data)[dimensions], collapse = ", "), ")"))[[2]]
+    fixed[[length(fixed_model)]] <- as.formula(paste0("~cbind(", paste(colnames(data)[dimensions], collapse = ", "), ")"))[[2]]
 
     ## Random effect
     random <- NULL
     n_randoms <- 0
-    if("clade" %in% randoms) {
+    if(length(other_randoms) > 0) {
         if("global" %in% randoms) {
             ## Clade terms + global
-            random <- clade.terms(n_clades, type = "animal", add.global = TRUE)
-            n_randoms <- n_clades + 1
+            random <- group.terms(n_groups, type = "animal", add.global = TRUE)
+            n_randoms <- length(n_groups) + 1
         } else {
             ## Clade terms
-            random <- clade.terms(n_clades, type = "animal", add.global = FALSE)
-            n_randoms <- n_clades
+            random <- group.terms(n_groups, type = "animal", add.global = FALSE)
+            n_randoms <- length(n_groups)
         }
     } else {
         ## Global term
@@ -87,15 +116,15 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     ## Residuals effect
     rcov <- NULL
     n_residuals <- 0
-    if("clade" %in% residuals) {
+    if(length(other_residuals) > 0) {
         if("global" %in% residuals) {
             ## Clade terms + global
-            rcov <- clade.terms(n_clades, type = "units", add.global = TRUE)
-            n_residuals <- n_clades + 1
+            rcov <- group.terms(n_groups, type = "units", add.global = TRUE)
+            n_residuals <- length(n_groups) + 1
         } else {
             ## Clade terms
-            rcov <- clade.terms(n_clades, type = "units", add.global = FALSE)
-            n_residuals <- n_clades
+            rcov <- group.terms(n_groups, type = "units", add.global = FALSE)
+            n_residuals <- length(n_groups)
         }
     } else {
         ## Global term
@@ -113,13 +142,13 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
         parameters <- list()
     }
     if(is.null(parameters$nitt)) {
-        parameters$nitt <- 1000
+        parameters$nitt <- 100
     }
     if(is.null(parameters$burnin)) {
-        parameters$burnin <- 100
+        parameters$burnin <- 10
     }
     if(is.null(parameters$thin)) {
-        parameters$thin <- 100
+        parameters$thin <- 10
     }    
 
     ## Distributions
@@ -169,33 +198,24 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     return(output)
 }
 
-clade.terms <- function(n_clades, type, add.global = FALSE) {
+
+group.terms <- function(n_groups, type, add.global = FALSE) {
+    
     ## Term for the first clade
-    form <- as.formula(paste0("~us(at.level(clade,1):trait):", type))
+    form <- paste0("~us(at.level(", n_groups[1], "):trait):", type)
 
-    ## Terms for the subsequent clades
-    for(i in 2:n_clades) {
-        ## Add the new level for the new clade
-        add_form <- paste0(paste0("~ . + us(at.level(clade,", i, "):trait):", type))
-        form <- update.formula(form, add_form)
+    ## Term for the subsequent clades
+    for(i in 2:length(n_groups)) {
+        form <- paste0(form, paste0(" +us(at.level(", n_groups[i], "):trait):", type))
     }
-
     ## Add the global term?
     if(add.global) {
         add_global <- 1
-        add_form <- paste0(paste0("~ . + us(trait):", type))
-        form <- update.formula(form, add_form)
+        form <- paste0(form, paste0(" +us(trait):", type))
     } else {
         add_global <- 0
     }
-
-    ## Flip the terms around
-    for(i in 2:(n_clades+add_global)) {
-        eval(parse(text = paste0("tmp2 <- form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[2]]")))
-        eval(parse(text = paste0("tmp1 <- form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[3]]")))
-        eval(parse(text = paste0("form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[2]] <- tmp1")))
-        eval(parse(text = paste0("form", paste0(rep("[[2]]", (n_clades+add_global) - i + 1), collapse = ""), "[[3]][[3]] <- tmp2")))
-    }
-
-    return(form)
+    return(as.formula(form))
 }
+
+

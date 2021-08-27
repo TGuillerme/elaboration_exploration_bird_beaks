@@ -22,10 +22,11 @@ test_that("flat.prior works", {
     expect_equal(test$G$G1$nu, 0.002)
 })
 
-test_that("clade.terms works", {
+test_that("group.terms works", {
 
     ## Testing clade terms is correct
-    test <- clade.terms(7, type = "bob")
+    groups <- paste("bib", 1:7, sep = ",")
+    test <- group.terms(groups, type = "bob")
     expect_is(test, "formula")
     ## Fucking nestedness!
     expect_equal(as.character(test[[2]][[2]][[2]][[2]][[2]][[2]][[2]][[3]]), "bob")
@@ -149,7 +150,7 @@ test_that("run/combine.mini.chains works", {
     tust <- combine.mini.chains(test)
     expect_is(tust, "MCMCglmm")
     ## Has the correct dimensions for the things that changed
-    expect_equal(attr(tust$Sol, "mcpar"), c(101, 8101, 100))
+    expect_equal(attr(tust$Sol, "mcpar"), c(11, 811, 10))
     expect_equal(dim(tust$Sol), c(90, 2))
     expect_equal(dim(tust$VCV), c(90, 8))
 
@@ -160,7 +161,7 @@ test_that("run/combine.mini.chains works", {
     tust <- combine.mini.chains("../test_name_2.rda")
     expect_is(tust, "MCMCglmm")
     ## Has the correct dimensions for the things that changed
-    expect_equal(attr(tust$Sol, "mcpar"), c(101, 1701, 100))
+    expect_equal(attr(tust$Sol, "mcpar"), c(11, 171, 10))
     expect_equal(dim(tust$Sol), c(18, 2))
     expect_equal(dim(tust$VCV), c(18, 8))
     expect_true(file.remove("../test_name_2.rda"))
