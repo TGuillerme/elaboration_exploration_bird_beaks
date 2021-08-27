@@ -23,12 +23,10 @@ devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
 ```
 
 ```{r load_beer, eval = TRUE}
-## Loading beer
+## Loading packages
+library(dispRity)
 library(beer)
-
-## Loading the demo data
-data(demo_data)
-data(demo_trees)
+library(knitr)
 ```
 
 
@@ -46,25 +44,119 @@ TODO:
 
 Trees were manipulated in `R` [@Rcore] using the package `ape` [@ape].
 
+ * The trait space
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```{r}
+## Reading the different trait spaces
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
+shapespace <- shapespace$PCscores
+formspace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_FORMSPACE_FULL.rds")
+formspace <- formspace$PCscores
+```
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+par(mfrow = c(2,1))
+plot.dispRity(shapespace, type = "preview", pch = 21, main = "Shape space")
+plot.dispRity(formspace, type = "preview", pch = 21, main = "Form space")
+```
+
+ * The tree(s)
+
+```{r}
+## Reading the consensus tree
+consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
+
+## Selecting only the tips in the trait space
+matching_tips <- consensus_tree$tip.label %in% rownames(shapespace)
+consensus_tree <- drop.tip(consensus_tree, tip = consensus_tree$tip.label[!matching_tips])
+```
+
+ * The clade data
+
+```{r}
+## Reading the clades list
+clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
+## Remove the absent species
+clades_list <- clades_list[rownames(clades_list) %in% rownames(shapespace), ]
+
+#@param table the clade list data frame
+#@param level the ID of the column to use as a level
+#@param threshold drop levels with less than the threshold
+make.level.list <- function(table, level, threshold = 20) {
+  ## Select the level
+  table_level <- table[, level]
+  ## Remove the empties
+  table_level <- as.factor(as.character(table_level[-which(table_level == "")]))
+  ## Select the levels below the threshold
+  remove_levels <- which(table(table_level) < threshold)
+  ## Remove the levels
+  while(length(remove_levels) > 0) {
+    table_level <- as.factor(as.character(table_level[-which(table_level == names(remove_levels)[1])]))
+    remove_levels <- remove_levels[-1]
+  }
+  ## Convert into a list
+  factors <- levels(table_level)
+  levels_list <- list()
+  while(length(factors) > 0) {
+    levels_list[[length(levels_list) + 1]] <- which(table_level == factors[1])
+    factors <- factors[-1]
+  }
+  ## Name the elements correctly
+  names(levels_list) <- levels(table_level)
+  return(levels_list)
+}
+
+## Reading the clades list
+groups_level1 <- make.level.list(clades_list, level = 1, threshold = 20)
+groups_level2 <- make.level.list(clades_list, level = 2, threshold = 20)
+all_groups <- c(groups_level1, groups_level2)
 ```
 
 
-## Demo data
+### Selecting the number of axes
 
-This is what the demo data looks like
+How many dimensions do we need to represent at least 95% of the variance in each group
 
-```{r, plot_the_data}
-## Plotting it
-colour_vector <- c("orange", "blue", "darkgreen")
-plot.space(demo_data,
-           col = colour_vector,
-           levels = demo_data$clade,
-           xlab = "PC1 (90.5%)",
-           ylab = "PC1 (6.86%)")
-legend("topleft", legend = levels(demo_data$clade), col = colour_vector, pch = 19)
+```{r}
+## Make a dispRity object
+shapespace <- custom.subsets(shapespace, group = all_groups)
+formspace  <- custom.subsets(formspace, group = all_groups)
+shape_axes <- select.axes(shapespace)
+form_axes  <- select.axes(formspace)
+```
+
+```{r, echo = FALSE}
+kable(summary(shape_axes)[, c(1:((length(shape_axes$dimensions)+1)*2))], caption = "variance per axes for the Shape space", label = "Table X1")
+```
+
+```{r, echo = FALSE}
+kable(summary(form_axes)[, c(1:((length(form_axes$dimensions)+1)*2))], caption = "variance per axes for the Form space", label = "Table X2")
+```
+
+```{r, echo = FALSE, fig.height = 18, fig.width = 18}
+plot(shape_axes)
+```
+Fig X1: variance per axes for the Shape space
+
+```{r, echo = FALSE, fig.height = 18, fig.width = 18}
+plot(form_axes)
+```
+Fig X1: variance per axes for the Form space
+
+
+By analysing the distribution of the variance within each group, we will need `r length(shape_axes$dimensions)` dimensions for the shape space and `r length(form_axes$dimensions)` for the form space.
+
+
+### Saving the data
+
+```{r}
+## Save the data to be analysed in Data/Processed
+form_shape_space_1tree_2levels <- list(
+    "consensus_tree" = consensus_tree,
+    "shape_space"    = shapespace,
+    "form_space"     = formspace,
+    "groups_list"    = all_groups)
+save(form_shape_space_1tree_2levels, file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
 ```
 
 
