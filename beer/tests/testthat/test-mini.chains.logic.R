@@ -128,7 +128,6 @@ test_that("make.mini.chains works", {
                 "~us(trait):units")
 })
 
-
 test_that("run/combine.mini.chains works", {
 
     tree_list <- list(tree, tree, tree)
