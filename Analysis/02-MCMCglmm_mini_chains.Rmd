@@ -73,13 +73,13 @@ param_MCMCglmm <- make.mini.chains(data         = shapespace,
                                    priors       = 0.02,
                                    verbose      = TRUE,
                                    parameters   = list(
-                                       nitt   = 1000000,
+                                       nitt   = 100000,
                                        thin   = 500,
                                        burnin = 0))
 
 ## Running the three MCMCglmm models
-params_shapespace_8D_31levels <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(param_chains, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_31levels_chain1.rda")
+100k_params_shapespace_8D_31levels <- run.mini.chains(param_MCMCglmm, replicates = 1)
+save(param_chains, file = "../Data/Processed/MCMCglmm/100k_params_shapespace_8D_31levels_chain1.rda")
 ```
 
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
