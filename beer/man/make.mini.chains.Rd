@@ -10,7 +10,7 @@ make.mini.chains(
   tree,
   trait.family = "gaussian",
   residuals = "global",
-  randoms = "global",
+  randoms = NULL,
   parameters,
   priors = 0.02,
   verbose = TRUE,
@@ -26,9 +26,9 @@ make.mini.chains(
 
 \item{trait.family}{the family of the traits (default is \code{"gaussian"}).}
 
-\item{residuals}{the type of residuals (see details).}
+\item{residuals}{optional, the type of residuals (see details).}
 
-\item{randoms}{the type of randoms (see details).}
+\item{randoms}{optional, the type of randoms (see details).}
 
 \item{parameters}{the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test).}
 
@@ -42,7 +42,7 @@ make.mini.chains(
 Making a list of mini.chains object (MCMCglmm primers)
 }
 \details{
-The types of model for the residuals and random terms can be a combination of any of the following:
+By default, no model is used for the random terms (\code{NULL}). The types of model for the residuals and random terms can be a combination of any of the following:
 \itemize{
 \item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~us(trait):unit}).
 \item the name of the column(s) containing the factors for just as many levels of effects as there are non-empty levels in the data (\code{""} or \code{<NA>} are considered as empty levels). For example for the column \code{"clade"} the added random effects will be something like \code{us(at.level(clade,1):trait):animal} (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).

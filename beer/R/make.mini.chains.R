@@ -3,18 +3,18 @@
 #' @description Making a list of mini.chains object (MCMCglmm primers)
 #'
 #' @param data a full ordinated matrix with a column called \code{"animal"} and potentially one called \code{"clade"} (if needed).
-#' @param dimensions the list of dimensions to include.
+#' @param dimensions a numeric or character vector of the dimensions to include.
 #' @param tree the \code{"phylo"} or \code{"multiPhylo"} object to run the models.
 #' @param trait.family the family of the traits (default is \code{"gaussian"}).
-#' @param residuals the type of residuals (see details).
-#' @param randoms the type of randoms (see details).
+#' @param residuals optional, the type of residuals (see details).
+#' @param randoms optional, the type of randoms (see details).
 #' @param parameters the named list of parameters for the MCMCglmm (if missing, it is set to \code{list(nitt=1000, burnin = 100, thin = 100)} for a fast test).
 #' @param priors A list of priors or a value of the overal nu parameter for generating flat priors for the \code{\link[MCMCglmm]{MCMCglmm}}.
 #' @param verbose whether to make the \code{\link[MCMCglmm]{MCMCglmm}} verbose (\code{TRUE}; default) or not (\code{FALSE}).
 #' @param ... any other parameters to be passed to \code{\link[MCMCglmm]{MCMCglmm}}.
 #' 
 #' @details
-#' The types of model for the residuals and random terms can be a combination of any of the following:
+#' By default, no model is used for the random terms (\code{NULL}). The types of model for the residuals and random terms can be a combination of any of the following:
 #' \itemize{
 #'  \item \code{"global"} for just an overall term effect. For the random terms that would be just a phylogenetic effect (\code{~us(trait):animal}) or for the residuals just an overall category (\code{~us(trait):unit}).
 #'  \item the name of the column(s) containing the factors for just as many levels of effects as there are non-empty levels in the data (\code{""} or \code{<NA>} are considered as empty levels). For example for the column \code{"clade"} the added random effects will be something like \code{us(at.level(clade,1):trait):animal} (i.e. a special phylogenetic random effect for clade 1) or \code{us(at.level(clade,1):trait):unit} for the residuals (i.e. a special residual effect for clade 1).
@@ -27,29 +27,30 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = "global", parameters, priors = 0.02, verbose = TRUE, ...) {
+make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", residuals = "global", randoms = NULL, parameters, priors = 0.02, verbose = TRUE, ...) {
 
     ## Setting the fixed effect model
-    ## Get the global terms        
-    global_randoms   <- which(randoms == "global")
-    global_residuals <- which(residuals == "global")
-    other_randoms    <- which(randoms != "global")
-    other_residuals  <- which(residuals != "global")
+    ## Getting the terms
+    rand_terms <- handle.terms(randoms)
+    resi_terms <- handle.terms(residuals)
+    if(is.null(resi_terms$main) && is.null(resi_terms$add)) {
+        stop("needs a residual term")
+    }
 
     ## Is there any clade effect in the model?
-    if(length(other_residuals) == 0 && length(other_randoms) == 0) {
+    if(is.null(resi_terms$add) && is.null(rand_terms$add)) {
         other_terms <- FALSE
         ## Setting the fixed model
         fixed_model <- ~trait-1
     } else {
         other_terms <- TRUE
-        if(length(other_randoms) != 0 && length(other_residuals) != 0) {
-            adding_terms <- unique(randoms[other_randoms], residuals[other_residuals])
+        if(!is.null(resi_terms$add) && !is.null(rand_terms$add)) {
+            adding_terms <- unique(randoms[rand_terms$add], residuals[resi_terms$add])
         } else {
-            if(length(other_randoms) != 0) {
-                adding_terms <- unique(randoms[other_randoms])
+            if(!is.null(rand_terms$add)) {
+                adding_terms <- unique(randoms[rand_terms$add])
             } else {
-                adding_terms <- unique(residuals[other_residuals])
+                adding_terms <- unique(residuals[resi_terms$add])
             }
         }
 
@@ -97,39 +98,43 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     ## Random effect
     random <- NULL
     n_randoms <- 0
-    if(length(other_randoms) > 0) {
-        if("global" %in% randoms) {
-            ## Clade terms + global
+    if(!is.null(rand_terms$main)) {
+        if(!is.null(rand_terms$add)) {
+            ## Group terms + global
             random <- group.terms(n_groups, type = "animal", add.global = TRUE)
-            n_randoms <- length(n_groups) + 1
+            n_randoms <- length(n_groups) + 1            
         } else {
-            ## Clade terms
-            random <- group.terms(n_groups, type = "animal", add.global = FALSE)
-            n_randoms <- length(n_groups)
+            ## Global terms only
+            random <- ~ us(trait):animal        
+            n_randoms <- 1
         }
     } else {
-        ## Global term
-        random <- ~ us(trait):animal        
-        n_randoms <- 1
+        if(!is.null(rand_terms$add)) {
+            ## Group terms only
+            random <- group.terms(n_groups, type = "animal", add.global = FALSE)
+            n_randoms <- length(n_groups)         
+        }   
     }
 
     ## Residuals effect
     rcov <- NULL
     n_residuals <- 0
-    if(length(other_residuals) > 0) {
-        if("global" %in% residuals) {
-            ## Clade terms + global
+    if(!is.null(resi_terms$main)) {
+        if(!is.null(resi_terms$add)) {
+            ## Group terms + global
             rcov <- group.terms(n_groups, type = "units", add.global = TRUE)
-            n_residuals <- length(n_groups) + 1
+            n_residuals <- length(n_groups) + 1            
         } else {
-            ## Clade terms
-            rcov <- group.terms(n_groups, type = "units", add.global = FALSE)
-            n_residuals <- length(n_groups)
+            ## Global terms only
+            rcov <- ~ us(trait):units       
+            n_residuals <- 1
         }
     } else {
-        ## Global term
-        rcov <- ~ us(trait):units        
-        n_residuals <- 1
+        if(!is.null(resi_terms$add)) {
+            ## Group terms only
+            rcov <- group.terms(n_groups, type = "units", add.global = FALSE)
+            n_residuals <- length(n_groups)         
+        }   
     }
 
     ## Priors
@@ -198,7 +203,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     return(output)
 }
 
-
+## Making the group terms 
 group.terms <- function(n_groups, type, add.global = FALSE) {
     
     ## Term for the first clade
@@ -218,4 +223,26 @@ group.terms <- function(n_groups, type, add.global = FALSE) {
     return(as.formula(form))
 }
 
+## Handling the terms
+handle.terms <- function(term) {
+    ## No terms
+    if(is.null(term)) {
+        return(list(main = NULL, add = NULL))
+    }
+
+    ## Get the main term (global)
+    if(any("global" %in% term)) {
+        main <- which(term == "global")
+    } else {
+        main <- NULL
+    }
+    ## Get the additional terms
+    if(any(term != "global")) {
+        add <- which(term != "global")
+    } else {
+        add <- NULL
+    }
+    ## Return the terms IDs
+    return(list(main = main, add = add))
+}
 

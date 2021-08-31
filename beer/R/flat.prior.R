@@ -26,17 +26,25 @@ flat.prior <- function(residuals = 1, randoms = 1, ntraits, nu = 0) {
     flat_prior_template <- list(V = diag(ntraits), nu = nu)
 
     ## Making the residuals list
-    R <- list()
-    for(i in 1:residuals) {
-        R <- c(R, list(flat_prior_template))
-        names(R)[i] <- paste0("R", i)
+    if(residuals != 0) {
+        R <- list()
+        for(i in 1:residuals) {
+            R <- c(R, list(flat_prior_template))
+            names(R)[i] <- paste0("R", i)
+        }
+    } else {
+        R <- NULL
     }
     ## Making the randoms list
-    G <- list()
-    for(i in 1:randoms) {
-        G <- c(G, list(flat_prior_template))
-        names(G)[i] <- paste0("G", i)
-    }    
+    if(randoms != 0) {
+        G <- list()
+        for(i in 1:randoms) {
+            G <- c(G, list(flat_prior_template))
+            names(G)[i] <- paste0("G", i)
+        }
+    } else {
+        G <- NULL
+    }
 
     ## Return the flat priors
     return(list(R = R, G = G))

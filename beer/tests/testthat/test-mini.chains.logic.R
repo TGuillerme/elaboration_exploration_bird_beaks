@@ -50,8 +50,54 @@ test_that("make.mini.chains works", {
     tree_list <- list(tree, tree, tree)
     class(tree_list) <- "multiPhylo"
 
-    ## Model 3
+    ## Model 1.2
     test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE)
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 3)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2)trait - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(trait):units")
+
+    ## Model 1
+    test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, residuals = "global")
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 3)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2)trait - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(trait):units")
+
+
+    ## Model 3.2
+    test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, random = "global")
+    expect_is(test, c("beer", "mini.chains"))
+    expect_equal(length(test), 3)
+    expect_equal(names(test[[1]]), c("data", "tree", "run"))
+    ## Run!
+    tust <- test[[1]]$run()
+    expect_is(tust, "MCMCglmm")
+    expect_equal(paste0(as.character(tust$Fixed$formula), collapse = ""),
+                "~cbind(PC1, PC2)trait - 1")
+    expect_equal(paste0(as.character(tust$Random$formula), collapse = ""),
+                "~us(trait):animal")
+    expect_equal(paste0(as.character(tust$Residual$formula), collapse = ""),
+                "~us(trait):units")
+
+    ## Model 3
+    test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, random = "global", residuals = "global")
     expect_is(test, c("beer", "mini.chains"))
     expect_equal(length(test), 3)
     expect_equal(names(test[[1]]), c("data", "tree", "run"))
@@ -67,7 +113,7 @@ test_that("make.mini.chains works", {
 
     ## Model 4
     priors_list <- flat.prior(ntraits = 3, randoms = 1, residuals = 3, nu = 0.1)
-    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", priors = priors_list)
+    test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", priors = priors_list, randoms = "global")
     expect_is(test, c("beer", "mini.chains"))
     expect_equal(length(test), 1)
     expect_equal(names(test[[1]]), c("data", "tree", "run"))
@@ -134,7 +180,7 @@ test_that("run/combine.mini.chains works", {
     class(tree_list) <- "multiPhylo"
 
     ## Model 3
-    mini.chains <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE)
+    mini.chains <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, randoms = "global", residuals = "global")
     expect_is(mini.chains, c("beer", "mini.chains"))
     expect_equal(length(mini.chains), 3)
     expect_equal(names(mini.chains[[1]]), c("data", "tree", "run"))
