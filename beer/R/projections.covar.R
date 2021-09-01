@@ -27,3 +27,5 @@ projections.covar <- function(matrix, matrix2, measure = "position", scaled = TR
     ## Measure the projection
     return(projections(matrix, point1 = point1, point2 = point2, measure = measure, scaled = scaled)[2])
 }
+
+
