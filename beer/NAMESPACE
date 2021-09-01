@@ -37,4 +37,5 @@ export(MCMCglmm.sample)
 export(MCMCglmm.covars)
 export(projections.covar) # for dispRity.metric
 export(dispRity.covar) # to be included in dispRity
+export(as.covar)
 
