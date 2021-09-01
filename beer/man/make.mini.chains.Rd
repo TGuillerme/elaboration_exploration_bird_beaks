@@ -20,7 +20,7 @@ make.mini.chains(
 \arguments{
 \item{data}{a full ordinated matrix with a column called \code{"animal"} and potentially one called \code{"clade"} (if needed).}
 
-\item{dimensions}{the list of dimensions to include.}
+\item{dimensions}{a numeric or character vector of the dimensions to include.}
 
 \item{tree}{the \code{"phylo"} or \code{"multiPhylo"} object to run the models.}
 
