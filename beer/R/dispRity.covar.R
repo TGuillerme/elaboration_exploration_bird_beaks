@@ -14,9 +14,14 @@
 #' @export
 
 dispRity.covar <- function(data, metric, between.groups = FALSE, ...) {
+   
+
    if(is(between.groups, "logical") && !between.groups) {
       ## Do the per tip analyses
       disparity <- lapply(lapply(data$MCMCglmm$covars, lapply, metric, ...), unlist)
+
+
+
    } else {
       ## Do the per group analyses
       if(is(between.groups, "logical") && between.groups) {
