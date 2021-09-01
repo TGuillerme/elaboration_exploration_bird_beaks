@@ -13,7 +13,7 @@ axis.covar(data, n, level = 0.95, axis = 1)
 \arguments{
 \item{data}{a \code{dispRity} object with a \code{covar} element.}
 
-\item{sample}{optional, one or more specific posterior sample IDs (is ignored if n is used).}
+\item{sample}{optional, one or more specific posterior sample IDs (is ignored if n is used) or a function to summarise all axes.}
 
 \item{n}{optional, a random number of covariance matrices to sample (if left empty, all are used).}
 
