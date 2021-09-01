@@ -61,6 +61,41 @@ These axes correspond to the main axes of variation in the $N_DIMENSIONS$ trait 
 These major axes were calculated as the longest distance within the 95% confidence interval hyper-ellipse from the variance-covariance matrix (i.e. the major axes of the 95% CI ellipse of matrix).
 
 ```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5}
+get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
+
+    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
+
+    ## Select the right dimensions
+    data$VCV <- data$VCV[dimensions, dimensions, drop = FALSE]
+
+    ## Get the data dimensionality
+    dims <- dim(data$VCV)[1]
+
+    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
+    unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
+    ## The "front" (e.g. "top", "right") units
+    diag(unit_hypersphere1) <- 1
+    ## The "back" (e.g. "bottom", "left") units
+    diag(unit_hypersphere2) <- -1
+    unit_hypersphere <- rbind(unit_hypersphere1, unit_hypersphere2)
+    ## Scale the hypersphere (where level is the confidence interval)
+    unit_hypersphere <- unit_hypersphere * sqrt(qchisq(level, 2))
+
+    ## Do the eigen decomposition (symmetric - faster)
+    eigen_decomp <- eigen(data$VCV, symmetric = TRUE)
+
+    ## Re-scaling the unit hypersphere
+    scaled_edges <- unit_hypersphere * rep(sqrt(eigen_decomp$values), each = dims*2)
+    ## Rotating the edges coordinates
+    edges <- tcrossprod(scaled_edges, eigen_decomp$vectors)
+
+    ## Move the matrix around
+    edges <- edges + rep(data$Sol[dimensions, drop = FALSE], each = dims*2)
+
+    ## Get the edges coordinates
+    return(edges[c(axis, axis+dims), , drop = FALSE])
+}
+
 set.seed(42)
 ## Space plot
 cor_matrix <- matrix(cbind(1, 0.8, 0.8, 1), nrow = 2)
@@ -71,7 +106,7 @@ plot(space, pch = 19, xlab = "Trait 1", ylab = "Trait 2", xlim = lim, ylim = lim
 ## Plotting the ellipse
 lines(ellipse::ellipse(cor_matrix), col = "blue", lwd = 3)
 ## Plotting the major axis
-lines(get.axes(list(list(list(VCV = cor_matrix, Sol = c(0,0)))))[[1]][[1]], lwd = 3, col = "orange")
+lines(get.one.axis(list(VCV = cor_matrix, Sol = c(0,0))), lwd = 3, col = "orange")
 ```
 
 Figure: the main axis of variation (in orange) of the 95% CI ellipse of the variance-covariance matrix (in blue) of 20 elements in 2 dimensions (in black).
@@ -145,7 +180,8 @@ sauron.plot(covar_matrices,
             main = "Average ellipses and\nmajor axes",
             major.axes = mean,
             ellipses = mean,
-            legend = TRUE)
+            legend = TRUE,
+            cex = 0.5)
 ```
 
 We can also visualise 100 random major axes and 100 random ellipses:
@@ -187,7 +223,7 @@ Given a major axis of evolutionary "trajectory" (in the sense of evolutionary tr
 source("../Functions/test.rotation.R")
 ```
 
-Figure: in a space with five elements: A, B, C, D, E (in grey); where D and E represent the major axes (e.g. the major phylogenetic effect axes from the MCMCglmm), we can rotate and rescale each element so that D and E become the unit vector of length 1 (the black letters D and E) and get the exploration and elaboration scores for either the elements (e.g. element A's projection in blue and its rejection in orange) or from any other axes (e.g. the major phylogenetic effect axes from the MCMCglmm for a specific clade).
+Figure: consider a space with five elements named "a" to "e" (in grey) and one focal axes in this space defined as the vector from point1: "d" to point2: "e" (the thin solid grey line linking the grey "d" and "e"). We can then define all points from "d" (point1) as vectors (the dashed grey lines). We can then rotate the whole space so that the vector "d" to "e" becomes the reference coordinate vector (0,1) (the thick grey line) and rotate and translate all the other vectors accordingly (the solid grey lines linking the coloured letters "a" to "c"). We can then project each of these vectors on the reference vector and measure their distance *on* the reference vector (the projection; the coloured solid lines) and their distance *from* the reference vector (the rejection; the coloured dotted lines). We can then also measure the angles between each vector and their respective projections (the angles between a grey solid line to a coloured letter and the corresponding coloured vector). Note that if this angle is equal to 90 degrees, the projection is equal to 0 (point "c") or if that angle is > 90 degrees, the projection is negative (point "b").
 
 #### Measuring projection and rejection
 
@@ -300,24 +336,66 @@ To run the analyses for each clade we compared the major axes for each clade to 
 To do so, for a randomly selected posterior variance-covariance matrix we defined $\vec{a}$ as the major axes for the clade of interest and projected it onto $\vec{B}$ as the major overall phylogenetic effect (see above).
 For each pair of $\vec{a}$ and $\vec{B}$, we translated the origin of $\vec{a}$ onto the origin of $\vec{B}$ and measured the projection (elaboration), rejection (exploration) and angle (degree of exploration).
 
-```{r}
-## Get all the angles and stuff
-group_results <- analyses.group(major_axes, base = "animal")
-names(group_results) <- levels(demo_data$clade)
+```{r, fig.height = 6, fig.width = 18}
+## Projecting each group's major axes on the phylogenetic major axes
+group_elaboration <- dispRity.covar(covar_matrices,
+               metric = projections.covar,
+               between.groups = list(c(1,4), c(2,4), c(3,4)),
+               measure = "position")
+group_exploration <- dispRity.covar(covar_matrices,
+               metric = projections.covar,
+               between.groups = list(c(1,4), c(2,4), c(3,4)),
+               measure = "distance")
+group_angle <- dispRity.covar(covar_matrices,
+               metric = projections.covar,
+               between.groups = list(c(1,4), c(2,4), c(3,4)),
+               measure = "degree")
+par(mfrow = c(1,3))
+plot(group_elaboration, ylab = "elaboration", col = colour_vector[-4])
+plot(group_exploration, ylab = "exploration", col = colour_vector[-4])
+plot(group_angle, ylab = "angle", col = colour_vector[-4])
 ```
 
 The results are reported as boxplots for each group indicating which group explores/elaborates more (and to which degree - angle) relatively to each other.
-
-```{r}
-## Plot the blob wise metrics
-plot.analyses.group(group_results, col = colour_vector)
-```
 
 ## Elaboration and exploration by species
 
 Similarly to the analyses described above, we ran the analyses for each species but here we directly compared each species position in the space to the same vector $\vec{B}$ described above and reported the results for each groups.
 
-```{r}
+```{r, eval = FALSE}
+## Get the mean axes for each level
+major_axes <- axis.covar(covar_matrices, sample = mean)
+
+## Projecting each group's major axes on the phylogenetic major axes
+phy_group_elaboration <- dispRity(covar_matrices,
+               dimensions = covar_matrices$call$dimensions,
+               metric  = dispRity::projections,
+               measure = "position",
+               point1  = major_axes$phylogeny[[1]][1,],
+               point2  = major_axes$phylogeny[[1]][2,])
+phy_group_exploration <- dispRity(covar_matrices,
+               dimensions = covar_matrices$call$dimensions,
+               metric  = dispRity::projections,
+               measure = "distance",
+               point1  = major_axes$phylogeny[[1]][1,],
+               point2  = major_axes$phylogeny[[1]][2,])
+phy_group_angle <- dispRity(covar_matrices,
+               dimensions = covar_matrices$call$dimensions,
+               metric  = dispRity::projections,
+               measure = "degree",
+               point1  = major_axes$phylogeny[[1]][1,],
+               point2  = major_axes$phylogeny[[1]][2,])
+
+
+## TODO: add option in dispRity plot to only select some groups
+par(mfrow = c(1,3))
+plot(phy_group_elaboration, col = colour_vector)
+plot(phy_group_exploration, ylab = "exploration", col = colour_vector)
+plot(phy_group_angle, ylab = "angle", col = colour_vector)
+
+
+
+
 ## Global analyses
 tip_results_global <- analyses.tip(data = demo_data[, c(1:4)],
                                    axes = major_axes$animal)
@@ -325,7 +403,7 @@ tip_results_global <- analyses.tip(data = demo_data[, c(1:4)],
 
 And here are the values plotted by group:
 
-```{r}
+```{r, eval = FALSE}
 ## Plot results
 plot.analyses.tip(tip_results_global,
                   col = colour_vector,
@@ -337,7 +415,7 @@ Note that here only the tip positions are projected on the global phylogenetic a
 
 Finally, we also looked at the exploration elaboration profiles within each clade, by replacing the projection of the elements onto $\vec{B}$ for each clade to the projection onto their respective clade major axes $\vec{a}$.
 
-```{r}
+```{r, eval = FALSE}
 ## Results within groups
 tip_results_within <- analyses.tip(
                     data = demo_data[, c(1:4)],
@@ -345,7 +423,7 @@ tip_results_within <- analyses.tip(
                     group = split(rownames(demo_data), f = demo_data$clade))
 ```
 
-```{r}
+```{r, eval = FALSE}
 ## Plot results
 plot.analyses.tip(tip_results_within,
                   col = colour_vector,
