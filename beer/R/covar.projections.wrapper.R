@@ -46,23 +46,23 @@ covar.projections.wrapper <- function(data, type, base, average, major.axis = 1,
 
     ## 1 - get major axis
     if(!missing(average)) {
-        major_axes <- axis.covar(data, sample = average, major.axis = major.axis, level = level)
+        major_axes <- axis.covar(data, sample = average, axis = major.axis, level = level)
     } else {
-        major_axes <- axis.covar(data, major.axis = major.axis, level = level)
-    }
-
-    ## 2 - get the groups
-    if(!missing(base)) {
-        list_of_pairs <- unlist(apply(combn(1:n.subsets(data), 2), 2, list), recursive = FALSE)
-    } else {
-        base_id <- which(names(size.subsets(data)) == base)
-        list_of_pairs <- lapply(as.list(1:(n.subsets(data)-1)), function(x,y) c(x, y), y = base_id)
+        major_axes <- axis.covar(data, axis = major.axis, level = level)
     }
 
     ## A - Type between:
     if(type == "between") {
         wrap.dispRity.between <- function(measure, data, list_of_pairs) {
             return(dispRity.covar(data, metric = projections, between.groups = list_of_pairs, measure = measure, dimensions = data$call$dimensions)$disparity)
+        }
+
+        ## 2 - get the groups
+        if(!missing(base)) {
+            list_of_pairs <- unlist(apply(combn(1:n.subsets(data), 2), 2, list), recursive = FALSE)
+        } else {
+            base_id <- which(names(size.subsets(data)) == base)
+            list_of_pairs <- lapply(as.list(1:(n.subsets(data)-1)), function(x,y) c(x, y), y = base_id)
         }
 
         ## Get all results
@@ -82,65 +82,25 @@ covar.projections.wrapper <- function(data, type, base, average, major.axis = 1,
 
         ## If base
         if(!missing(base)) {
-
             ## Select the non-base subsets
-            non_base <-
+            base_id <- which(names(size.subsets(data)) == base)
+            non_base_id <-  which(names(size.subsets(data)) != base)
 
             ## Run the measurements for all the groups
-            results <- lapply(measure, wrap.dispRit.within, data = get.subsets(data, non_base), axes = major_axes[[base]]) 
+            results <- lapply(measure, wrap.dispRity.within, data = get.subsets(data, non_base_id), axes = major_axes[[base_id]])
         } else {
             ## Run the measurements for each group
+            results <- list()
             for(one_subset in 1:n.subsets(data)) {
-                results <- lapply(measure, wrap.dispRit.within, data = get.subsets(data, one_subset), axes = major_axes[[one_subset]])    
+                results[[one_subset]] <- lapply(measure, wrap.dispRit.within, data = get.subsets(data, one_subset), axes = major_axes[[one_subset]])    
             }
         }
 
+        ## Standardise the results
+    }
+
+    ## Standardise the results
 
 
-# ## Projecting each group's major axes on the phylogenetic major axes
-# phy_group_elaboration <- dispRity(covar_matrices,
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "position",
-#                point1  = major_axes$phylogeny[[1]][1,],
-#                point2  = major_axes$phylogeny[[1]][2,])
-# phy_group_exploration <- dispRity(covar_matrices,
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "distance",
-#                point1  = major_axes$phylogeny[[1]][1,],
-#                point2  = major_axes$phylogeny[[1]][2,])
-# phy_group_angle <- dispRity(covar_matrices,
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "degree",
-#                point1  = major_axes$phylogeny[[1]][1,],
-#                point2  = major_axes$phylogeny[[1]][2,])
-
-
-#     }
-
-
-
-#     ## B - Type within
-# ## Projecting each group on its own major axis
-# gulls_elaboration <- dispRity(get.subsets(covar_matrices, "gulls"),
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "position",
-#                point1  = major_axes$gulls[[1]][1,],
-#                point2  = major_axes$gulls[[1]][2,])
-# plovers_elaboration <- dispRity(get.subsets(covar_matrices, "plovers"),
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "position",
-#                point1  = major_axes$plovers[[1]][1,],
-#                point2  = major_axes$plovers[[1]][2,])
-# sandpipers_elaboration <- dispRity(get.subsets(covar_matrices, "sandpipers"),
-#                dimensions = covar_matrices$call$dimensions,
-#                metric  = dispRity::projections,
-#                measure = "position",
-#                point1  = major_axes$sandpipers[[1]][1,],
-#                point2  = major_axes$sandpipers[[1]][2,])
     return()
 }
