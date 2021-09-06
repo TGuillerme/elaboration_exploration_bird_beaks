@@ -92,7 +92,7 @@ covar.projections.wrapper <- function(data, type, base, average, major.axis = 1,
             ## Run the measurements for each group
             results <- list()
             for(one_subset in 1:n.subsets(data)) {
-                results[[one_subset]] <- lapply(measure, wrap.dispRit.within, data = get.subsets(data, one_subset), axes = major_axes[[one_subset]])    
+                results[[one_subset]] <- lapply(measure, wrap.dispRity.within, data = get.subsets(data, one_subset), axes = major_axes[[one_subset]])
             }
         }
 
