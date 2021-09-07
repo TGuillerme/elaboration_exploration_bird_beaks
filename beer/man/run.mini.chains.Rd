@@ -9,7 +9,8 @@ run.mini.chains(
   replicates,
   parallel,
   path,
-  file.name = "mini.chains"
+  file.name = "mini.chains",
+  record.tree = FALSE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ run.mini.chains(
 \item{parallel}{the number of cores for the paralellisation.}
 
 \item{path}{optional, the path for saving the data.}
+
+\item{record.tree}{optional, whether to record which tree was used for each replicate (default is \code{FALSE}).}
 
 \item{file}{the prefix for the file name (will be \code{prefix_replicates.rda}).}
 }

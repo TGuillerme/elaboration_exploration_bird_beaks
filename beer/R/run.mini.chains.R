@@ -7,6 +7,7 @@
 #' @param parallel the number of cores for the paralellisation.
 #' @param path optional, the path for saving the data.
 #' @param file the prefix for the file name (will be \code{prefix_replicates.rda}).
+#' @param record.tree optional, whether to record which tree was used for each replicate (default is \code{FALSE}).
 #' 
 #' @examples
 #'
@@ -15,14 +16,14 @@
 #' @author Thomas Guillerme
 #' @export
 
-run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name = "mini.chains") {
+run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name = "mini.chains", record.tree = FALSE) {
 
     if(!missing(parallel)) {
         warning("parallel not implemented yet.")
     }
 
     ## mini.chains
-    output <- replicate(replicates, run.a.chain(mini.chains), simplify = FALSE)
+    output <- replicate(replicates, run.a.chain(mini.chains, record.tree), simplify = FALSE)
     class(output) <- c("beer", "mini.chains")
 
     ## Saving the business
@@ -32,8 +33,14 @@ run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name =
     return(output)
 }
 
-run.a.chain <- function(mini.chains) {
-    return(mini.chains[[sample(1, 1:length(mini.chains))]]$run())
+run.a.chain <- function(mini.chains, record.tree = FALSE) {
+    if(!record.tree) {
+        return(mini.chains[[sample(1, 1:length(mini.chains))]]$run())
+    } else {
+        stop("TODO: record tree in run.mini.chains")
+        selected_tree <- sample(1, 1:length(mini.chains))
+        list(chain = mini.chains[[selected_tree]]$run(), tree = )
+    }
 }
 
 
