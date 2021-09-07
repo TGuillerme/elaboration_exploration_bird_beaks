@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+#$ -l h_rt=00:20:00
+# below -m option can have any combination of b , e or a  to imply when to to send email where;
+#    b = begining of job  e = end of job  a = in case job gets aborted unexpectedly 
+#$ -m ae
+#$ -M guillert@tcd.ie
+
+## Load modules
+module load apps/R/4.0.3/gcc-8.2.0
+
+## Run the script
+Rscript package.install.R
