@@ -1,0 +1,3 @@
+
+## Run the script
+Rscript folder_name/mini.chains_<REPLICATE>.script.R
