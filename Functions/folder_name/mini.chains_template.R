@@ -1,6 +1,0 @@
-.libPaths("~/homelib")
-library(MCMCglmm)
-library(mcmcmcglmmm)
-load("folder_name/mini.chains.rda")
-model <- run.mini.chains(mini.chains, 1)
-save(model, file = "folder_name/mini.chains_<REPLICATE>.rda")
