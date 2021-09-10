@@ -86,6 +86,9 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     if(!all(dim_check <- apply(data[, dimensions], 2, is, "numeric"))) {
         stop(paste0("Invalid dimensions (not numeric?): ", paste(names(which(!dim_check)), collapse = ", "), "."))
     }
+    ## Reduce the dataset size
+    non_data <- unlist(lapply(as.list(1:ncol(data)), function(col, data) return(class(data[,col])), data = data))
+    data_reduce <- data[, c(dimensions, which(non_data != "numeric"))]
     
     ## Fixed effect
     ## Setting the fixed formula (initialising)
@@ -178,15 +181,15 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
 
     ## Setting the tree(s)
     output <- lapply(tree, function(tree, fixed, random, rvoc, family, data, priors, verbose, parameters, ...)
-       return(list(data = data,
-                   tree = tree,
+       return(list(#data = data,
+                   #tree = tree,
                    ## The MCMCglmm function
                    run  = function() MCMCglmm(fixed    = fixed,
                                               random   = random,
                                               rcov     = rcov,
                                               family   = family,
                                               pedigree = tree,
-                                              data     = data,
+                                              data     = data_reduce,
                                               prior    = priors,
                                               verbose  = verbose,
                                               burnin   = parameters$burnin,
