@@ -29,6 +29,7 @@
 #' @export
 
 ## Get the possible levels from a MCMCglmm
+## Get the possible levels from a MCMCglmm
 MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
     convert.term.name <- function(one_term) {
         ## Return the term is simple, keep it like that
@@ -82,6 +83,10 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
         if(!is.null(residual_terms)) {
             residual_terms <- unname(sapply(residual_terms, convert.term.name))
         }
+    } else {
+        ## Clean the terms (remove spaces and \n)
+        random_terms <- gsub(" $", "", gsub("^ ", "", gsub("  ", " ", gsub("    ", " ", gsub("\n", "", random_terms)))))
+        residual_terms <- gsub(" $", "", gsub("^ ", "", gsub("  ", " ", gsub("    ", " ", gsub("\n", "", residual_terms)))))
     }
 
     ## Get the terms names
@@ -90,7 +95,6 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
 
     return(all_terms)
 }
-
 ## Get the number of traits from a MCMCglmm
 MCMCglmm.traits <- function(MCMCglmm) {
 

@@ -31,7 +31,7 @@ test_that("MCMCglmm.levels works", {
     expect_equal(MCMCglmm.levels(model_list[[5]]), c("random" = "animal:clade1", "random" = "animal:clade2", "random" = "animal:clade3", "residual" = "units:clade1", "residual" = "units:clade2", "residual" = "units:clade3"))
     expect_equal(MCMCglmm.levels(model_list[[6]]), c("random" = "animal:clade1", "random" = "animal:clade2", "random" = "animal:clade3", "random" = "animal", "residual" = "units:clade1", "residual" = "units:clade2", "residual" = "units:clade3"))
     expect_equal(MCMCglmm.levels(model_list[[7]]), c("random" = "animal:clade1", "random" = "animal:clade2", "random" = "animal:clade3", "random" = "animal", "residual" = "units"))
-    expect_equal(MCMCglmm.levels(model_list[[7]], convert = FALSE), c("random" = "us(at.level(clade, 1):trait):animal ", "random" = " us(at.level(clade, 2):trait):animal ", "random" = " us(at.level(clade, 3):trait):animal ", "random" = " us(trait):animal", "residual" = "us(trait):units"))
+    expect_equal(MCMCglmm.levels(model_list[[7]], convert = FALSE), c("random" = "us(at.level(clade, 1):trait):animal", "random" = "us(at.level(clade, 2):trait):animal", "random" = "us(at.level(clade, 3):trait):animal", "random" = "us(trait):animal", "residual" = "us(trait):units"))
 })
 
 test_that("MCMCglmm.sample works", {

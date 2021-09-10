@@ -82,6 +82,10 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
         if(!is.null(residual_terms)) {
             residual_terms <- unname(sapply(residual_terms, convert.term.name))
         }
+    } else {
+        ## Clean the terms (remove spaces and \n)
+        random_terms <- gsub(" $", "", gsub("^ ", "", gsub("  ", " ", gsub("    ", " ", gsub("\n", "", random_terms)))))
+        residual_terms <- gsub(" $", "", gsub("^ ", "", gsub("  ", " ", gsub("    ", " ", gsub("\n", "", residual_terms)))))
     }
 
     ## Get the terms names
