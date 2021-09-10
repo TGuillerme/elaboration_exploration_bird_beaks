@@ -67,8 +67,17 @@ plot.dispRity(formspace, type = "preview", pch = 21, main = "Form space")
 consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
 
 ## Selecting only the tips in the trait space
-matching_tips <- consensus_tree$tip.label %in% rownames(shapespace)
-consensus_tree <- drop.tip(consensus_tree, tip = consensus_tree$tip.label[!matching_tips])
+clean.tree <- function(tree, space) {
+    matching_tips <- tree$tip.label %in% rownames(space)
+    return(drop.tip(tree, tip = tree$tip.label[!matching_tips]))
+}
+consensus_tree <- clean.tree(consensus_tree, shapespace)
+
+## Reading the distribution of trees
+trees_list <- read.tree("../Data/raw/Tree_data/AllBirdsHackett1.tre")
+trees_list <- lapply(trees_list, clean.tree, shapespace)
+class(trees_list) <- "multiPhylo"
+save(trees_list, file = "../Data/Processed/trees_list.rda")
 ```
 
  * The clade data
