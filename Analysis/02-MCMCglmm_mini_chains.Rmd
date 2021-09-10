@@ -91,7 +91,7 @@ For those values, we took the highest burnin as the overall burnin and the media
 ## Load the computed models
 param_chains <- list()
 for(i in 1:3) {
-    load(paste0("../Data/Cluster/allbirds_ 8748t_8Dshapespace_31levels/param_chains/params_shapespace_8D_31levels_20k_chain", i, ".rda"))
+    load(paste0("../Data/Cluster/allbirds_8748t_8Dshapespace_31levels/param_chains/params_shapespace_8D_31levels_20k_chain", i, ".rda"))
     param_chains[[i]] <- params_shapespace_8D_31levels[[1]]
 }
 ## Extract the parameters from the parameter chains
@@ -118,7 +118,7 @@ samples <- 10
 shapespace_8748t_8D_32level <- make.mini.chains(
                                 data         = shapespace,
                                 dimensions   = selected_dim,
-                                tree         = consensus_tree,
+                                tree         = trees_list[sample(1:1000, 20)],
                                 trait.family = "gaussian",
                                 randoms      = c("global", "level1", "level2"),
                                 residuals    = "global",
@@ -129,7 +129,7 @@ shapespace_8748t_8D_32level <- make.mini.chains(
                                     thin   = thin,
                                     burnin = est_params$burnin))
 ## Save the mini.chains
-save(shapespace_8748t_8D_32level, file = "shapespace_8748t_8D_32level.mini.chains")
+save(shapespace_8748t_8D_32level, file = "../Data/Cluster/allbirds_8748t_8Dshapespace_31levels/shapespace_8748t_8D_32level.mini.chains")
 ```
 
 We then run the MCMCglmm over $N_trees$ to get an estimate of the variance-covariance matrices including phylogenetic uncertainty.
