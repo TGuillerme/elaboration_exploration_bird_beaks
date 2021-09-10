@@ -20,9 +20,9 @@
 #' 
 #' @author Thomas Guillerme
 #' @export
-extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffer = 0.25, nu = 0.05) {
+extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffer = 0.1, nu = 0.05) {
 
-    ## Get the required parameters
+    ## Get the required parameters
     param_out <- list()
     if("burnin" %in% parameters) {
         param_out$burnin <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))
@@ -30,13 +30,13 @@ extract.parameters <- function(chains, parameters = c("burnin", "priors"), buffe
     if("priors" %in% parameters) {
         ## Check for burnin
         if(!is.null(param_out$burnin)) {
-            burnin <- param_out$burnin/attr(chains[[1]]$Sol, "mcpar")[3]
+            burnin_n <- param_out$burnin/attr(chains[[1]]$Sol, "mcpar")[3]
         } else {
-            burnin <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))/attr(chains[[1]]$Sol, "mcpar")[3]
+            burnin_n <- max(unlist(lapply(chains, get.burnin, buffer = buffer)))/attr(chains[[1]]$Sol, "mcpar")[3]
         }
         ## Get the list of priors
-        priors_list <- lapply(chains, get.prior, nu = nu, burnin = burnin)  
-        ## Merging the priors
+        priors_list <- lapply(chains, get.prior, nu = nu, burnin_n = burnin_n)
+        ## Merging the priors
         param_out$priors <- merge.V(priors_list)
     }
 
@@ -87,40 +87,43 @@ get.burnin <- function(chain, buffer) {
 }
 
 ## Get the priors from one chain
-get.prior <- function(chain, nu = 0.05, burnin = FALSE) {
+get.prior <- function(chain, nu = 0.05, burnin_n) {
 
     ## Get the set of parameters
     traits <- MCMCglmm.traits(chain)
     n_traits <- length(traits)
     ## The number of levels
     levels <- MCMCglmm.levels(chain)
+    raw_levels <- MCMCglmm.levels(chain, convert = FALSE)
     n_levels <- length(levels)
     n_ran <- sum(names(levels) %in% "random")
     n_res <- sum(names(levels) %in% "residual")
 
-    ## Create the prior template
+    ## Create the prior template
     template <- flat.prior(ntraits = n_traits, residuals = n_res, randoms = n_ran, nu = nu)
 
     ## Get the burnin
-    if(missing(burnin)) {
-        burnin <- as.integer(get.burnin(chain, buffer = 0.25)/attr(chain$Sol, "mcpar")[3])
+    if(missing(burnin_n)) {
+        burnin_n <- as.integer(get.burnin(chain, buffer = 0.25)/attr(chain$Sol, "mcpar")[3])
     }
-    burnin <- 1:burnin
+    burnin_n <- 1:burnin_n
 
     ## Handle the G-Structure bits
     for(i in 1:n_ran) {
         ## Get the columns of interest
-        cells <- ((n_ran * n_traits)*(i-1)+1):((n_ran * n_traits)+(n_ran * n_traits)*(i-1))
+        #cells <- grep(gsub(")$", "",gsub(":animal", "", gsub("us\\(", "", raw_levels[(1:n_ran)[i]]))), colnames(chain$VCV), fixed = TRUE)
+        cells <- (1:n_traits^2)+(n_traits^2)*(i-1)
+
         ## Get the mean estimates
-        template$G[[i]]$V <- matrix(apply(chain$VCV[-burnin, cells], 2, mean), n_traits, n_traits, byrow = FALSE)
+        template$G[[i]]$V <- matrix(apply(chain$VCV[-burnin_n, cells], 2, mean), n_traits, n_traits, byrow = FALSE)
     }
 
     ## Handle the R-Structure bits
     for(i in 1:n_res) {
         ## Get the columns of interest
-        cells <- (n_ran * n_traits^2) + ((n_res * n_traits^2)*(i-1)+1):((n_res * n_traits^2)+(n_res * n_traits^2)*(i-1))
+        cells <- (1:n_traits^2)+(n_traits^2)*((n_ran) + i-1)
         ## Get the mean estimates
-        template$R[[i]]$V <- matrix(apply(chain$VCV[-burnin, cells], 2, mean), n_traits, n_traits, byrow = FALSE)
+        template$R[[i]]$V <- matrix(apply(chain$VCV[-burnin_n, cells], 2, mean), n_traits, n_traits, byrow = FALSE)
     }
 
     return(template)

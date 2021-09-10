@@ -7,7 +7,7 @@
 extract.parameters(
   chains,
   parameters = c("burnin", "priors"),
-  buffer = 0.25,
+  buffer = 0.1,
   nu = 0.05
 )
 }

@@ -31,7 +31,7 @@ test_that("get.prior works", {
 })
 
 test_that("extract.parameters works", {
-    test <- extract.parameters(chains)
+    test <- extract.parameters(chains, buffer = 0.25)
     expect_is(test, "list")
     expect_equal(names(test), c("burnin", "priors"))
     expect_equal(test$burnin, 900)
