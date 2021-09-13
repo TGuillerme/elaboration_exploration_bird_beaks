@@ -30,6 +30,11 @@ test_that("covar.projections.wrapper works", {
     expect_equal(names(test[[1]]), c("gulls:phylogeny", "plovers:phylogeny", "sandpipers:phylogeny"))
     expect_equal(dim(test[[1]][[1]]), c(1,5))
 
+    ## Test between average phylo base dispRity style
+    test <- covar.projections.wrapper(data, type = "between", n = 1, base = "phylogeny", dispRity.out = TRUE)
+    expect_equal(names(test), c("position", "distance", "degree"))
+    expect_equal(unique(unlist(lapply(test, class))), "dispRity")
+    
     ## Test within no base
     test <- covar.projections.wrapper(data, type = "within", n = 5, measure = c("degree", "distance"))
     expect_equal(names(test), c("degree", "distance"))
@@ -54,6 +59,11 @@ test_that("covar.projections.wrapper works", {
     for(i in 1:length(test[[1]])) {
         expect_equal(dim(test[[1]][[i]]), c(unname(size.subsets(data)[i]),1000))
     }
+
+    ## Test dispRity style
+    test <- covar.projections.wrapper(data, type = "within", n = 5, measure = c("degree", "distance"), dispRity.out = TRUE)
+    expect_equal(names(test), c("degree", "distance"))
+    expect_equal(unique(unlist(lapply(test, class))), "dispRity")
 })
 
 test_that("covar.projections.wrapper verbose works", {

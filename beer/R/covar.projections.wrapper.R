@@ -11,6 +11,7 @@
 #' @param level the confidence interval to estimate the major axis (default is \code{0.95})
 #' @param measure which parameters to measure from the projection. Can be any of the following \code{"c(position, distance, degree)"} (default) for respectively the distance on the projection, the distance from the projection and the angle of the projection.
 #' @param verbose Whether to be verbose (\code{TRUE}) or not (\code{FALSE}, default).
+#' @param dispRity.out Whether to make the output into a list of dispRity objects (\code{TRUE}) or not (\code{FALSE}, default).
 #' 
 #' @details
 #' Effectively, the wrapper runs either of the following function (simplified here):
@@ -34,7 +35,7 @@
 #' @author Thomas Guillerme
 #' @export
 
-covar.projections.wrapper <- function(data, type, sample, n, base, average, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE) {
+covar.projections.wrapper <- function(data, type, sample, n, base, average, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE, dispRity.out = FALSE) {
 
     ## Check class data (dispRity)
  
@@ -136,5 +137,19 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
         results <- lapply(results, function(x, names) {names(x) <- names; return(x)}, names = names(size.subsets(data))[non_base_id])
     }
 
-    return(results)
+    if(dispRity.out) {
+        ## Make into a dispRity object
+        output <- list()
+        for(one_measure in 1:length(measure)) {
+            output[[one_measure]] <- dispRitize(results[[one_measure]], data,
+                                               name = measure[[one_measure]],
+                                               fun = ifelse(type == "between", projections.covar, projections),
+                                               type = type)
+        }
+        names(output) <- measure
+        return(output)
+    } else {
+        ## Raw results
+        return(results)
+    }
 }
