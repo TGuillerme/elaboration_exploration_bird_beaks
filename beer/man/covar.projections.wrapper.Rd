@@ -7,11 +7,14 @@
 covar.projections.wrapper(
   data,
   type,
+  sample,
+  n,
   base,
   average,
   major.axis = 1,
   level = 0.95,
-  measure = c("position", "distance", "degree")
+  measure = c("position", "distance", "degree"),
+  verbose = FALSE
 )
 }
 \arguments{
@@ -19,15 +22,19 @@ covar.projections.wrapper(
 
 \item{type}{either \code{"within"} for the projection of the group onto itself or \code{"between"} for the projections of the groups onto the \code{base} (see details)}
 
-\item{base}{optional, if \code{type = "between"}, a \code{character} string for the name of the subset in data to use as a baseline (e.g. the phylogeny) or if \code{type = "within"} the major axis to use as a base (see details).}
+\item{sample}{optional, one or more specific posterior sample IDs (is ignored if n is used) or a function to summarise all axes.}
 
-\item{average}{optional, if \code{type = "within"}, a the function for averaging the major axes (see details)}
+\item{n}{optional, a random number of covariance matrices to sample (if left empty, all are used).}
+
+\item{base}{optional, if \code{type = "between"}, a \code{character} string for the name of the subset in data to use as a baseline (e.g. the phylogeny) or if \code{type = "within"} the major axis to use as a base (see details).}
 
 \item{major.axis}{which major axis to use (default is \code{1})}
 
 \item{level}{the confidence interval to estimate the major axis (default is \code{0.95})}
 
 \item{measure}{which parameters to measure from the projection. Can be any of the following \code{"c(position, distance, degree)"} (default) for respectively the distance on the projection, the distance from the projection and the angle of the projection.}
+
+\item{verbose}{Whether to be verbose (\code{TRUE}) or not (\code{FALSE}, default).}
 }
 \description{
 Wrapper function for a covar projection analyses
