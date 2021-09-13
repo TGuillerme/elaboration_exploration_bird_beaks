@@ -7,7 +7,7 @@
 #-r <number_of_replicates> the number of replicates
 #-p <path> optional, the path to the chain
 ##########################
-#guillert(at)tcd.ie - 2021/09/09
+#guillert(at)tcd.ie - 2021/09/10
 ##########################
 
 #INPUT
@@ -46,7 +46,7 @@ echo "Rscript ${LOCALPATH}${CHAINNAME}_<REPLICATE>.R" >> ${LOCALPATH}${CHAINNAME
 echo ".libPaths(\"~/homelib\")" > ${LOCALPATH}${CHAINNAME}_template.R
 echo "library(MCMCglmm)" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "library(mcmcmcglmmm)" >> ${LOCALPATH}${CHAINNAME}_template.R
-echo "load(\"${LOCALPATH}${CHAINNAME}.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
+echo "load(\"${LOCALPATH}${CHAINNAME}.mini.chains\")" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "model <- run.mini.chains(${CHAINNAME}, replicates = 1, record.tree = TRUE)" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "save(model, file = \"${LOCALPATH}${CHAINNAME}_<REPLICATE>.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
 
