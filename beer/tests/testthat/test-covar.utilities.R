@@ -21,6 +21,10 @@ test_that("get.covar works", {
     test <- get.covar(data_test, sample = c(42, 5))
     expect_equal(length(test), length(MCMCglmm.levels(model_simple)))
     expect_equal(length(test[[1]]), 2)
+    ## sample argument works as a function
+    test <- get.covar(data_test, sample = median)
+    expect_equal(length(test), length(MCMCglmm.levels(model_simple)))
+    expect_equal(length(test[[1]]), 1)
     ## Only takes the n argument
     warn <- capture_warnings(test <- get.covar(data_test, sample = 42, n = 7))
     expect_equal(warn[[1]], "sample argument is ignored since n = 7 random samples are asked for.")
@@ -66,11 +70,24 @@ test_that("axis.covar works", {
     expect_equal(length(test[[1]]), 7)
     expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 3))
     
+    ## Get the mean
+    test <- axis.covar(data, sample = mean)
+    ## Right output
+    expect_equal(names(test), unname(MCMCglmm.levels(covar_model_list[[7]])))
+    expect_equal(length(test[[1]]), 1)
+    expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 3))
 
     ## Works with 1D data?
     data_1D <- MCMCglmm.dispRity(data = PlodiaPO, posteriors = model_simple)
     test <- axis.covar(data_1D, sample = c(1,2,3))
     expect_equal(names(test), unname(MCMCglmm.levels(model_simple)))
     expect_equal(length(test[[1]]), 3)
+    expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 1))
+
+    ## Works with 1D data and mean
+    data_1D <- MCMCglmm.dispRity(data = PlodiaPO, posteriors = model_simple)
+    test <- axis.covar(data_1D, sample = median)
+    expect_equal(names(test), unname(MCMCglmm.levels(model_simple)))
+    expect_equal(length(test[[1]]), 1)
     expect_equal(unique(unlist(lapply(test[[1]], dim))), c(2, 1))
 })

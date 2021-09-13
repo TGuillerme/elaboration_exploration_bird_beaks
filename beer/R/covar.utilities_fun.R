@@ -15,7 +15,6 @@ sample.n <- function(covar, n, selected_n) {
     }
 }
 
-
 ## Internal: get the coordinates of one axes
 get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
 
@@ -50,4 +49,21 @@ get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
 
     ## Get the edges coordinates
     return(edges[c(axis, axis+dims), , drop = FALSE])
+}
+
+## Internal: summarising distributions
+summarise.fun <- function(one_group, fun) {
+    output <- list()
+    ## Summarise all elements
+    if("VCV" %in% names(one_group[[1]])) {
+        if(all(dim(one_group[[1]]$VCV) == c(1,1))) {
+            output$VCV <- matrix(apply(do.call(cbind, lapply(one_group, `[[`, "VCV")), 1, fun))
+        } else {
+            output$VCV <- apply(simplify2array(lapply(one_group, `[[`, "VCV")), 1:2, fun)
+        }
+    }
+    if("Sol" %in% names(one_group[[1]])) {
+        output$Sol <- apply(do.call(rbind, lapply(one_group, `[[`, "Sol")), 2, fun)
+    }                
+    return(output)
 }

@@ -39,7 +39,13 @@ get.covar <- function(data, sample, n) {
 
     ## Return specific samples
     if(!missing(sample)) {
-        return(sample.n(data$MCMCglmm$covars, selected_n = sample))
+        if(is(sample, "function") || is(sample, "standardGeneric")) {
+            ## Summarise the results
+            return(lapply(lapply(sample.n(data$MCMCglmm$covars, n = length(data$MCMCglmm$covars[[1]])), summarise.fun, fun = sample), list))
+        } else {
+            ## Return specific samples
+            return(sample.n(data$MCMCglmm$covars, selected_n = sample))
+        }
     }
 }
 
