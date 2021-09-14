@@ -50,7 +50,7 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
     ## 1 - get major axis
     if(verbose) message("calculating the major axis:...")
     major_axes <- axis.covar(data, sample = sample, n = n, axis = major.axis, level = level)
-    # major_axes <- axis.covar(data, n = n)
+    # major_axes <- axis.covar(data)
     if(verbose) message("Done.")
 
     ## 2 - get the data
@@ -81,7 +81,7 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
             list_of_pairs <- unlist(apply(combn(1:n.subsets(data), 2), 2, list), recursive = FALSE)
         } else {
             base_id <- which(names(size.subsets(data)) == base)
-            list_of_pairs <- lapply(as.list(1:(n.subsets(data)-1)), function(x,y) c(x, y), y = base_id)
+            list_of_pairs <- lapply(as.list((1:n.subsets(data))[-base_id]), function(x,y) c(x, y), y = base_id)
         }
 
         ## Get all results
