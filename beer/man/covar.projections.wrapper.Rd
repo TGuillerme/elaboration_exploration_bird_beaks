@@ -14,7 +14,8 @@ covar.projections.wrapper(
   major.axis = 1,
   level = 0.95,
   measure = c("position", "distance", "degree"),
-  verbose = FALSE
+  verbose = FALSE,
+  dispRity.out = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ covar.projections.wrapper(
 \item{measure}{which parameters to measure from the projection. Can be any of the following \code{"c(position, distance, degree)"} (default) for respectively the distance on the projection, the distance from the projection and the angle of the projection.}
 
 \item{verbose}{Whether to be verbose (\code{TRUE}) or not (\code{FALSE}, default).}
+
+\item{dispRity.out}{Whether to make the output into a list of dispRity objects (\code{TRUE}) or not (\code{FALSE}, default).}
 }
 \description{
 Wrapper function for a covar projection analyses

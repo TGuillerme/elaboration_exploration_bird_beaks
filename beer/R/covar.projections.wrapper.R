@@ -98,7 +98,7 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
         wrap.dispRity.within <- function(measure, data, axes, verbose) {
             ## Calculate the measure
             if(verbose) message(".")
-            results <- lapply(axes, function(axes, data) dispRity(data, dimensions = data$call$dimensions, metric = projections, point1 = axes[1, ], point2 = axes[2, ])$disparity, data = data)
+            results <- lapply(axes, function(axes, data) dispRity::dispRity(data, dimensions = data$call$dimensions, metric = dispRity::projections, point1 = axes[1, ], point2 = axes[2, ])$disparity, data = data)
             ## Combine all the results together
             results <- lapply(1:length(results[[1]]), function(u) do.call(cbind, lapply(results, `[[`, u)))
             return(lapply(results, function(res) do.call(cbind, res)))
@@ -138,12 +138,18 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
     }
 
     if(dispRity.out) {
+        ## Select the data subset for correct disparity display
+        if(type == "between") {
+            sub_data <- get.subsets(data, subsets = unique(unlist(list_of_pairs)))
+        } else {
+            sub_data <- get.subsets(data, subsets = non_base_id)
+        }
         ## Make into a dispRity object
         output <- list()
         for(one_measure in 1:length(measure)) {
-            output[[one_measure]] <- dispRitize(results[[one_measure]], data,
+            output[[one_measure]] <- dispRitize(results[[one_measure]], sub_data,
                                                name = measure[[one_measure]],
-                                               fun = ifelse(type == "between", projections.covar, projections),
+                                               fun = ifelse(type == "between", projections.covar, dispRity::projections),
                                                type = type)
         }
         names(output) <- measure
