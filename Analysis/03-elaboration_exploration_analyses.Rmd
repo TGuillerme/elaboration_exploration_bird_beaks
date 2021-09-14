@@ -365,7 +365,7 @@ By using the linear transformation $f_{\vec{B}}$ of the trait space $TS$ moving 
     f_{\vec{B}}(TS) = \left( \frac{TS - [Bx_{1}, By_{1}, \cdots, Bn_{1}]^{\text{T}}}{\|\vec{B}\|} \right) \cdot R_{\vec{B}}
 \end{equation}
 
-With R_{\vec{B}} being the rotation matrix of the vector $\vec{B}$ onto $\vec{\hat{\imath}}$:
+With $R_{\vec{B}}$ being the rotation matrix of the vector $\vec{B}$ onto $\vec{\hat{\imath}}$:
 
 \begin{equation}
 R_{\vec{B}} = I_{\vec{B}} - \vec{B}\vec{B}^\text{T} - \vec{\hat{\imath}}\vec{\hat{\imath}}^\text{T} + [\vec{B} \vec{\hat{\imath}}]     \begin{bmatrix}
