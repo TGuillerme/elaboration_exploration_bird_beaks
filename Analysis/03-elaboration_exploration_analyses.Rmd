@@ -233,7 +233,191 @@ Figure: the projection of each species per group onto the posterior distribution
 
 
 
->TG: TODO: do this plot on a phylogeny
+```{r, echo = FALSE, eval = TRUE}
+library(phytools)
+source("~/Packaging/phytools/R/plotTree.wBars.R")
+
+get.disparity.matrix <- function(data, col) {
+    ## Get the matrices
+    matrices <- lapply(data$disparity, `[[`, 1)
+    ## Add the rownames
+    list_of_names <- list()
+    for(one_group in 1:length(matrices)) {
+        rownames(matrices[[one_group]]) <- list_of_names[[one_group]] <- rownames(data$matrix[[1]])[c(data$subsets[[one_group]]$elements)]
+    }
+    ## Name the groups
+    names(list_of_names) <- names(data$subsets)
+
+    ## Matrix
+    matrix <- do.call(rbind, matrices)
+
+    ## Colours
+    if(!missing(col)) {
+        name.cols <- function(names, col) {
+            out <- rep(col, length(names))
+            names(out) <- names
+            return(out)
+        }
+        col <- mapply(name.cols, list_of_names, as.list(col))
+        names(col) <- NULL
+        col <- unlist(col)
+    }
+
+    ## Output
+    if(missing(col)) {
+        return(list(data = matrix, names = list_of_names))
+    } else {
+        return(list(data = matrix, names = list_of_names, col = col))
+    }
+}
+
+## Get the different elements
+phylo_elaboration  <- get.disparity.matrix(results_phylo$position,
+                                          col = colour_vector[-4])
+within_elaboration <- get.disparity.matrix(
+    get.subsets(results_within$position, subsets = c(1,2,3)),
+                                          col = colour_vector[-4])
+phylo_exploration  <- get.disparity.matrix(results_phylo$distance,
+                                          col = colour_vector[-4])
+within_exploration <- get.disparity.matrix(
+    get.subsets(results_within$distance, subsets = c(1,2,3)),
+                                          col = colour_vector[-4])
+phylo_angle        <- get.disparity.matrix(results_phylo$degree,
+                                          col = colour_vector[-4])
+within_angle       <- get.disparity.matrix(
+    get.subsets(results_within$degree, subsets = c(1,2,3)),
+                                          col = colour_vector[-4])
+```
+
+## Projections (on the main phylogeny)
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, phylo_elaboration$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Elaboration", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, phylo_exploration$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Exploration", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, phylo_angle$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Angle", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+## Projections (onto each clade's phylogeny)
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, within_elaboration$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Elaboration (within)", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, within_exploration$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Exploration (within)", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, within_angle$data, type = "phylogram", col = phylo_elaboration$col, tip.label = TRUE, main = "Angle (within)", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.scale = TRUE))
+```
+
+These graphs can also be plotted as circular for the big trees later.
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+## Plot per species
+plotTree.wBars_modif(demo_tree, within_angle$data, type = "fan", col = phylo_elaboration$col, tip.label = FALSE, main = "Angle (within)", mar = c(3, 0.1, 0.1, 0.1), args.distribution = list(show.grid.scale = TRUE))
+```
+
+
+## Color PCA according to mean proj/rej?
+
+And there's also this way of looking at it. But bof. Kinda ugly and probably too much info. (also it seems something is not working correctly).
+
+```{r,echo = FALSE, eval = TRUE}
+## Plotting fun
+plot.gradient.space <- function(data, values, cent.tend = median, col, gradient.fun = heat.colors, ...) {
+
+    get.colour.gradient <- function(values, col.fun, col.range, get.range = FALSE) {
+
+        ## Sort the data by range
+        histo <- hist(c(col.range, values), plot = FALSE)
+        n_col <- length(histo$counts)
+
+        ## Get the gradient
+        avail_cols <- rev(col.fun(n_col))
+
+        ## Attribute the colours
+        col_out <- rep(avail_cols[n_col], length(values))
+        range <- avail_cols[c(n_col, 1)]
+
+        ## Attribute the colour by range
+        for(colour in rev(1:n_col)) {
+          col_out[(values <= histo$breaks[colour])] <- avail_cols[colour]
+        }
+
+        if(get.range) {
+            return(list(range = range, col = col_out))
+        } else {
+            return(col_out)
+        }
+    }
+    
+    ## Get the colour gradient
+    gradient_values <- apply(values, 1, cent.tend)
+    gradient_cols <- get.colour.gradient(gradient_values, col.fun = gradient.fun, col.range = range(gradient_values), get.range = TRUE)
+    colour_gradient <- gradient_cols$col
+    names(colour_gradient) <- rownames(values)
+
+    ## Plot the points
+    sauron.plot(data,
+                col = col,
+                major.axes = mean,
+                ellipses = mean,
+                legend = TRUE,
+                points = TRUE,
+                pch = 19,
+                cex = 1.5
+                , ...)
+    points(data$matrix[[1]], pch = 19, col = colour_gradient)
+    legend("bottomright", pch = 19, col = gradient_cols$range, legend = round(range(gradient_values), 2))
+}
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = phylo_elaboration$data, col = colour_vector, main = "Elaboration gradient")
+```
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = phylo_exploration$data, col = colour_vector, main = "Exploration gradient")
+```
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = phylo_angle$data, col = colour_vector, main = "Angle gradient")
+```
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = within_elaboration$data, col = colour_vector, main = "Elaboration gradient (within)")
+```
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = within_exploration$data, col = colour_vector, main = "Exploration gradient (within)")
+```
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
+plot.gradient.space(data = covar_matrices, values = within_angle$data, col = colour_vector, main = "Angle gradient (within)")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
