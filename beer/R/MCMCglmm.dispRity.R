@@ -130,7 +130,7 @@ split.term.name <- function(one_term) {
     ## Get the second part of the term
     if(length(split_term) > 1) {
         level  <- as.numeric(gsub(".*?([[:digit:]]+)", "\\1", split_term[[2]]))
-        factor <- as.character(gsub(level, "", split_term[[2]]))
+        factor <- gsub("_", "", as.character(gsub(level, "", split_term[[2]])))
     }
     return(list(term   = split_term[[1]],
                 factor = factor,

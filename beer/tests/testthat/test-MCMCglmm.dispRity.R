@@ -37,9 +37,9 @@ test_that("MCMCglmm.dispRity and sauron.plot works", {
     expect_null(sauron.plot(test, n = 3, ellipses = TRUE, main = "something", level = 0.5, legend = TRUE, legend.pos = c(0.5, -0.5), pch = 12))
 
     ## Model 2: 3 group residual
-    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[2]])
+    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[2]])
     expect_equal(length(test$MCMCglmm$covars), 3)
-    expect_equal(names(test$MCMCglmm$covars), c("units:clade1", "units:clade2", "units:clade3"))
+    expect_equal(names(test$MCMCglmm$covars), c("units:clade_1", "units:clade_2", "units:clade_3"))
     expect_null(sauron.plot(test, col = rainbow(3), points = FALSE, ellipses = mean))
 
     ## Model 3: 2 group (res/rand)
@@ -51,30 +51,30 @@ test_that("MCMCglmm.dispRity and sauron.plot works", {
     ## Model 4: 4 group (3/1)
     test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[4]])
     expect_equal(length(test$MCMCglmm$covars), 4)
-    expect_equal(names(test$MCMCglmm$covars), c("animal", "units:clade1", "units:clade2", "units:clade3"))
+    expect_equal(names(test$MCMCglmm$covars), c("animal", "units:clade_1", "units:clade_2", "units:clade_3"))
     expect_null(sauron.plot(test, col = rainbow(4), points = TRUE, major.axes = "all", n = 20, legend = TRUE, ellipses = mean, pch = 21))
 
     ## Model 5: 6 group (3/3)
     test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[5]])
     expect_equal(length(test$MCMCglmm$covars), 6)
-    expect_equal(names(test$MCMCglmm$covars), c("animal:clade1", "animal:clade2", "animal:clade3", "units:clade1", "units:clade2", "units:clade3"))
+    expect_equal(names(test$MCMCglmm$covars), c("animal:clade_1", "animal:clade_2", "animal:clade_3", "units:clade_1", "units:clade_2", "units:clade_3"))
     expect_null(sauron.plot(test, col = rainbow(6), points = FALSE, major.axes = mean, legend = TRUE, ellipses = mean, pch = 21))
 
     ## Model 6: 6 group (3/4)
     test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[6]])
     expect_equal(length(test$MCMCglmm$covars), 7)
-    expect_equal(names(test$MCMCglmm$covars), c("animal:clade1", "animal:clade2", "animal:clade3", "animal", "units:clade1", "units:clade2", "units:clade3"))
+    expect_equal(names(test$MCMCglmm$covars), c("animal:clade_1", "animal:clade_2", "animal:clade_3", "animal", "units:clade_1", "units:clade_2", "units:clade_3"))
     expect_null(sauron.plot(test, ellipses = mean))
 
     ## Model 7: 5 group (1/4)
     test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[7]])
     expect_equal(length(test$MCMCglmm$covars), 5)
-    expect_equal(names(test$MCMCglmm$covars), c("animal:clade1", "animal:clade2", "animal:clade3", "animal", "units"))
+    expect_equal(names(test$MCMCglmm$covars), c("animal:clade_1", "animal:clade_2", "animal:clade_3", "animal", "units"))
     
-    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[7]], group = c(random = "animal", random = "animal:clade1", random = "animal:clade2", random = "animal:clade3"), rename.groups = c("phylogeny", "clade1", "clade2", "clade3"))
-    expect_equal(size.subsets(test), c("phylogeny" = 359, "clade1" = 160, "clade2" = 97, "clade3" = 102))
+    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors =covar_model_list[[7]], group = c(random = "animal", random = "animal:clade_1", random = "animal:clade_2", random = "animal:clade_3"), rename.groups = c("phylogeny", "clade_1", "clade_2", "clade_3"))
+    expect_equal(size.subsets(test), c("phylogeny" = 359, "clade_1" = 160, "clade_2" = 97, "clade_3" = 102))
     expect_equal(length(test$MCMCglmm$covars), 4)
-    expect_equal(names(test$MCMCglmm$covars), c("phylogeny", "clade1", "clade2", "clade3"))
+    expect_equal(names(test$MCMCglmm$covars), c("phylogeny", "clade_1", "clade_2", "clade_3"))
     expect_null(sauron.plot(test, ellipses = mean, major.axes = "all", n = 100, col = c("grey","orange", "blue", "darkgreen"), legend = TRUE, points = TRUE, cex = 0.2))
 
     # Try with not all subsets selected on a big model
@@ -83,7 +83,7 @@ test_that("MCMCglmm.dispRity and sauron.plot works", {
     expect_equal(names(test$MCMCglmm$covars), c("animal", "units"))
     
     # Try with correct groups renaming
-    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[7]], rename.groups = c("clade1", "clade2", "clade3", "phylo", "residual"))
+    test <- MCMCglmm.dispRity(data = covar_char_data, posteriors = covar_model_list[[7]], rename.groups = c("clade_1", "clade_2", "clade_3", "phylo", "residual"))
     expect_equal(length(test$MCMCglmm$covars), 5)
-    expect_equal(names(test$MCMCglmm$covars), c("clade1", "clade2", "clade3", "phylo", "residual"))
+    expect_equal(names(test$MCMCglmm$covars), c("clade_1", "clade_2", "clade_3", "phylo", "residual"))
 })

@@ -29,6 +29,7 @@
 #' @export
 
 ## Get the possible levels from a MCMCglmm
+## Get the possible levels from a MCMCglmm
 MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
     convert.term.name <- function(one_term) {
         ## Return the term is simple, keep it like that
@@ -47,7 +48,7 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
                 return(gsub(" ", "", elements))
             } else {
                 ## Remove spaces and get the most nested element
-                return(paste(rev(unname(sapply(elements, function(X) gsub(" ", "", gsub("[^[:alnum:] ]", "", rev(strsplit(X, "\\(")[[1]])[1]))))), collapse = ":"))
+                return(gsub("_:", ":", paste(rev(unname(sapply(elements, function(X) gsub(" ", "_", gsub("[^[:alnum:] ]", "", rev(strsplit(X, "\\(")[[1]])[1]))))), collapse = ":")))
             }
 
         }
@@ -94,7 +95,6 @@ MCMCglmm.levels <- function(MCMCglmm, convert = TRUE) {
 
     return(all_terms)
 }
-
 ## Get the number of traits from a MCMCglmm
 MCMCglmm.traits <- function(MCMCglmm) {
 
