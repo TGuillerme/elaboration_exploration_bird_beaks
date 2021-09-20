@@ -20,3 +20,4 @@ export(projections.covar) # for dispRity.metric
 export(dispRity.covar) # to be included in dispRity
 export(as.covar)
 export(covar.projections.wrapper)
+export(dispRity.fast)
