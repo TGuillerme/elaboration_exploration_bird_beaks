@@ -103,6 +103,47 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
             results <- lapply(1:length(results[[1]]), function(u) do.call(cbind, lapply(results, `[[`, u)))
             return(lapply(results, function(res) do.call(cbind, res)))
         }
+        
+        ## FAST VERSION
+        wrap.dispRity.within2 <- function(data, measure, axes, verbose) {
+            ## Calculate the measure
+            if(verbose) message(".")
+
+            ## Generating the function for fast disparity
+            make.fun <- function(measure, axes) {
+                return(function(matrix) projections.fast(matrix, point1 = axes[1,], point2 = axes[2,], measure = measure))
+            }
+            lapply.axes <- function(axis, measure, group, space) {
+                metric <- make.fun(measure, axis)
+                return(dispRity.fast(group, space, metric))
+            }
+            lapply.group <- function(group, axes, measure, space) {
+                return(lapply(axes, lapply.axes, measure, group, space))
+            }
+            clean.results <- function(results, measure) {
+                output <- lapply(1:length(results[[1]]), function(u) do.call(cbind, lapply(results, `[[`, u)))
+                names(output) <- one_measure
+                return(output)
+            }
+
+            ## Get the groups
+            groups <- lapply(data$subsets, function(subset, data) return(1:nrow(data$matrix[[1]]) %in% subset$element), data = data)
+            space <- data$matrix[[1]][, data$call$dimensions]
+
+            ## Run the fast function
+            if(length(groups) == 1) {
+                results <- lapply(axes, lapply.axes, measure, groups[[1]], space)
+                results_matrices <- clean.results(results, measure)
+            } else {
+                results <- lapply(groups, lapply.group, axes, measure, space)
+                results_matrices <- lapply(results, clean.results, measure)
+            }
+            return(results_matrices)
+        }
+
+
+
+
 
         ## If base
         if(!missing(base)) {
@@ -113,6 +154,13 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
             ## Run the measurements for all the groups on the base
             if(verbose) message("PLACEHOLDER:")
             results <- lapply(measure, wrap.dispRity.within, data = get.subsets(data, non_base_id), axes = major_axes[[base_id]], verbose)
+
+
+            ## FAST VERSION: Something like that?
+            # results <- wrap.dispRity.within2(data = get.subsets(data, non_base_id), measure = measure, axes = major_axes[[base_id]], verbose = verbose)
+            
+
+
             if(verbose) message("Done.")
         
         } else {
@@ -124,6 +172,9 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
             for(one_subset in 1:n.subsets(data)) {
                 if(verbose) message("...")
                 results[[one_subset]] <- lapply(measure, wrap.dispRity.within, data = get.subsets(data, one_subset), axes = major_axes[[one_subset]], verbose = FALSE)
+                ## FAST VERSION: Something like that?
+                # results <- wrap.dispRity.within2(data = get.subsets(data, one_subset), measure = measure, axes = axes = major_axes[[one_subset]], verbose = verbose)
+
             }
             if(verbose) message("Done.")
 
