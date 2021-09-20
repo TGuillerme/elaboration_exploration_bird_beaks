@@ -18,7 +18,7 @@ combine.mini.chains <- function(mini.chains) {
         mini.chains <- output
     }
 
-    ## Get the start end and thin values
+    ## Get the start end and thin values
     mcpar <- do.call(rbind, lapply(mini.chains, function(x) attr(x$Sol, "mcpar")))
     iterations_total <- sum(apply(mcpar[, c(1,2)], 1, diff))
     mcpar <- mcpar[1, ]
