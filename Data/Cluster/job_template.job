@@ -1,5 +1,0 @@
-#!/bin/bash
-#$ -l h_rt=48:00:00
-
-## Load R
-module load apps/R/4.0.3/gcc-8.2.0
