@@ -129,6 +129,8 @@ make.level.list <- function(table, level, threshold = 20) {
 groups_level1 <- make.level.list(clades_list, level = 1, threshold = 20)
 groups_level2 <- make.level.list(clades_list, level = 2, threshold = 20)
 all_groups <- c(groups_level1$list, groups_level2$list)
+group_names_level_1_2 <- all_groups
+save(group_names_level_1_2, file = "../Data/Processed/group_names_level_1_2.rda")
 ```
 
 
