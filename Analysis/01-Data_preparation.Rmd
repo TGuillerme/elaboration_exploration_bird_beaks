@@ -66,18 +66,8 @@ plot.dispRity(formspace, type = "preview", pch = 21, main = "Form space")
 ## Reading the consensus tree
 consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
 
-## Selecting only the tips in the trait space
-clean.tree <- function(tree, space) {
-    matching_tips <- tree$tip.label %in% rownames(space)
-    return(drop.tip(tree, tip = tree$tip.label[!matching_tips]))
-}
-consensus_tree <- clean.tree(consensus_tree, shapespace)
-
 ## Reading the distribution of trees
 trees_list <- read.tree("../Data/raw/Tree_data/AllBirdsHackett1.tre")
-trees_list <- lapply(trees_list, clean.tree, shapespace)
-class(trees_list) <- "multiPhylo"
-save(trees_list, file = "../Data/Processed/trees_list.rda")
 ```
 
  * The clade data
@@ -168,27 +158,66 @@ By analysing the distribution of the variance within each group, we will need `r
 
 ### Saving the data
 
+Here we are going to group the spaces, trees and levels for subsequent levels (nested).
+There are 5 levels: Super order (1), Order (2), Sub-order (3), Super families (4) and families (5).
+The script above creates the model for the two first levels, the subsequent models create the mini-chains for the following overlapping pairs of models (order + sub-order; sub-order + super families; super families + families).
+
 ```{r}
-## Add the clade columns and the animal column to the spaces
-shapespace <- as.data.frame(shapespace)
-shapespace$level1 <- groups_level1$col
-shapespace$level2 <- groups_level2$col
-shapespace$animal <- rownames(shapespace)
-formspace <- as.data.frame(formspace)
-formspace$level1 <- groups_level1$col
-formspace$level2 <- groups_level2$col
-formspace$animal <- rownames(formspace)
+source("../Functions/prep.data.R")
+## Getting the data ready for all birds
+shapespace_allbirds_lvl_superorder_order <- prep.data(
+                                          level = 0, lvl.inc = c(1,2),
+                                          clades    = clades_list,
+                                          space     = shapespace,
+                                          dim       = shape_axes$dimensions,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_superorder_order.rda")
 
-## Save the data to be analysed in Data/Processed
-form_shape_space_1tree_2levels <- list(
-    "consensus_tree" = consensus_tree,
-    "shape_space"    = shapespace,
-    "shape_dim"      = shape_axes$dimensions,
-    "form_space"     = formspace,
-    "form_dim"       = form_axes$dimensions,
-    "groups_list"    = all_groups)
+## Getting the data ready for each bird super order
+shapespace_superorder_lvl_order_suborder <- prep.data(
+                                          level = 1, lvl.inc = c(2,3),
+                                          clades    = clades_list,
+                                          space     = shapespace,
+                                          dim       = shape_axes$dimensions,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_superorder_lvl_order_suborder, file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
 
-save(form_shape_space_1tree_2levels, file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
+## Getting the data ready for each bird order
+shapespace_order_lvl_suborder_superfam <- prep.data(
+                                          level = 2, lvl.inc = c(3,4),
+                                          clades    = clades_list,
+                                          space     = shapespace,
+                                          dim       = shape_axes$dimensions,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_order_lvl_suborder_superfam, file = "../Data/Processed/shapespace_order_lvl_suborder_superfam.rda")
+
+## Getting the data ready for each bird sub order
+shapespace_suborder_lvl_superfam_fam <- prep.data(
+                                          level = 3, lvl.inc = c(4,5),
+                                          clades    = clades_list,
+                                          space     = shapespace,
+                                          dim       = shape_axes$dimensions,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_suborder_lvl_superfam_fam, file = "../Data/Processed/shapespace_suborder_lvl_superfam_fam.rda")
+
+## Getting the data ready for each bird super family
+shapespace_superfam_lvl_fam <- prep.data(
+                                          level = 4, lvl.inc = 5,
+                                          clades    = clades_list,
+                                          space     = shapespace,
+                                          dim       = shape_axes$dimensions,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_superfam_lvl_fam, file = "../Data/Processed/shapespace_superfam_lvl_fam.rda")
 ```
 
 

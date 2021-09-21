@@ -7,7 +7,7 @@
 #@param consensus the consensus tree
 #@param trees the list of trees
 #@param min the minimum of species to include by level (default is 15)
-prep.data <- function(level, lvl.inc, clades, space, dim, consensus, trees, min = 15) {
+prep.data <- function(level, lvl.inc, clades, space, dim, consensus, trees, min = 15, verbose) {
 
   ## Selecting the right level(s)
   if(level == 0) {
