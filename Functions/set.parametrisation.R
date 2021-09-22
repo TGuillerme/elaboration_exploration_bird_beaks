@@ -50,7 +50,7 @@ set.parametrisation <- function(data, nitt = 20000, thin = 500, replicates = 3) 
         system(paste0("echo \"", chain_name, " <- run.mini.chains(param_chain, replicates = ", replicates, ")\" >> script"))
         system("echo \"## Save the results\" >> script")
         system(paste0("echo \"save(", chain_name, ", file = '",chain_name, ".rda')\" >> script"))
-        system(paste0("mv script ", paste0(data_name, "_", chain_name, "param.R")))
+        system(paste0("mv script ", paste0(chain_name, ".R")))
     }
     return(NULL)
 }
