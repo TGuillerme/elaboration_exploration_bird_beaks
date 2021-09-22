@@ -22,13 +22,8 @@ dispRitize <- function(one_result, data, name, fun, type, cent.tend = median) {
 
 ## Run projections faster!
 ## Angle between two vectors
-vector.angle <- function(v1, v2){#, degree = TRUE) {
-    angle <- acos(geometry::dot(v1, v2, d = 1) / (sqrt(sum(v1^2))*sqrt(sum(v2^2))))
-    # if(degree) {
-        return(angle *180/pi)
-    # } else {
-    #     angle
-    # }
+vector.angle <- function(v1, v2){
+    return(acos(geometry::dot(v1, v2, d = 1) / (sqrt(sum(v1^2))*sqrt(sum(v2^2)))) *180/pi)
 }
 ## Rotate a matrix along one axis (y)
 get.rotation.matrix <- function(x, y){
@@ -93,9 +88,9 @@ projections.fast <- function(matrix, point1 = 0, point2 = colMeans(matrix), meas
     ## Project the vectors
     projections <- t(apply(matrix, 1, geometry::dot, y = base_vector[2,], d = 2))
     ## Calculate the angles
-    if(measure == "degree" || measure == "radian") {
-        mes_angles <- t(t(apply(matrix, 1, vector.angle, base_vector[2,])))
-        mes_angles <- ifelse(is.nan(mes_angles), 0, mes_angles)
+    if("degree" %in% measure) {
+        angles_val <- t(t(apply(matrix, 1, vector.angle, base_vector[2,])))
+        angles_val <- ifelse(is.nan(angles_val), 0, angles_val)
     }
 
     # "position" #distance on
@@ -111,7 +106,7 @@ projections.fast <- function(matrix, point1 = 0, point2 = colMeans(matrix), meas
         values[["distance"]] <- apply(matrix - projections, 1, function(row) sqrt(sum(row^2)))
     }
     if("degree" %in% measure) {
-        values[["degree"]] <- c(mes_angles)
+        values[["degree"]] <- angles_val[,1]
     }
     return(values)
 }
