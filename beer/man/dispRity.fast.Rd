@@ -4,7 +4,7 @@
 \alias{dispRity.fast}
 \title{Fast dispRity}
 \usage{
-dispRity.fast(group, space, metric, rare.dim)
+dispRity.fast(group, space, metric)
 }
 \arguments{
 \item{group}{a logical vector for grouping}
@@ -12,8 +12,6 @@ dispRity.fast(group, space, metric, rare.dim)
 \item{space}{a matrix}
 
 \item{metric}{a metric dispRity style (up to two levels)}
-
-\item{rare.dim}{the number of dimensions to consider}
 }
 \description{
 Fast dispRity calculations (but less safe than dispRity, see details)
@@ -36,7 +34,7 @@ metric <- c(sum, variances)
 group <- c(TRUE, TRUE, TRUE, TRUE, FALSE)
 
 ## The disparity
-dispRity.fast(group, space, metric, rare.dim = 5)
+dispRity.fast(group, space, metric)
 
 
 }
