@@ -173,7 +173,7 @@ shapespace_allbirds_lvl_superorder_order <- prep.data(
                                           consensus = consensus_tree,
                                           trees     = trees_list,
                                           verbose   = TRUE)
-save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_superorder_order.rda")
+save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 
 ## Getting the data ready for each bird super order
 shapespace_superorder_lvl_order_suborder <- prep.data(
@@ -218,6 +218,27 @@ shapespace_superfam_lvl_fam <- prep.data(
                                           trees     = trees_list,
                                           verbose   = TRUE)
 save(shapespace_superfam_lvl_fam, file = "../Data/Processed/shapespace_superfam_lvl_fam.rda")
+
+## Get a list of all selected levels for the record (and number of elements per levels)
+super_orders     <- shapespace_allbirds_lvl_superorder_order[[1]]$levels[[1]]
+orders           <- shapespace_allbirds_lvl_superorder_order[[1]]$levels[[2]]
+sub_orders       <- lapply(shapespace_order_lvl_suborder_superfam, function(x) x$levels[[1]])
+names(sub_orders) <- NULL
+sub_orders       <- unlist(sub_orders, recursive = FALSE)
+super_families   <- lapply(shapespace_order_lvl_suborder_superfam, function(x) x$levels[[2]])
+names(super_families) <- NULL
+super_families   <- unlist(super_families, recursive = FALSE)
+families         <- lapply(shapespace_superfam_lvl_fam, function(x) x$levels[[1]])
+names(families) <- NULL
+families         <- unlist(families, recursive = FALSE)
+
+## Get the list of levels
+levels_list <- list("super_orders"   = unlist(lapply(super_orders, length)),
+                    "orders"         = unlist(lapply(orders, length)),
+                    "sub_orders"     = unlist(lapply(sub_orders, length)),
+                    "super_families" = unlist(lapply(super_families, length)),
+                    "families"       = unlist(lapply(families, length)))
+save(levels_list, file = "../Data/Processed/levels_list.rda")
 ```
 
 
