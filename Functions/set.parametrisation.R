@@ -12,7 +12,7 @@
 #' @export
 
 
-set.parametrisation <- function(data, nitt = 20000, thin = 500, replicates = 3) {
+set.parametrisation <- function(data, nitt = 50000, thin = 500, replicates = 3) {
     ## Get the data name
     data_name <- match.call()$data
 
