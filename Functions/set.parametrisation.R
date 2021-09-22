@@ -18,13 +18,18 @@ set.parametrisation <- function(data, nitt = 20000, thin = 500, replicates = 3) 
 
     ## Loop through each element
     for(i in 1:length(data)) {
-        ## Set the random levels
+        ## Set the random levels (remove empty ones)
+        if(length(empties <- which(unlist(lapply(data[[i]]$levels, length)) == 0)) > 0) {
+            data[[i]]$levels[[empties]] <- NULL
+        }
+
+        ## Make the param chains
         param_chain <- make.mini.chains(
             data         = data[[i]]$space,
             dimensions   = data[[i]]$dimensions,
             tree         = data[[i]]$consensus_tree,
             trait.family = "gaussian",
-            randoms      = c("global", colnames(data[[i]]$space)[1:length(data[[1]]$levels) + length(data[[i]]$dimensions)]),
+            randoms      = c("global", colnames(data[[i]]$space)[1:length(data[[i]]$levels) + length(data[[i]]$dimensions)]),
             residuals    = "global",
             priors       = 0.02,
             verbose      = TRUE,
