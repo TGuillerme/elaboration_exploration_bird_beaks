@@ -50,12 +50,25 @@ To estimate the variance-covariance matrix for the phylogeny and each clade (see
 load("../Data/Processed/levels_list.rda")
 ```
 
-We ran a general multi-response model on multiple dimensions with one global residual term, a one global random term (phylogeny) and variable clade specific random terms (one per taxonomic level comprising more than 15 species).
+We ran a general multi-response model on multiple dimensions with one global residual term, a one global random term (phylogeny) and variable clade specific random terms (one per taxonomic level).
 We ran these models across five taxonomic levels: the super orders (`r length(levels_list$super_orders)`), the orders (`r length(levels_list$orders)`), the sub-orders (`r length(levels_list$sub_orders)`), the super families (`r length(levels_list$super_families)`) and the families (`r length(levels_list$families)`).
 Because of the high number of resulting total random terms (`r sum(unlist(lapply(levels_list, length))) + 1`!) we ran multiple models in an overlapping nested fashion with each taxonomic level including two sub-levels.
 For example, one model for all birds including the super order and the order levels as random terms, `r length(levels_list$super_orders)` models at the super order level including the order and the sub order levels as random terms, etc...
-In total we thus ran `r sum(unlist(lapply(levels_list[1:4], length)))+1` models (see table below).
 
+Furthermore for each nested model, we only ran models if the taxonomic level contained more than 16 species (two times the number of dimensions, see below) and contained at least two nested sub taxonomic levels with at least 16 species each.
+
+```{r, echo = FALSE}
+library(knitr)
+model_table <- read.csv("../Data/Processed/models_list.csv")
+```
+
+This resulted in using the following `r nrow(model_table)` models:
+
+```{r, echo = FALSE}
+kable(model_table)
+```
+
+> Note that we do acknowledge that the different taxonomic levels used in this analyses do not have a strong biological justification (i.e. they are just nodes named by biologists) but we found using them nonetheless useful since they refer to commonly known groups in birds (and that alternative choices would be equally arbitrary).
 
 ```{r, echo = FALSE}
 ## Get the number of traits
