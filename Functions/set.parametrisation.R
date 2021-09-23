@@ -19,8 +19,9 @@ set.parametrisation <- function(data, nitt = 50000, thin = 500, replicates = 3) 
     ## Loop through each element
     for(i in 1:length(data)) {
         ## Set the random levels (remove empty ones)
+        random_cols <- 1:length(data[[i]]$levels)
         if(length(empties <- which(unlist(lapply(data[[i]]$levels, length)) == 0)) > 0) {
-            data[[i]]$levels[[empties]] <- NULL
+            random_cols <- random_cols[-empties]
         }
 
         ## Make the param chains
@@ -29,7 +30,7 @@ set.parametrisation <- function(data, nitt = 50000, thin = 500, replicates = 3) 
             dimensions   = data[[i]]$dimensions,
             tree         = data[[i]]$consensus_tree,
             trait.family = "gaussian",
-            randoms      = c("global", colnames(data[[i]]$space)[1:length(data[[i]]$levels) + length(data[[i]]$dimensions)]),
+            randoms      = c("global", colnames(data[[i]]$space)[random_cols + length(data[[i]]$dimensions)]),
             residuals    = "global",
             priors       = 0.02,
             verbose      = TRUE,
