@@ -1,0 +1,22 @@
+Name,taxonomic level,n taxa,n dimensions,n sub levels
+All birds,Class,8748,8,31
+Telluraves,Super-order,6604,8,14
+Strisores,Super-order,370,8,2
+Otidimorphae,Super-order,181,8,3
+Galloanserae,Super-order,421,8,3
+Columbimorphae,Super-order,285,8,2
+Aequornithes,Super-order,308,8,6
+Charadriiformes,Order,359,8,3
+Gruiformes,Order,138,8,2
+Passeriformes,Order,5229,8,6
+Piciformes,Order,390,8,2
+Ardei,Sub-order,94,8,2
+Galbuli,Sub-order,43,8,2
+Lari,Sub-order,159,8,3
+Passeri,Sub-order,4249,8,22
+Phasianoidea,Sub-order,201,8,2
+Pici,Sub-order,347,8,3
+Tyranni,Sub-order,978,8,8
+Certhioidea,Super-family,112,8,2
+Corvoidea,Super-family,609,8,12
+Meliphagoidea,Super-family,238,8,3
