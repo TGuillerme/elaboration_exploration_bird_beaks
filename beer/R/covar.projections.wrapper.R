@@ -7,6 +7,7 @@
 #' @param sample optional, one or more specific posterior sample IDs (is ignored if n is used) or a function to summarise all axes.
 #' @param n optional, a random number of covariance matrices to sample (if left empty, all are used).
 #' @param base optional, if \code{type = "between"}, a \code{character} string for the name of the subset in data to use as a baseline (e.g. the phylogeny) or if \code{type = "within"} the major axis to use as a base (see details).
+#' @param incl.base optional, if \code{base} is provided and \code{type = "within"}, whether to include the comparison with the base itself (\code{TRUE})or not (default; \code{FALSE}).
 #' @param major.axis which major axis to use (default is \code{1})
 #' @param level the confidence interval to estimate the major axis (default is \code{0.95})
 #' @param measure which parameters to measure from the projection. Can be any of the following \code{"c(position, distance, degree)"} (default) for respectively the distance on the projection, the distance from the projection and the angle of the projection.
@@ -35,7 +36,7 @@
 #' @author Thomas Guillerme
 #' @export
 
-covar.projections.wrapper <- function(data, type, sample, n, base, average, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE, dispRity.out = FALSE) {
+covar.projections.wrapper <- function(data, type, sample, n, base, incl.base, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE, dispRity.out = FALSE) {
 
     ## Check class data (dispRity)
  
@@ -43,19 +44,28 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
 
     ## base (optional)
 
-    ## average (optional)
-
     ## Check method measure = c("position", "distance", "degree")
+
+    ## Check for sample/n
+    if(missing(sample)) {
+        if(missing(n)) {
+            ## Get a random number of covar samples (TODO: GET THIS FROM THE CALL)
+            sample <- 1:length(data$MCMCglmm$covars[[1]])
+        } else {
+            ## Get all the covar samples (TODO: GET THIS FROM THE CALL)
+            sample <- sample.int(n = length(data$MCMCglmm$covars[[1]]), size = n)
+        }
+    }
 
     ## 1 - get major axis
     if(verbose) message("calculating the major axis:...", appendLF = FALSE)
-    major_axes <- axis.covar(data, sample = sample, n = n, axis = major.axis, level = level)
+    major_axes <- axis.covar(data, sample = sample, axis = major.axis, level = level)
     # major_axes <- axis.covar(data)
     if(verbose) message("Done.")
 
     ## 2 - get the data
     if(!missing(n) || !missing(sample)) {
-        data$MCMCglmm$covars <- get.covar(data, n = n, sample = sample)
+        data$MCMCglmm$covars <- get.covar(data, sample = sample)
     }
 
     ## A - Type between:
@@ -123,13 +133,19 @@ covar.projections.wrapper <- function(data, type, sample, n, base, average, majo
             return(results_matrices)
         }
 
-        if(verbose) message("calculating projections:...", appendLF = FALSE)
+        if(verbose) message("calculating projections:", appendLF = FALSE)
 
         ## Select the group and axes IDs
         if(missing(base)) {
             group_id <- axes_id <- 1:n.subsets(data)
         } else {
-            group_id <- which(names(size.subsets(data)) != base)
+            ## Select the group IDs
+            if(!incl.base) {
+                group_id <- which(names(size.subsets(data)) != base)
+            } else {
+                group_id <- 1:n.subsets(data)
+            }
+            ## Select the axes IDs
             axes_id  <- which(names(size.subsets(data)) == base)
             axes_id  <- rep(axes_id, length(group_id))
         }

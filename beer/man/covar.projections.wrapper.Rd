@@ -10,7 +10,7 @@ covar.projections.wrapper(
   sample,
   n,
   base,
-  average,
+  incl.base,
   major.axis = 1,
   level = 0.95,
   measure = c("position", "distance", "degree"),
@@ -28,6 +28,8 @@ covar.projections.wrapper(
 \item{n}{optional, a random number of covariance matrices to sample (if left empty, all are used).}
 
 \item{base}{optional, if \code{type = "between"}, a \code{character} string for the name of the subset in data to use as a baseline (e.g. the phylogeny) or if \code{type = "within"} the major axis to use as a base (see details).}
+
+\item{incl.base}{optional, if \code{base} is provided and \code{type = "within"}, whether to include the comparison with the base itself (\code{TRUE})or not (default; \code{FALSE}).}
 
 \item{major.axis}{which major axis to use (default is \code{1})}
 
