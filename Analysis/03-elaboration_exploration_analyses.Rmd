@@ -461,16 +461,16 @@ VCV_{n} =
     \end{pmatrix}
 \end{equation}
 
-and the eigenvectors **v** and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
+and the eigenvectors *v* and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
 
 \begin{equation}
-    VCV_{n} \bold{v} = \lambda \bold{v}
+    VCV_{n} v = \lambda v
 \end{equation}
 
-We can get $M_{n}$ matrix containing all the edge coordinates of the 0.95 CI hypersphere from $VCV_{n}$ using the transposition of the cross product between the eigenvectors **v** and the product of the scaled 0.95 CI unit sphere $O'_{n}$ and the eigenvalues $\lambda$:
+We can get $M_{n}$ matrix containing all the edge coordinates of the 0.95 CI hypersphere from $VCV_{n}$ using the transposition of the cross product between the eigenvectors *v* and the product of the scaled 0.95 CI unit sphere $O'_{n}$ and the eigenvalues $\lambda$:
 
 \begin{equation}
-    M_{n} = [(O'_{n}\sqrt{\lambda}) \times \bold{v}]^{\text{T}}
+    M_{n} = [(O'_{n}\sqrt{\lambda}) \times v]^{\text{T}}
 \end{equation}
 
 Where $M_{1,n}$ is the major axis of the 0.95 CI hyper-ellipse fitting the variance-covariance matrix, $M_{2,n}$ the second axis (minor axis in 2D), etc. etc.
