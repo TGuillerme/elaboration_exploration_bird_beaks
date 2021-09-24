@@ -10,7 +10,7 @@ covar.projections.wrapper(
   sample,
   n,
   base,
-  incl.base,
+  incl.base = FALSE,
   major.axis = 1,
   level = 0.95,
   measure = c("position", "distance", "degree"),
