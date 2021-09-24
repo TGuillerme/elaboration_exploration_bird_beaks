@@ -36,7 +36,7 @@
 #' @author Thomas Guillerme
 #' @export
 
-covar.projections.wrapper <- function(data, type, sample, n, base, incl.base, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE, dispRity.out = FALSE) {
+covar.projections.wrapper <- function(data, type, sample, n, base, incl.base = FALSE, major.axis = 1, level = 0.95, measure = c("position", "distance", "degree"), verbose = FALSE, dispRity.out = FALSE) {
 
     ## Check class data (dispRity)
  
