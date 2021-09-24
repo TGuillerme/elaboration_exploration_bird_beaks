@@ -96,6 +96,10 @@ To increase the speed of the analysis and take phylogenetic uncertainty into acc
 It runs multiple short `MCMCglmm` analyses on multiple trees and pulls the results together into one larger `MCMCglmm` that contains more variation due to phylogenetic uncertainty (similar to `mulTree` @mulTree).
 The size of the chains are optimised for speed.
 
+
+![mini chain diagram](../Manuscript/Figures/mini-chains_diagram.png "Mini chains diagram")
+
+
 In brief the method works as follows:
  
  1- run three models without burnin on a consensus tree with flat priors: these are the parametrisation chains.
@@ -125,7 +129,7 @@ param_MCMCglmm <- make.mini.chains(data         = traitspace,
                                    priors       = 0.02,
                                    verbose      = TRUE,
                                    parameters   = list(
-                                       nitt   = 20000,
+                                       nitt   = 50000,
                                        thin   = 500,
                                        burnin = 0))
 
