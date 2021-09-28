@@ -214,6 +214,12 @@ results_phylo <- covar.projections.wrapper(covar_matrices,
 wrap.plot(results_phylo,
           col = colour_vector[-4],
           main = "Projection on the\nglobal phylogeny axes")
+
+source("../Functions/circular.plot.R")
+
+circular.plot.phytools(data = results_phylo$position, tree = demo_tree, gradient = c("blue", "orange"), clade.names = TRUE, clades = colour_vector[-4], lwd = 3)
+
+
 ```
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
