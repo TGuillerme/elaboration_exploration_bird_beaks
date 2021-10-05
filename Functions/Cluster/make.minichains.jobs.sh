@@ -7,7 +7,7 @@
 #-r <number_of_replicates> the number of replicates
 #-p <path> optional, the path to the chain
 ##########################
-#guillert(at)tcd.ie - 2021/09/10
+#guillert(at)tcd.ie - 2021/10/05
 ##########################
 
 #INPUT
@@ -50,11 +50,36 @@ echo "load(\"${LOCALPATH}${CHAINNAME}.mini.chains\")" >> ${LOCALPATH}${CHAINNAME
 echo "model <- run.mini.chains(${CHAINNAME}, replicates = 1, record.tree = TRUE)" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "save(model, file = \"${LOCALPATH}${CHAINNAME}_<REPLICATE>.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
 
+
+## Get the number of digits in REPLICATES
+digits=${#REPLICATES}
+if [ "$digits" == 1 ]
+then 
+    zeros="000"
+    start=""
+else
+    if [ "$digits" == 2 ]
+    then
+        zeros="00"
+        start="0"
+    else
+        if [ "$digits" == 1 ]
+        then
+            zeros="0"
+            start="00"
+        else
+            zeros=""
+            start="000"
+        fi
+    fi
+fi
+
 ## Looping through each templates to create the replicates
-for (( i = 1; i <= ${REPLICATES}; i++ ));
+for i in $(seq -w ${start}1 ${REPLICATES})
 do
-    sed 's/<REPLICATE>/'"${i}"'/g' ${LOCALPATH}${CHAINNAME}_template.job > ${LOCALPATH}${CHAINNAME}_${i}.job
-    sed 's/<REPLICATE>/'"${i}"'/g' ${LOCALPATH}${CHAINNAME}_template.R > ${LOCALPATH}${CHAINNAME}_${i}.R
+    n=${zeros}${i}
+    sed 's/<REPLICATE>/'"${n}"'/g' ${LOCALPATH}${CHAINNAME}_template.job > ${LOCALPATH}${CHAINNAME}_${n}.job
+    sed 's/<REPLICATE>/'"${n}"'/g' ${LOCALPATH}${CHAINNAME}_template.R > ${LOCALPATH}${CHAINNAME}_${n}.R
 done
 
 ## Cleaning
