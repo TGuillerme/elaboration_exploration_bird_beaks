@@ -52,7 +52,7 @@ sauron.plot(superorder_shapespace,
 The global Shape space
 
 
-```{r, echo = FALSE, fig.height = 18, fig.width = 18}
+```{r, echo = FALSE, fig.height = 18, fig.width = 18, eval = FALSE}
 par(mfrow = c(2,2))
 ## Plotting mean axes
 sauron.plot(superorder_shapespace,
@@ -91,7 +91,7 @@ Main axes and ellipses visualisation
 
 ## Calculate the elaborations/explorations
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE}
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
 ## Run the analyses between groups
 super_results_between <- covar.projections.wrapper(superorder_shapespace,
                                              type = "between",
@@ -223,20 +223,27 @@ wrap.plot(results$order_results_within,
 
 ## Different scores distributions per species
 
-```{r, eval = TRUE, echo = FALSE, eval = FALSE}
-library(hrdcde)
+```{r, eval = TRUE, echo = FALSE, eval = TRUE}
+library(hdrcde)
 
-#@param results the results list
+#@param res the results list
 #@param type which type (position, distance or angle)
 #@param cent.tend which central tendency fun (default is median)
 #@param use.hdr whether to use kernel density estimate for the outputs (default is TRUE)
 #@param prob which quantiles to use (default is c(50, 95, 99))
+#@param exclude.phylo remove the phylogeny subset (default = FALSE)
 #@param ... plot options
 
-get.distributions <- function(results, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), ...) {
+get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, ...) {
 
+    ## Remove the phylo one (if needed)
+    if(exclude.phylo) {
+        select <- names(size.subsets(res[[type]]))
+        select <- select[-which(select %in% "phylogeny")]
+        res[[type]] <- get.subsets(res[[type]], subsets = select)
+    }
     ## Extracting all the results
-    disparity <- lapply(results[[type]]$disparity, function(X, type) return(X$elements))
+    disparity <- lapply(res[[type]]$disparity, function(X, type) return(X$elements))
 
     ## Recentre the results
     if(type == "position") {
@@ -253,7 +260,7 @@ get.distributions <- function(results, type, cent.tend = median, use.hdr = TRUE,
     densities <- list()
     for(i in 1:length(centrals)) {
         if(use.hdr) {
-            densities[[i]] <- hdr.den(centrals[[i]], prob = prob, main = names(centrals)[i], ...)
+            densities[[i]] <- hdr.den(centrals[[i]], prob = prob, main = names(centrals)[i])#, ...)
         } else {
             hist(centrals[[i]], main = names(centrals)[i], ...)
         }
@@ -264,7 +271,7 @@ get.distributions <- function(results, type, cent.tend = median, use.hdr = TRUE,
     get.extremes.hdr <- function(density, central) {
         ## Get the minimums and maximums
         mins <- which(central <= density$hdr[1,1])
-        maxs <- which(central >= density$hdr[1,2])
+        maxs <- which(central >= density$hdr[1, ncol(density$hdr)])
         ## Get their values
         return(c(central[names(mins)], central[names(maxs)]))
     }
@@ -290,15 +297,134 @@ get.distributions <- function(results, type, cent.tend = median, use.hdr = TRUE,
 
     ## Return the as a table
     for(i in 1:length(output)) {
-        output[[i]] <- data.frame("level" = rep(names(output)[i], length(output[[i]])),
-                                  "species" = names(output[[i]]),
-                                  "score"   = unname(output[[i]]))
+        if(length(output[[i]]) == 0) {
+            output[[i]] <- data.frame("level" = names(output)[i], "species" = NA, "score" = NA)
+        } else {
+            output[[i]] <- data.frame("level" = rep(names(output)[i], length(output[[i]])),
+                                      "species" = names(output[[i]]),
+                                      "score"   = unname(output[[i]]))
+        }
     }
+
     return(output)
+}
+combine.results <- function(res1, res2) {
+    ## Combine the results
+    res_out <- rbind(res1[,1:2], res2[, 1:2])
+    res_out$elaboration <- c(res1[, 3], rep(NA, nrow(res2)))
+    res_out$exploration <- c(rep(NA, nrow(res1)), res2[, 3])
+    ## Find any species in commons
+    commons <- intersect(res1$species, res2$species)
+    if(length(commons) > 0 && is.na(commons)) {
+        if(is.na(res1$species)) {
+            if(is.na(res2$species)) {
+                ## Both are NA (keep just the first one)
+                res_out <- res_out[-1, , drop = FALSE]
+            } else {
+                ## Remove res1
+                res_out <- res_out[-1, , drop = FALSE]
+            }
+        } else {
+            ## Remove res2
+            res_out <- res_out[1:length(res1$species), , drop = FALSE]
+        }
+    } else {
+        ## Recursively remove the ones in common
+        while(length(commons) > 0) {
+            duplicates <- which(res_out$species == commons[1])
+            res_out[duplicates[1], 4] <- res_out[duplicates[2], 4]
+            res_out <- res_out[-duplicates[2], ]
+            commons <- commons[-1]
+        }
+    }
+    return(res_out)
 }
 ```
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = FALSE}
-get.distributions(results$super_results_between, type = "position")
+
+### Extreme species per super order (based on phylogeny)
+
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+super_positions_phylo <- get.distributions(results$super_results_phylo, type = "position")
+```
+Figure: elaborations distributions per super orders
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+super_distances_phylo <- get.distributions(results$super_results_phylo, type = "distance")
+```
+Figure: explorations distributions per super orders
+
+```{r, echo = FALSE}
+library(knitr)
+## Combining the results
+super_phylo_table <- do.call(rbind, mapply(combine.results, super_positions_phylo, super_distances_phylo, SIMPLIFY = FALSE))
+rownames(super_phylo_table) <- NULL
+kable(super_phylo_table, digits = 3)
 ```
 
+
+### Extreme species per order (based on phylogeny)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 24, fig.width = 24, eval = TRUE}
+order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE)
+```
+Figure: elaborations distributions per order
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 24, fig.width = 24, eval = TRUE}
+order_distances_phylo <- get.distributions(results$order_results_phylo, type = "distance", exclude.phylo = TRUE)
+```
+Figure: explorations distributions per order
+
+```{r, echo = FALSE}
+## Combining the results
+order_phylo_table <- do.call(rbind, mapply(combine.results, order_positions_phylo, order_distances_phylo, SIMPLIFY = FALSE))
+rownames(order_phylo_table) <- NULL
+kable(order_phylo_table, digits = 3)
+```
+
+
+
+
+### Extreme species per super order (within)
+
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+super_positions_within <- get.distributions(results$super_results_within, type = "position", exclude.phylo = TRUE)
+```
+Figure: elaborations distributions within super orders
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+super_distances_within <- get.distributions(results$super_results_within, type = "distance", exclude.phylo = TRUE)
+```
+Figure: explorations distributions within super orders
+
+```{r, echo = FALSE}
+## Combining the results
+super_phylo_table_within <- do.call(rbind, mapply(combine.results, super_positions_within, super_distances_within, SIMPLIFY = FALSE))
+rownames(super_phylo_table_within) <- NULL
+kable(super_phylo_table_within, digits = 3)
+```
+
+
+
+
+### Extreme species per order (within)
+
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+order_positions__within <- get.distributions(results$order_results_within, type = "position", exclude.phylo = TRUE)
+```
+Figure: elaborations distributions within orders
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+order_distances_within <- get.distributions(results$order_results_within, type = "distance", exclude.phylo = TRUE)
+```
+Figure: explorations distributions within orders
+
+```{r, echo = FALSE}
+## Combining the results
+order_phylo_table_within <- do.call(rbind, mapply(combine.results, order_positions_within, order_distances_within, SIMPLIFY = FALSE))
+rownames(order_phylo_table_within) <- NULL
+kable(order_phylo_table_within, digits = 3)
+```
