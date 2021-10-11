@@ -413,7 +413,7 @@ kable(super_phylo_table_within, digits = 3)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-order_positions__within <- get.distributions(results$order_results_within, type = "position", exclude.phylo = TRUE)
+order_positions_within <- get.distributions(results$order_results_within, type = "position", exclude.phylo = TRUE)
 ```
 Figure: elaborations distributions within orders
 
