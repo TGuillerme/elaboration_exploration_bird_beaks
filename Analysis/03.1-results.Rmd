@@ -1,0 +1,224 @@
+---
+title: "Bird beak's elaboration and exploration"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_exploration_analyses.Rmd.
+
+# Elaboration and exploration analyses
+
+```{r, eval = TRUE, echo = FALSE, print = FALSE}
+library(beer)
+```
+
+# All birds shapespace analyses
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the covar
+load(file = "../Data/Processed/allbirds_8748t_8Dshapespace_31levels.rda")
+## Load the data
+load(file = "../Data/Processed/form_shape_space_1tree_2levels.rda")
+shapespace <- form_shape_space_1tree_2levels$shape_space
+## Loading the group names
+load("../Data/Processed/group_names_level_1_2.rda")
+
+superorder_shapespace <- MCMCglmm.dispRity(
+      data          = shapespace,
+      posteriors    = allbirds_8748t_8Dshapespace_31levels,
+      group         = MCMCglmm.levels(allbirds_8748t_8Dshapespace_31levels)[c(1:8, 32)],
+      rename.groups = c(names(group_names_level_1_2), "phylogeny")[c(1:8, 32)])
+
+order_shapespace <- MCMCglmm.dispRity(
+      data          = shapespace,
+      posteriors    = allbirds_8748t_8Dshapespace_31levels,
+      group         = MCMCglmm.levels(allbirds_8748t_8Dshapespace_31levels)[-c(1:8, 33)],
+      rename.groups = c(names(group_names_level_1_2), "phylogeny")[-c(1:8,33)])
+```
+
+
+```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5, echo = FALSE}
+## Plotting just the space
+sauron.plot(superorder_shapespace,
+            main = "Shapespace",
+            cex = 0.5,
+            legend = FALSE)
+```
+The global Shape space
+
+
+```{r, echo = FALSE, fig.height = 18, fig.width = 18}
+par(mfrow = c(2,2))
+## Plotting mean axes
+sauron.plot(superorder_shapespace,
+            col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+            main = "Average ellipses by super order",
+            ellipses = mean,
+            legend = FALSE,
+            points = FALSE,
+            cex = 0.5)
+## Plotting mean ellipses
+sauron.plot(superorder_shapespace,
+            col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+            main = "Average major axes by super order",
+            major.axes = mean,
+            legend = TRUE,
+            points = FALSE,
+            cex = 0.5)
+## Plotting mean axes
+sauron.plot(order_shapespace,
+            col = c(rainbow(n.subsets(order_shapespace)-1), "grey"),
+            main = "Average ellipses by order",
+            ellipses = mean,
+            legend = FALSE,
+            points = FALSE,
+            cex = 0.5)
+## Plotting mean ellipses
+sauron.plot(order_shapespace,
+            col = c(rainbow(n.subsets(order_shapespace)-1), "grey"),
+            main = "Average major axes by order",
+            major.axes = mean,
+            legend = TRUE,
+            points = FALSE,
+            cex = 0.5)
+```
+Main axes and ellipses visualisation
+
+## Calculate the elaborations/explorations
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+## Run the analyses between groups
+super_results_between <- covar.projections.wrapper(superorder_shapespace,
+                                             type = "between",
+                                             base = "phylogeny",
+                                             dispRity.out = TRUE)
+## Run the analyses between groups
+order_results_between <- covar.projections.wrapper(order_shapespace,
+                                             type = "between",
+                                             base = "phylogeny",
+                                             dispRity.out = TRUE)
+## Run the analyses of groups on the phylogeny
+super_results_phylo <- covar.projections.wrapper(superorder_shapespace,
+                                            type = "within",
+                                            base = "phylogeny",
+                                            incl.base = TRUE,
+                                            dispRity.out = TRUE,
+                                            verbose = TRUE)
+## Run the analyses of groups on the phylogeny
+order_results_phylo <- covar.projections.wrapper(order_shapespace,
+                                            type = "within",
+                                            base = "phylogeny",
+                                            incl.base = TRUE,
+                                            dispRity.out = TRUE,
+                                            verbose = TRUE)
+## Run the analyses groups on themselves
+super_results_within <- covar.projections.wrapper(superorder_shapespace,
+                                            type = "within",
+                                            dispRity.out = TRUE,
+                                            verbose = TRUE)
+## Run the analyses groups on themselves
+order_results_within <- covar.projections.wrapper(order_shapespace,
+                                            type = "within",
+                                            dispRity.out = TRUE,
+                                            verbose = TRUE)
+## Save all
+allbirds_8748t_8Dshapespace_31levels_results_list <- list("super_results_between" = super_results_between,
+                     "order_results_between" = order_results_between,
+                     "super_results_phylo"   = super_results_phylo,
+                     "order_results_phylo"   = order_results_phylo,
+                     "super_results_within"  = super_results_within,
+                     "order_results_within"  = order_results_within)
+save(allbirds_8748t_8Dshapespace_31levels_results_list, file = "../Data/Processed/allbirds_8748t_8Dshapespace_31levels_results_list.rda")
+```
+
+```{r, echo = FALSE}
+## Quick load
+load(file = "../Data/Processed/allbirds_8748t_8Dshapespace_31levels_results_list.rda")
+results <- allbirds_8748t_8Dshapespace_31levels_results_list
+```
+
+
+```{r, echo = FALSE}
+## Plot the results
+wrap.plot <- function(results, col, main) {
+    ## How many sub plots?
+    n <- length(results)
+    ## Edit names for cleaning
+    # for(i in 1:n) {
+    #     names(results[[i]]$disparity) <- gsub(":phylogeny", "", names(results[[i]]$disparity))
+    # }
+
+    ## Which will be the centre plot?
+    centre <- 1
+    ## Plot everything
+    op <- par(mfrow = c(n, 1), mar = c(7, 4, 4, 2) + 0.1)
+    for(i in 1:n) {
+        plot(results[[i]], col = col, main = ifelse(i == centre, main, ""), las = 2, xlab = "")
+    }
+    par(op)
+}
+wrap.plot(super_results_between,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "Superorders differences")
+```
+Figure: these results show the projections ("position"), rejection ("distance") and angles ("degree") of the posteriors of each group's major axes onto the corresponding global phylogenetic major axes. For each panel, the highest the score the more the clade is elaborating, exploring, exploring perpendicular to the main axes for the position, distance and degree respectively.
+
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+wrap.plot(order_results_between,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "Superorders differences")
+```
+
+## Elaboration and exploration by species
+
+Similarly to the analyses described above, we ran the analyses for each species.
+Here, instead of projecting the major axes of the groups onto the global phylogenetic major axis we projected each species onto the phylogenetic major axis (for each posterior distribution).
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+
+## Plot the results
+wrap.plot(super_results_phylo,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "Projections per superorder\non the global phylogeny axes")
+```
+Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+
+## Plot the results
+wrap.plot(order_results_phylo,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "Projections per order\non the global phylogeny axes")
+```
+
+
+Finally, we ran the same analyses but instead of the projection of the species onto the global phylogenetic major axes, we projected them onto their respective group's phylogenetic major axes.
+
+
+
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+
+## Plot the results
+wrap.plot(super_results_within,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "Projections per superorder\nonto each superorder")
+```
+Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
+
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+
+## Plot the results
+wrap.plot(order_results_within,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "Projections per order\nonto each order")
+```
+
+
