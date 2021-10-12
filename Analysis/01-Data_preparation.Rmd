@@ -18,15 +18,13 @@ The method described in the next three markdown is essentially a mini chains wit
 
 
 ```{r install_beer, eval = FALSE}
-## Installing beer
-devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+## Installing the dispRity branch
+devtools::install_github("TGuillerme/dispRity@MCMCglmm")
 ```
 
 ```{r load_beer, eval = TRUE}
 ## Loading packages
-library(dispRity)
-library(beer)
-library(knitr)
+library(dispRity) #v>=1.7
 ```
 
 
@@ -78,49 +76,31 @@ We used the different clade levels (the 11 magnificent 7 + the families). For ea
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
 ## Remove the absent species
 clades_list <- clades_list[rownames(clades_list) %in% rownames(shapespace), ]
+## Sorting the list by rownames from the shapespace
+clades_list <- clades_list[match(rownames(shapespace), rownames(clades_list)), -c(6, 7)]
+## Renaming the levels
+colnames(clades_list) <- c("superorder", "order", "suborder", "superfamily", "family")
 
-#@param table the clade list data frame
-#@param level the ID of the column to use as a level
-#@param threshold drop levels with less than the threshold
-make.level.list <- function(table, level, threshold = 20) {
-  ## Select the level
-  table_level <- table[, level]
-  ## Find the empty level
-  empty_level <- which(levels(table_level) == "")
-  if(length(empty_level) != 0) {
-      ## Remove the empties
-      level_list <- as.factor(as.character(table_level[-which(table_level == "")]))
-  }
-  empty_level <- ""
-  ## Select the levels below the threshold
-  remove_levels <- which(table(level_list) < threshold)
-  ## Remove the levels
-  while(length(remove_levels) > 0) {
-    level_list <- as.factor(as.character(level_list[-which(level_list == names(remove_levels)[1])]))
-    table_level[which(table_level == names(remove_levels)[1])] <- empty_level
-    table_level <- as.factor(as.character(table_level))
-    remove_levels <- remove_levels[-1]
-  }
-  ## Convert into a list
-  factors <- levels(level_list)
-  list_levels <- list()
-  while(length(factors) > 0) {
-    list_levels[[length(list_levels) + 1]] <- which(level_list == factors[1])
-    factors <- factors[-1]
-  }
-  ## Name the elements correctly
-  names(list_levels) <- levels(level_list)
-
-  ## Also returns the new column
-  return(list(col = table_level, list = list_levels))
+## Cleaning the levels (removing any level with less than 15 elements)
+update.level <- function(level, min = 15) {
+    to_remove <- which(table(level) < min)
+    remove_table <- data.frame("clade" = names(to_remove), "species" =  c(table(level)[to_remove]))
+    level[which(level %in% c(names(to_remove)))] <-  ""
+    return(list(level = as.factor(as.character(level)), removed = remove_table))
 }
 
-## Reading the clades list
-groups_level1 <- make.level.list(clades_list, level = 1, threshold = 20)
-groups_level2 <- make.level.list(clades_list, level = 2, threshold = 20)
-all_groups <- c(groups_level1$list, groups_level2$list)
-group_names_level_1_2 <- all_groups
-save(group_names_level_1_2, file = "../Data/Processed/group_names_level_1_2.rda")
+## Updated list
+update_clade_list <- lapply(as.list(clades_list), update.level, min = 15)
+clade_list <- data.frame(lapply(update_clade_list, `[[`, 1))
+removed_table <- do.call(rbind, lapply(update_clade_list, function(x) {rownames(x$removed) <- NULL; return(x$removed)}))
+
+## Saving the clade list
+save(clade_list, file = "../Data/Processed/clade_list.rda")
+```
+
+```{r, echo = FALSE}
+library(knitr)
+kable(removed_table, caption = "List of removed clades by level and number of species in that clade in the dataset.", label = "Table X1")
 ```
 
 
@@ -129,28 +109,32 @@ save(group_names_level_1_2, file = "../Data/Processed/group_names_level_1_2.rda"
 How many dimensions do we need to represent at least 95% of the variance in each group
 
 ```{r}
+## Temporary change the empty levels to noclade
+clades <- clades_list[, c(1)]
+levels(clades)[1] <- "noclade"
+
 ## Make a dispRity object and get axes data
-shape_axes <- select.axes(custom.subsets(shapespace, group = all_groups))
-form_axes  <- select.axes(custom.subsets(formspace, group = all_groups))
+shape_axes <- select.axes(custom.subsets(shapespace, group = clades))
+form_axes  <- select.axes(custom.subsets(formspace, group = clades))
 ```
 
 ```{r, echo = FALSE}
-kable(summary(shape_axes)[, c(1:((length(shape_axes$dimensions)+1)*2))], caption = "variance per axes for the Shape space", label = "Table X1")
+kable(summary(shape_axes)[, c(1:((length(shape_axes$dimensions)+1)*2))], caption = "variance per axes for the Shape space", label = "Table X2")
 ```
 
 ```{r, echo = FALSE}
-kable(summary(form_axes)[, c(1:((length(form_axes$dimensions)+1)*2))], caption = "variance per axes for the Form space", label = "Table X2")
+kable(summary(form_axes)[, c(1:((length(form_axes$dimensions)+1)*2))], caption = "variance per axes for the Form space", label = "Table X3")
 ```
 
 ```{r, echo = FALSE, fig.height = 18, fig.width = 18}
 plot(shape_axes)
 ```
-Fig X1: variance per axes for the Shape space
+Fig X1: variance per axes per superorder and order in the shapespace
 
 ```{r, echo = FALSE, fig.height = 18, fig.width = 18}
 plot(form_axes)
 ```
-Fig X1: variance per axes for the Form space
+Fig X1: variance per axes per superorder and order in the formspace
 
 
 By analysing the distribution of the variance within each group, we will need `r length(shape_axes$dimensions)` dimensions for the shape space and `r length(form_axes$dimensions)` for the form space.

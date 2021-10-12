@@ -50,21 +50,20 @@ prep.data <- function(level, lvl.inc, clades, space, dim, consensus, trees, min 
   get.level.list <- function(one_list, clades, lvl.inc, min, verbose) {
 
     ## Separate the data by levels
-    get.levels <- function(data, min) {
-      ## Make the data as factor
-      factors <- as.factor(as.character(data))
+    get.levels <- function(data, min) {      
+      ## Separate the data by levels
+      levels_list <- lapply(as.list(levels(data[,1])), function(level, data) which(data == level), data = data)
+      ## Add the species names
+      levels_list <- lapply(levels_list, function(one_level, data) {names(one_level) <- rownames(data)[one_level]; return(one_level)}, data = data)
+      names(levels_list) <- levels(data[,1])
 
-      ## Remove empty levels
-      if(any(empty <- levels(factors) == "")) {
-        factors <- as.factor(as.character(data[-which(data == "")]))
+      ## Remove "" clade
+      if(any(empty <- which(names(levels_list) == ""))) {
+        levels_list <- levels_list[-empty]
       }
 
-      ## Separate the data by levels
-      levels_list <- lapply(as.list(levels(factors)), function(level, data) which(data == level), data = data)
-      names(levels_list) <- levels(factors)
-
-      ## Remove lists to smal
-      if(length(to_small <- which(unlist(lapply(levels_list, length)) <= min)) > 0) {
+      ## Remove lists to small
+      if(length(to_small <- which(unlist(lapply(levels_list, length)) < min)) > 0) {
         levels_list <- levels_list[-to_small]
       }
       return(levels_list)
@@ -74,7 +73,7 @@ prep.data <- function(level, lvl.inc, clades, space, dim, consensus, trees, min 
     levels_out <- list()
     for(i in 1:length(lvl.inc)) {
       ## Get the levels for this set of species
-      data <- clades[one_list$species, lvl.inc[i]]
+      data <- clades[one_list$species, lvl.inc[i], drop = FALSE]
       levels_out[[i]] <- get.levels(data, min)
     }
     return(levels_out)
@@ -93,11 +92,13 @@ prep.data <- function(level, lvl.inc, clades, space, dim, consensus, trees, min 
     
     ## Adding the levels
     level_columns <- replicate(length(levels), rep("", nrow(sub_space)))
+    rownames(level_columns) <- rownames(sub_space)
+    
     ## Filling in the levels
     for(i in 1:length(levels)) {
       go_through_levels <- levels[[i]]
       while(length(go_through_levels) != 0) {
-        level_columns[go_through_levels[[1]], i] <- names(go_through_levels)[[1]]
+        level_columns[names(go_through_levels[[1]]), i] <- names(go_through_levels)[[1]]
         go_through_levels <- go_through_levels[-1]
       }
       ## Adding the level columns
