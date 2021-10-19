@@ -14,7 +14,7 @@ This section contains the code for reproducing the analyses. To get the details,
 # Elaboration and exploration analyses
 
 ```{r, eval = TRUE, echo = FALSE, print = FALSE}
-library(beer)
+library(dispRity)
 ```
 
 # All birds shapespace analyses
@@ -28,19 +28,18 @@ shapespace <- form_shape_space_1tree_2levels$shape_space
 ## Loading the group names
 load("../Data/Processed/group_names_level_1_2.rda")
 
-superorder_shapespace <- MCMCglmm.dispRity(
+superorder_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = allbirds_8748t_8Dshapespace_31levels,
       group         = MCMCglmm.levels(allbirds_8748t_8Dshapespace_31levels)[c(1:8, 32)],
       rename.groups = c(names(group_names_level_1_2), "phylogeny")[c(1:8, 32)])
 
-order_shapespace <- MCMCglmm.dispRity(
+order_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = allbirds_8748t_8Dshapespace_31levels,
       group         = MCMCglmm.levels(allbirds_8748t_8Dshapespace_31levels)[-c(1:8, 33)],
       rename.groups = c(names(group_names_level_1_2), "phylogeny")[-c(1:8,33)])
 ```
-
 
 ```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5, echo = FALSE}
 ## Plotting just the space
@@ -366,12 +365,12 @@ kable(super_phylo_table, digits = 3)
 
 ### Extreme species per order (based on phylogeny)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 24, fig.width = 24, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE)
 ```
 Figure: elaborations distributions per order
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 24, fig.width = 24, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 order_distances_phylo <- get.distributions(results$order_results_phylo, type = "distance", exclude.phylo = TRUE)
 ```
 Figure: explorations distributions per order
@@ -428,3 +427,71 @@ order_phylo_table_within <- do.call(rbind, mapply(combine.results, order_positio
 rownames(order_phylo_table_within) <- NULL
 kable(order_phylo_table_within, digits = 3)
 ```
+
+## Correlations between elaboration and exploration?
+
+```{r, echo = FALSE}
+get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, ...) {
+
+    ## Remove the phylo one (if needed)
+    if(exclude.phylo) {
+        select_pos <- names(size.subsets(res$position))
+        select_dis <- names(size.subsets(res$distance))
+        select_pos <- select_pos[-which(select_pos %in% "phylogeny")]
+        select_dis <- select_dis[-which(select_dis %in% "phylogeny")]
+        res$position <- get.subsets(res$position, subsets = select_pos)
+        res$distance <- get.subsets(res$distance, subsets = select_dis)
+    }
+
+    ## Extracting all the results
+    disparity_pos <- lapply(res$position$disparity, function(X, type) return(X$elements))
+    disparity_dis <- lapply(res$distance$disparity, function(X, type) return(X$elements))
+
+    ## Recentre the results
+    disparity_pos <- lapply(disparity_pos, function(X) return(X-0.5))
+
+    ## Measure the central tendencies
+    centrals_pos <- lapply(disparity_pos, function(X, fun) apply(X, 1, fun), fun = cent.tend)
+    centrals_dis <- lapply(disparity_dis, function(X, fun) apply(X, 1, fun), fun = cent.tend)
+    
+    ## Number of groups
+    n_groups <- length(centrals_pos)
+
+    ## Calculate and plot the hdrcde
+    op_tmp <- par(mfrow = c(ceiling(sqrt(n_groups)), round(sqrt(n_groups))))
+    for(i in 1:n_groups) {
+        ## Testing the correlation
+        cor_test <- cor.test(centrals_pos[[i]], centrals_dis[[i]])
+        plot_main <- paste0(names(centrals_pos)[i], ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
+        ## Plotting the results
+        plot(centrals_pos[[i]], centrals_dis[[i]], pch = 19, xlab = "elaboration", ylab = "exploration", main = plot_main, cex = 0.5)
+    }
+    par(op_tmp)
+    return(invisible())
+}
+```
+
+### Correlations per super order (based on phylo)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+get.correlations(results$super_results_phylo)
+```
+
+### Correlations within super orders
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+get.correlations(results$super_results_within, exclude.phylo = TRUE)
+```
+
+### Correlations per order (based on phylo)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
+```
+
+### Correlations within orders
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
+get.correlations(results$order_results_within, exclude.phylo = TRUE)
+```
+
