@@ -18,12 +18,9 @@ The following code snippets are used to illustrate the implementation of the fun
 # Elaboration and exploration analyses
 
 ```{r, eval = TRUE, echo = FALSE, print = FALSE}
-library(beer)
-## Loading the MCMCglmm
-load("../Data/processed/combined_results.rda")
+library(dispRity)
 ## Loading the tree and data
-data(demo_data)
-data(demo_tree)
+data(charadriiformes)
 ## Setting the colour vector
 colour_vector <- c("orange", "blue", "darkgreen", "grey")
 ```
@@ -34,17 +31,17 @@ colour_vector <- c("orange", "blue", "darkgreen", "grey")
 To analyse the exploration and elaboration aspects of both clades and tips, we first selected 1000 random covariance matrices from the combined MCMCglmm posterior variance-covariance matrices represented in this space.
 
 ```{r, eval = TRUE, echo = FALSE}
-covar_matrices <- MCMCglmm.dispRity(
-                  data          = demo_data,
-                  posteriors    = combined_results,
-                  group         = MCMCglmm.levels(combined_results)[1:4],
+covar_matrices <- MCMCglmm.subsets(
+                  data          = charadriiformes$data,
+                  posteriors    = charadriiformes$posteriors,
+                  group         = MCMCglmm.levels(charadriiformes$posteriors)[1:4],
                   rename.groups = c("gulls", "plovers", "sandpipers", "phylogeny"))
 ```
 
 
 ```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5, echo = FALSE}
 ## Plotting just the space
-sauron.plot(covar_matrices,
+covar.plot(covar_matrices,
             col = colour_vector,
             main = "demo space",
             legend = TRUE)
@@ -114,7 +111,7 @@ In practice, we calculated the coordinates of these axes end points  directly fr
 One can visualise these ellipses and major axes in 2D using the `sauron.plot`functions with the `major.axis = mean` and `ellipses = mean` options (based on @ellipse) to display the mean major.axis and the mean ellipses:
 
 ```{r, echo = FALSE, fig.height = 6, fig.width = 6}
-sauron.plot(covar_matrices,
+covar.plot(covar_matrices,
             col = colour_vector,
             main = "Average ellipses and\nmajor axes",
             major.axes = mean,
@@ -128,7 +125,7 @@ We can also visualise 100 random major axes and 100 random ellipses:
 ```{r, echo = FALSE, fig.height = 12, fig.width = 6}
 par(mfrow = c(2,1))
 ## Plotting 100 axes
-sauron.plot(covar_matrices,
+covar.plot(covar_matrices,
             n = 100,
             col = colour_vector,
             main = "100 random major axes",
@@ -138,7 +135,7 @@ sauron.plot(covar_matrices,
             xlim = c(-2, 2),
             ylim = c(-2, 2))
 ## Plotting 100 ellipses
-sauron.plot(covar_matrices,
+covar.plot(covar_matrices,
             n = 100,
             col = colour_vector,
             main = "100 random ellipses",
@@ -177,10 +174,9 @@ In practice, for the projection to work, we translated and centred each group's 
 
 ```{r, fig.height = 6, fig.width = 18, echo = FALSE}
 ## Run the analyses between groups
-results_between <- covar.projections.wrapper(covar_matrices,
-                                             type = "between",
-                                             base = "phylogeny",
-                                             dispRity.out = TRUE)
+results_between <- dispRity.covar.projections(covar_matrices,
+                                             type = "groups",
+                                             base = "phylogeny")
 ## Plot the results
 wrap.plot <- function(results, col, main) {
     ## How many sub plots?
@@ -206,20 +202,16 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 
 ```{r, fig.height = 6, fig.width = 18, echo = FALSE, eval = TRUE}
 ## Run the analyses of groups on the phylogeny
-results_phylo <- covar.projections.wrapper(covar_matrices,
-                                            type = "within",
-                                            base = "phylogeny",
-                                            dispRity.out = TRUE)
+results_phylo <- dispRity.covar.projections(covar_matrices,
+                                            type = "elements",
+                                            base = "phylogeny")
 ## Plot the results
 wrap.plot(results_phylo,
           col = colour_vector[-4],
           main = "Projection on the\nglobal phylogeny axes")
+# source("../Functions/circular.plot.R")
 
-source("../Functions/circular.plot.R")
-
-circular.plot.phytools(data = results_phylo$position, tree = demo_tree, gradient = c("blue", "orange"), clade.names = TRUE, clades = colour_vector[-4], lwd = 3)
-
-
+# circular.plot.phytools(data = results_phylo$position, tree = demo_tree, gradient = c("blue", "orange"), clade.names = TRUE, clades = colour_vector[-4], lwd = 3)
 ```
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
@@ -227,9 +219,8 @@ Finally, we ran the same analyses but instead of the projection of the species o
 
 ```{r, fig.height = 6, fig.width = 18, echo = FALSE, eval = TRUE}
 ## Run the analyses groups on themselves
-results_within <- covar.projections.wrapper(covar_matrices,
-                                            type = "within",
-                                            dispRity.out = TRUE)
+results_within <- dispRity.covar.projections(covar_matrices,
+                                            type = "elements")
 ## Plot the results
 wrap.plot(results_within,
           col = colour_vector,
@@ -237,63 +228,6 @@ wrap.plot(results_within,
 ```
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
-
-
-```{r, echo = FALSE, eval = TRUE}
-library(phytools)
-source("~/Packaging/phytools/R/plotTree.wBars.R")
-
-get.disparity.matrix <- function(data, col) {
-    ## Get the matrices
-    matrices <- lapply(data$disparity, `[[`, 1)
-    ## Add the rownames
-    list_of_names <- list()
-    for(one_group in 1:length(matrices)) {
-        rownames(matrices[[one_group]]) <- list_of_names[[one_group]] <- rownames(data$matrix[[1]])[c(data$subsets[[one_group]]$elements)]
-    }
-    ## Name the groups
-    names(list_of_names) <- names(data$subsets)
-
-    ## Matrix
-    matrix <- do.call(rbind, matrices)
-
-    ## Colours
-    if(!missing(col)) {
-        name.cols <- function(names, col) {
-            out <- rep(col, length(names))
-            names(out) <- names
-            return(out)
-        }
-        col <- mapply(name.cols, list_of_names, as.list(col))
-        names(col) <- NULL
-        col <- unlist(col)
-    }
-
-    ## Output
-    if(missing(col)) {
-        return(list(data = matrix, names = list_of_names))
-    } else {
-        return(list(data = matrix, names = list_of_names, col = col))
-    }
-}
-
-## Get the different elements
-phylo_elaboration  <- get.disparity.matrix(results_phylo$position,
-                                          col = colour_vector[-4])
-within_elaboration <- get.disparity.matrix(
-    get.subsets(results_within$position, subsets = c(1,2,3)),
-                                          col = colour_vector[-4])
-phylo_exploration  <- get.disparity.matrix(results_phylo$distance,
-                                          col = colour_vector[-4])
-within_exploration <- get.disparity.matrix(
-    get.subsets(results_within$distance, subsets = c(1,2,3)),
-                                          col = colour_vector[-4])
-phylo_angle        <- get.disparity.matrix(results_phylo$degree,
-                                          col = colour_vector[-4])
-within_angle       <- get.disparity.matrix(
-    get.subsets(results_within$degree, subsets = c(1,2,3)),
-                                          col = colour_vector[-4])
-```
 
 ## Projections (on the main phylogeny)
 
