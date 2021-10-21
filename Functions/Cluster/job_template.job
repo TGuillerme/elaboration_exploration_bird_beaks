@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -l h_rt=48:00:00
+#$ -l h_rt=72:00:00
 #$ -l rmem=64G
 #$ -m ae
 #$ -M guillert@tcd.ie
