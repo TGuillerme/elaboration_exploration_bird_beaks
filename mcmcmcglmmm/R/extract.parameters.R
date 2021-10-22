@@ -61,16 +61,65 @@ merge.V <- function(priors_list) {
     for(one_ran in 1:n_ran) {
         ## Get the list of V matrices
         V_list <- lapply(lapply(priors_list, `[[`, "G"), function(X, i) return(X[[i]]$V), i = one_ran)
-        template$G[[one_ran]]$V <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), median)
+        ## Get the prior matrix
+        prior_matrix <- positive.definite(V_list)
+        if(is.null(prior_matrix)) {
+            stop(paste0("Impossible to get a positive definite matrix from the posteriors of the random term number ", one_ran, "."), call. = FALSE)
+        } else {
+            if(is(prior_matrix, "list")) {
+                ## Warning
+                warning(paste0("The median of the posteriors for the random term number ", one_ran, " didn't resulted in a positive definite matrix. The mean was used instead."), call. = FALSE)
+                prior_matrix <- prior_matrix$matrix
+            }
+        }
+
+        ## Refill the template
+        template$G[[one_ran]]$V <- prior_matrix
     }
 
     ## Fill the list for R
     for(one_res in 1:n_res) {
         ## Get the list of V matrices
         V_list <- lapply(lapply(priors_list, `[[`, "R"), function(X, i) return(X[[i]]$V), i = one_res)
+
+        ## Get the prior matrix
+        prior_matrix <- positive.definite(V_list)
+        if(is.null(prior_matrix)) {
+            stop(paste0("Impossible to get a positive definite matrix from the posteriors of the residual term number ", one_res, "."), call. = FALSE)
+        } else {
+            if(is(prior_matrix, "list")) {
+                ## Warning
+                warning(paste0("The median of the posteriors for the residual term number ", one_res, " didn't resulted in a positive definite matrix. The mean was used instead."), call. = FALSE)
+                prior_matrix <- prior_matrix$matrix
+            }
+        }
+
+        ## Refill the template
+        template$G[[one_ran]]$V <- prior_matrix
+
+
         template$R[[one_res]]$V <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), median)
     }
     return(template)
+}
+
+## Make sure the matrix is positive definite
+positive.definite <- function(V_list) {
+
+    ## Get the median
+    matrix <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), median)
+
+    ## Check if the matrix is positive definitive (all eigen values > 0)
+    if(any((eig_val <- eigen(matrix)$values) < 0)) {
+        ## Use the mean rather than the median
+        matrix <- apply(array(do.call(cbind, V_list), dim = c(dim(V_list[[1]]), length(V_list))), c(1,2), mean)
+        if(any((eig_val <- eigen(matrix)$values) < 0)) {
+            matrix <- NULL
+        } else {
+            matrix <- list(matrix = matrix, use_mean = TRUE)
+        }
+    }
+    return(matrix)
 }
 
 ## Get the burnin value
