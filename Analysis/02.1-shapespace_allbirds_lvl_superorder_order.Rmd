@@ -104,7 +104,7 @@ TODO: details
 ## Preparing the model files
 model_list <- list()
 class(model_list) <- c("beer", "mini.chains")
-models_path <- "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/cluster_out/"
+models_path <- "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/cluster/"
 ## Loading all models
 for(file in list.files(models_path)) {
     load(paste0(models_path, file, collapse = "/"))
