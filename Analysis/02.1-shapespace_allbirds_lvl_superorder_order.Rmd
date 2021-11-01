@@ -105,20 +105,43 @@ TODO: details
 model_list <- list()
 class(model_list) <- c("beer", "mini.chains")
 models_path <- "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/cluster/"
-## Loading all models
-for(file in list.files(models_path)) {
-    load(paste0(models_path, file, collapse = "/"))
+## Getting all the model files
+model_files <- list.files(models_path, pattern = ".rda")
+## Get the first model
+load(paste0(models_path, model_files[1], collapse = "/"))
+print(model_files[1])
+## Clean the bits that are not going to be used (but are huge)
+model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
+## Update the model list
+model_list[[length(model_list)+1]] <- model[[1]]
+model <- NULL
+model_files <- model_files[-1]
+
+## Get the subsequent models and merge them as we go
+while(length(model_files) != 0) {
+    load(paste0(models_path, model_files[1], collapse = "/"))
+    print(model_files[1])
+    ## Clean the bits that are not going to be used (but are huge)
+    model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
+    ## Update the model list
     model_list[[length(model_list)+1]] <- model[[1]]
+    ## Merge the models (overwrite the model list)
+    model_list <- list(combine.mini.chains(model_list))
+    ## DEBUG
+    print("model list size:")
+    print(format(object.size(model_list), units = "MB"))
+    model <- NULL
+    model_files <- model_files[-1]
 }
 
 ## Combining the model files
-shapespace_allbirds_lvl_superorder_order <- combine.mini.chains(model_list)
+shapespace_allbirds_lvl_superorder_order <- model_list[[1]]
 
 ## Checking the diagnosis
 
 
 ## Saving the results
-save(shapespace_allbirds_lvl_superorder_order, file = "../Data/processed/shapespace_allbirds_lvl_superorder_order.rda")
+save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
 
 
 
