@@ -32,11 +32,11 @@ combine.mini.chains <- function(mini.chains) {
     output$Sol <- as.mcmc(do.call(rbind, lapply(mini.chains, `[[`, "Sol")), mcpar)
     output$VCV <- as.mcmc(do.call(rbind, lapply(mini.chains, `[[`, "VCV")), mcpar)
 
-    ## Get the deviances
+    ## Get the deviances
     output$Deviance <- as.mcmc(do.call(c, lapply(mini.chains, `[[`, "Deviance")), mcpar)
     output$DIC <- mean(do.call(c, lapply(mini.chains, `[[`, "DIC")))
 
-    ## Return the whole bunch
+    ## Return the whole bunch
     class(output) <- class(mini.chains[[1]])
     return(output)
 }
