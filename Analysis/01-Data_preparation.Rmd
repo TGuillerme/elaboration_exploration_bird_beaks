@@ -65,7 +65,7 @@ plot.dispRity(formspace, type = "preview", pch = 21, main = "Form space")
 consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
 
 ## Reading the distribution of trees
-trees_list <- read.tree("../Data/raw/Tree_data/AllBirdsHackett1.tre")
+trees_list <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
 ```
 
  * The clade data
