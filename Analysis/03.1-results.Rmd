@@ -27,16 +27,22 @@ shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
 ## Load the covar
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
 
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
 superorder_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
-      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(1:8, 32)],
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
 order_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
-      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[-c(1:8, 33)],
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ```
 
@@ -50,7 +56,7 @@ covar.plot(superorder_shapespace,
 The global Shape space
 
 
-```{r, echo = FALSE, fig.height = 18, fig.width = 18, eval = FALSE}
+```{r, echo = FALSE, fig.height = 18, fig.width = 18, eval = TRUE}
 par(mfrow = c(2,2))
 ## Plotting mean axes
 covar.plot(superorder_shapespace,
