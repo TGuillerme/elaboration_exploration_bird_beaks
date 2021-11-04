@@ -1,5 +1,5 @@
 ---
-title: "Bird beak's elaboration and exploration"
+title: "Bird beak's elaboration and innovation"
 author: "Thomas Guillerme"
 date: "`r Sys.Date()`"
 bibliography: references.bib
@@ -9,9 +9,7 @@ output:
     fig_height: 8
 ---
 
-This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_exploration_analyses.Rmd.
-
-# Elaboration and exploration analyses
+This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
 
 ```{r, eval = TRUE, echo = FALSE, print = FALSE}
 library(dispRity)
@@ -46,17 +44,25 @@ order_shapespace <- MCMCglmm.subsets(
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ```
 
-```{r, message = FALSE, warning = FALSE, fig.height = 5, fig.width = 5, echo = FALSE}
+First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
 ## Plotting just the space
 covar.plot(superorder_shapespace,
            main = "Shapespace",
            cex = 0.5,
-           legend = FALSE)
+           legend = TRUE,
+           col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+           legend.args = list(x = "bottomright", cex = 2/3))
 ```
-The global Shape space
+
+Figure: The global shape space
 
 
-```{r, echo = FALSE, fig.height = 18, fig.width = 18, eval = TRUE}
+We can then check the distribution of the variance covariance matrices for each super order and each order.
+The VCV matrices are represented as average ellipses or average axis.
+
+```{r, echo = FALSE, fig.height = 14, fig.width = 14, eval = TRUE}
 par(mfrow = c(2,2))
 ## Plotting mean axes
 covar.plot(superorder_shapespace,
@@ -91,9 +97,85 @@ covar.plot(order_shapespace,
            points = FALSE,
            cex = 0.5)
 ```
-Main axes and ellipses visualisation
 
-## Calculate the elaborations/explorations
+Main axes and ellipses visualisation for each superorders and orders.
+
+### Are these 2D average ellipses and/or axes an accurate representation of what's going on? 
+<details>
+  <summary>[Click to expand] TL;DR: It depends...
+</summary>
+  
+A couple of things have to be taken into account:
+
+ * First, the averaging of the VCV (and it's ellipse and/or maon axis) can result into weird "middle" VCV that are not representing the individual VCV (e.g. if half VCV are negative, and half positive, the average will be probably 0; which does not exist).
+ * Second, the ellipses in nD projected onto a 2D space will be deformed (unless the VCV is a real pancake on the first 2D, i.e. with no variance on the other dimensions).
+
+Note that both problems are only visual though since: 1) we don't use averages anywhere (but the full distributions all the time) and 2) the linear algebra bit with the projections and stuff works in any number of dimensions and transforms the results into 1D results (i.e. the projection/rejection of groups/species on the major axes in 8D space).
+
+Here's a visualisation of how the variance in VCVs affects the averaging artefact:
+
+```{r, eval = TRUE, echo = FALSE}
+visualisation.group <- function(data, subset, dimensions, n = 100) {
+
+    ## Get the subset
+    sub <- get.subsets(data, subsets = subset)
+
+    ## Make 2D
+    if(!missing(dimensions)) {
+        sub$matrix[[1]] <- sub$matrix[[1]][,dimensions]
+        sub$call$dimensions <- dimensions
+        fun2d <- function(covar) {
+            covar$VCV <- covar$VCV[dimensions, dimensions]
+            covar$loc <- covar$loc[dimensions]
+            return(covar)
+        }
+        sub$covar <- lapply(sub$covar, lapply, fun2d)
+        main_D <- "2D"
+    } else {
+        main_D <- "8D"
+    }
+
+    ## Make the tile
+    main <- paste0(n, " random ", subset, " VCV (", main_D, ")")
+
+    ## Plot
+    covar.plot(sub, major.axes = TRUE, ellipses = TRUE, points = FALSE, legend = FALSE, main = main)
+    covar.plot(sub, major.axes = mean, ellipses = mean, points = FALSE, col = "red", add = TRUE)
+}
+
+visualisation.group(superorder_shapespace, "Mirandornithes")
+```
+
+```{r, echo = FALSE, eval = TRUE}
+visualisation.group(superorder_shapespace, "Strisores")
+```
+
+Or even more obvious (with an direction that does not really exist (due to averaging)):
+
+```{r, echo = FALSE, eval = TRUE}
+visualisation.group(superorder_shapespace, "Paleognathae")
+```
+
+For the 2Dness, the effect is a bit less obvious (because the two first dimensions already have so much variance). Here is an example for the Columbimorphae. (to check different groups, you can easily modify the source code of the Rmd. TODO: this would be good in some shiny app innovation thingy).
+
+
+```{r, echo = FALSE, eval = TRUE, fig.height = 6, fig.width = 12}
+par(mfrow = c(1,2))
+visualisation.group(superorder_shapespace, "Columbimorphae")
+visualisation.group(superorder_shapespace, "Columbimorphae", dimensions = c(1,2))
+```
+
+Back to the main story.
+</details>
+
+## Calculate the elaborations/innovations
+
+We then calculate the projections/rejections as explained in more details in the [03-elaboration_exploration_analyses.Rmd]() script.
+Really briefly we calculate three types of projections/rejections abbreviated as follows below:
+
+ * `between`: the projection of each group's VCV (major axis) on the phylogenetic's VCV (major axis)
+ * `phylo`: the projection of each element within a group (species) onto the phylogenetic's VCV (major axis)
+ * `within`: the projection of each element within a group (species) onto its own VCV (major axis)
 
 ```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
 ## Run the analyses between groups
@@ -142,14 +224,23 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 ```
 
 
-```{r, echo = FALSE}
+### Projections between groups:
+
+
+```{r, echo = FALSE, fig.height = 8, fig.width = 8}
 ## Plot the results
-wrap.plot <- function(results, col, main, names) {
+wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolute = FALSE) {
 
     ## Adding one plot
-    one.plot <- function(one_result, xlab, col, zero = TRUE, main, ...) {
+    one.plot <- function(one_result, xlab, col, zero = TRUE, main, centre, absolute, ...) {
         values <- lapply(get.disparity(one_result, concatenate = FALSE), c)
-        boxplot(values, horizontal = TRUE, yaxt = "n", col = col, xlab = xlab, main, ...)
+        if(centre) {
+            values <- lapply(values, function(X) {X-0.5})
+        }
+        if(absolute) {
+            values <- lapply(values, function(X) {abs(X-0.5)})
+        }
+        boxplot(values, horizontal = TRUE, yaxt = "n", col = col, xlab = xlab, main = main, ...)
         if(zero) {
             abline(v = 0, col = "black", lty = 3, lwd = 1)
         }
@@ -172,81 +263,166 @@ wrap.plot <- function(results, col, main, names) {
     ## Plot everything
     op <- par(mfrow = c(1, n+1))
     ## Plot the first panel
-    par(bty = "n", mar = c(5, 5, 4, 0) + 0.1)
+    par(bty = "n", mar = c(5, 14, 4, 0) + 0.1)
     empty <- matrix(0, ncol = length(results[[1]]$disparity))
     colnames(empty) <- names(results[[1]]$disparity)
     boxplot(empty, horizontal = TRUE, las = 2, col = "white", ylim = c(0,0), xaxt = "n", border = "white")
     for(i in 1:n) {
+        ## Is position?
+        is_position <- names(results)[[i]] == "position"
         par(mar = c(5, 0, 4, 0) + 0.1, bty = "o")
-        one.plot(results[[i]], col = col, main = ifelse(i == centre, main, ""), xlab = names_list, zero = (names(results)[[i]] == "position"))
+        one.plot(results[[i]], col = col, centre = is_position && centre.position, main = ifelse(i == centre, main, ""), xlab = names_list[i], zero = is_position, absolute = absolute)
     }
     par(op)
 }
 wrap.plot(results$super_results_between,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Superorders differences",
+          main = "[between] superorders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
+
 Figure: these results show the projections ("position"), rejection ("distance") and angles ("degree") of the posteriors of each group's major axes onto the corresponding global phylogenetic major axes. For each panel, the highest the score the more the clade is elaborating, exploring, exploring perpendicular to the main axes for the position, distance and degree respectively.
 
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+```{r, echo = FALSE, fig.height = 8, fig.width = 8}
+wrap.plot(results$super_results_between,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "[between] superorders VCV\nonto the phylogenetic VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
+```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 wrap.plot(results$order_results_between,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Superorders differences",
+          main = "[between] orders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
-## Elaboration and exploration by species
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+wrap.plot(results$order_results_between,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "[between] orders VCV\nonto the phylogenetic VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
+### Projections of the species on the phylogenetic VCV
 
 Similarly to the analyses described above, we ran the analyses for each species.
 Here, instead of projecting the major axes of the groups onto the global phylogenetic major axis we projected each species onto the phylogenetic major axis (for each posterior distribution).
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
 ## Plot the results
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Projections per superorder\non the global phylogeny axes",
+          main = "[phylo] superorders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
+
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
+
+```{r, echo = FALSE, fig.height = 8, fig.width = 8}
+wrap.plot(results$super_results_phylo,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "[phylo] superorders species\nonto the phylogenetic VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 
 ## Plot the results
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Projections per order\non the global phylogeny axes",
+          main = "[phylo] orders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+wrap.plot(results$order_results_phylo,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "[phylo] orders species\nonto the phylogenetic VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
+### Projections of the species on their own group's VCV
 
 Finally, we ran the same analyses but instead of the projection of the species onto the global phylogenetic major axes, we projected them onto their respective group's phylogenetic major axes.
 
 
-
-
-```{r, fig.height = 20, fig.width = 10, echo = FALSE}
+```{r, fig.height = 8, fig.width = 8, echo = FALSE}
 
 ## Plot the results
 wrap.plot(results$super_results_within,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Projections per superorder\nonto each superorder",
+          main = "[within] superorders species\nonto their group's VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
+
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
+
+```{r, echo = FALSE, fig.height = 8, fig.width = 8}
+wrap.plot(results$super_results_within,
+          col = rainbow(n.subsets(superorder_shapespace)-1),
+          main = "[within] superorders species\nonto their group's VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Projections per order\nonto each order",
+          main = "[within] oreders species\nonto their group's VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
-## Different scores distributions per species
+<details>
+  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+</summary>
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+wrap.plot(results$order_results_within,
+          col = rainbow(n.subsets(order_shapespace)-1),
+          main = "[within] oreders species\nonto their group's VCV",
+          names = c("absolute elaboration", "innovation", "angle"),
+          centre.position = FALSE, absolute = TRUE)
+```
+</details>
+
+
+So that's the story so far...
+
+
+# Different scores distributions per species
 
 ```{r, eval = TRUE, echo = FALSE, eval = TRUE}
 library(hdrcde)
@@ -257,9 +433,10 @@ library(hdrcde)
 #@param use.hdr whether to use kernel density estimate for the outputs (default is TRUE)
 #@param prob which quantiles to use (default is c(50, 95, 99))
 #@param exclude.phylo remove the phylogeny subset (default = FALSE)
+#@param absolute whether to make the position values absolute or not
 #@param ... plot options
 
-get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, ...) {
+get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, absolute = FALSE, ...) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -272,7 +449,11 @@ get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, pro
 
     ## Recentre the results
     if(type == "position") {
-        disparity <- lapply(disparity, function(X) return(X-0.5))
+        if(!absolute) {
+            disparity <- lapply(disparity, function(X) return(X-0.5))
+        } else {
+            disparity <- lapply(disparity, function(X) return(abs(X-0.5)))
+        }
     }
 
     ## Measure the central tendencies
@@ -337,7 +518,7 @@ combine.results <- function(res1, res2) {
     ## Combine the results
     res_out <- rbind(res1[,1:2], res2[, 1:2])
     res_out$elaboration <- c(res1[, 3], rep(NA, nrow(res2)))
-    res_out$exploration <- c(rep(NA, nrow(res1)), res2[, 3])
+    res_out$innovation <- c(rep(NA, nrow(res1)), res2[, 3])
     ## Find any species in commons
     commons <- intersect(res1$species, res2$species)
     if(length(commons) > 0 && is.na(commons)) {
@@ -366,19 +547,26 @@ combine.results <- function(res1, res2) {
 }
 ```
 
+Furthermore, we can look at things species per species to find which species species have the most extreme values (in general, or within their groups).
+
 
 ### Extreme species per super order (based on phylogeny)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-super_positions_phylo <- get.distributions(results$super_results_phylo, type = "position")
+super_positions_phylo <- get.distributions(results$super_results_phylo, type = "position", absolute = TRUE)
 ```
 Figure: elaborations distributions per super orders
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 super_distances_phylo <- get.distributions(results$super_results_phylo, type = "distance")
 ```
-Figure: explorations distributions per super orders
+Figure: innovations distributions per super orders
+
+
+<details>
+  <summary>[Click to expand] Table of species extreme values projected onto the phylogenetic VCV.
+</summary>
 
 ```{r, echo = FALSE}
 library(knitr)
@@ -387,6 +575,8 @@ super_phylo_table <- do.call(rbind, mapply(combine.results, super_positions_phyl
 rownames(super_phylo_table) <- NULL
 kable(super_phylo_table, digits = 3)
 ```
+
+</details>
 
 
 ### Extreme species per order (based on phylogeny)
@@ -399,7 +589,13 @@ Figure: elaborations distributions per order
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 order_distances_phylo <- get.distributions(results$order_results_phylo, type = "distance", exclude.phylo = TRUE)
 ```
-Figure: explorations distributions per order
+Figure: innovations distributions per order
+
+
+
+<details>
+  <summary>[Click to expand] Table of species extreme values projected onto their own group's VCV.
+</summary>
 
 ```{r, echo = FALSE}
 ## Combining the results
@@ -407,7 +603,7 @@ order_phylo_table <- do.call(rbind, mapply(combine.results, order_positions_phyl
 rownames(order_phylo_table) <- NULL
 kable(order_phylo_table, digits = 3)
 ```
-
+</details>
 
 
 
@@ -422,7 +618,12 @@ Figure: elaborations distributions within super orders
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 super_distances_within <- get.distributions(results$super_results_within, type = "distance", exclude.phylo = TRUE)
 ```
-Figure: explorations distributions within super orders
+Figure: innovations distributions within super orders
+
+
+<details>
+  <summary>[Click to expand] Table of species extreme values projected onto their own group's VCV.
+</summary>
 
 ```{r, echo = FALSE}
 ## Combining the results
@@ -431,7 +632,7 @@ rownames(super_phylo_table_within) <- NULL
 kable(super_phylo_table_within, digits = 3)
 ```
 
-
+</details>
 
 
 ### Extreme species per order (within)
@@ -445,7 +646,12 @@ Figure: elaborations distributions within orders
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 order_distances_within <- get.distributions(results$order_results_within, type = "distance", exclude.phylo = TRUE)
 ```
-Figure: explorations distributions within orders
+Figure: innovations distributions within orders
+
+
+<details>
+  <summary>[Click to expand] Table of species extreme values projected onto their own group's VCV.
+</summary>
 
 ```{r, echo = FALSE}
 ## Combining the results
@@ -453,11 +659,12 @@ order_phylo_table_within <- do.call(rbind, mapply(combine.results, order_positio
 rownames(order_phylo_table_within) <- NULL
 kable(order_phylo_table_within, digits = 3)
 ```
+</details>
 
-## Correlations between elaboration and exploration?
+## Correlations between elaboration and innovation?
 
 ```{r, echo = FALSE}
-get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, ...) {
+get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, absolute = TRUE, ...) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -474,7 +681,11 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, ...
     disparity_dis <- lapply(res$distance$disparity, function(X, type) return(X$elements))
 
     ## Recentre the results
-    disparity_pos <- lapply(disparity_pos, function(X) return(X-0.5))
+    if(!absolute) {
+        disparity_pos <- lapply(disparity_pos, function(X) return(X-0.5))
+    } else {
+        disparity_pos <- lapply(disparity_pos, function(X) return(abs(X-0.5)))
+    }
 
     ## Measure the central tendencies
     centrals_pos <- lapply(disparity_pos, function(X, fun) apply(X, 1, fun), fun = cent.tend)
@@ -490,7 +701,7 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, ...
         cor_test <- cor.test(centrals_pos[[i]], centrals_dis[[i]])
         plot_main <- paste0(names(centrals_pos)[i], ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
         ## Plotting the results
-        plot(centrals_pos[[i]], centrals_dis[[i]], pch = 19, xlab = "elaboration", ylab = "exploration", main = plot_main, cex = 0.5)
+        plot(centrals_pos[[i]], centrals_dis[[i]], pch = 19, xlab = "elaboration", ylab = "innovation", main = plot_main, cex = 0.5)
     }
     par(op_tmp)
     return(invisible())
@@ -520,4 +731,73 @@ get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 get.correlations(results$order_results_within, exclude.phylo = TRUE)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
