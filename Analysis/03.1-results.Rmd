@@ -144,26 +144,48 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 
 ```{r, echo = FALSE}
 ## Plot the results
-wrap.plot <- function(results, col, main) {
+wrap.plot <- function(results, col, main, names) {
+
+    ## Adding one plot
+    one.plot <- function(one_result, xlab, col, zero = TRUE, main, ...) {
+        values <- lapply(get.disparity(one_result, concatenate = FALSE), c)
+        boxplot(values, horizontal = TRUE, yaxt = "n", col = col, xlab = xlab, main, ...)
+        if(zero) {
+            abline(v = 0, col = "black", lty = 3, lwd = 1)
+        }
+    }
+
+
     ## How many sub plots?
     n <- length(results)
-    ## Edit names for cleaning
-    # for(i in 1:n) {
-    #     names(results[[i]]$disparity) <- gsub(":phylogeny", "", names(results[[i]]$disparity))
-    # }
+
+    ## Recycle labels?
+    if(missing(names)) {
+        names_list <-names(results)
+    } else {
+        names_list <- names
+    }
+
 
     ## Which will be the centre plot?
-    centre <- 1
+    centre <- ceiling(n/2)
     ## Plot everything
-    op <- par(mfrow = c(n, 1), mar = c(7, 4, 4, 2) + 0.1)
+    op <- par(mfrow = c(1, n+1))
+    ## Plot the first panel
+    par(bty = "n", mar = c(5, 5, 4, 0) + 0.1)
+    empty <- matrix(0, ncol = length(results[[1]]$disparity))
+    colnames(empty) <- names(results[[1]]$disparity)
+    boxplot(empty, horizontal = TRUE, las = 2, col = "white", ylim = c(0,0), xaxt = "n", border = "white")
     for(i in 1:n) {
-        plot(results[[i]], col = col, main = ifelse(i == centre, main, ""), las = 2, xlab = "")
+        par(mar = c(5, 0, 4, 0) + 0.1, bty = "o")
+        one.plot(results[[i]], col = col, main = ifelse(i == centre, main, ""), xlab = names_list, zero = (names(results)[[i]] == "position"))
     }
     par(op)
 }
 wrap.plot(results$super_results_between,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Superorders differences")
+          main = "Superorders differences",
+          names = c("elaboration", "innovation", "angle"))
 ```
 Figure: these results show the projections ("position"), rejection ("distance") and angles ("degree") of the posteriors of each group's major axes onto the corresponding global phylogenetic major axes. For each panel, the highest the score the more the clade is elaborating, exploring, exploring perpendicular to the main axes for the position, distance and degree respectively.
 
@@ -171,7 +193,8 @@ Figure: these results show the projections ("position"), rejection ("distance") 
 ```{r, fig.height = 20, fig.width = 10, echo = FALSE}
 wrap.plot(results$order_results_between,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Superorders differences")
+          main = "Superorders differences",
+          names = c("elaboration", "innovation", "angle"))
 ```
 
 ## Elaboration and exploration by species
@@ -183,7 +206,8 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 ## Plot the results
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Projections per superorder\non the global phylogeny axes")
+          main = "Projections per superorder\non the global phylogeny axes",
+          names = c("elaboration", "innovation", "angle"))
 ```
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
@@ -192,7 +216,8 @@ Figure: the projection of each species per group onto the posterior distribution
 ## Plot the results
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Projections per order\non the global phylogeny axes")
+          main = "Projections per order\non the global phylogeny axes",
+          names = c("elaboration", "innovation", "angle"))
 ```
 
 
@@ -206,7 +231,8 @@ Finally, we ran the same analyses but instead of the projection of the species o
 ## Plot the results
 wrap.plot(results$super_results_within,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "Projections per superorder\nonto each superorder")
+          main = "Projections per superorder\nonto each superorder",
+          names = c("elaboration", "innovation", "angle"))
 ```
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
@@ -216,7 +242,8 @@ Figure: the projection of each species per group onto the posterior distribution
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "Projections per order\nonto each order")
+          main = "Projections per order\nonto each order",
+          names = c("elaboration", "innovation", "angle"))
 ```
 
 ## Different scores distributions per species
