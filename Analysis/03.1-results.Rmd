@@ -177,7 +177,7 @@ Really briefly we calculate three types of projections/rejections abbreviated as
  * `phylo`: the projection of each element within a group (species) onto the phylogenetic's VCV (major axis)
  * `within`: the projection of each element within a group (species) onto its own VCV (major axis)
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE}
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE}
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
