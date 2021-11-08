@@ -11,7 +11,7 @@ output:
 
 This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
 
-```{r, eval = TRUE, echo = FALSE, print = FALSE}
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
 ```
 
@@ -173,11 +173,19 @@ Back to the main story.
 We then calculate the projections/rejections as explained in more details in the [03-elaboration_exploration_analyses.Rmd]() script.
 Really briefly we calculate three types of projections/rejections abbreviated as follows below:
 
- * `between`: the projection of each group's VCV (major axis) on the phylogenetic's VCV (major axis)
- * `phylo`: the projection of each element within a group (species) onto the phylogenetic's VCV (major axis)
- * `within`: the projection of each element within a group (species) onto its own VCV (major axis)
+ * `group on phylogeny`: the projection of each group's VCV (major axis) on the phylogenetic's VCV (major axis)
+ * `species on phylogeny`: the projection of each element within a group (species) onto the phylogenetic's VCV (major axis)
+ * `species on group`: the projection of each element within a group (species) onto its own VCV (major axis)
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE}
+
+
+
+<!-- TODO: add the pictures of the different tests here -->
+
+
+
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE, results = 'hide', message = FALSE, warning = FALSE}
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
@@ -224,10 +232,10 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 ```
 
 
-### Projections between groups:
+### Projections of groups on the phylogeny:
 
 
-```{r, echo = FALSE, fig.height = 8, fig.width = 8}
+```{r "starting with boxplots", echo = FALSE, fig.height = 8, fig.width = 8}
 ## Plot the results
 wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolute = FALSE) {
 
@@ -277,7 +285,7 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
 }
 wrap.plot(results$super_results_between,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[between] superorders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -290,7 +298,7 @@ Figure: these results show the projections ("position"), rejection ("distance") 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 8}
 wrap.plot(results$super_results_between,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[between] superorders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
 ```
@@ -299,7 +307,7 @@ wrap.plot(results$super_results_between,
 ```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 wrap.plot(results$order_results_between,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[between] orders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -310,7 +318,7 @@ wrap.plot(results$order_results_between,
 ```{r, echo = FALSE, fig.height = 16, fig.width = 8}
 wrap.plot(results$order_results_between,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[between] orders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
 ```
@@ -325,7 +333,7 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 ## Plot the results
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[phylo] superorders species\nonto the phylogenetic VCV",
+          main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -336,7 +344,7 @@ wrap.plot(results$super_results_phylo,
 ```{r, echo = FALSE, fig.height = 8, fig.width = 8}
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[phylo] superorders species\nonto the phylogenetic VCV",
+          main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
 ```
@@ -349,7 +357,7 @@ Figure: the projection of each species per group onto the posterior distribution
 ## Plot the results
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[phylo] orders species\nonto the phylogenetic VCV",
+          main = "[species on phylogeny] orders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -357,13 +365,13 @@ wrap.plot(results$order_results_phylo,
   <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
 </summary>
 
-```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+```{r "hehehe", echo = FALSE, fig.height = 16, fig.width = 8, eval = FALSE}
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[phylo] orders species\nonto the phylogenetic VCV",
+          main = "[species on phylogeny] orders\nspecies onto the phylogenetic VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
-```
+````
 </details>
 
 ### Projections of the species on their own group's VCV
@@ -376,7 +384,7 @@ Finally, we ran the same analyses but instead of the projection of the species o
 ## Plot the results
 wrap.plot(results$super_results_within,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[within] superorders species\nonto their group's VCV",
+          main = "[species on group] superorders species\nonto their group's VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -384,10 +392,10 @@ wrap.plot(results$super_results_within,
   <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
 </summary>
 
-```{r, echo = FALSE, fig.height = 8, fig.width = 8}
+```{r "beforebefore last", echo = FALSE, fig.height = 8, fig.width = 8}
 wrap.plot(results$super_results_within,
           col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[within] superorders species\nonto their group's VCV",
+          main = "[species on group] superorders species\nonto their group's VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
 ```
@@ -396,12 +404,12 @@ wrap.plot(results$super_results_within,
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
 
-```{r, fig.height = 16, fig.width = 8, echo = FALSE}
+```{r "before last", fig.height = 16, fig.width = 8, echo = FALSE}
 
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[within] oreders species\nonto their group's VCV",
+          main = "[species on group] oreders species\nonto their group's VCV",
           names = c("elaboration", "innovation", "angle"))
 ```
 
@@ -409,10 +417,10 @@ wrap.plot(results$order_results_within,
   <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
 </summary>
 
-```{r, echo = FALSE, fig.height = 16, fig.width = 8}
+```{r "done with boxplots", echo = FALSE, fig.height = 16, fig.width = 8}
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[within] oreders species\nonto their group's VCV",
+          main = "[species on group] oreders species\nonto their group's VCV",
           names = c("absolute elaboration", "innovation", "angle"),
           centre.position = FALSE, absolute = TRUE)
 ```
@@ -550,7 +558,7 @@ combine.results <- function(res1, res2) {
 Furthermore, we can look at things species per species to find which species species have the most extreme values (in general, or within their groups).
 
 
-### Extreme species per super order (based on phylogeny)
+### Extreme species per super order (species on phylogeny)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
@@ -579,7 +587,7 @@ kable(super_phylo_table, digits = 3)
 </details>
 
 
-### Extreme species per order (based on phylogeny)
+### Extreme species per order (species on phylogeny)
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
 order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE)
@@ -607,7 +615,7 @@ kable(order_phylo_table, digits = 3)
 
 
 
-### Extreme species per super order (within)
+### Extreme species per super order (species on group)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
@@ -635,7 +643,7 @@ kable(super_phylo_table_within, digits = 3)
 </details>
 
 
-### Extreme species per order (within)
+### Extreme species per order (species on group)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
@@ -661,10 +669,13 @@ kable(order_phylo_table_within, digits = 3)
 ```
 </details>
 
+
+
 ## Correlations between elaboration and innovation?
 
 ```{r, echo = FALSE}
-get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, absolute = TRUE, ...) {
+## Calculating all the correlations
+get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, absolute = TRUE) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -694,42 +705,128 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, abs
     ## Number of groups
     n_groups <- length(centrals_pos)
 
-    ## Calculate and plot the hdrcde
-    op_tmp <- par(mfrow = c(ceiling(sqrt(n_groups)), round(sqrt(n_groups))))
-    for(i in 1:n_groups) {
-        ## Testing the correlation
-        cor_test <- cor.test(centrals_pos[[i]], centrals_dis[[i]])
-        plot_main <- paste0(names(centrals_pos)[i], ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
-        ## Plotting the results
-        plot(centrals_pos[[i]], centrals_dis[[i]], pch = 19, xlab = "elaboration", ylab = "innovation", main = plot_main, cex = 0.5)
+    ## Prepare the results
+    prep.cor.results <- function(pos, dis, name) {
+        ## Run the correlation test
+        cor_test <- cor.test(pos, dis)
+        ## Prepare the plot title
+        plot_main <- paste0(name, ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
+        ## Return the plotting parameters
+        return(list(x = pos, y = dis, main = plot_main))
     }
-    par(op_tmp)
+
+    return(mapply(prep.cor.results, centrals_pos, centrals_dis, as.list(names(centrals_pos)), SIMPLIFY = FALSE))
+}
+    
+## Plotting one correlation 
+plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ...) {
+    dots <- list(...)
+
+    if(missing(col.sub)) {
+        col.sub <- NULL
+    }
+
+    ## Subbing the colours
+    if(!is.null(col.sub)) {
+        ## Reset the levels
+        col_sub <- as.factor(as.character(col.sub))
+        ## Make the empty level grey
+        if(any(levels(col_sub) == "")) {
+            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
+        } else {
+            col_avail <- col.fun(length(levels(col_sub)))
+        }
+        ## Create the colour vector
+        col_vector <- col_avail[as.numeric(col_sub)]
+
+    } else {
+        if(is.null(dots$col)) {
+            col_vector <- "black"
+        } else {
+            col_vector <- dots$col
+        }
+    }
+
+    ## Plotting the results
+    plot(cor.results$x, cor.results$y, pch = 19, xlab = "elaboration", ylab = "innovation", main = cor.results$main, cex = pt.cex, col = col_vector)
+
+    if(!is.null(col.sub)) {
+        ## Adding the legend
+        legend(x = legend.pos, legend = levels(col_sub), pch = 19, cex = legend.cex, col = col_avail)
+    }
     return(invisible())
 }
 ```
 
-### Correlations per super order (based on phylo)
+### Correlations per super order (species on phylogeny)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-get.correlations(results$super_results_phylo)
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+## Getting the subsets for the colouring
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
+## Calculate the correlations
+super_phylo_cor <- get.correlations(results$super_results_phylo)
+## Set the vector of legend positions
+legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
+for(i in 1:length(super_phylo_cor)) {
+    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i])
+}
 ```
 
-### Correlations within super orders
+### Correlations within super orders (species on group)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-get.correlations(results$super_results_within, exclude.phylo = TRUE)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+## Getting the subsets for the colouring
+col_subs <- split(shapespace$level2, f = shapespace$level1)[-1]
+## Calculate the correlations
+super_within_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
+## Set the vector of legend positions
+legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
+for(i in 1:length(super_within_cor)) {
+    plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i])
+}
 ```
 
-### Correlations per order (based on phylo)
+### Correlations per order (species on phylogeny)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+## Loading the sub-order levels
+load(file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
+## Select the data
+shapespaces <- lapply(shapespace_superorder_lvl_order_suborder, function(X) X$space)
+## Create a level 3
+order_space <- do.call(rbind, shapespaces)
+
+## Calculate the correlations
+order_phylo_cor <- get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
+
+## Getting the subsets for the colouring
+split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
+col_subs <- replicate(length(order_phylo_cor), NULL)
+col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+
+## Set the vector of legend positions
+for(i in 1:length(order_phylo_cor)) {
+    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]])
+}
 ```
 
-### Correlations within orders
+### Correlations within orders (species on group)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-get.correlations(results$order_results_within, exclude.phylo = TRUE)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+## Calculate the correlations
+order_within_cor <- get.correlations(results$order_results_within, exclude.phylo = TRUE)
+
+## Getting the subsets for the colouring
+split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
+col_subs <- replicate(length(order_within_cor), NULL)
+col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+
+## Set the vector of legend positions
+for(i in 1:length(order_within_cor)) {
+    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]])
+}
 ```
 
 
