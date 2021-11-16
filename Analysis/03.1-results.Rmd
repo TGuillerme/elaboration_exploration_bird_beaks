@@ -189,31 +189,37 @@ Really briefly we calculate three types of projections/rejections abbreviated as
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
-                                             base = "phylogeny")
+                                             base = "phylogeny",
+                                             output = c("position", "distance"))
 ## Run the analyses between groups
 order_results_between <- dispRity.covar.projections(order_shapespace,
                                              type = "groups",
-                                             base = "phylogeny")
+                                             base = "phylogeny",
+                                             output = c("position", "distance"))
 ## Run the analyses of groups on the phylogeny
 super_results_phylo <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
-                                            verbose = TRUE)
+                                            verbose = TRUE,
+                                            output = c("position", "distance"))
 ## Run the analyses of groups on the phylogeny
 order_results_phylo <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
-                                            verbose = TRUE)
+                                            verbose = TRUE,
+                                            output = c("position", "distance"))
 ## Run the analyses groups on themselves
 super_results_within <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
-                                            verbose = TRUE)
+                                            verbose = TRUE,
+                                            output = c("position", "distance"))
 ## Run the analyses groups on themselves
 order_results_within <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
-                                            verbose = TRUE)
+                                            verbose = TRUE,
+                                            output = c("position", "distance"))
 ## Save all
 shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "super_results_between" = super_results_between,
@@ -234,13 +240,25 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 
 ### Projections of groups on the phylogeny:
 
-
 ```{r "starting with boxplots", echo = FALSE, fig.height = 8, fig.width = 8}
 ## Plot the results
-wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolute = FALSE) {
+wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolute = TRUE, order = TRUE, xlim = NULL) {
+
+    ## Ranking the results
+    if(order) {
+        ## Get the ranking
+        orders <- do.call(cbind, lapply(results, get.disparity, concatenate = FALSE))
+        ## Get the mean values
+        orders <- apply(orders, c(1,2), function(x) mean(abs(unlist(x))))
+        ## Sum them and rank them
+        rank <- order(apply(orders, 1, sum), decreasing = FALSE)
+    } else {
+        rank <- 1:length(results[[1]]$disparity)
+    }
+
 
     ## Adding one plot
-    one.plot <- function(one_result, xlab, col, zero = TRUE, main, centre, absolute, ...) {
+    one.plot <- function(one_result, xlab, col, zero = TRUE, main, centre, absolute, rank = NULL, xlim = NULL, ...) {
         values <- lapply(get.disparity(one_result, concatenate = FALSE), c)
         if(centre) {
             values <- lapply(values, function(X) {X-0.5})
@@ -248,12 +266,20 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
         if(absolute) {
             values <- lapply(values, function(X) {abs(X-0.5)})
         }
-        boxplot(values, horizontal = TRUE, yaxt = "n", col = col, xlab = xlab, main = main, ...)
+        if(!is.null(rank)) {
+            values <- values[rank]
+        }
+        if(!is.null(xlim)) {
+            xlim <- xlim
+        } else {
+            xlim <- range(values)
+        }
+
+        boxplot(values, horizontal = TRUE, yaxt = "n", col = col, xlab = xlab, main = main, ylim = xlim, ...)
         if(zero) {
             abline(v = 0, col = "black", lty = 3, lwd = 1)
         }
     }
-
 
     ## How many sub plots?
     n <- length(results)
@@ -265,7 +291,6 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
         names_list <- names
     }
 
-
     ## Which will be the centre plot?
     centre <- ceiling(n/2)
     ## Plot everything
@@ -273,34 +298,35 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
     ## Plot the first panel
     par(bty = "n", mar = c(5, 14, 4, 0) + 0.1)
     empty <- matrix(0, ncol = length(results[[1]]$disparity))
-    colnames(empty) <- names(results[[1]]$disparity)
+    colnames(empty) <- names(results[[1]]$disparity)[rank]
     boxplot(empty, horizontal = TRUE, las = 2, col = "white", ylim = c(0,0), xaxt = "n", border = "white")
     for(i in 1:n) {
         ## Is position?
         is_position <- names(results)[[i]] == "position"
         par(mar = c(5, 0, 4, 0) + 0.1, bty = "o")
-        one.plot(results[[i]], col = col, centre = is_position && centre.position, main = ifelse(i == centre, main, ""), xlab = names_list[i], zero = is_position, absolute = absolute)
+        one.plot(results[[i]], col = col[rank], centre = is_position && centre.position, main = ifelse(i == centre, main, ""), xlab = names_list[i], zero = FALSE, absolute = absolute, rank = rank, xlim = xlim)
     }
     par(op)
 }
 wrap.plot(results$super_results_between,
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
 
 Figure: these results show the projections ("position"), rejection ("distance") and angles ("degree") of the posteriors of each group's major axes onto the corresponding global phylogenetic major axes. For each panel, the highest the score the more the clade is elaborating, exploring, exploring perpendicular to the main axes for the position, distance and degree respectively.
 
 <details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+  <summary>[Click to expand] Same but zooming on the (0,5) interval (to get less of the flamingo effect)
 </summary>
 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 8}
 wrap.plot(results$super_results_between,
+          xlim = c(0,6),
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
+          names = c("elaboration", "innovation"),
+          centre.position = TRUE, absolute = TRUE)
 ```
 </details>
 
@@ -308,21 +334,27 @@ wrap.plot(results$super_results_between,
 wrap.plot(results$order_results_between,
           col = rainbow(n.subsets(order_shapespace)-1),
           main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
 
 <details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
+  <summary>[Click to expand] Again, same but with some zoom (0,15)
 </summary>
 
 ```{r, echo = FALSE, fig.height = 16, fig.width = 8}
 wrap.plot(results$order_results_between,
+          xlim = c(0, 15),
           col = rainbow(n.subsets(order_shapespace)-1),
           main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
+          names = c("elaboration", "innovation"),
+          centre.position = TRUE, absolute = TRUE)
 ```
 </details>
+
+
+
+
+
 
 ### Projections of the species on the phylogenetic VCV
 
@@ -334,21 +366,9 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
 
-<details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
-</summary>
-
-```{r, echo = FALSE, fig.height = 8, fig.width = 8}
-wrap.plot(results$super_results_phylo,
-          col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
-```
-</details>
 
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
@@ -358,21 +378,8 @@ Figure: the projection of each species per group onto the posterior distribution
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
           main = "[species on phylogeny] orders species\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
-
-<details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
-</summary>
-
-```{r "hehehe", echo = FALSE, fig.height = 16, fig.width = 8, eval = FALSE}
-wrap.plot(results$order_results_phylo,
-          col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[species on phylogeny] orders\nspecies onto the phylogenetic VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
-````
-</details>
 
 ### Projections of the species on their own group's VCV
 
@@ -380,51 +387,23 @@ Finally, we ran the same analyses but instead of the projection of the species o
 
 
 ```{r, fig.height = 8, fig.width = 8, echo = FALSE}
-
 ## Plot the results
 wrap.plot(results$super_results_within,
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[species on group] superorders species\nonto their group's VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
-
-<details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
-</summary>
-
-```{r "beforebefore last", echo = FALSE, fig.height = 8, fig.width = 8}
-wrap.plot(results$super_results_within,
-          col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[species on group] superorders species\nonto their group's VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
-```
-</details>
 
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
 
 ```{r "before last", fig.height = 16, fig.width = 8, echo = FALSE}
-
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
           main = "[species on group] oreders species\nonto their group's VCV",
-          names = c("elaboration", "innovation", "angle"))
+          names = c("elaboration", "innovation"))
 ```
-
-<details>
-  <summary>[Click to expand] The same but using absolute values for the projections (elaboration)
-</summary>
-
-```{r "done with boxplots", echo = FALSE, fig.height = 16, fig.width = 8}
-wrap.plot(results$order_results_within,
-          col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[species on group] oreders species\nonto their group's VCV",
-          names = c("absolute elaboration", "innovation", "angle"),
-          centre.position = FALSE, absolute = TRUE)
-```
-</details>
 
 
 So that's the story so far...
