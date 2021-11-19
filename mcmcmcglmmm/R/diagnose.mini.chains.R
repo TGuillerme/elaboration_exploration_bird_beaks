@@ -32,6 +32,4 @@ diagnose.mini.chains <- function(mini.chains) {
     hist(ESS_VCVG, main = "Random terms")
     abline(v = 200)
     par(op)
-
-    return("prototype")
 }
