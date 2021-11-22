@@ -100,7 +100,7 @@ TODO: details
 
 ### Combining the model data
 
-```{r}
+```{r, eval = FALSE}
 ## Preparing the model files
 model_list <- list()
 class(model_list) <- c("beer", "mini.chains")
@@ -137,12 +137,12 @@ while(length(model_files) != 0) {
 ## Combining the model files
 shapespace_allbirds_lvl_superorder_order <- model_list[[1]]
 
-## Checking the diagnosis
-
-
 ## Saving the results
 save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+```
 
+## Checking the mini chains' ESSs
 
+```{r, eval = TRUE}
 
 ```
