@@ -144,5 +144,6 @@ save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapesp
 ## Checking the mini chains' ESSs
 
 ```{r, eval = TRUE}
-
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+diagnose.mini.chains(shapespace_allbirds_lvl_superorder_order)
 ```
