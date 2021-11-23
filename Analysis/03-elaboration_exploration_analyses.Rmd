@@ -164,6 +164,58 @@ We measured the exploration and elaboration using two main approaches:
  * By clades (i.e exploration/elaboration **between** clades): where we calculated the projections of the major axes of each clade onto the global phylogenetic major axes.
  * By species (i.e exploration/elaboration **within** clades): where we calculated the projections of each species onto 1) the global phylogenetic major axes and 2) the phylogenetic major axes of their respective clade.
 
+These three analyses will be called respectively **group on phylogeny**, **species on phylogeny** and **species on group** respectively.
+
+
+TODO: add about projection correction: absolute value - 0.5 (because 1) we're not interested in which direction the elaboration goes and 2) centre of the projection is 0.5 not 0)
+
+
+```{r}
+
+set.seed(42)
+## Space plot
+cor_matrix <- matrix(cbind(1, 0.8, 0.8, 1), nrow = 2)
+space <- space.maker(10, 2, rnorm, cor.matrix = cor_matrix)
+lim <- c(floor(range(space)[1]), ceiling(range(space)[2]))
+
+par(mfrow = c(2, 2))
+
+## Plot 1
+plot(space, pch = 19, xlab = "Trait 1", ylab = "Trait 2", xlim = lim, ylim = lim, col = "black", main = "Original space")
+
+## Plotting the ellipse
+lines(ellipse::ellipse(cor_matrix, level = 0.75), col = "blue", lwd = 1)
+
+## Plotting the major axis
+lines(get.one.axis(list(VCV = cor_matrix, Sol = c(0,0)), level = 0.75), lwd = 3, col = "blue", lty = 1)
+
+## Plotting a phylogenetic major axis
+lines(x = c(-1.2, 2), y = c(0, 0.75), lwd = 3, col = "orange")
+
+legend("topleft", pch = c(19, NA, NA, NA), lty = c(NA, 1,1,1), lwd = c(NA, 1, 3, 3), legend = c("Group of species", "95% CI ellipse for the group", "Major axis for the group", "Major axis for the phylogeny"), col = c("black", "blue", "blue", "orange"))
+
+
+## Translate the major axis
+
+plot(space, pch = 19, xlab = "Trait 1", ylab = "Trait 2", xlim = lim, ylim = lim, col = "grey", main = "Group on phylogeny")
+
+## Plotting the ellipse
+lines(ellipse::ellipse(cor_matrix, level = 0.75), col = "grey", lwd = 1)
+
+## Plotting the major axis
+lines(get.one.axis(list(VCV = cor_matrix, Sol = c(0,0)), level = 0.75), lwd = 3, col = "grey", lty = 1)
+
+## Plotting a phylogenetic major axis
+lines(x = c(-1.2, 2), y = c(0, 0.75), lwd = 3, col = "orange")
+
+## Translating the axis
+
+
+
+plot(2, main = "species on phylogeny")
+plot(3, main = "species on group")
+```
+
 
 ## Elaboration and exploration by clade
 
