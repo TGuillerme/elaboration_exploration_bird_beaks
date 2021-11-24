@@ -22,8 +22,11 @@ library(dispRity)
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
 shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+
 ## Load the covar
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
 
 ## Get the levels
 phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
@@ -183,6 +186,7 @@ Really briefly we calculate three types of projections/rejections abbreviated as
 <!-- TODO: add the pictures of the different tests here -->
 
 
+TODO: centre and absolute directly in `dispRity.covar.projections`
 
 
 ```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE, results = 'hide', message = FALSE, warning = FALSE}
@@ -247,11 +251,28 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
     ## Ranking the results
     if(order) {
         ## Get the ranking
-        orders <- do.call(cbind, lapply(results, get.disparity, concatenate = FALSE))
+        orders <- lapply(results, get.disparity, concatenate = FALSE)
         ## Get the mean values
-        orders <- apply(orders, c(1,2), function(x) mean(abs(unlist(x))))
+        if(absolute) {
+            ## Centre and absolute values
+            orders_pos <- lapply(orders$position, function(X) abs(X-0.5))
+        } else {
+            if(centre.position) {
+                ## Just centre
+                orders_pos <- lapply(orders$position, function(X) X-0.5)
+            } else {
+                orders_pos <- orders$position
+            }
+        }
+        orders_dis <- orders$distance
+
+        ## Get the mean for each and combine into a table
+        cent.tend <- mean
+        means <- cbind(unlist(lapply(orders_pos, cent.tend)), unlist(lapply(orders_dis, cent.tend)))
+
         ## Sum them and rank them
-        rank <- order(apply(orders, 1, sum), decreasing = FALSE)
+        sum_means <- apply(means, 1, sum)
+        rank <- order(sum_means, decreasing = FALSE)
     } else {
         rank <- 1:length(results[[1]]$disparity)
     }
@@ -304,14 +325,14 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
         ## Is position?
         is_position <- names(results)[[i]] == "position"
         par(mar = c(5, 0, 4, 0) + 0.1, bty = "o")
-        one.plot(results[[i]], col = col[rank], centre = is_position && centre.position, main = ifelse(i == centre, main, ""), xlab = names_list[i], zero = FALSE, absolute = absolute, rank = rank, xlim = xlim)
+        one.plot(results[[i]], col = col, centre = is_position && centre.position, main = ifelse(i == centre, main, ""), xlab = names_list[i], zero = FALSE, absolute = absolute, rank = rank, xlim = xlim)
     }
     par(op)
 }
 wrap.plot(results$super_results_between,
-          col = rainbow(n.subsets(superorder_shapespace)-1),
-          main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation"))
+              col = rainbow(n.subsets(superorder_shapespace)-1),
+              main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
+              names = c("elaboration", "innovation"))
 ```
 
 Figure: these results show the projections ("position"), rejection ("distance") and angles ("degree") of the posteriors of each group's major axes onto the corresponding global phylogenetic major axes. For each panel, the highest the score the more the clade is elaborating, exploring, exploring perpendicular to the main axes for the position, distance and degree respectively.
@@ -366,14 +387,14 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation"))
+          names = c("elaboration", "innovation"),
+          centre.position = TRUE, absolute = TRUE)
 ```
 
 
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
 ```{r, fig.height = 16, fig.width = 8, echo = FALSE}
-
 ## Plot the results
 wrap.plot(results$order_results_phylo,
           col = rainbow(n.subsets(order_shapespace)-1),
@@ -397,7 +418,7 @@ wrap.plot(results$super_results_within,
 Figure: the projection of each species per group onto the posterior distribution of each clade's major phylogenetic axis (the grey distributions corresponds to the projections of all the species, irregardless of their group, onto the global phylogenetic major axes).
 
 
-```{r "before last", fig.height = 16, fig.width = 8, echo = FALSE}
+```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
@@ -421,9 +442,10 @@ library(hdrcde)
 #@param prob which quantiles to use (default is c(50, 95, 99))
 #@param exclude.phylo remove the phylogeny subset (default = FALSE)
 #@param absolute whether to make the position values absolute or not
+#@param add.relative whether to add the relative results (as rel.pos and rel.dis) or not
 #@param ... plot options
 
-get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, absolute = FALSE, ...) {
+get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, absolute = FALSE, add.relative = FALSE, ...) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -499,38 +521,72 @@ get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, pro
         }
     }
 
+    ## Add the relative results
+    if(add.relative) {
+        make.relative <- function(X) {
+            cbind(X, "rel" = ifelse(is.na(X$score), NA, X$score/max(X$score)))
+        }
+        output <- lapply(output, make.relative)
+    }
     return(output)
 }
-combine.results <- function(res1, res2) {
+combine.results <- function(res1, res2, sort.results = TRUE) {
     ## Combine the results
     res_out <- rbind(res1[,1:2], res2[, 1:2])
     res_out$elaboration <- c(res1[, 3], rep(NA, nrow(res2)))
+    if("rel" %in% colnames(res1)) {
+        res_out$rel.elab <- c(res1[, 4], rep(NA, nrow(res2)))
+    }
     res_out$innovation <- c(rep(NA, nrow(res1)), res2[, 3])
-    ## Find any species in commons
-    commons <- intersect(res1$species, res2$species)
-    if(length(commons) > 0 && is.na(commons)) {
-        if(is.na(res1$species)) {
-            if(is.na(res2$species)) {
-                ## Both are NA (keep just the first one)
-                res_out <- res_out[-1, , drop = FALSE]
-            } else {
-                ## Remove res1
-                res_out <- res_out[-1, , drop = FALSE]
-            }
+    if("rel" %in% colnames(res1)) {
+        res_out$rel.inno <- c(rep(NA, nrow(res1)), res2[, 4])
+    }
+
+    # Remove NA species
+    if(any(is_na <- is.na(res_out$species))) {
+        if(all(is_na)) {
+            return(res_out)
         } else {
-            ## Remove res2
-            res_out <- res_out[1:length(res1$species), , drop = FALSE]
-        }
-    } else {
-        ## Recursively remove the ones in common
-        while(length(commons) > 0) {
-            duplicates <- which(res_out$species == commons[1])
-            res_out[duplicates[1], 4] <- res_out[duplicates[2], 4]
-            res_out <- res_out[-duplicates[2], ]
-            commons <- commons[-1]
+            res_out <- res_out[!is_na, , drop = FALSE]
         }
     }
-    return(res_out)
+
+    ## Find any species in commons
+    commons <- intersect(res1$species, res2$species)
+    if(length(commons) > 0) {
+        if(any(is.na(commons))) {
+            if(is.na(res1$species)) {
+                if(is.na(res2$species)) {
+                    ## Both are NA (keep just the first one)
+                    res_out <- res_out[-1, , drop = FALSE]
+                } else {
+                    ## Remove res1
+                    res_out <- res_out[-1, , drop = FALSE]
+                }
+            } else {
+                ## Remove res2
+                res_out <- res_out[1:length(res1$species), , drop = FALSE]
+            }
+        } else {
+            ## Recursively remove the ones in common
+            while(length(commons) > 0) {
+                duplicates <- which(res_out$species == commons[1])
+                columns <- if("rel" %in% colnames(res1)){c(5,6)} else {4}
+                res_out[duplicates[1], columns] <- res_out[duplicates[2], columns]
+                res_out <- res_out[-duplicates[2], ]
+                commons <- commons[-1]
+            }
+        }
+    }
+
+    if(sort.results) {
+        sums <- apply(res_out[, -c(1,2)], 1, sum, na.rm = TRUE)
+        rank <- match(sort(sums, decreasing = TRUE), sums)
+    } else {
+        rank <- 1:nrow(res_out)
+    }
+
+    return(res_out[rank,])
 }
 ```
 
@@ -550,6 +606,34 @@ super_distances_phylo <- get.distributions(results$super_results_phylo, type = "
 ```
 Figure: innovations distributions per super orders
 
+```{r, "printing results in text", echo = FALSE, eval = TRUE}
+## Combining the results
+super_phylo_table <- do.call(rbind, mapply(combine.results, super_positions_phylo, super_distances_phylo, SIMPLIFY = FALSE))
+## Get the top 10%
+get.top <- function(data, what, top = 0.9, relative = FALSE) {
+    if(any(data[, "level"] == "phylogeny")) {
+        data_top <- data[which(data[, "level"] != "phylogeny"), ]
+    } else {
+        data_top <- data
+    }
+
+    ## Get the relative column
+    if(relative) {
+        what <- switch(what,
+                       "elaboration" = "rel.elab",
+                       "innovation"  = "rel.inno")
+    }
+    ## Get the top 10(ish) species
+    data_top_10 <- data_top[which(data_top[, what] >= quantile(data_top[, what], prob = top, na.rm = TRUE)), ]
+    return(data_top_10[order(data_top_10[, what], decreasing = TRUE), ])
+}
+top_elabo <- get.top(super_phylo_table, what = "elaboration")
+top_innov <- get.top(super_phylo_table, what = "innovation")
+```
+
+> And here are the top 10% of the top 1% elaborators and innovators by superorder:
+The 10% top elaborators by superorder are: `r paste(paste(top_elabo[, "species"], round(top_elabo[, "elaboration"], 3), sep = ": "), collapse = ", ")`.
+The 10% top innovators by superorder are: `r paste(paste(top_innov[, "species"], round(top_innov[, "innovation"], 3), sep = ": "), collapse = ", ")`.
 
 <details>
   <summary>[Click to expand] Table of species extreme values projected onto the phylogenetic VCV.
@@ -557,8 +641,6 @@ Figure: innovations distributions per super orders
 
 ```{r, echo = FALSE}
 library(knitr)
-## Combining the results
-super_phylo_table <- do.call(rbind, mapply(combine.results, super_positions_phylo, super_distances_phylo, SIMPLIFY = FALSE))
 rownames(super_phylo_table) <- NULL
 kable(super_phylo_table, digits = 3)
 ```
@@ -569,7 +651,7 @@ kable(super_phylo_table, digits = 3)
 ### Extreme species per order (species on phylogeny)
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE)
+order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE, absolute = TRUE)
 ```
 Figure: elaborations distributions per order
 
@@ -578,6 +660,15 @@ order_distances_phylo <- get.distributions(results$order_results_phylo, type = "
 ```
 Figure: innovations distributions per order
 
+```{r, echo = FALSE}
+order_phylo_table <- do.call(rbind, mapply(combine.results, order_positions_phylo, order_distances_phylo, SIMPLIFY = FALSE))
+top_elabo <- get.top(order_phylo_table, what = "elaboration")
+top_innov <- get.top(order_phylo_table, what = "innovation")
+```
+
+> And here are the top 10% of the top 1% elaborators and innovators by order:
+The 10% top ellaborators by order are: `r paste(paste(top_elabo[, "species"], round(top_elabo[, "elaboration"], 3), sep = ": "), collapse = ", ")`.
+The 10% top innovators by order are: `r paste(paste(top_innov[, "species"], round(top_innov[, "innovation"], 3), sep = ": "), collapse = ", ")`.
 
 
 <details>
@@ -586,7 +677,6 @@ Figure: innovations distributions per order
 
 ```{r, echo = FALSE}
 ## Combining the results
-order_phylo_table <- do.call(rbind, mapply(combine.results, order_positions_phylo, order_distances_phylo, SIMPLIFY = FALSE))
 rownames(order_phylo_table) <- NULL
 kable(order_phylo_table, digits = 3)
 ```
@@ -596,17 +686,29 @@ kable(order_phylo_table, digits = 3)
 
 ### Extreme species per super order (species on group)
 
-
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-super_positions_within <- get.distributions(results$super_results_within, type = "position", exclude.phylo = TRUE)
+super_positions_within <- get.distributions(results$super_results_within, type = "position", exclude.phylo = TRUE, absolute = TRUE, add.relative = TRUE)
 ```
 Figure: elaborations distributions within super orders
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-super_distances_within <- get.distributions(results$super_results_within, type = "distance", exclude.phylo = TRUE)
+super_distances_within <- get.distributions(results$super_results_within, type = "distance", exclude.phylo = TRUE, add.relative = TRUE)
 ```
 Figure: innovations distributions within super orders
 
+
+```{r, echo = FALSE}
+super_phylo_table_within <- do.call(rbind, mapply(combine.results, super_positions_within, super_distances_within, SIMPLIFY = FALSE))
+top_elabo <- get.top(super_phylo_table_within, what = "elaboration", relative = TRUE)
+top_innov <- get.top(super_phylo_table_within, what = "innovation", relative = TRUE)
+```
+
+> And here are the top 10% of the top 1% elaborators and innovators by superorder relative to each superorder (i.e. the best one(s) in each order):
+```{r, echo = FALSE}
+combined <- rbind(top_elabo, top_innov)
+rownames(combined) <- NULL  
+kable(combined, digits = 3)
+```
 
 <details>
   <summary>[Click to expand] Table of species extreme values projected onto their own group's VCV.
@@ -614,7 +716,6 @@ Figure: innovations distributions within super orders
 
 ```{r, echo = FALSE}
 ## Combining the results
-super_phylo_table_within <- do.call(rbind, mapply(combine.results, super_positions_within, super_distances_within, SIMPLIFY = FALSE))
 rownames(super_phylo_table_within) <- NULL
 kable(super_phylo_table_within, digits = 3)
 ```
@@ -636,17 +737,61 @@ order_distances_within <- get.distributions(results$order_results_within, type =
 Figure: innovations distributions within orders
 
 
+
+```{r, echo = FALSE}
+order_phylo_table_within <- do.call(rbind, mapply(combine.results, order_positions_within, order_distances_within, SIMPLIFY = FALSE))
+top_elabo <- get.top(order_phylo_table_within, what = "elaboration", relative = TRUE)
+top_innov <- get.top(order_phylo_table_within, what = "innovation", relative = TRUE)
+```
+
+> And here are the top 10% of the top 1% elaborators and innovators by order relative to each order (i.e. the best one(s) in each order):
+```{r, echo = FALSE}
+combined <- rbind(top_elabo, top_innov)
+rownames(combined) <- NULL  
+kable(combined, digits = 3)
+```
+
+
 <details>
   <summary>[Click to expand] Table of species extreme values projected onto their own group's VCV.
 </summary>
 
 ```{r, echo = FALSE}
 ## Combining the results
-order_phylo_table_within <- do.call(rbind, mapply(combine.results, order_positions_within, order_distances_within, SIMPLIFY = FALSE))
 rownames(order_phylo_table_within) <- NULL
 kable(order_phylo_table_within, digits = 3)
 ```
 </details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -698,7 +843,7 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, abs
 }
     
 ## Plotting one correlation 
-plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ...) {
+plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, tree, full.tree = FALSE, ...) {
     dots <- list(...)
 
     if(missing(col.sub)) {
@@ -726,6 +871,12 @@ plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.po
         }
     }
 
+    if(!missing(tree)) {
+        op <- par(mfrow = c(1,2))
+        #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
+        par(mar = c(5, 4, 4, 0)+0.1)   
+    }
+
     ## Plotting the results
     plot(cor.results$x, cor.results$y, pch = 19, xlab = "elaboration", ylab = "innovation", main = cor.results$main, cex = pt.cex, col = col_vector)
 
@@ -733,6 +884,78 @@ plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.po
         ## Adding the legend
         legend(x = legend.pos, legend = levels(col_sub), pch = 19, cex = legend.cex, col = col_avail)
     }
+
+    if(!missing(tree)) {
+        par(mar = c(5, 0, 4, 2) + 0.1)
+
+        ## Recycle the colour vector
+        named_col_vector <- col_vector
+        names(named_col_vector) <- names(cor.results$x)
+
+        ## Reduce the tree
+        if(!full.tree) {
+            tree <- drop.tip(tree, tip = tree$tip.label[which(!(tree$tip.label %in% names(named_col_vector)))])
+        }
+
+        ## Matching edges and colours
+        match.edge.colours <- function(tree, named_col_vector, background = "grey") {
+            ## Get the background colour
+            edge_cols <- rep(background, Nedge(tree))
+            ## Get the clades
+            clades <- unique(named_col_vector)
+            ## Ignore the greys
+            if(any(which_grey <- clades == "grey")) {
+                clades <- clades[!which_grey]
+            }
+            ## Find the edges for each clade
+            for(clade in 1:length(clades)) {
+                ## Get the tips for the clade
+                tips <- which(named_col_vector == clades[clade])
+                ## Get the MRCA node
+                mrca_node <- getMRCA(tree, tips)
+                stop_edge <- which(tree$edge[, 2] %in% mrca_node)
+                ## Get the tips ID
+                tip_ids <- which(tree$tip.label %in% names(tips))
+                ## Get the vector of edges
+                edges <- integer()
+                ## Get the first nodes (and edges)
+                new_edges <- which(tree$edge[, 2] %in% tip_ids)
+                edges <- c(edges, new_edges)
+                nodes <- tree$edge[new_edges, 1]
+
+                # test.col <- c("red", "blue", "orange", "green", "pink", "yellow")
+                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                ## Recursively loop through each node up until the last edge
+                while(!(stop_edge %in% edges)) {
+                    ## Get the node edges
+                    new_edges <- which(tree$edge[, 2] %in% nodes)
+
+                    # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                    edges <- c(edges, new_edges)
+                    ## Update the nodes
+                    nodes <- tree$edge[new_edges, 1]
+                }
+
+                ## Do the last recursion
+                new_edges <- which(tree$edge[, 2] %in% nodes)
+                edges <- c(edges, new_edges)
+
+                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                ## Colour these edges
+                edge_cols[edges] <- clades[clade]
+            }
+            return(edge_cols)
+        }
+        ## Match the colour to the correct edge
+        edge_cols <- match.edge.colours(tree, named_col_vector)
+
+        ## Add the tree
+        plot(tree, show.tip.label = FALSE, edge.color = edge_cols)
+    }
+
     return(invisible())
 }
 ```
@@ -747,7 +970,10 @@ super_phylo_cor <- get.correlations(results$super_results_phylo)
 ## Set the vector of legend positions
 legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
 for(i in 1:length(super_phylo_cor)) {
-    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i])
+    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
+
+    # bugged for all but 1
+
 }
 ```
 
@@ -762,7 +988,7 @@ super_within_cor <- get.correlations(results$super_results_within, exclude.phylo
 ## Set the vector of legend positions
 legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
 for(i in 1:length(super_within_cor)) {
-    plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i])
+    plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
 }
 ```
 
@@ -786,7 +1012,7 @@ col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
 
 ## Set the vector of legend positions
 for(i in 1:length(order_phylo_cor)) {
-    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]])
+    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]], tree = tree)
 }
 ```
 
@@ -804,7 +1030,7 @@ col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
 
 ## Set the vector of legend positions
 for(i in 1:length(order_within_cor)) {
-    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]])
+    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]], tree = tree)
 }
 ```
 
