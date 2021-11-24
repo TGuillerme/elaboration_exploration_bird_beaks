@@ -101,25 +101,38 @@ TODO: details
 ### Combining the model data
 
 ```{r, eval = FALSE}
-## Preparing the model files
-model_list <- list()
-class(model_list) <- c("beer", "mini.chains")
+## Set up the variables
 models_path <- "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/cluster/"
 ## Getting all the model files
 model_files <- list.files(models_path, pattern = ".rda")
-## Get the first model
-load(paste0(models_path, model_files[1], collapse = "/"))
-print(model_files[1])
-## Clean the bits that are not going to be used (but are huge)
-model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
-## Update the model list
-model_list[[length(model_list)+1]] <- model[[1]]
-model <- NULL
-model_files <- model_files[-1]
+
+## Check if the model exists already
+if(!("shapespace_allbirds_lvl_superorder_order.MCMCglmm" %in% list.files("../Data/Processed/"))) {
+    ## Preparing the model files
+    model_list <- list()
+    class(model_list) <- c("beer", "mini.chains")
+    ## Get the first model
+    load(paste0(models_path, model_files[1], collapse = "/"))
+    ## Move it to the storage
+    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/"))
+    print(model_files[1])
+    ## Clean the bits that are not going to be used (but are huge)
+    model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
+    ## Update the model list
+    model_list[[length(model_list)+1]] <- model[[1]]
+    model <- NULL
+    model_files <- model_files[-1]
+} else {
+    ## Updating the model
+    load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+    model_list <- shapespace_allbirds_lvl_superorder_order
+}
 
 ## Get the subsequent models and merge them as we go
 while(length(model_files) != 0) {
     load(paste0(models_path, model_files[1], collapse = "/"))
+    ## Move it to storage
+    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/")))
     print(model_files[1])
     ## Clean the bits that are not going to be used (but are huge)
     model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
@@ -135,7 +148,7 @@ while(length(model_files) != 0) {
 }
 
 ## Combining the model files
-shapespace_allbirds_lvl_superorder_order <- model_list[[1]]
+shapespace_allbirds_lvl_superorder_order <- model_list
 
 ## Saving the results
 save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
