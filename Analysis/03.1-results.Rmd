@@ -17,7 +17,7 @@ library(dispRity)
 
 # All birds shapespace analyses
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = TRUE, echo = TRUE}
 ## Load the data
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
@@ -194,36 +194,38 @@ TODO: centre and absolute directly in `dispRity.covar.projections`
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
-                                             output = c("position", "distance"))
+                                             verbose = TRUE,
+                                             output = c("position", "distance"),centre.proj = FALSE)
 ## Run the analyses between groups
 order_results_between <- dispRity.covar.projections(order_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
-                                             output = c("position", "distance"))
+                                             verbose = TRUE,
+                                             output = c("position", "distance"),centre.proj = FALSE)
 ## Run the analyses of groups on the phylogeny
 super_results_phylo <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"))
+                                            output = c("position", "distance"),centre.proj = FALSE)
 ## Run the analyses of groups on the phylogeny
 order_results_phylo <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"))
+                                            output = c("position", "distance"),centre.proj = FALSE)
 ## Run the analyses groups on themselves
 super_results_within <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"))
+                                            output = c("position", "distance"),centre.proj = FALSE)
 ## Run the analyses groups on themselves
 order_results_within <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"))
+                                            output = c("position", "distance"),centre.proj = FALSE)
 ## Save all
 shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "super_results_between" = super_results_between,
@@ -232,11 +234,13 @@ shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "order_results_phylo"   = order_results_phylo,
         "super_results_within"  = super_results_within,
         "order_results_within"  = order_results_within)
-save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
 ```
 
 ```{r, echo = FALSE}
 ## Quick load
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
+results_cent <- shapespace_allbirds_lvl_superorder_order_results_list
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 ```
@@ -246,24 +250,14 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 
 ```{r "starting with boxplots", echo = FALSE, fig.height = 8, fig.width = 8}
 ## Plot the results
-wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolute = TRUE, order = TRUE, xlim = NULL) {
+wrap.plot <- function(results, col, main, names, order = TRUE, xlim = NULL) {
 
     ## Ranking the results
     if(order) {
         ## Get the ranking
         orders <- lapply(results, get.disparity, concatenate = FALSE)
         ## Get the mean values
-        if(absolute) {
-            ## Centre and absolute values
-            orders_pos <- lapply(orders$position, function(X) abs(X-0.5))
-        } else {
-            if(centre.position) {
-                ## Just centre
-                orders_pos <- lapply(orders$position, function(X) X-0.5)
-            } else {
-                orders_pos <- orders$position
-            }
-        }
+        orders_pos <- orders$position
         orders_dis <- orders$distance
 
         ## Get the mean for each and combine into a table
@@ -281,12 +275,6 @@ wrap.plot <- function(results, col, main, names, centre.position = TRUE, absolut
     ## Adding one plot
     one.plot <- function(one_result, xlab, col, zero = TRUE, main, centre, absolute, rank = NULL, xlim = NULL, ...) {
         values <- lapply(get.disparity(one_result, concatenate = FALSE), c)
-        if(centre) {
-            values <- lapply(values, function(X) {X-0.5})
-        }
-        if(absolute) {
-            values <- lapply(values, function(X) {abs(X-0.5)})
-        }
         if(!is.null(rank)) {
             values <- values[rank]
         }
@@ -346,8 +334,7 @@ wrap.plot(results$super_results_between,
           xlim = c(0,6),
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation"),
-          centre.position = TRUE, absolute = TRUE)
+          names = c("elaboration", "innovation"))
 ```
 </details>
 
@@ -367,8 +354,7 @@ wrap.plot(results$order_results_between,
           xlim = c(0, 15),
           col = rainbow(n.subsets(order_shapespace)-1),
           main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation"),
-          centre.position = TRUE, absolute = TRUE)
+          names = c("elaboration", "innovation"))
 ```
 </details>
 
@@ -387,10 +373,8 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 wrap.plot(results$super_results_phylo,
           col = rainbow(n.subsets(superorder_shapespace)-1),
           main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
-          names = c("elaboration", "innovation"),
-          centre.position = TRUE, absolute = TRUE)
+          names = c("elaboration", "innovation"))
 ```
-
 
 Figure: the projection of each species per group onto the posterior distribution of global major phylogenetic axis.
 
@@ -422,7 +406,7 @@ Figure: the projection of each species per group onto the posterior distribution
 ## Plot the results
 wrap.plot(results$order_results_within,
           col = rainbow(n.subsets(order_shapespace)-1),
-          main = "[species on group] oreders species\nonto their group's VCV",
+          main = "[species on group] orders species\nonto their group's VCV",
           names = c("elaboration", "innovation"))
 ```
 
@@ -441,11 +425,9 @@ library(hdrcde)
 #@param use.hdr whether to use kernel density estimate for the outputs (default is TRUE)
 #@param prob which quantiles to use (default is c(50, 95, 99))
 #@param exclude.phylo remove the phylogeny subset (default = FALSE)
-#@param absolute whether to make the position values absolute or not
 #@param add.relative whether to add the relative results (as rel.pos and rel.dis) or not
 #@param ... plot options
-
-get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, absolute = FALSE, add.relative = FALSE, ...) {
+get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, prob = c(50, 95, 99), exclude.phylo = FALSE, add.relative = FALSE, ...) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -455,15 +437,6 @@ get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, pro
     }
     ## Extracting all the results
     disparity <- lapply(res[[type]]$disparity, function(X, type) return(X$elements))
-
-    ## Recentre the results
-    if(type == "position") {
-        if(!absolute) {
-            disparity <- lapply(disparity, function(X) return(X-0.5))
-        } else {
-            disparity <- lapply(disparity, function(X) return(abs(X-0.5)))
-        }
-    }
 
     ## Measure the central tendencies
     centrals <- lapply(disparity, function(X, fun) apply(X, 1, fun), fun = cent.tend)
@@ -597,7 +570,7 @@ Furthermore, we can look at things species per species to find which species spe
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-super_positions_phylo <- get.distributions(results$super_results_phylo, type = "position", absolute = TRUE)
+super_positions_phylo <- get.distributions(results$super_results_phylo, type = "position")
 ```
 Figure: elaborations distributions per super orders
 
@@ -651,7 +624,7 @@ kable(super_phylo_table, digits = 3)
 ### Extreme species per order (species on phylogeny)
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE, absolute = TRUE)
+order_positions_phylo <- get.distributions(results$order_results_phylo, type = "position", exclude.phylo = TRUE)
 ```
 Figure: elaborations distributions per order
 
@@ -687,7 +660,7 @@ kable(order_phylo_table, digits = 3)
 ### Extreme species per super order (species on group)
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-super_positions_within <- get.distributions(results$super_results_within, type = "position", exclude.phylo = TRUE, absolute = TRUE, add.relative = TRUE)
+super_positions_within <- get.distributions(results$super_results_within, type = "position", exclude.phylo = TRUE,  add.relative = TRUE)
 ```
 Figure: elaborations distributions within super orders
 
@@ -727,12 +700,12 @@ kable(super_phylo_table_within, digits = 3)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-order_positions_within <- get.distributions(results$order_results_within, type = "position", exclude.phylo = TRUE)
+order_positions_within <- get.distributions(results$order_results_within, type = "position", exclude.phylo = TRUE, add.relative = TRUE)
 ```
 Figure: elaborations distributions within orders
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 12, fig.width = 12, eval = TRUE}
-order_distances_within <- get.distributions(results$order_results_within, type = "distance", exclude.phylo = TRUE)
+order_distances_within <- get.distributions(results$order_results_within, type = "distance", exclude.phylo = TRUE, add.relative = TRUE)
 ```
 Figure: innovations distributions within orders
 
@@ -765,41 +738,11 @@ kable(order_phylo_table_within, digits = 3)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Correlations between elaboration and innovation?
 
 ```{r, echo = FALSE}
 ## Calculating all the correlations
-get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, absolute = TRUE) {
+get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE) {
 
     ## Remove the phylo one (if needed)
     if(exclude.phylo) {
@@ -814,13 +757,6 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE, abs
     ## Extracting all the results
     disparity_pos <- lapply(res$position$disparity, function(X, type) return(X$elements))
     disparity_dis <- lapply(res$distance$disparity, function(X, type) return(X$elements))
-
-    ## Recentre the results
-    if(!absolute) {
-        disparity_pos <- lapply(disparity_pos, function(X) return(X-0.5))
-    } else {
-        disparity_pos <- lapply(disparity_pos, function(X) return(abs(X-0.5)))
-    }
 
     ## Measure the central tendencies
     centrals_pos <- lapply(disparity_pos, function(X, fun) apply(X, 1, fun), fun = cent.tend)
@@ -913,34 +849,44 @@ plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.po
                 tips <- which(named_col_vector == clades[clade])
                 ## Get the MRCA node
                 mrca_node <- getMRCA(tree, tips)
-                stop_edge <- which(tree$edge[, 2] %in% mrca_node)
+                # stop_edge <- which(tree$edge[, 2] %in% mrca_node)
+
+                ## Handle non-monophyletic groups
+                clade_tree <- extract.clade(tree, node = mrca_node)
+                if(Ntip(clade_tree) > length(tips)) {
+                    clade_tree <- drop.tip(clade_tree, tip = clade_tree$tip.label[!(clade_tree$tip.label %in% names(tips))])
+                }
+                n_edges_target <- Nedge(clade_tree)
+
                 ## Get the tips ID
                 tip_ids <- which(tree$tip.label %in% names(tips))
                 ## Get the vector of edges
                 edges <- integer()
                 ## Get the first nodes (and edges)
                 new_edges <- which(tree$edge[, 2] %in% tip_ids)
-                edges <- c(edges, new_edges)
+                edges <- unique(c(edges, new_edges))
                 nodes <- tree$edge[new_edges, 1]
 
-                # test.col <- c("red", "blue", "orange", "green", "pink", "yellow")
+                # plot(tree, show.tip.label = FALSE)
+                # test.col <- c(replicate(10, c("red", "blue", "orange", "green", "pink", "yellow")))
                 # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
 
                 ## Recursively loop through each node up until the last edge
-                while(!(stop_edge %in% edges)) {
+                # while(!(stop_edge %in% edges)) {
+                while(length(edges) <= n_edges_target) {
                     ## Get the node edges
                     new_edges <- which(tree$edge[, 2] %in% nodes)
 
                     # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
 
-                    edges <- c(edges, new_edges)
+                    edges <- unique(c(edges, new_edges))
                     ## Update the nodes
                     nodes <- tree$edge[new_edges, 1]
                 }
 
-                ## Do the last recursion
-                new_edges <- which(tree$edge[, 2] %in% nodes)
-                edges <- c(edges, new_edges)
+                # ## Do the last recursion
+                # new_edges <- which(tree$edge[, 2] %in% nodes)
+                # edges <- unique(c(edges, new_edges))
 
                 # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
 
@@ -962,7 +908,7 @@ plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.po
 
 ### Correlations per super order (species on phylogeny)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12, eval = TRUE}
 ## Getting the subsets for the colouring
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 ## Calculate the correlations
@@ -971,18 +917,16 @@ super_phylo_cor <- get.correlations(results$super_results_phylo)
 legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
 for(i in 1:length(super_phylo_cor)) {
     plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
-
-    # bugged for all but 1
-
 }
 ```
 
 ### Correlations within super orders (species on group)
 
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12, eval = TRUE}
 ## Getting the subsets for the colouring
 col_subs <- split(shapespace$level2, f = shapespace$level1)[-1]
+
 ## Calculate the correlations
 super_within_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
 ## Set the vector of legend positions
@@ -994,7 +938,7 @@ for(i in 1:length(super_within_cor)) {
 
 ### Correlations per order (species on phylogeny)
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
 ## Loading the sub-order levels
 load(file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
 ## Select the data
@@ -1012,14 +956,14 @@ col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
 
 ## Set the vector of legend positions
 for(i in 1:length(order_phylo_cor)) {
-    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]], tree = tree)
+    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]])
 }
 ```
 
 ### Correlations within orders (species on group)
 
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = TRUE}
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
 ## Calculate the correlations
 order_within_cor <- get.correlations(results$order_results_within, exclude.phylo = TRUE)
 
@@ -1030,7 +974,7 @@ col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
 
 ## Set the vector of legend positions
 for(i in 1:length(order_within_cor)) {
-    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]], tree = tree)
+    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]])
 }
 ```
 
