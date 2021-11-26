@@ -23,6 +23,8 @@ load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
 shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
 tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
 
 ## Load the covar
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
@@ -45,6 +47,8 @@ order_shapespace <- MCMCglmm.subsets(
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
 ```
 
 First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
@@ -83,7 +87,6 @@ covar.plot(superorder_shapespace,
            legend = TRUE,
            points = FALSE,
            cex = 0.5)
-## Plotting mean axes
 covar.plot(order_shapespace,
            col = c(rainbow(n.subsets(order_shapespace)-1), "grey"),
            main = "Average ellipses by order",
@@ -144,6 +147,7 @@ visualisation.group <- function(data, subset, dimensions, n = 100) {
     ## Plot
     covar.plot(sub, major.axes = TRUE, ellipses = TRUE, points = FALSE, legend = FALSE, main = main)
     covar.plot(sub, major.axes = mean, ellipses = mean, points = FALSE, col = "red", add = TRUE)
+    rm(sub)
 }
 
 visualisation.group(superorder_shapespace, "Mirandornithes")
@@ -239,10 +243,11 @@ save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Proc
 
 ```{r, echo = FALSE}
 ## Quick load
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
-results_cent <- shapespace_allbirds_lvl_superorder_order_results_list
+# load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
+# results_cent <- shapespace_allbirds_lvl_superorder_order_results_list
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
 
@@ -501,6 +506,7 @@ get.distributions <- function(res, type, cent.tend = median, use.hdr = TRUE, pro
         }
         output <- lapply(output, make.relative)
     }
+    rm(disparity)
     return(output)
 }
 combine.results <- function(res1, res2, sort.results = TRUE) {
