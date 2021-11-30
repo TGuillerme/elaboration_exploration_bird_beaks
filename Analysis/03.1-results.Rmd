@@ -17,7 +17,7 @@ library(dispRity)
 
 # All birds shapespace analyses
 
-```{r, eval = TRUE, echo = TRUE}
+```{r, eval = TRUE, echo = FALSE}
 ## Load the data
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
@@ -36,13 +36,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(
+superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(
+order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
@@ -199,38 +199,37 @@ super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
                                              verbose = TRUE,
-                                             output = c("position", "distance"),centre.proj = FALSE)
+                                             output = c("position", "distance"), centre.proj = TRUE)
 ## Run the analyses between groups
 order_results_between <- dispRity.covar.projections(order_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
                                              verbose = TRUE,
-                                             output = c("position", "distance"),centre.proj = FALSE)
+                                             output = c("position", "distance"), centre.proj = TRUE)
 ## Run the analyses of groups on the phylogeny
 super_results_phylo <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"),centre.proj = FALSE)
+                                            output = c("position", "distance"), centre.proj = TRUE)
 ## Run the analyses of groups on the phylogeny
 order_results_phylo <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"),centre.proj = FALSE)
+                                            output = c("position", "distance"), centre.proj = TRUE)
 ## Run the analyses groups on themselves
 super_results_within <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"),centre.proj = FALSE)
+                                            output = c("position", "distance"), centre.proj = TRUE)
 ## Run the analyses groups on themselves
 order_results_within <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"),centre.proj = FALSE)
-## Save all
+                                            output = c("position", "distance"), centre.proj = TRUE)
 shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "super_results_between" = super_results_between,
         "order_results_between" = order_results_between,
@@ -238,14 +237,14 @@ shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "order_results_phylo"   = order_results_phylo,
         "super_results_within"  = super_results_within,
         "order_results_within"  = order_results_within)
-save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
+save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_centred.rda")
 ```
 
 ```{r, echo = FALSE}
 ## Quick load
 # load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
 # results_cent <- shapespace_allbirds_lvl_superorder_order_results_list
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_centred.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
@@ -611,7 +610,9 @@ top_innov <- get.top(super_phylo_table, what = "innovation")
 ```
 
 > And here are the top 10% of the top 1% elaborators and innovators by superorder:
+
 The 10% top elaborators by superorder are: `r paste(paste(top_elabo[, "species"], round(top_elabo[, "elaboration"], 3), sep = ": "), collapse = ", ")`.
+
 The 10% top innovators by superorder are: `r paste(paste(top_innov[, "species"], round(top_innov[, "innovation"], 3), sep = ": "), collapse = ", ")`.
 
 <details>
