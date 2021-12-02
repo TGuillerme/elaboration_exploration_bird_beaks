@@ -966,7 +966,7 @@ Mitu_tuberosum and Penelope_argyrotis (normal ish) and Anas_falcata
 ```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
 shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
-colour.palette <- rainbow
+# colour.palette <- rainbow
 posteriors <- shapespace_allbirds_lvl_superorder_order
 
 # plot(superorder_shapespace$matrix[[1]][, 1:2], pch = 19, cex = 0.5)
@@ -975,8 +975,8 @@ posteriors <- shapespace_allbirds_lvl_superorder_order
 
 ## Moving these three species around: Mitu_tuberosum and Penelope_argyrotis (normal ish) and Anas_falcata
 fixed_points <- c(268, 286, 408)
-skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
 move_around <- c(8749, 8750, 8751)
+skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
 
 ## Get the major axis
 phylo_axis <- axis.covar(superorder_shapespace, sample = median)$phylogeny[[1]]
@@ -1109,11 +1109,11 @@ plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
 data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
 points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
 points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
-abline(a = 0, b = 30, col = "grey")
-abline(a = 0, b = 0.03, col = "grey")
+abline(a = 0, b = 7, col = "grey")
+abline(a = 0, b = 0.14, col = "grey")
 ```
 
-So here there seems to be some kind of very shy limit (arbitrarily found as a slope of 0.03 and 30).
+So here there seems to be some kind of very shy limit (arbitrarily found as a slope of 0.14 and 7).
 Let's see if it's something birdy or not by modifying these elements position in trait space to have elaboration of 0 and innovation of 1 and the opposite.
 
 
@@ -1153,8 +1153,8 @@ covar.plot(superorder_skewed_space,
            col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
            main = "Flattening the results")
 ## Add the phylogenetic axis
-lines(phylo_axis, lty = 1, lwd = 4, col = "grey")
-lines(phylo_axis, lty = 1, lwd = 2.5, col = "black")
+lines(phylo_axis[,1:2], lty = 1, lwd = 4, col = "grey")
+lines(phylo_axis[,1:2], lty = 1, lwd = 2.5, col = "black")
 ## Adding the points
 points(skewed_space[fixed_points, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
 points(skewed_space[move_around, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
@@ -1168,8 +1168,6 @@ plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
 data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
 points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
 points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
-abline(a = 0, b = 30, col = "grey")
-abline(a = 0, b = 0.03, col = "grey")
 ```
 
 TODO: fix this!
