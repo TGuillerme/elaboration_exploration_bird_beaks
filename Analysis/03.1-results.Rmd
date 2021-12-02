@@ -54,12 +54,20 @@ rm(shapespace_allbirds_lvl_superorder_order)
 First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
 
 ```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
+## The ggplot color panel
+gg.color.hue <- function(n) {
+    grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
+}
+
+# colour.palette <- rainbow
+colour.palette <- gg.color.hue
+
 ## Plotting just the space
 covar.plot(superorder_shapespace,
            main = "Shapespace",
            cex = 0.5,
            legend = TRUE,
-           col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
            legend.args = list(x = "bottomright", cex = 2/3))
 ```
 
@@ -73,35 +81,35 @@ The VCV matrices are represented as average ellipses or average axis.
 par(mfrow = c(2,2))
 ## Plotting mean axes
 covar.plot(superorder_shapespace,
-           col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
            main = "Average ellipses by super order",
            ellipses = mean,
            legend = FALSE,
            points = FALSE,
-           cex = 0.5)
+           cex = 0.5, apply.to.VCV = TRUE)
 ## Plotting mean ellipses
 covar.plot(superorder_shapespace,
-           col = c(rainbow(n.subsets(superorder_shapespace)-1), "grey"),
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
            main = "Average major axes by super order",
            major.axes = mean,
            legend = TRUE,
            points = FALSE,
-           cex = 0.5)
+           cex = 0.5, apply.to.VCV = TRUE)
 covar.plot(order_shapespace,
-           col = c(rainbow(n.subsets(order_shapespace)-1), "grey"),
+           col = c(colour.palette(n.subsets(order_shapespace)-1), "grey"),
            main = "Average ellipses by order",
            ellipses = mean,
            legend = FALSE,
            points = FALSE,
-           cex = 0.5)
+           cex = 0.5, apply.to.VCV = TRUE)
 ## Plotting mean ellipses
 covar.plot(order_shapespace,
-           col = c(rainbow(n.subsets(order_shapespace)-1), "grey"),
+           col = c(colour.palette(n.subsets(order_shapespace)-1), "grey"),
            main = "Average major axes by order",
            major.axes = mean,
            legend = TRUE,
            points = FALSE,
-           cex = 0.5)
+           cex = 0.5, apply.to.VCV = TRUE)
 ```
 
 Main axes and ellipses visualisation for each superorders and orders.
@@ -322,7 +330,7 @@ wrap.plot <- function(results, col, main, names, order = TRUE, xlim = NULL) {
     par(op)
 }
 wrap.plot(results$super_results_between,
-              col = rainbow(n.subsets(superorder_shapespace)-1),
+              col = colour.palette(n.subsets(superorder_shapespace)-1),
               main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
               names = c("elaboration", "innovation"))
 ```
@@ -336,7 +344,7 @@ Figure: these results show the projections ("position"), rejection ("distance") 
 ```{r, echo = FALSE, fig.height = 8, fig.width = 8}
 wrap.plot(results$super_results_between,
           xlim = c(0,6),
-          col = rainbow(n.subsets(superorder_shapespace)-1),
+          col = colour.palette(n.subsets(superorder_shapespace)-1),
           main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -344,7 +352,7 @@ wrap.plot(results$super_results_between,
 
 ```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 wrap.plot(results$order_results_between,
-          col = rainbow(n.subsets(order_shapespace)-1),
+          col = colour.palette(n.subsets(order_shapespace)-1),
           main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -356,7 +364,7 @@ wrap.plot(results$order_results_between,
 ```{r, echo = FALSE, fig.height = 16, fig.width = 8}
 wrap.plot(results$order_results_between,
           xlim = c(0, 15),
-          col = rainbow(n.subsets(order_shapespace)-1),
+          col = colour.palette(n.subsets(order_shapespace)-1),
           main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -375,7 +383,7 @@ Here, instead of projecting the major axes of the groups onto the global phyloge
 ```{r, fig.height = 8, fig.width = 8, echo = FALSE, eval = TRUE}
 ## Plot the results
 wrap.plot(results$super_results_phylo,
-          col = rainbow(n.subsets(superorder_shapespace)-1),
+          col = colour.palette(n.subsets(superorder_shapespace)-1),
           main = "[species on phylogeny] superorders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -385,7 +393,7 @@ Figure: the projection of each species per group onto the posterior distribution
 ```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 ## Plot the results
 wrap.plot(results$order_results_phylo,
-          col = rainbow(n.subsets(order_shapespace)-1),
+          col = colour.palette(n.subsets(order_shapespace)-1),
           main = "[species on phylogeny] orders species\nonto the phylogenetic VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -398,7 +406,7 @@ Finally, we ran the same analyses but instead of the projection of the species o
 ```{r, fig.height = 8, fig.width = 8, echo = FALSE}
 ## Plot the results
 wrap.plot(results$super_results_within,
-          col = rainbow(n.subsets(superorder_shapespace)-1),
+          col = colour.palette(n.subsets(superorder_shapespace)-1),
           main = "[species on group] superorders species\nonto their group's VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -409,7 +417,7 @@ Figure: the projection of each species per group onto the posterior distribution
 ```{r, fig.height = 16, fig.width = 8, echo = FALSE}
 ## Plot the results
 wrap.plot(results$order_results_within,
-          col = rainbow(n.subsets(order_shapespace)-1),
+          col = colour.palette(n.subsets(order_shapespace)-1),
           main = "[species on group] orders species\nonto their group's VCV",
           names = c("elaboration", "innovation"))
 ```
@@ -786,7 +794,7 @@ get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE) {
 }
     
 ## Plotting one correlation 
-plot.correlations <- function(cor.results, col.sub, col.fun = rainbow, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, tree, full.tree = FALSE, ...) {
+plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, tree, full.tree = FALSE, ...) {
     dots <- list(...)
 
     if(missing(col.sub)) {
@@ -927,7 +935,281 @@ for(i in 1:length(super_phylo_cor)) {
 }
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<details>
+  <summary>[Click to expand] Finding corner cases groups.
+</summary>
+  
+
+So here's how you remove exploration and elaboration: by centering these three species on the centre of the phylo axis:
+
+Mitu_tuberosum and Penelope_argyrotis (normal ish) and Anas_falcata
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+colour.palette <- rainbow
+posteriors <- shapespace_allbirds_lvl_superorder_order
+
+# plot(superorder_shapespace$matrix[[1]][, 1:2], pch = 19, cex = 0.5)
+# identify(superorder_shapespace$matrix[[1]][, 1:2])
+# shapespace[c(268, 286, 80), c(9, 10)]
+
+## Moving these three species around: Mitu_tuberosum and Penelope_argyrotis (normal ish) and Anas_falcata
+fixed_points <- c(268, 286, 408)
+skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
+move_around <- c(8749, 8750, 8751)
+
+## Get the major axis
+phylo_axis <- axis.covar(superorder_shapespace, sample = median)$phylogeny[[1]]
+## Point with no elaboration/exploration
+no_nothing <- 0
+
+## Example with no exploration/elaboration
+skewed_space[move_around, c(1:8)] <- no_nothing
+
+## Recreate the space
+superorder_skewed_space <- MCMCglmm.subsets(n = 10, data = skewed_space, posteriors = posteriors, group = MCMCglmm.levels(posteriors)[c(super_lvl, phylo_lvl)], rename.groups = c(levels(shapespace$level1)[-1], "phylogeny"))
+```
+
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Visualise all that
+par(mfrow = c(1,2))
+## Plot the space
+covar.plot(superorder_skewed_space,
+           cex = 0.5,
+           col = c(colour.palette(n.subsets(superorder_skewed_space)-1), "grey"),
+           main = "elements without\nelaboration innovation")
+## Add the phylogenetic axis
+lines(phylo_axis, lty = 1, lwd = 4, col = "grey")
+lines(phylo_axis, lty = 1, lwd = 2.5, col = "black")
+## Adding the points
+points(skewed_space[fixed_points, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(skewed_space[move_around, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+
+## Recalculate the disparity
+results_skewed <- dispRity.covar.projections(superorder_skewed_space, type = "elements", base = "phylogeny", inc.base = TRUE, verbose = TRUE, output = c("position", "distance"), centre.proj = TRUE)
+## Getting the correlation plot
+col_subs <- c(split(skewed_space$level2, f = skewed_space$level1)[-1], "phylogeny" = list(skewed_space$level1))
+cor_results_skewed <- get.correlations(results_skewed)
+plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
+data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
+points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+```
+
+So easy right? We just need to change them along the PC axis to move them around in space.
+
+No, it's not fucking easy because it's a 8 dimensional problem... Even though the two first axes cumulate 86.27% of the variance, fixing the three elements on the two elements and centering them on the 6 other dimensions (13.73% of the variance) results in BIG changes:
+
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Reinitialising the space
+skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
+
+## Example with no exploration/elaboration
+skewed_space[move_around, c(3:8)] <- 0
+
+## Recreate the space
+superorder_skewed_space <- MCMCglmm.subsets(n = 10, data = skewed_space, posteriors = posteriors, group = MCMCglmm.levels(posteriors)[c(super_lvl, phylo_lvl)], rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #
+```
+
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Visualise all that
+par(mfrow = c(1,2))
+## Plot the space
+covar.plot(superorder_skewed_space,
+           cex = 0.5,
+           col = c(colour.palette(n.subsets(superorder_skewed_space)-1), "grey"),
+           main = "Centring only on dimensions 3:8")
+## Add the phylogenetic axis
+lines(phylo_axis, lty = 1, lwd = 4, col = "grey")
+lines(phylo_axis, lty = 1, lwd = 2.5, col = "black")
+## Adding the points
+points(skewed_space[fixed_points, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(skewed_space[move_around, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+
+## Recalculate the disparity
+results_skewed <- dispRity.covar.projections(superorder_skewed_space, type = "elements", base = "phylogeny", inc.base = TRUE, verbose = TRUE, output = c("position", "distance"), centre.proj = TRUE)
+## Getting the correlation plot
+col_subs <- c(split(skewed_space$level2, f = skewed_space$level1)[-1], "phylogeny" = list(skewed_space$level1))
+cor_results_skewed <- get.correlations(results_skewed)
+plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
+data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
+points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+```
+
+For example, the blue element, Anas_falcata is moved to no elaboration/exploration at all if we do that ignoring data past the second axis.
+There's a duck axis lurking in the depth... (spoiler, it's the fourth dimension).
+
+
+Let's flatten the problem in 2D for simplification:
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Reinitialising the space
+skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
+
+## Recreate the space
+superorder_skewed_space <- MCMCglmm.subsets(n = 10, data = skewed_space, posteriors = posteriors, group = MCMCglmm.levels(posteriors)[c(super_lvl, phylo_lvl)], rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #
+
+## 2Ding the space
+dimensions <- c(1,2)
+superorder_skewed_space$matrix[[1]] <- superorder_skewed_space$matrix[[1]][,dimensions]
+superorder_skewed_space$call$dimensions <- dimensions
+fun2d <- function(covar) {
+    covar$VCV <- covar$VCV[dimensions, dimensions]
+    covar$loc <- covar$loc[dimensions]
+    return(covar)
+}
+superorder_skewed_space$covar <- lapply(superorder_skewed_space$covar, lapply, fun2d)
+```
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Visualise all that
+par(mfrow = c(1,2))
+## Plot the space
+covar.plot(superorder_skewed_space,
+           cex = 0.5,
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
+           main = "Flattening the results")
+## Add the phylogenetic axis
+lines(phylo_axis, lty = 1, lwd = 4, col = "grey")
+lines(phylo_axis, lty = 1, lwd = 2.5, col = "black")
+## Adding the points
+points(skewed_space[fixed_points, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(skewed_space[move_around, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+
+## Recalculate the disparity
+results_skewed <- dispRity.covar.projections(superorder_skewed_space, type = "elements", base = "phylogeny", inc.base = TRUE, verbose = TRUE, output = c("position", "distance"), centre.proj = TRUE)
+## Getting the correlation plot
+col_subs <- c(split(skewed_space$level2, f = skewed_space$level1)[-1], "phylogeny" = list(skewed_space$level1))
+cor_results_skewed <- get.correlations(results_skewed)
+plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
+data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
+points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+abline(a = 0, b = 30, col = "grey")
+abline(a = 0, b = 0.03, col = "grey")
+```
+
+So here there seems to be some kind of very shy limit (arbitrarily found as a slope of 0.03 and 30).
+Let's see if it's something birdy or not by modifying these elements position in trait space to have elaboration of 0 and innovation of 1 and the opposite.
+
+
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Reinitialising the space
+skewed_space <- rbind(shapespace, shapespace[fixed_points, ])
+
+## Move around the first species to have elaboration = 0 and innovation = 0
+skewed_space[move_around[1], c(1:2)] <- 0
+## Move around the second species to have elaboration = 0 and innovation = 1
+skewed_space[move_around[2], c(1:2)] <- c(0, 0.4)
+## Move around the third species to have elaboration = 1 and innovation = 0
+skewed_space[move_around[3], c(1:2)] <- c(0.4, 0)
+
+## Recreate the space
+superorder_skewed_space <- MCMCglmm.subsets(n = 10, data = skewed_space, posteriors = posteriors, group = MCMCglmm.levels(posteriors)[c(super_lvl, phylo_lvl)], rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #
+
+## 2Ding the space
+dimensions <- c(1,2)
+superorder_skewed_space$matrix[[1]] <- superorder_skewed_space$matrix[[1]][,dimensions]
+superorder_skewed_space$call$dimensions <- dimensions
+fun2d <- function(covar) {
+    covar$VCV <- covar$VCV[dimensions, dimensions]
+    covar$loc <- covar$loc[dimensions]
+    return(covar)
+}
+superorder_skewed_space$covar <- lapply(superorder_skewed_space$covar, lapply, fun2d)
+```
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 16, echo = FALSE}
+## Visualise all that
+par(mfrow = c(1,2))
+## Plot the space
+covar.plot(superorder_skewed_space,
+           cex = 0.5,
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
+           main = "Flattening the results")
+## Add the phylogenetic axis
+lines(phylo_axis, lty = 1, lwd = 4, col = "grey")
+lines(phylo_axis, lty = 1, lwd = 2.5, col = "black")
+## Adding the points
+points(skewed_space[fixed_points, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(skewed_space[move_around, 1:2], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+
+## Recalculate the disparity
+results_skewed <- dispRity.covar.projections(superorder_skewed_space, type = "elements", base = "phylogeny", inc.base = TRUE, verbose = TRUE, output = c("position", "distance"), centre.proj = TRUE)
+## Getting the correlation plot
+col_subs <- c(split(skewed_space$level2, f = skewed_space$level1)[-1], "phylogeny" = list(skewed_space$level1))
+cor_results_skewed <- get.correlations(results_skewed)
+plot.correlations(cor_results_skewed[[9]], col.sub = col_subs[[9]])
+data <- cbind(cor_results_skewed[[9]]$x, cor_results_skewed[[9]]$y)
+points(data[which(rownames(data) %in% rownames(skewed_space)[fixed_points]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 2)
+points(data[which(rownames(data) %in% rownames(skewed_space)[move_around]), ], pch = 21, cex = 2, col = c("black", "darkred", "blue"), lwd = 4)
+abline(a = 0, b = 30, col = "grey")
+abline(a = 0, b = 0.03, col = "grey")
+```
+
+TODO: fix this!
+
+
+
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Correlations within super orders (species on group)
+
+Regardless, here are the results when projecting the species on their own group's VCV
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12, eval = TRUE}
@@ -942,6 +1224,41 @@ for(i in 1:length(super_within_cor)) {
     plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- THIS BIT IS IGNORED FOR NOW -->
+
+
+
+
 
 ### Correlations per order (species on phylogeny)
 
