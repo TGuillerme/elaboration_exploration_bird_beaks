@@ -2,7 +2,10 @@
 #'
 #' @description Diagnose a set of mini chains results
 #'
-#' @param mini.chains a MCMCglmm result
+#' @param mini.chains a mini chain MCMCglmm result
+#' @param what which part from \code{\link[MCMCglmm]{summary.MCMCglmm}} to diagnose (default is \code{"eff.samp"} for the effective sample size).
+#' @param plot logical, whether to plot the results (\code{TRUE}; default) or not (\code{FALSE}).
+#' @param ... if \code{plot = TRUE}, any optional arguments to be past to \code{\link[graphics]{hist}}
 #' 
 #' @examples
 #'
@@ -11,25 +14,40 @@
 #' @author Thomas Guillerme
 #' @export
 
-diagnose.mini.chains <- function(mini.chains) {
+diagnose.mini.chains <- function(mini.chains, what = "eff.samp", plot = TRUE, ...) {
+
+    ## Is it a mini chain object or straight a MCMCglmm object?
+    if(is(mini.chains, "MCMCglmm")) {
+        mini.chains <- list(mini.chains)
+    }
 
     ## Summarising the chain
     summarised <- summary.MCMCglmm(mini.chains)
 
-    ## Interesting bits?
-    ESS_sol  <- summarised$solutions[, "eff.samp"]
-    ESS_VCVG <- summarised$Gcovariances[, "eff.samp"]
-    ESS_VCVR <- summarised$Rcovariances[, "eff.samp"]
+    ## How many bits are summarised?
+    elements <- c("solution", "Gcovariances", "Rcovariances") # TODO: make that automatic
+    diagnoses <- lapply(as.list(elements), function(one_element, summarised, what) return(summarised[[one_element]][, what]))
+    names(diagnoses) <- elements
 
-    ## Effective size of the Random terms
-    op <- par(mfrow = c(3,1))
-    hist(ESS_sol, main = "Solution")
-    abline(v = 200)
 
-    hist(ESS_VCVR, main = "Residual terms")
-    abline(v = 200)
-    
-    hist(ESS_VCVG, main = "Random terms")
-    abline(v = 200)
-    par(op)
+    ## Plot the diagnosis
+    if(plot) {
+
+        op <- par(mfrow = c(length(diagnoses),1))
+
+        ## Do one plot
+        one.plot <- function(data, main, what) {
+            graphics::hist(data, main = main, ...)
+            if(what == "eff.samp") {
+                graphics::abline(v = 200)
+            }
+        }
+
+        ## Do all the plots
+        silent <- mapply(one.plot, diagnoses, elements, MoreArgs = list(what = what), SIMPLIFY = FALSE)
+
+        par(op)
+    }
+
+    return(diagnoses)
 }

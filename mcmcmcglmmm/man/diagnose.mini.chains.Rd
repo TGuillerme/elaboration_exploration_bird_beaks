@@ -4,10 +4,16 @@
 \alias{diagnose.mini.chains}
 \title{diagnose.mini.chains}
 \usage{
-diagnose.mini.chains(mini.chains)
+diagnose.mini.chains(mini.chains, what = "eff.samp", plot = TRUE, ...)
 }
 \arguments{
-\item{mini.chains}{a MCMCglmm result}
+\item{mini.chains}{a mini chain MCMCglmm result}
+
+\item{what}{which part from \code{\link[MCMCglmm]{summary.MCMCglmm}} to diagnose (default is \code{"eff.samp"} for the effective sample size).}
+
+\item{plot}{logical, whether to plot the results (\code{TRUE}; default) or not (\code{FALSE}).}
+
+\item{...}{if \code{plot = TRUE}, any optional arguments to be past to \code{\link[graphics]{hist}}}
 }
 \description{
 Diagnose a set of mini chains results
