@@ -86,9 +86,18 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     if(!all(dim_check <- apply(data[, dimensions], 2, is, "numeric"))) {
         stop(paste0("Invalid dimensions (not numeric?): ", paste(names(which(!dim_check)), collapse = ", "), "."))
     }
+
+    ## Change the dimensions to numeric
+    if((class_dim <- class(dimensions)) != "numeric") {
+        select_dim <- switch(class_dim,
+                             "character" = match(dimensions, colnames(data)),
+                             "integer"   = as.numeric(dimensions))
+    } else {
+        select_dim <- dimensions
+    }
     ## Reduce the dataset size
     non_data <- unlist(lapply(as.list(1:ncol(data)), function(col, data) return(class(data[,col])), data = data))
-    data_reduce <- data[, c(dimensions, which(non_data != "numeric"))]
+    data_reduce <- data[, c(select_dim, which(non_data != "numeric"))]
     
     ## Fixed effect
     ## Setting the fixed formula (initialising)
