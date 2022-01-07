@@ -52,7 +52,7 @@ test_that("make.mini.chains works", {
 
     ## Model 1.2
     test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE)
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 3)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -67,7 +67,7 @@ test_that("make.mini.chains works", {
 
     ## Model 1
     test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, residuals = "global")
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 3)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -83,7 +83,7 @@ test_that("make.mini.chains works", {
 
     ## Model 3.2
     test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, random = "global")
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 3)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -98,7 +98,7 @@ test_that("make.mini.chains works", {
 
     ## Model 3
     test <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, random = "global", residuals = "global")
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 3)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -114,7 +114,7 @@ test_that("make.mini.chains works", {
     ## Model 4
     priors_list <- flat.prior(ntraits = 3, randoms = 1, residuals = 3, nu = 0.1)
     test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", priors = priors_list, randoms = "global")
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 1)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -129,7 +129,7 @@ test_that("make.mini.chains works", {
     
     ## Model 5
     test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", randoms = "clade")
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 1)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -144,7 +144,7 @@ test_that("make.mini.chains works", {
 
     ## Model 6
     test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "clade", randoms = c("global", "clade"))
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 1)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -160,7 +160,7 @@ test_that("make.mini.chains works", {
 
     ## Model 7
     test <- make.mini.chains(data = morphdat, tree = tree, dimensions = c(1:3), verbose = FALSE, residuals = "global", randoms = c("global", "clade"))
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 1)
     expect_equal(names(test[[1]]), c("run"))
     ## Run!
@@ -181,20 +181,20 @@ test_that("run/combine.mini.chains works", {
 
     ## Model 3
     mini.chains <- make.mini.chains(data = morphdat, tree = tree_list, dimensions = c(1,2), verbose = FALSE, randoms = "global", residuals = "global")
-    expect_is(mini.chains, c("beer", "mini.chains"))
+    expect_is(mini.chains, c("mini.chains"))
     expect_equal(length(mini.chains), 3)
     expect_equal(names(mini.chains[[1]]), c("run"))
 
     ## Works with record tree
     test <- run.mini.chains(mini.chains, replicates = 2, record.tree = TRUE)
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 2)
     expect_is(test[[1]], "MCMCglmm")
     expect_equal(names(test[[1]]), c("Sol","Lambda","VCV","CP","Liab","Fixed","Random","Residual","Deviance","DIC","X","Z","ZR","XL","ginverse","error.term","family","Tune","meta","y.additional"))#, "tree"))
 
     ## Test the runnings
     test <- run.mini.chains(mini.chains, replicates = 10)
-    expect_is(test, c("beer", "mini.chains"))
+    expect_is(test, c("mini.chains"))
     expect_equal(length(test), 10)
     expect_is(test[[1]], "MCMCglmm")
     expect_equal(names(test[[1]]), c("Sol","Lambda","VCV","CP","Liab","Fixed","Random","Residual","Deviance","DIC","X","Z","ZR","XL","ginverse","error.term","family","Tune","meta","y.additional"))

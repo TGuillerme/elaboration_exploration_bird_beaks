@@ -24,7 +24,7 @@ run.mini.chains <- function(mini.chains, replicates, parallel, path, file.name =
 
     ## mini.chains
     output <- replicate(replicates, run.a.chain(mini.chains, record.tree), simplify = FALSE)
-    class(output) <- c("beer", "mini.chains")
+    class(output) <- c("mini.chains")
 
     ## Saving the business
     if(!missing(path)) {
