@@ -2,6 +2,7 @@
 import(MCMCglmm)
 import(dispRity)
 importFrom("graphics", "hist", "abline")
+importFrom("coda", "gelman.diag")
 
 ## Mini chain functions
 export(extract.parameters)
