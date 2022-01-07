@@ -7,6 +7,7 @@ Maintainer: Thomas Guillerme <guillert@tcd.ie>
 Description: Running mini chains for MCMCglmm analyses
 Depends:
     R (>= 3.6.3),
+    dispRity (>= 1.6.8),
     MCMCglmm
 License: GPL-3
 Encoding: UTF-8
