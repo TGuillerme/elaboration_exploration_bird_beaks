@@ -211,7 +211,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
                                               ...)))
                     , fixed, random, rvoc, family, data, priors, verbose, parameters, ...)
 
-    class(output) <- c("beer", "mini.chains")
+    class(output) <- c("mini.chains")
     return(output)
 }
 
