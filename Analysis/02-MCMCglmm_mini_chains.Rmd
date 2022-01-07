@@ -19,7 +19,7 @@ See <!-- §§§run_replicates_script --> for running the actual analyses.
 
 ```{r install_beer, eval = FALSE}
 ## Installing beer
-devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/beer")
+devtools::install_github("TGuillerme/elaboration_exploration_bird_beaks/mcmcmcglmmm")
 ```
 
 ```{r load_beer, eval = TRUE, message = FALSE}
