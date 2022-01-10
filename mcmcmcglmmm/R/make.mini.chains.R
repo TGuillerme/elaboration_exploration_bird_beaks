@@ -105,10 +105,10 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     tree <- cleaning$tree
     ## Tell what happens
     if(any(!is.na(cleaning$dropped_tips))) {
-        warning(paste0("Dropped ", length(cleaning$dropped_tips), ifelse(length(cleaning$dropped_tips) == 1, " tip", " tips"), " from the ", ifelse(is(tree, "multiPhylo"), "trees", "tree"), " that ", length(cleaning$dropped_tips), ifelse(length(cleaning$dropped_tips) == 1, "was", " were"), " not present in the data."))
+        warning(paste0("Dropped ", length(cleaning$dropped_tips), ifelse(length(cleaning$dropped_tips) == 1, " tip", " tips"), " from the ", ifelse(is(tree, "multiPhylo"), "trees", "tree"), " that ", ifelse(length(cleaning$dropped_tips) == 1, "was", "were"), " not present in the data."))
     }
     if(any(!is.na(cleaning$dropped_rows))) {
-        warning(paste0("Dropped ", length(cleaning$dropped_rows), ifelse(length(cleaning$dropped_rows) == 1, " row", " rows"), " from the dataset that ", ifelse(length(cleaning$dropped_rows) == 1, "was", " were"), " not present in the ", ifelse(is(tree, "multiPhylo"), "trees", "tree") , "."))
+        warning(paste0("Dropped ", length(cleaning$dropped_rows), ifelse(length(cleaning$dropped_rows) == 1, " row", " rows"), " from the dataset that ", ifelse(length(cleaning$dropped_rows) == 1, "was", "were"), " not present in the ", ifelse(is(tree, "multiPhylo"), "trees", "tree") , "."))
     }
 
     ## Fixed effect
@@ -117,7 +117,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     ## Moving the model to the second component of the formula (third)
     fixed[[length(fixed_model) + 1]] <- fixed[[length(fixed_model)]]
     ## Adding the trait model as the first component (first)
-    fixed[[length(fixed_model)]] <- as.formula(paste0("~cbind(", paste(colnames(data)[dimensions], collapse = ", "), ")"))[[2]]
+    fixed[[length(fixed_model)]] <- as.formula(paste0("~cbind(", paste(colnames(data)[select_dim], collapse = ", "), ")"))[[2]]
 
     ## Random effect
     random <- NULL
@@ -163,7 +163,7 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
 
     ## Priors
     if(is(priors, "numeric")) {
-        priors <- flat.prior(ntraits = length(dimensions), residuals = n_residuals, randoms = n_randoms, nu = priors)
+        priors <- flat.prior(ntraits = length(select_dim), residuals = n_residuals, randoms = n_randoms, nu = priors)
     }
 
     ## Parameters
@@ -182,9 +182,9 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
 
     ## Distributions
     if(length(trait.family) == 1) {
-        family <- rep(trait.family, length(dimensions))
+        family <- rep(trait.family, length(select_dim))
     } else {
-        if(length(trait.family) == length(dimensions)) {
+        if(length(trait.family) == length(select_dim)) {
             family <- trait.family
         } else {
             stop("Incorrect family (must be either a single character string or of the same number as dimensions).")
