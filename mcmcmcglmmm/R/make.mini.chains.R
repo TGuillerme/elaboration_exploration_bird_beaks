@@ -99,6 +99,18 @@ make.mini.chains <- function(data, dimensions, tree, trait.family = "gaussian", 
     non_data <- unlist(lapply(as.list(1:ncol(data)), function(col, data) return(class(data[,col])), data = data))
     data_reduce <- data[, c(select_dim, which(non_data != "numeric"))]
     
+    ## Match the data and the trees
+    cleaning <- clean.data(data_reduce, tree)
+    data_reduce <- cleaning$data
+    tree <- cleaning$tree
+    ## Tell what happens
+    if(any(!is.na(cleaning$dropped_tips))) {
+        warning(paste0("Dropped ", length(cleaning$dropped_tips), ifelse(length(cleaning$dropped_tips) == 1, " tip", " tips"), " from the ", ifelse(is(tree, "multiPhylo"), "trees", "tree"), " that ", length(cleaning$dropped_tips), ifelse(length(cleaning$dropped_tips) == 1, "was", " were"), " not present in the data."))
+    }
+    if(any(!is.na(cleaning$dropped_rows))) {
+        warning(paste0("Dropped ", length(cleaning$dropped_rows), ifelse(length(cleaning$dropped_rows) == 1, " row", " rows"), " from the dataset that ", ifelse(length(cleaning$dropped_rows) == 1, "was", " were"), " not present in the ", ifelse(is(tree, "multiPhylo"), "trees", "tree") , "."))
+    }
+
     ## Fixed effect
     ## Setting the fixed formula (initialising)
     fixed <- fixed_model
