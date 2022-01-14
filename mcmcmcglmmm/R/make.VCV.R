@@ -148,22 +148,6 @@ vectors.VCV <- function(VCV) {
     return(t(apply(vector_list, 1, rotate.vector)))
 }
 
-## Internals
-## This function approximates the lambda value corresponding the the correct shape
-## Shape = 0: circle          -> lambda = Inf
-## Shape = (0;0.5): pancake   -> lambda = (Inf; 1)
-## Shape = 0.5: clean ellipse -> lambda = 1
-## Shape = (0.5;1): cigar     -> lambda = (1; 0)
-get.lambda <- function(shape) {
-    ## Reverse x
-    shape <- 1-shape
-    ## Transform the extremes
-    shape <- ifelse(shape == 0, -Inf, shape)
-    shape <- ifelse(shape == 1, Inf, shape)
-    ## Return the centred exp val of shape (scaled and centred so that 0.5 = ellipse)
-    return(exp((shape*4-2)*2))
-}
-
 ## This function generates the shape distribution for the lambda value (use lambda = get.lambda(shape))
 generate.shape <- function(dimensions, lambda, min.thick = 0) {
     x <- seq(from = 0, to = 1, length.out = dimensions)
@@ -188,53 +172,4 @@ get.rotation.matrix <- function(x, y){
     sint <- sqrt(1-cost^2);
 
     return(diag(length(x)) - u %*% t(u) - v %*% t(v) + cbind(u,v) %*% matrix(c(cost,-sint,sint,cost), 2) %*% t(cbind(u,v)))
-}
-
-## Get the coordinates of one axes
-get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
-
-    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
-
-    ## VCVing the matrix
-    if(!is(data, "list")) {
-        data <- list(VCV = data)
-    } else {
-        if(is.null(data$VCV)) {
-            data$VCV <- data
-        }
-    }
-    ## adding a loc
-    if(is.null(data$loc)) {
-        data$loc <- rep(0, nrow(data$VCV))
-    }
-
-    ## Select the right dimensions
-    data$VCV <- data$VCV[dimensions, dimensions, drop = FALSE]
-
-    ## Get the data dimensionality
-    dims <- length(diag(data$VCV))
-
-    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
-    unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
-    ## The "front" (e.g. "top", "right") units
-    diag(unit_hypersphere1) <- 1
-    ## The "back" (e.g. "bottom", "left") units
-    diag(unit_hypersphere2) <- -1
-    unit_hypersphere <- rbind(unit_hypersphere1, unit_hypersphere2)
-    ## Scale the hypersphere (where level is the confidence interval)
-    unit_hypersphere <- unit_hypersphere * sqrt(qchisq(level, 2))
-
-    ## Do the eigen decomposition (symmetric - faster)
-    eigen_decomp <- eigen(data$VCV, symmetric = TRUE)
-
-    ## Re-scaling the unit hypersphere
-    scaled_edges <- unit_hypersphere * rep(sqrt(abs(eigen_decomp$values)), each = dims*2)
-    ## Rotating the edges coordinates
-    edges <- tcrossprod(scaled_edges, eigen_decomp$vectors)
-
-    ## Move the matrix around
-    edges <- edges + rep(data$loc[dimensions, drop = FALSE], each = dims*2)
-
-    ## Get the edges coordinates
-    return(edges[c(axis, axis+dims), , drop = FALSE])
 }

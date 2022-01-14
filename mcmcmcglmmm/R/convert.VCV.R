@@ -1,6 +1,6 @@
-#' @title 
+#' @title Convert VCV
 #'
-#' @description 
+#' @description convert a VCV matrix into coordinates
 #'
 #' @param input either a VCV list, a VCV matrix or a matrix of major axis coordinates.
 #' @param level which confidence interval level to use

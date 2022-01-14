@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert.VCV.R
 \name{convert.VCV}
 \alias{convert.VCV}
-\title{}
+\title{Convert VCV}
 \usage{
 convert.VCV(input, level = 0.95)
 }
@@ -16,7 +16,7 @@ If the input is a matrix, returns a VCV list.
 If the input is a VCV list or a VCV matrix, returns a major axis coordinates matrix.
 }
 \description{
-
+convert a VCV matrix into coordinates
 }
 \examples{
 
