@@ -114,7 +114,7 @@ if(!("shapespace_allbirds_lvl_superorder_order.MCMCglmm" %in% list.files("../Dat
     ## Get the first model
     load(paste0(models_path, model_files[1], collapse = "/"))
     ## Move it to the storage
-    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/"))
+    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/")))
     print(model_files[1])
     ## Clean the bits that are not going to be used (but are huge)
     model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
@@ -152,6 +152,9 @@ shapespace_allbirds_lvl_superorder_order <- model_list
 
 ## Saving the results
 save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+
+
+
 ```
 
 ## Checking the mini chains' ESSs
