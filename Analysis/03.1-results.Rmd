@@ -207,37 +207,37 @@ super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
                                              verbose = TRUE,
-                                             output = c("position", "distance"), centre.proj = TRUE)
+                                             output = c("position", "distance"), centre = TRUE, abs = TRUE)
 ## Run the analyses between groups
 order_results_between <- dispRity.covar.projections(order_shapespace,
                                              type = "groups",
                                              base = "phylogeny",
                                              verbose = TRUE,
-                                             output = c("position", "distance"), centre.proj = TRUE)
+                                             output = c("position", "distance"), centre = TRUE, abs = TRUE)
 ## Run the analyses of groups on the phylogeny
 super_results_phylo <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"), centre.proj = TRUE)
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
 ## Run the analyses of groups on the phylogeny
 order_results_phylo <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             base = "phylogeny",
                                             inc.base = TRUE,
                                             verbose = TRUE,
-                                            output = c("position", "distance"), centre.proj = TRUE)
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
 ## Run the analyses groups on themselves
 super_results_within <- dispRity.covar.projections(superorder_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"), centre.proj = TRUE)
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
 ## Run the analyses groups on themselves
 order_results_within <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
                                             verbose = TRUE,
-                                            output = c("position", "distance"), centre.proj = TRUE)
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
 shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "super_results_between" = super_results_between,
         "order_results_between" = order_results_between,
@@ -345,7 +345,7 @@ Figure: these results show the projections ("position"), rejection ("distance") 
 wrap.plot(results$super_results_between,
           xlim = c(0,6),
           col = colour.palette(n.subsets(superorder_shapespace)-1),
-          main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] superorders VCV\nonto the phylogenetic VCV (ZOOM)",
           names = c("elaboration", "innovation"))
 ```
 </details>
@@ -365,7 +365,7 @@ wrap.plot(results$order_results_between,
 wrap.plot(results$order_results_between,
           xlim = c(0, 15),
           col = colour.palette(n.subsets(order_shapespace)-1),
-          main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV",
+          main = "[groups on phylogeny] orders VCV\nonto the phylogenetic VCV (ZOOM)",
           names = c("elaboration", "innovation"))
 ```
 </details>
@@ -823,7 +823,7 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
     }
 
     if(!missing(tree)) {
-        op <- par(mfrow = c(1,2))
+        # op <- par(mfrow = c(1,2))
         #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
         par(mar = c(5, 4, 4, 0)+0.1)   
     }
