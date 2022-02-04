@@ -201,7 +201,7 @@ Really briefly we calculate three types of projections/rejections abbreviated as
 TODO: centre and absolute directly in `dispRity.covar.projections`
 
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE, results = 'hide', message = FALSE, warning = FALSE}
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
@@ -250,18 +250,6 @@ save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Proc
 ```
 
 
-```{r, echo = FALSE, eval = FALSE}
-## Getting the plotting data
-ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "median_innovations"  = apply(get.disparity(get.subsets(super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "distances_to_centre" =  get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
-                     "consensus_tree"      = tree) 
-
-## Save all that as a list
-save(ploting_data, file = "ploting_data.rda")
-```
-
-
 
 
 ```{r, echo = FALSE}
@@ -269,6 +257,18 @@ save(ploting_data, file = "ploting_data.rda")
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
+```
+
+
+```{r, echo = FALSE, eval = FALSE}
+## Getting the plotting data
+ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "median_innovations"  = apply(get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "distances_to_centre" =  get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "consensus_tree"      = tree) 
+
+## Save all that as a list
+save(ploting_data, file = "ploting_data.rda")
 ```
 
 
