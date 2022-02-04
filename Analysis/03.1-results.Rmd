@@ -201,7 +201,7 @@ Really briefly we calculate three types of projections/rejections abbreviated as
 TODO: centre and absolute directly in `dispRity.covar.projections`
 
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
@@ -221,6 +221,7 @@ super_results_phylo <- dispRity.covar.projections(superorder_shapespace,
                                             inc.base = TRUE,
                                             verbose = TRUE,
                                             output = c("position", "distance"), centre = TRUE, abs = TRUE)
+
 ## Run the analyses of groups on the phylogeny
 order_results_phylo <- dispRity.covar.projections(order_shapespace,
                                             type = "elements",
@@ -245,14 +246,27 @@ shapespace_allbirds_lvl_superorder_order_results_list <- list(
         "order_results_phylo"   = order_results_phylo,
         "super_results_within"  = super_results_within,
         "order_results_within"  = order_results_within)
-save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_centred.rda")
+save(shapespace_allbirds_lvl_superorder_order_results_list, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 ```
+
+
+```{r, echo = FALSE, eval = FALSE}
+## Getting the plotting data
+ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "median_innovations"  = apply(get.disparity(get.subsets(super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "distances_to_centre" =  get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "consensus_tree"      = tree) 
+
+## Save all that as a list
+save(ploting_data, file = "ploting_data.rda")
+```
+
+
+
 
 ```{r, echo = FALSE}
 ## Quick load
-# load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_uncentred.rda")
-# results_cent <- shapespace_allbirds_lvl_superorder_order_results_list
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_centred.rda")
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
@@ -823,7 +837,7 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
     }
 
     if(!missing(tree)) {
-        # op <- par(mfrow = c(1,2))
+        op <- par(mfrow = c(1,2))
         #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
         par(mar = c(5, 4, 4, 0)+0.1)   
     }
