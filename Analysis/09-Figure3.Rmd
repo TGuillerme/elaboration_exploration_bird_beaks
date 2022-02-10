@@ -1,0 +1,523 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+```
+
+# All birds shapespace analyses
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+```
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
+## The ggplot color panel
+gg.color.hue <- function(n) {
+    grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
+}
+
+# colour.palette <- rainbow
+colour.palette <- gg.color.hue
+```
+
+Loading the elaboration exploration results (from 03_results)
+
+```{r, echo = FALSE}
+## Quick load
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
+```
+
+## Figure 3
+
+Density plot of the correlation of the median elaboration and median exploration for all species.
+
+```{r, echo = FALSE}
+## Calculating all the correlations
+get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE) {
+
+    ## Remove the phylo one (if needed)
+    if(exclude.phylo) {
+        select_pos <- names(size.subsets(res$position))
+        select_dis <- names(size.subsets(res$distance))
+        select_pos <- select_pos[-which(select_pos %in% "phylogeny")]
+        select_dis <- select_dis[-which(select_dis %in% "phylogeny")]
+        res$position <- get.subsets(res$position, subsets = select_pos)
+        res$distance <- get.subsets(res$distance, subsets = select_dis)
+    }
+
+    ## Extracting all the results
+    disparity_pos <- lapply(res$position$disparity, function(X, type) return(X$elements))
+    disparity_dis <- lapply(res$distance$disparity, function(X, type) return(X$elements))
+
+    ## Measure the central tendencies
+    centrals_pos <- lapply(disparity_pos, function(X, fun) apply(X, 1, fun), fun = cent.tend)
+    centrals_dis <- lapply(disparity_dis, function(X, fun) apply(X, 1, fun), fun = cent.tend)
+    
+    ## Number of groups
+    n_groups <- length(centrals_pos)
+
+    ## Prepare the results
+    prep.cor.results <- function(pos, dis, name) {
+        ## Run the correlation test
+        cor_test <- cor.test(pos, dis)
+        ## Prepare the plot title
+        plot_main <- paste0(name, ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
+        ## Return the plotting parameters
+        return(list(x = pos, y = dis, main = plot_main))
+    }
+
+    return(mapply(prep.cor.results, centrals_pos, centrals_dis, as.list(names(centrals_pos)), SIMPLIFY = FALSE))
+}
+    
+## Plotting one correlation 
+plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, tree, full.tree = FALSE, ...) {
+    dots <- list(...)
+
+    if(missing(col.sub)) {
+        col.sub <- NULL
+    }
+
+    ## Subbing the colours
+    if(!is.null(col.sub)) {
+        ## Reset the levels
+        col_sub <- as.factor(as.character(col.sub))
+        ## Make the empty level grey
+        if(any(levels(col_sub) == "")) {
+            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
+        } else {
+            col_avail <- col.fun(length(levels(col_sub)))
+        }
+        ## Create the colour vector
+        col_vector <- col_avail[as.numeric(col_sub)]
+
+    } else {
+        if(is.null(dots$col)) {
+            col_vector <- "black"
+        } else {
+            col_vector <- dots$col
+        }
+    }
+
+    if(!missing(tree)) {
+        op <- par(mfrow = c(1,2))
+        #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
+        par(mar = c(5, 4, 4, 0)+0.1)   
+    }
+
+    ## Plotting the results
+    plot(cor.results$x, cor.results$y, pch = 19, xlab = "elaboration", ylab = "innovation", main = cor.results$main, cex = pt.cex, col = col_vector)
+
+    if(!is.null(col.sub)) {
+        ## Adding the legend
+        legend(x = legend.pos, legend = levels(col_sub), pch = 19, cex = legend.cex, col = col_avail)
+    }
+
+    if(!missing(tree)) {
+        par(mar = c(5, 0, 4, 2) + 0.1)
+
+        ## Recycle the colour vector
+        named_col_vector <- col_vector
+        names(named_col_vector) <- names(cor.results$x)
+
+        ## Reduce the tree
+        if(!full.tree) {
+            tree <- drop.tip(tree, tip = tree$tip.label[which(!(tree$tip.label %in% names(named_col_vector)))])
+        }
+
+        ## Matching edges and colours
+        match.edge.colours <- function(tree, named_col_vector, background = "grey") {
+            ## Get the background colour
+            edge_cols <- rep(background, Nedge(tree))
+            ## Get the clades
+            clades <- unique(named_col_vector)
+            ## Ignore the greys
+            if(any(which_grey <- clades == "grey")) {
+                clades <- clades[!which_grey]
+            }
+            ## Find the edges for each clade
+            for(clade in 1:length(clades)) {
+                ## Get the tips for the clade
+                tips <- which(named_col_vector == clades[clade])
+                ## Get the MRCA node
+                mrca_node <- getMRCA(tree, tips)
+                # stop_edge <- which(tree$edge[, 2] %in% mrca_node)
+
+                ## Handle non-monophyletic groups
+                clade_tree <- extract.clade(tree, node = mrca_node)
+                if(Ntip(clade_tree) > length(tips)) {
+                    clade_tree <- drop.tip(clade_tree, tip = clade_tree$tip.label[!(clade_tree$tip.label %in% names(tips))])
+                }
+                n_edges_target <- Nedge(clade_tree)
+
+                ## Get the tips ID
+                tip_ids <- which(tree$tip.label %in% names(tips))
+                ## Get the vector of edges
+                edges <- integer()
+                ## Get the first nodes (and edges)
+                new_edges <- which(tree$edge[, 2] %in% tip_ids)
+                edges <- unique(c(edges, new_edges))
+                nodes <- tree$edge[new_edges, 1]
+
+                # plot(tree, show.tip.label = FALSE)
+                # test.col <- c(replicate(10, c("red", "blue", "orange", "green", "pink", "yellow")))
+                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                ## Recursively loop through each node up until the last edge
+                # while(!(stop_edge %in% edges)) {
+                while(length(edges) <= n_edges_target) {
+                    ## Get the node edges
+                    new_edges <- which(tree$edge[, 2] %in% nodes)
+
+                    # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                    edges <- unique(c(edges, new_edges))
+                    ## Update the nodes
+                    nodes <- tree$edge[new_edges, 1]
+                }
+
+                # ## Do the last recursion
+                # new_edges <- which(tree$edge[, 2] %in% nodes)
+                # edges <- unique(c(edges, new_edges))
+
+                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
+
+                ## Colour these edges
+                edge_cols[edges] <- clades[clade]
+            }
+            return(edge_cols)
+        }
+        ## Match the colour to the correct edge
+        edge_cols <- match.edge.colours(tree, named_col_vector)
+
+        ## Add the tree
+        plot(tree, show.tip.label = FALSE, edge.color = edge_cols)
+    }
+
+    return(invisible())
+}
+```
+
+Correlations per super order (species on phylogeny):
+
+```{r, eval = TRUE, echo = FALSE}
+## Calculate the correlations for the projections onto the phylo axis
+super_phylo_cor <- get.correlations(results$super_results_phylo)
+
+## Calculate the correlations for the projections onto the group' axes
+super_group_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
+```
+
+### Figure 3a - gg_version
+
+Density plot of the correlation of the median elaboration and median exploration for all species.
+
+```{r, echo = FALSE, eval = FALSE}
+## Getting the data to plot
+global_data <- super_phylo_cor$phylogeny
+
+gg.density.plot <- function(data, palette = "viridis") {
+    ggplot(data.frame("elaboration" = data$x, "exploration" = data$y), aes(x=elaboration, y=exploration) ) +
+      geom_hex() +
+      scale_fill_continuous(type = palette) +
+      theme_bw()
+}
+
+gg.density.plot(global_data)
+```
+
+## Figure 3b
+
+
+
+
+```{r, echo = FALSE, eval = FALSE}
+
+one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, ...) {
+
+    dots <- list(...)
+
+    if(missing(col.sub)) {
+        col.sub <- NULL
+    }
+
+    ## Subbing the colours
+    if(!is.null(col.sub)) {
+        ## Reset the levels
+        col_sub <- as.factor(as.character(col.sub))
+        ## Make the empty level grey
+        if(any(levels(col_sub) == "")) {
+            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
+        } else {
+            col_avail <- col.fun(length(levels(col_sub)))
+        }
+        ## Create the colour vector
+        col_vector <- col_avail[as.numeric(col_sub)]
+    } else {
+        if(is.null(dots$col)) {
+            col_vector <- "black"
+        } else {
+            col_vector <- dots$col
+        }
+    }
+
+    # if(!missing(tree)) {
+    #     op <- par(mfrow = c(1,2))
+    #     #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
+    #     par(mar = c(5, 4, 4, 0)+0.1)   
+    # }
+
+    ## Plotting the results
+    plot(cor.results$x, cor.results$y, pch = 19, xlab = ifelse(), ylab = ifelse(ID == 1 || ID == 5, "exploration", ""), main = cor.results$main, cex = pt.cex, col = col_vector)
+
+    if(!is.null(col.sub)) {
+        ## Adding the legend
+        legend(x = legend.pos, legend = levels(col_sub), pch = 19, cex = legend.cex, col = col_avail)
+    }
+
+    return(invisible())
+}
+
+
+
+par(mfrow = c(2, 4))
+lims <- list(x = range(global_data$x),
+             y = range(global_data$y))
+
+## Getting the subsets for the colouring
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
+
+## Set the vector of legend positions
+legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
+
+for(i in 1:8) {
+    plot.correlations(super_phylo_cor[[i]], xlim = lims$x, ylim = lims$x, tree = NULL, col.sub = col_subs[[i]], legend.pos = legends_pos[i])
+}
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Correlations within super orders (species on group)
+
+Regardless, here are the results when projecting the species on their own group's VCV
+
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12, eval = TRUE}
+## Getting the subsets for the colouring
+col_subs <- split(shapespace$level2, f = shapespace$level1)[-1]
+
+## Calculate the correlations
+super_within_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
+## Set the vector of legend positions
+legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
+for(i in 1:length(super_within_cor)) {
+    plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- THIS BIT IS IGNORED FOR NOW -->
+
+
+
+
+
+### Correlations per order (species on phylogeny)
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
+## Loading the sub-order levels
+load(file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
+## Select the data
+shapespaces <- lapply(shapespace_superorder_lvl_order_suborder, function(X) X$space)
+## Create a level 3
+order_space <- do.call(rbind, shapespaces)
+
+## Calculate the correlations
+order_phylo_cor <- get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
+
+## Getting the subsets for the colouring
+split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
+col_subs <- replicate(length(order_phylo_cor), NULL)
+col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+
+## Set the vector of legend positions
+for(i in 1:length(order_phylo_cor)) {
+    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]])
+}
+```
+
+### Correlations within orders (species on group)
+
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
+## Calculate the correlations
+order_within_cor <- get.correlations(results$order_results_within, exclude.phylo = TRUE)
+
+## Getting the subsets for the colouring
+split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
+col_subs <- replicate(length(order_within_cor), NULL)
+col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+
+## Set the vector of legend positions
+for(i in 1:length(order_within_cor)) {
+    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]])
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
