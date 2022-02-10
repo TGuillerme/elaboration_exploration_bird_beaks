@@ -24,8 +24,8 @@ For Natalie, give:
 
 
 TODO figures:
-Thomas: send the median values for species (elaboration, exploration, dist to centre) to all
-Thomas: make figure 1, figure 3 a,b,c
+- [x] Thomas: send the median values for species (elaboration, exploration, dist to centre) to all
+- [ ] Thomas: make figure 1, figure 3 a,b,c
 Gavin: make figure 2
-Thomas: make figure 0 (conceptual one - see images from the grant)
-Thomas: do one paragraph version per parts of method (check Chris’ nature paper)
+- [ ] Thomas: make figure 0 (conceptual one - see images from the grant)
+- [ ] Thomas: do one paragraph version per parts of method (check Chris’ nature paper)
