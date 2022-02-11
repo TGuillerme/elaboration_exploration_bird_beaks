@@ -114,7 +114,7 @@ plot.one.proj.rej <- function(data, ID, colours, x = TRUE, y = TRUE, main = "") 
     boxplot(cbind(elaboration, exploration), horizontal = TRUE, ylim = c(0,15), col = col, las = 1, xaxt = ifelse(x, "l", "n"), yaxt = ifelse(y, "l", "n"))
 }
 
-pdf(file = "Figure_1a.pdf", height = 10, width = 5)
+pdf(file = "Figure_1a.pdf", height = 11, width = 5.5)
 ## Plot the phylo ellipse
 grey_palette <- c(colour.palette(8), "grey")
 par(mfrow = c(2,1), bty = "n")
