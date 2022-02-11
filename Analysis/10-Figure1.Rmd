@@ -1,0 +1,89 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+```
+
+# All birds shapespace analyses
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+```
+
+First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
+
+```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
+## The ggplot color panel
+gg.color.hue <- function(n) {
+    grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
+}
+
+# colour.palette <- rainbow
+colour.palette <- gg.color.hue
+```
+
+Plotting the tree
+
+```{r}
+tree <- ladderize(tree)
+## Get the tip_values
+orders_lvl <- shapespace$level2
+superorders_lvl <- shapespace$level1
+
+## Replace the order levels as colours
+coloured_levels <- orders_lvl
+levels(coloured_levels) <- colour.palette(length(levels(coloured_levels)))
+
+plot(tree, show.tip.label = FALSE, edge.color =  match.tip.edge(as.character(coloured_levels), tree, replace.na = "grey"))
+```
+
+Plotting the ellipses
+
+```{r}
+plot.one.ellipse <- function(data, ID, colours) {
+    
+}
+
+
+```
