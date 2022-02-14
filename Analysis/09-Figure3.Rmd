@@ -255,6 +255,7 @@ super_group_cor <- get.correlations(results$super_results_within, exclude.phylo 
 Density plot of the correlation of the median elaboration and median exploration for all species.
 
 ```{r, echo = FALSE, eval = FALSE}
+library(ggplot2)
 ## Getting the data to plot
 global_data <- super_phylo_cor$phylogeny
 
@@ -265,12 +266,124 @@ gg.density.plot <- function(data, palette = "viridis") {
       theme_bw()
 }
 
+pdf("../Manuscript/Figures/Figure3_b.pdf", height = 4, width = 4)
 gg.density.plot(global_data)
+dev.off()
 ```
+
+Can't seem to integrate the density plot to the base R layout so I'll just do it in Inkscape for now
+
+```{r, echo = FALSE, eval = FALSE}
+pdf("../Manuscript/Figures/Figure3_a.pdf", height = 6, width = 3)
+## Plotting the projection cartoon
+library(mcmcmcglmmm)
+## Get projection lines (from a centred matrix)
+get.proj.line <- function(point, base) {
+  point <- t(point)
+  base <- t(base)
+  proj_x <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[1];
+  proj_y <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[2];
+  return(rbind(cbind(proj_x, proj_y), point))
+}
+
+
+set.seed(42)
+## Space plot
+cor_matrix <- matrix(cbind(1, 0.8, 0.8, 1), nrow = 2)
+space <- space.maker(10, 2, rnorm, cor.matrix = cor_matrix)
+lim <- c(floor(range(space)[1]), ceiling(range(space)[2]))
+
+par(mfrow = c(2, 1))
+## Projections per species
+## Translate the major axis
+par(bty = "n", mar = c(1,1,1,1)+0.1)
+plot(space, pch = 19, xlab = "", ylab = "", xlim = lim, ylim = lim, col = "grey", main = "Panels B and C: species'\nprojection on the phylogeny", xaxt = "n", yaxt = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+## Plotting the ellipse
+lines(ellipse::ellipse(cor_matrix, level = 0.75), col = "grey", lwd = 1)
+## Plotting the major axis
+lines(get.one.axis(list(VCV = cor_matrix, Sol = c(0,0)), level = 0.75), lwd = 3, col = "grey", lty = 1)
+lines(x = c(-1.2, 2), y = c(0, 0.75), lwd = 3, col = "orange")
+# legend("bottomright", legend = "C")
+
+## Do the projection
+matrix <- space
+point1 <- c(-1.2, 0)
+point2 <- c(2, 0.75)
+base_vector <- rbind(point1, point2)
+
+## Get all the space (with the two last rows being the base vectors)
+space_cent <- rbind(matrix, base_vector)
+## Centre all the space
+space_cent <- space_cent - rep(point1, rep.int(nrow(space_cent), ncol(space_cent)))
+## Re-attribute the centred variables
+matrix_cent <- space_cent[1:nrow(matrix), ]
+base_vector_cent <- space_cent[-c(1:nrow(matrix)), ]
+
+## Plot the projections
+for(i in 1:nrow(matrix)) {
+  cent_proj <- get.proj.line(matrix_cent[i,], base_vector_cent[2, ])
+  cent_proj[, 1] <- (cent_proj[, 1] + point1[1])
+  lines(cent_proj, col = "darkgreen")
+}
+
+
+
+## Species projection onto their own axis
+par(bty = "n", mar = c(1,1,1,1)+0.1)
+plot(space, pch = 19, xlab = "", ylab = "", xlim = lim, ylim = lim, col = "grey", main = "Panels D: species'\nprojection on their own group", xaxt = "n", yaxt = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+lines(x = c(-1.2, 2), y = c(0, 0.75), lwd = 3, col = "grey")
+## Plotting the ellipse
+lines(ellipse::ellipse(cor_matrix, level = 0.75), col = "blue", lwd = 1)
+## Plotting the major axis
+lines(get.one.axis(list(VCV = cor_matrix, Sol = c(0,0)), level = 0.75), lwd = 3, col = "blue", lty = 1)
+# legend("bottomright", legend = "D")
+
+## Do the projection
+matrix <- space
+base_vector <- get.one.axis(list(VCV = cor_matrix, Sol = c(0,0)), level = 0.75)
+point1 <- base_vector[1,]
+point2 <- base_vector[2,]
+
+## Get all the space (with the two last rows being the base vectors)
+space_cent <- rbind(matrix, base_vector)
+## Centre all the space
+space_cent <- space_cent - rep(point1, rep.int(nrow(space_cent), ncol(space_cent)))
+## Re-attribute the centred variables
+matrix_cent <- space_cent[1:nrow(matrix), ]
+base_vector_cent <- space_cent[-c(1:nrow(matrix)), ]
+## Extend the base vector a little bit
+extend_base <- base_vector
+extend_base[1, ] <- extend_base[1,1] + 0.05
+lines(extend_base, lwd = 1, col = "blue", lty = 2)
+
+## Plot the projections
+for(i in 1:nrow(matrix_cent)) {
+  cent_proj <- get.proj.line(matrix_cent[i,], base_vector_cent[2, ])
+  cent_proj[, 1] <- (cent_proj[, 1] + point1[1])
+  cent_proj[, 2] <- (cent_proj[, 2] + point1[2])
+  lines(cent_proj, col = "darkgreen")
+}
+dev.off()
+```
+
+
+
 
 ## Figure 3b
 
 ```{r, echo = FALSE, eval = FALSE}
+
+pdf("../Manuscript/Figures/Figure3_cd.pdf", height = 12, width = 8)
+## Great the plot layout
+layout_matrix <- cbind(matrix(0,2,2), matrix(0,2,2))
+layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4)), matrix(9:16, 2, 4))
+plot_layout <- layout(layout_matrix)
+# layout.show(plot_layout)
+
 one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, ...) {
 
     dots <- list(...)
@@ -309,13 +422,15 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
 
     ## Selecting the x and y axis base on plot ID
     select.x <- function(ID, yes = "", no = "") {
-        ifelse(ID %in% c(5:8), yes, no)
+        # ifelse(ID %in% c(5:8), yes, no)
+        return(no)
     }
     select.y <- function(ID, yes = "", no = "") {
-        ifelse(ID == 1 || ID == 5, yes, no)
+        # ifelse(ID == 1 || ID == 5, yes, no)
+        return(no)
     }
     
-    par(mar = c(select.x(ID, 4, 1), select.y(ID, 4, 1), 3, 1)+0.1)
+    par(mar = c(select.x(ID, 4, 2), select.y(ID, 4, 2), 3, 1)+0.1)
     plot(cor.results$x, cor.results$y, pch = 19,
         xlab = select.x(ID, "elaboration"),
         ylab = select.y(ID, "explortation"),
@@ -336,7 +451,7 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
     return(invisible())
 }
 
-par(mfrow = c(2, 4))
+# par(mfrow = c(2, 4))
 ## Getting the subsets for the colouring
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
@@ -346,12 +461,11 @@ legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topr
 for(i in 1:8) {
     one.plot.correlations(super_phylo_cor[[i]],col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.8, legend.cex = 0.8)
 }
-```
 
-## Figure 3c
 
-```{r, echo = FALSE, eval = FALSE}
-par(mfrow = c(2, 4))
+## Fig 3c
+
+# par(mfrow = c(2, 4))
 ## Getting the subsets for the colouring
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
@@ -361,6 +475,7 @@ legends_pos <- c("bottomright", "topright", "topright", "topleft", "topleft", "t
 for(i in 1:8) {
     one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.8, legend.cex = 0.8)
 }
+dev.off()
 ```
 
 
