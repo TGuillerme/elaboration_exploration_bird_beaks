@@ -1,0 +1,11 @@
+## Imports
+import(dispRity)
+importFrom("graphics", "hist", "abline")
+
+## VCV playing functions
+export(plot.roundness)
+export(plot.VCV)
+export(make.VCV)
+export(convert.VCV)
+export(get.one.axis)
+export(get.lambda)
