@@ -1,0 +1,4 @@
+Figure 1: Variance-covariance matrices projections in the trait space and the corresponding group's elaboration and innovation distribution scores.
+A group's elaboration and innovation scores are calculated by projecting the group's major axes derived from their 95% confidence interval ellipse from their variance-covariance matrices (the coloured ellipses) onto the global phylogenetic major axis (with the grey ellipse).
+The ellipses represented here are the average of the posterior 4000 variance-covariance matrices across 400 trees.
+The elaboration and innovation scores are thus a distribution of 4000 values. 
