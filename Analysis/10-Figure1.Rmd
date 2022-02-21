@@ -114,8 +114,8 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
     exploration <- get.disparity(data$distance, concatenate = FALSE)
 
     ## Get the correct group
-    if(length(ID <- which(names(test) %in% names(name.col))) < 1) {
-        ID <- which(names(test) %in% paste0(names(name.col), ":phylogeny"))
+    if(length(ID <- which(names(elaboration) %in% names(name.col))) < 1) {
+        ID <- which(names(elaboration) %in% paste0(names(name.col), ":phylogeny"))
     }
     elaboration <- c(elaboration[[ID]])
     exploration <- c(exploration[[ID]])
@@ -150,14 +150,23 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
 
 ```{r}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure_1b.pdf", height = 2*5, width = box_size*12)
-## Global window
+pdf(file = "../Manuscript/Figures/Figure_1.pdf", height = box_size*8, width = box_size*10)
 
-layout_matrix <- layout(cbind(
-                        rbind(matrix(1, ncol = 2, nrow = 3),
-                              matrix(2:5, ncol = 2, nrow = 2, byrow = TRUE)),
-                        matrix(6:((27*2)+1), ncol = 10, nrow = 5, byrow = TRUE)
-                        ))
+## Global window
+lay_mat_order <- rbind(
+        matrix(c(1,1, 2:9), ncol = 10, nrow = 1), # line 1
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1), # line 2
+        matrix(c(1,1, 18:25), ncol = 10, nrow = 1), # line 3
+        matrix(c(26:35), ncol = 10, nrow = 1), # line 4
+        matrix(c(36:45), ncol = 10, nrow = 1), # line 5
+        matrix(c(46:55), ncol = 10, nrow = 1) # line 7
+    )
+lay_mat_super <- rbind(
+        matrix(c(1,1, 2:9), ncol = 10, nrow = 1), # line 7
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1) # line 8
+    )
+
+layout_matrix <- layout(rbind(lay_mat_super, (lay_mat_order+17)))
 
 # layout.show(layout_matrix)
 
@@ -166,15 +175,14 @@ layout_matrix <- layout(cbind(
 # layout.show(layout_matrix)
 
 
-## Plotting the tree
-
+## PLOTTING THE SUPER ORDERS
 tree <- ladderize(tree)
 ## Get the tip_values
 orders_lvl <- shapespace$level2
 superorders_lvl <- shapespace$level1
 
 ## Select the level
-selected_level <- coloured_levels <- orders_lvl
+selected_level <- coloured_levels <- superorders_lvl
 
 ## Replace the order levels as colours
 colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
@@ -197,10 +205,105 @@ tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selecte
 tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
 ## Rainbow the tip edges
 tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
+## Adding the number of tips
+tree_plot <- tree_short
+n_species <- table(selected_level)
+for(i in 1:Ntip(tree_plot)) {
+    ## Get the number of species
+    n_sp <- n_species[which(names(n_species) %in% tree_plot$tip.label[i])]
+    tree_plot$tip.label[i] <- paste0(tree_plot$tip.label[i], " (", n_sp, " sp)")
+}
+
 ## Plotting the tree
 par(mar = c(0, 0, 0, 0)+0.1)
-plot(tree_short, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
+plot(tree_plot, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
 # tiplabels()
+
+
+## Matching the order and the colours to the ladderised tree
+tip_order <- c(
+    "Paleognathae" = 1,
+    "Galloanserae" = 2,
+    "Otidimorphae" = 5,
+    "Aequornithes" = 6,
+    "Mirandornithes" = 3,
+    "Columbimorphae" = 4,
+    "Telluraves" = 8,
+    "Strisores" = 7)
+tip_colours <- colour.palette(Ntip(tree_short))
+names(tip_colours) <- names(sort(tip_order))
+# par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
+# plot(rep(1,27), 1:27, col = "white")
+# labs <- names(tip_colours)
+# cols <- tip_colours
+# text(x = rep(1,27), y = 1:27, label = rev(labs), col = rev(cols))
+
+for(i in 1:length(tip_order)) {
+    ## Select the colour and name
+    name.col <- tip_colours[match(sort(names(tip_colours)), names(tip_colours))][i]
+
+    ## Plot the ellipse
+    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
+    plot.one.ellipse(superorder_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
+    text(0,1.2, names(name.col), cex = 1.5, col = name.col)
+
+    ## Plot the elaboration/exploration
+    par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
+    plot.one.proj.rej(results$super_results_between, name.col, x = TRUE, y = FALSE)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+## PLOTTING THE ORDERS
+tree <- ladderize(tree)
+## Get the tip_values
+orders_lvl <- shapespace$level2
+superorders_lvl <- shapespace$level1
+
+## Select the level
+selected_level <- coloured_levels <- orders_lvl
+
+## Replace the order levels as colours
+colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
+levels(coloured_levels) <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
+
+## Shorten the tree
+selected_tips <- character()
+for(one_level in 2:length(levels(selected_level))) {
+    selected_tips[one_level-1] <- rownames(shapespace)[which(selected_level == levels(selected_level)[one_level])[1]]
+    names(selected_tips)[one_level-1] <- levels(selected_level)[one_level]
+}
+
+## Shorten the tree
+tree_short <- drop.tip(tree, tip = tree$tip.label[!(tree$tip.label %in% selected_tips)])
+tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selected_tips)]
+
+## Setting the tips edges colours
+tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
+## Rainbow the tip edges
+tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
+
+## Adding the number of tips
+tree_plot <- tree_short
+n_species <- table(selected_level)
+for(i in 1:Ntip(tree_plot)) {
+    ## Get the number of species
+    n_sp <- n_species[which(names(n_species) %in% tree_plot$tip.label[i])]
+    tree_plot$tip.label[i] <- paste0(tree_plot$tip.label[i], " (", n_sp, " sp)")
+}
+
+## Plotting the tree
+par(mar = c(0, 0, 0, 0)+0.1)
+plot(tree_plot, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
 
 
 ## Matching the order and the colours to the ladderised tree
@@ -234,11 +337,6 @@ tip_order <- c(
     "Apodiformes" = 17)
 tip_colours <- colour.palette(Ntip(tree_short))
 names(tip_colours) <- names(sort(tip_order))
-# par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-# plot(rep(1,27), 1:27, col = "white")
-# labs <- names(tip_colours)
-# cols <- tip_colours
-# text(x = rep(1,27), y = 1:27, label = rev(labs), col = rev(cols))
 
 for(i in 1:length(tip_order)) {
     ## Select the colour and name
