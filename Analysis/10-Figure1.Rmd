@@ -74,7 +74,7 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 
 ```{r}
 ## Plotting the ellipses
-plot.one.ellipse <- function(data, ID, colours, x = TRUE, y = TRUE, main = "", legend = FALSE) {
+plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", legend = FALSE, with.phylo = FALSE) {
 
     ## Get the PC %ages
     if(x || y) {
@@ -83,14 +83,21 @@ plot.one.ellipse <- function(data, ID, colours, x = TRUE, y = TRUE, main = "", l
     }
 
     ## Do the empty plot
-    plot(NULL, xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1), xaxt = "n", yaxt = "n", xlab = ifelse(x, paste0("PC1 (", pc_var[1], "%)"), ""), ylab = ifelse(y, paste0("PC2 (", pc_var[2], "%)"), ""), main = main)
+    plot(NULL, xlim = c(-1.25, 1.25), ylim = c(-1.25, 1.25), xaxt = "n", yaxt = "n", xlab = ifelse(x, paste0("PC1 (", pc_var[1], "%)"), ""), ylab = ifelse(y, paste0("PC2 (", pc_var[2], "%)"), ""), main = main)
     if(x) axis(1)
     if(y) axis(2)
     abline(v = 0, col = "grey", lwd = 0.5)
     abline(h = 0, col = "grey", lwd = 0.5)
 
-    covar.plot(get.subsets(data, subsets = names(data$subsets)[ID]),
-           col = colours[ID],
+    if(!with.phylo) {
+        subsets <- names(name.col)
+        cols <- name.col
+    } else {
+        subsets <- c("phylogeny", names(name.col))
+        cols <- c("grey", name.col)
+    }
+    covar.plot(get.subsets(data, subsets = subsets),
+           col = cols,
            ellipses = mean,
            legend = FALSE,
            points = FALSE,
@@ -100,36 +107,62 @@ plot.one.ellipse <- function(data, ID, colours, x = TRUE, y = TRUE, main = "", l
            legend = legend)
 }
 ## Plot the projection/rejection
-plot.one.proj.rej <- function(data, ID, colours, x = TRUE, y = TRUE, main = "") {
+plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
 
     ## Get the proj/rej
-    if(ID == 1) {select <- 2} else {select <- ID-1}
-    elaboration <- c(get.disparity(data$position, concatenate = FALSE)[[select]])
-    exploration <- c(get.disparity(data$distance, concatenate = FALSE)[[select]])
+    elaboration <- get.disparity(data$position, concatenate = FALSE)
+    exploration <- get.disparity(data$distance, concatenate = FALSE)
+
+    ## Get the correct group
+    if(length(ID <- which(names(test) %in% names(name.col))) < 1) {
+        ID <- which(names(test) %in% paste0(names(name.col), ":phylogeny"))
+    }
+    elaboration <- c(elaboration[[ID]])
+    exploration <- c(exploration[[ID]])
 
     ## Change the colours
-    col <- c(colours[[ID]], adjustcolor(colours[[ID]], alpha.f = 0.5))
+    col <- c(name.col, adjustcolor(name.col, alpha.f = 0.5))
+    
+    ## Set the limits
+    quant_95 <- quantile(c(elaboration, exploration), prob = 0.975)
+    lim_up <- c(ceiling(quant_95/5)*5)
+
     ## Plot the results
-    par(mar = c(2, 6, 2, 2)+0.1, bty = "n")
-    boxplot(cbind(elaboration, exploration), horizontal = TRUE, ylim = c(0,15), col = col, las = 1, xaxt = ifelse(x, "l", "n"), yaxt = ifelse(y, "l", "n"))
+    boxplot(cbind(elaboration, exploration), horizontal = TRUE, ylim = c(0,lim_up), col = col, las = 1, xaxt = "n", yaxt = "n")
+    if(x) {
+        axis(1, at = seq(from = 0, to = lim_up, by = 5), labels = seq(from = 0, to = lim_up, by = 5))
+    }
+    if(y) {
+        axis(2, at = c(1, 2), labels = c("exploration", "innovation"), las = 2)
+    }
 }
 
-pdf(file = "Figure_1a.pdf", height = 11, width = 5.5)
-## Plot the phylo ellipse
-grey_palette <- c(colour.palette(8), "grey")
-par(mfrow = c(2,1), bty = "n")
-plot.one.ellipse(superorder_shapespace, ID = c(1,9), colours = grey_palette, x = TRUE, y = TRUE, main = "A")
-legend("topright", lwd = 5, col = grey_palette[c(1,9)], lty = 1, legend = c("Aequornithes' median variance-covariance", "Overall phylogenetic's median variance-covariance"), bg = "white")
-plot.one.proj.rej(results$super_results_between, ID = 1, colours = grey_palette)
+# pdf(file = "Figure_1a.pdf", height = 11, width = 5.5)
+# ## Plot the phylo ellipse
+# grey_palette <- c(colour.palette(8), "grey")
+# par(mfrow = c(2,1), bty = "n")
+# plot.one.ellipse(superorder_shapespace, ID = c(1,9), colours = grey_palette, x = TRUE, y = TRUE, main = "A")
+# legend("topright", lwd = 5, col = grey_palette[c(1,9)], lty = 1, legend = c("Aequornithes' median variance-covariance", "Overall phylogenetic's median variance-covariance"), bg = "white")
+# plot.one.proj.rej(results$super_results_between, ID = 1, colours = grey_palette)
 ```
 
 
 
 ```{r}
-# pdf(file = "Figure_1b.pdf", height = 16, width = 14)
+box_size <- 1.5
+pdf(file = "../Manuscript/Figures/Figure_1b.pdf", height = 2*5, width = box_size*12)
 ## Global window
-layout_matrix <- layout(cbind(matrix(1, ncol = 3, nrow = 8),
-                              matrix(2:((8*2)+1), ncol = 2, nrow = 8, byrow = TRUE)))
+
+layout_matrix <- layout(cbind(
+                        rbind(matrix(1, ncol = 2, nrow = 3),
+                              matrix(2:5, ncol = 2, nrow = 2, byrow = TRUE)),
+                        matrix(6:((27*2)+1), ncol = 10, nrow = 5, byrow = TRUE)
+                        ))
+
+# layout.show(layout_matrix)
+
+# layout_matrix <- layout(cbind(matrix(1, ncol = 1, nrow = 27),
+#                               matrix(2:((27*2)+1), ncol = 2, nrow = 27, byrow = TRUE)))
 # layout.show(layout_matrix)
 
 
@@ -140,48 +173,86 @@ tree <- ladderize(tree)
 orders_lvl <- shapespace$level2
 superorders_lvl <- shapespace$level1
 
+## Select the level
+selected_level <- coloured_levels <- orders_lvl
+
 ## Replace the order levels as colours
-coloured_levels <- superorders_lvl
 colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
 levels(coloured_levels) <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
-par(mar = c(1, 1, 1, 1)+0.1)
-plot(tree, show.tip.label = FALSE, edge.color =  match.tip.edge(as.character(coloured_levels), tree, replace.na = "grey"))
+# par(mar = c(1, 1, 1, 1)+0.1)
+# plot(tree, show.tip.label = FALSE, edge.color =  match.tip.edge(as.character(coloured_levels), tree, replace.na = "grey"))
+
+## Shorten the tree
+selected_tips <- character()
+for(one_level in 2:length(levels(selected_level))) {
+    selected_tips[one_level-1] <- rownames(shapespace)[which(selected_level == levels(selected_level)[one_level])[1]]
+    names(selected_tips)[one_level-1] <- levels(selected_level)[one_level]
+}
+
+## Shorten the tree
+tree_short <- drop.tip(tree, tip = tree$tip.label[!(tree$tip.label %in% selected_tips)])
+tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selected_tips)]
+
+## Setting the tips edges colours
+tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
+## Rainbow the tip edges
+tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
+## Plotting the tree
+par(mar = c(0, 0, 0, 0)+0.1)
+plot(tree_short, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
+# tiplabels()
 
 
-colour_palette <- levels(coloured_levels)
+## Matching the order and the colours to the ladderised tree
+tip_order <- c(
+    "Tinamiformes"= 1,
+    "Galliformes"= 3,
+    "Anseriformes"= 2,
+    "Otidiformes"= 7,
+    "Cuculiformes" = 8,
+    "Gruiformes" = 9, 
+    "Musophagiformes" = 10,
+    "Procellariiformes" = 12,
+    "Sphenisciformes" = 11,
+    "Ciconiiformes" = 13,
+    "Pelecaniformes"= 15,
+    "Suliformes" = 14,
+    "Podicipediformes" = 4,
+    "Columbiformes" = 6,
+    "Pterocliformes" = 5,
+    "Charadriiformes" = 18,
+    "Trogoniformes" = 21,
+    "Bucerotiformes" = 22,
+    "Coraciiformes" = 23,
+    "Piciformes" = 24,
+    "Strigiformes" = 20,
+    "Accipitriformes" = 19, 
+    "Falconiformes" = 25,
+    "Psittaciformes" = 26,
+    "Passeriformes" = 27,
+    "Caprimulgiformes" = 16, 
+    "Apodiformes" = 17)
+tip_colours <- colour.palette(Ntip(tree_short))
+names(tip_colours) <- names(sort(tip_order))
+# par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
+# plot(rep(1,27), 1:27, col = "white")
+# labs <- names(tip_colours)
+# cols <- tip_colours
+# text(x = rep(1,27), y = 1:27, label = rev(labs), col = rev(cols))
 
-
-## Plotting the clade names
-## Finding the ladderized clade names
-# dev.new()
-# plot(x = rep(1, 9), y = c(1:9), pch = 19, col = colour_palette)
-# text(x = rep(1, 9), y = c(1:9), label = paste(1:9, levels_ID), col = colour_palette)
-
-levels_ID <- levels(superorders_lvl)
-ladder_order <- c("Paleognathae" = 7, "Galloanserae" = 4, "Mirandornithes" = 5, "Columbiomorphae" = 3, "Otidimorphae" = 6, "Aequornithes" = 2, "Strisores" = 8, "Telluraves" = 9)
-
-
-# par(mfrow = c(length(levels(orders_lvl))), 1)
-# par(mfrow = c(length(levels(coloured_levels)), 1), mar = c(2,2,2,0), bty = "n")
-
-#TODO: order the levels to fit the ladderised tree
-
-for(i in 1:8) {
-
-    ## Plot the clade name
-    # par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    # plot(NULL, xaxt = "n", yaxt = "n", xlim = c(-1, 1), ylim = c(-1, 1), xlab = "", ylab = "")
+for(i in 1:length(tip_order)) {
+    ## Select the colour and name
+    name.col <- tip_colours[match(sort(names(tip_colours)), names(tip_colours))][i]
 
     ## Plot the ellipse
     par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(superorder_shapespace, ID = ladder_order[i], colours = colour_palette, x = FALSE, y = FALSE)
-    text(0,1, names(ladder_order)[i], cex = 2, col = colour_palette[][ladder_order[i]])
+    plot.one.ellipse(order_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
+    text(0,1.2, names(name.col), cex = 1.5, col = name.col)
 
     ## Plot the elaboration/exploration
-    par(bty = "n", mar = c(3, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results$super_results_between, ID = ladder_order[i], colours = colour_palette, x = TRUE, y = FALSE)
-
+    par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
+    plot.one.proj.rej(results$order_results_between, name.col, x = TRUE, y = FALSE)
 }
-
+dev.off()
 
 ```
