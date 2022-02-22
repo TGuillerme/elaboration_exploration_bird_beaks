@@ -380,13 +380,11 @@ dev.off()
 pdf("../Manuscript/Figures/Figure3_cd.pdf", height = 12, width = 8)
 ## Great the plot layout
 layout_matrix <- cbind(matrix(0,2,2), matrix(0,2,2))
-layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4)), matrix(9:16, 2, 4))
+layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4, byrow = TRUE)), matrix(9:16, 2, 4,  byrow = TRUE))
 plot_layout <- layout(layout_matrix)
 # layout.show(plot_layout)
 
-one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, ...) {
-
-    dots <- list(...)
+one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter) {
 
     if(missing(col.sub)) {
         col.sub <- NULL
@@ -412,38 +410,41 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
         }
     }
 
-    # if(!missing(tree)) {
-    #     op <- par(mfrow = c(1,2))
-    #     #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
-    #     par(mar = c(5, 4, 4, 0)+0.1)   
-    # }
+    ## Sort the data by group size
+    all_data <- cbind(x = cor.results$x, y = cor.results$y)
+    ## Classify the groups per numbers of species
+    all_data <- data.frame(all_data, col = col_vector)
 
-    ## Plotting the results
+    ## Sort the data per group size
+    group_order <- sort(table(all_data$col), decreasing = TRUE)
 
-    ## Selecting the x and y axis base on plot ID
-    select.x <- function(ID, yes = "", no = "") {
-        # ifelse(ID %in% c(5:8), yes, no)
-        return(no)
+    ## Set the plotting data
+    plot_data <- data.frame()
+    # col_adjust <- seq(from = 1/length(group_order), to = 1, by = 0.1)*3
+    for(i in 1:length(group_order)) {
+        ## Get the data from the biggest group
+        selected_data <- all_data[which(all_data$col == names(group_order[i])), ]
+        ## Transparantise the colours (for the background)
+        # selected_data$col <- adjustcolor(selected_data$col, alpha = col_adjust[i])
+        ## Combine the plotting data
+        plot_data <- rbind(plot_data, selected_data)
     }
-    select.y <- function(ID, yes = "", no = "") {
-        # ifelse(ID == 1 || ID == 5, yes, no)
-        return(no)
-    }
-    
-    par(mar = c(select.x(ID, 4, 2), select.y(ID, 4, 2), 3, 1)+0.1)
-    plot(cor.results$x, cor.results$y, pch = 19,
-        xlab = select.x(ID, "elaboration"),
-        ylab = select.y(ID, "explortation"),
-        main = strsplit(cor.results$main, split = ":")[[1]][1],
-        cex = pt.cex, col = col_vector,
-        ...)
 
+    ## Plot the points
+    plot(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col, xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
+    axis(1, at = pretty(plot_data$x, n = 4))
+    axis(2, at = pretty(plot_data$y, n = 4), las = 2)
 
     if(!is.null(col.sub)) {
-        legend_text <- levels(col_sub)
-        if(length(empty <- which(legend_text == "")) > 0) {
-            legend_text[empty] <- "other"
+        ## See if there is any others
+        levels <- levels(col_sub)
+        if(length(other <- which(levels == "")) > 0) {
+            legend_text <- c(1, 1:(length(levels(col_sub))-1)+legend_counter)
+        } else {
+            legend_text <- c(1:(length(levels(col_sub)))+legend_counter)
         }
+        ## Update the legend counter
+        legend_counter <<- max(legend_text)
         ## Adding the legend
         legend(x = legend.pos, legend = legend_text, pch = 19, cex = legend.cex, col = col_avail, bg = "white")
     }
@@ -456,10 +457,13 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
 ## Set the vector of legend positions
-legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
+legends_pos <- c("topleft", "topright", "topright", "topright",
+                 "topleft", "topright", "topleft", "topright")
+legend_counter <- 1
 
 for(i in 1:8) {
-    one.plot.correlations(super_phylo_cor[[i]],col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.8, legend.cex = 0.8)
+    par(mar = c(2,2.5,2,1.5))
+    one.plot.correlations(super_phylo_cor[[i]],col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter)
 }
 
 
@@ -470,10 +474,13 @@ for(i in 1:8) {
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
 ## Set the vector of legend positions
-legends_pos <- c("bottomright", "topright", "topright", "topleft", "topleft", "topright", "bottomright", "bottomright")
+legends_pos <- c("bottomright", "topright", "topleft", "topleft",
+                 "topleft", "topleft", "topright", "bottomright")
+legend_counter <- 1
 
 for(i in 1:8) {
-    one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.8, legend.cex = 0.8)
+    par(mar = c(2,2.5,2,1.5))
+    one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter)
 }
 dev.off()
 ```
