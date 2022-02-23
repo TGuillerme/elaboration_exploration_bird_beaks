@@ -137,7 +137,7 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
     }
 }
 
-# pdf(file = "Figure_1a.pdf", height = 11, width = 5.5)
+# pdf(file = "Figure1a.pdf", height = 11, width = 5.5)
 # ## Plot the phylo ellipse
 # grey_palette <- c(colour.palette(8), "grey")
 # par(mfrow = c(2,1), bty = "n")
@@ -150,7 +150,7 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
 
 ```{r}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure_1.pdf", height = box_size*8, width = box_size*10)
+pdf(file = "../Manuscript/Figures/Figure1.pdf", height = box_size*8, width = box_size*10)
 
 ## Global window
 lay_mat_order <- rbind(
