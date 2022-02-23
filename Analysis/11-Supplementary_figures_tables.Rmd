@@ -9,17 +9,100 @@ output:
     fig_height: 8
 ---
 
+```{r, echo = FALSE}
+library(dispRity)
+library(knitr)
+library(mcmcmcglmmm)
+```
 
 ## PC axis selection
 
+```{r, echo = FALSE}
+## Loading the shape space
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")$PCscores
+## Loading the clade list
+load(file = "../Data/Processed/clade_list.rda")
+
+## Temporary change the empty levels to noclade
+clades <- clade_list[, c(1)]
+levels(clades)[1] <- "noclade"
+
+## Make a dispRity object and get axes data
+shape_axes <- select.axes(custom.subsets(shapespace, group = clades))
+
+pdf(file = "../Manuscript/Figures/Supplementary_figure_axis_selection.pdf", height = 8, width = 12)
+plot(shape_axes)
+dev.off()
+```
+
+```{r, fig.heigth = 8, fig.width = 12, echo = FALSE}
+plot(shape_axes)
+```
+
+Supplementary figure: axis selection: cumulative variance (in light grey) and variance per dimension (in dark grey) for each bird super order and the whole space. The horizontal dotted bar is the threshold value to explain 95% of the variance of the group and the vertical dotted bar is the number of dimensions required to reach that threshold value.
+
+```{r, echo = FALSE}
+kable(summary(shape_axes)[, 1:18], caption = "Variance per axis (PCn.var) and cumulative variance (PCn.sum) for each super order for the 9 first dimensions of the shape space. The \"noclade\" group contains all the species from superorders that contain less than 15 species each. Note that although the first five dimensions are enough to explain more than 95% of the whole space variance, this is not true for the Aequornithes, Columbimorphae, Galloanserae, Mirandornithes and Paleognathae.")
+```
 
 ## Random terms sizes
 
+```{r, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+
+## Get the subset sizes into a table
+super_orders <- size.subsets(superorder_shapespace)
+orders <- size.subsets(order_shapespace)
+
+## The table
+data_table <- data.frame("rank" = c("class", rep("super order", length(super_orders)-1), rep("order", (length(orders)-1))), "species" = c(super_orders[length(super_orders)], super_orders[-length(super_orders)], orders[-length(orders)]))
+rownames(data_table)[1] <- "Aves"
+
+kable(data_table, caption = "Number of species for each group used as a random term in the analysis.")
+```
 
 ## mcmcmcmcglmmm convergence diagnosis
 
+```{r, echo = FALSE, fig.height = 9, fig.width = 6}
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
 
-## Projection and rejection definition
+## The diagnosis
+diagnose <- diagnose.mini.chains(shapespace_allbirds_lvl_superorder_order[[1]])
 
+kable(do.call(rbind, lapply(diagnose, quantile)), caption = paste0("Distribution of the Effective sample for each terms in the model. The solutions (traits as explanatory variables) contained ", unlist(lapply(diagnose, length))[1], " terms; the Gcovariances (random terms, i.e. the phylogenetic components) contained ", unlist(lapply(diagnose, length))[2], " terms; and the Rcovariances (residual terms) contained ", unlist(lapply(diagnose, length))[3], " terms across 4000 posterior samples."))
 
-## Four panel elaboration innovation figure
+pdf(file = "../Manuscript/Figures/Supplementary_figure_mcmc_ESS.pdf", height = 6, width = 3)
+silent <- diagnose.mini.chains(shapespace_allbirds_lvl_superorder_order[[1]])
+dev.off()
+```
