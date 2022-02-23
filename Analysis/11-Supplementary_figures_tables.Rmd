@@ -1,0 +1,25 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+## PC axis selection
+
+
+## Random terms sizes
+
+
+## mcmcmcmcglmmm convergence diagnosis
+
+
+## Projection and rejection definition
+
+
+## Four panel elaboration innovation figure
