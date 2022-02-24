@@ -1,6 +1,14 @@
 Figure 3: Elaboration and exploration distribution per species within each superorder.
 A: Differences of base line for the projections in panel B, C and D. In the first case (panel B and C), the elaboration and innovation scores are absolute; the species are projected onto the phylogenetic main axis (in blue). In the second case (panel D), the elaboration and innovation scores are relative; the species are projected onto their own main axis (in orange).
+We anakysed stuff in two ways: first we did thing wwhich we can interpret as thing...
+
+
 B: Density of the elaboration and innovation scores for all the species projected on the main phylogenetic axis. Note that the relative projection (orange line in panel A) is the same as the absolute projection (blue line in panel A) when projecting all species on the main phylogenetic axis.
+This shows that...
+
+C and D shows that...
+
+
 C: Median absolute elaboration and innovation scores per super orders. 
 Points legend:
 1: other groups (> 15 species);
