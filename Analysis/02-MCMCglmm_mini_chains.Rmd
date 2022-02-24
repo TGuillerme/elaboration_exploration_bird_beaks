@@ -194,37 +194,4 @@ results <- run.mini.chains(mini_chains, replicates = n_reps)
 combined_results <- combine.mini.chains(results)
 ```
 
-
-
-<!-- 
-
-#### Number of runs optimisation (TO BE DEVELOPED?)
-
-```{r, eval = FALSE}
-## Function for running one mini chain on a random tree (and saving the results)
-fun.mini.chains <- function() {
-    run.mini.chains(mini_chains, replicates = 1, path = "../Data/Processed/MCMC/", file.name = "mini.chains")
-}
-```
-
-To make sure we reached consistent results, we run the set of N mini-chains were N was determined using the following variance optimisation algorithm.
- 
- * 1. run an initial $N = 20$ chains;
- * 2. estimate the $V_{1}$, the pooled variances for each parameters in the chain (V1 is a vector of length §§§);
- * 3. update N to N = N * 1.05 and run an additional 5% chains;
- * 4. estimate $V_{2}$, the pooled variances for each parameters in the chain;
- * 5. calculate $\Delta_V$, the absolute change between $V_{1}$ and $V_{2}$ as ($\sqrt{(\frac{V_{1}}/{V_{2}} - 1)^{2}}$).
- * 6. If $\Delta_V < 0.05$ (meaning an increase of 5% of the replicates resulted in an increase of the parameters of less than 5%), the desired number of mini-chains is reached. Else, set $V_{1} = V_{2}$ and repeat from step 3.
-
-
-```{r, optimised_replicates, eval = FALSE}
-## The summary function
-
-```
-
-
-After reaching the desired $N$ chains, we pulled all the posterior estimates together back into a "standard" big MCMCglmm with a posterior distribution including the effective results and the phylogenetic uncertainty.
-
--->
-
 ## References
