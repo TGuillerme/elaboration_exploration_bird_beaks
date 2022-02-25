@@ -11,11 +11,21 @@ output:
   self_contained: true
 ---
 
-```{r header, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, eval = TRUE}
+This vignette provides advanced details on the mini-chains MCMCglmm pipeline and provides code and detail to reproduce the results presented in the paper associated with this vignette.
+Due to the amount of data and computational time required to reproduce the results in the paper (2 CPU years and 350GB of data) we only demonstrate the method on the Charadriiformes order.
+
+> If you use this vignette in published work, please cite @PAPER and @mcmcmcglmmmDOI.
+
+```{r header, echo = TRUE, results = 'hide', message = FALSE, warning = FALSE, eval = TRUE}
+## Installing the dispRity package from the CRAN
+install.packages("dispRity")
+## Installing the mcmcmcglmmm package from github
+if(!require(devtools)) install.packages("devtools")
+devtools:install_github("TGuillerme/mcmcmcglmmm")
+## Loading the packagges
 library(mcmcmcglmmm)
 library(dispRity)
 ``` 
-
 
 # Mini chains MCMCglmm method: an efficient way to calculate variance-covariance matrices on big data with phylogenetic uncertainty
 
