@@ -8,7 +8,6 @@ Gavin: make figure 2
 -Put the things directly on the line (like exagerated) for the elaboration
 For the exploration put them completely orthogonal and make them triangles
 Do just the cigar figure: three panels, normal, sliding and twisting
-
 - [x] Thomas: do one paragraph version per parts of method (check Chris’ nature paper)
 
 
@@ -17,6 +16,14 @@ Figure 3: insist on the differences in panel A. not just describe, say what it m
 
 GEt the story told through the figure legends as mini abstracts
 
+
+
+- [ ] scale the ellipses to be the same sizes in figure 1
+- [x] Write figure 0 abstract/caption
+- [ ] Write figure 1 abstract/caption
+- [ ] Write figure 2 abstract/caption
+- [ ] Write figure 3 abstract/caption
+- [ ] Write the paper abstract https://pbs.twimg.com/media/CJ0q7lqUsAAaEFC.png:large
 
 
 TODO supplementaries:
