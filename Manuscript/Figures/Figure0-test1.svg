@@ -781,11 +781,11 @@
     <ellipse
        style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-3-5-2"
-       cx="-65.830124"
-       cy="136.04196"
+       cx="-77.951706"
+       cy="133.17494"
        rx="20.788082"
        ry="5.3455873"
-       transform="rotate(-57.239991)" />
+       transform="rotate(-66.666097)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
@@ -810,7 +810,7 @@
          y="119.75095">:both</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.5;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-8-2-36)"
-       d="m 75.015111,147.29838 3.347292,-19.41936"
+       d="M 75.595852,145.70586 87.178946,129.76385"
        id="path26580-9-2-0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1.11599;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.5;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Mend-8-2-3)"
