@@ -16,12 +16,15 @@ Due to the amount of data and computational time required to reproduce the resul
 
 > If you use this vignette in published work, please cite @PAPER and @mcmcmcglmmmDOI.
 
-```{r header, echo = TRUE, results = 'hide', message = FALSE, warning = FALSE, eval = TRUE}
+```{r header, echo = TRUE, results = 'hide', message = FALSE, warning = FALSE, eval = FALSE}
 ## Installing the dispRity package from the CRAN
 install.packages("dispRity")
 ## Installing the mcmcmcglmmm package from github
 if(!require(devtools)) install.packages("devtools")
-devtools:install_github("TGuillerme/mcmcmcglmmm")
+devtools::install_github("TGuillerme/mcmcmcglmmm")
+```
+
+```{r, echo = TRUE, results = 'hide', message = FALSE, warning = FALSE, eval = TRUE}
 ## Loading the packagges
 library(mcmcmcglmmm)
 library(dispRity)
@@ -108,7 +111,7 @@ For the rest of the example analysis here, we used as a traitspace of these 359 
 
 ```{r, echo = FALSE, eval = TRUE}
 ## Loading the charadriiformes data
-data(charadriiformes) 
+data(charadriiformes)
 ## Extracting the tree
 tree <- charadriiformes$tree
 ## Extracting the data column that contains the clade assignments
@@ -140,9 +143,7 @@ We first run three parametrisation chains for 50000 generations with no burnin a
 From this chain we extracted: 1) the maximum burnin time as 1.1 times the number of generations required to reach the median likelihood value and 2) the median posteriors of the model (discarding the burnin) as priors for our mini chains models with a believe parameter value of 5%.
 We then ran 50 minichains for 10 samples each using the previous sampling rate (500 generations) and the extracted parameters form the parametrisation chain (the burnin and priors described above).
 
-```{r, echo = FALSE, eval = FALSE}
-library(mcmcmcglmmm)
-
+```{r, echo = FALSE, eval = FALSE, eval = TRUE}
 ## Making the parametrisation chains
 parametrisation_chains <- make.mini.chains(data = charadriiformes$data,
                                            dimensions = c("PC1", "PC2", "PC3"),
