@@ -18,17 +18,17 @@ GEt the story told through the figure legends as mini abstracts
 
 
 
-- [ ] scale the ellipses to be the same sizes in figure 1
+- [x] scale the ellipses to be the same sizes in figure 1
 - [x] Write figure 0 abstract/caption
-- [ ] Write figure 1 abstract/caption
-- [ ] Write figure 2 abstract/caption
-- [ ] Write figure 3 abstract/caption
-- [ ] Write the paper abstract https://pbs.twimg.com/media/CJ0q7lqUsAAaEFC.png:large
+- [x] Write figure 1 abstract/caption
+- [x] Write figure 2 abstract/caption
+- [x] Write figure 3 abstract/caption
+- [x] Write the paper abstract https://pbs.twimg.com/media/CJ0q7lqUsAAaEFC.png:large
 
 
 TODO supplementaries:
  - [x] Thomas: supplementary figures and tables
  - [ ] Thomas: data vignette
- - [ ] Thomas: mcmcmcglmmm vignette
- - [ ] Thomas: projection vignette (with all the math bits)
+ - [ ] Thomas: mcmcmcglmmm vignette -> now in the mcmcmcglmmm package
+ - [ ] Thomas: projection vignette (with all the math bits) -> now in the dispRity package
  - [ ] Thomas: clean the figure markdowns
