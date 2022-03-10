@@ -1,0 +1,12 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Gavin Thomas"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+TODO!
