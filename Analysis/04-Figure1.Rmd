@@ -201,6 +201,56 @@ add.dims <- function(data, name.col, n = 1000) {
 ```
 
 
+## Calculate the lambdas for the whole tree and nested clades
+
+```{r}
+## Loading the clade info
+load("../Data/Processed/group_species_names.rda")
+
+## Loading the plotting data
+load("../Data/Processed/ploting_data.rda")
+
+## Function for measuring Pagel's lambda from a sub-tree
+#' @param species a vector of species names to extract from tree
+#' @param variable the variable (a named vector with the correct species names)
+#' @param tree the full tree
+#' @param method the method to be passed to motmot::transformPhylo.ML (default is "lambda")
+#' @param ... any other arguments to be passed to motmot::transformPhylo.ML
+get.p.lambda <- function(species, variable, tree, method = "lambda", ...) {
+    ## Selected species
+    to_keep <- tree$tip.label %in% species
+
+    ## Trim the tree
+    sub_tree <- drop.tip(tree, tip = tree$tip.label[!to_keep])
+    
+    ## Trim the variable
+    sub_var <- variable[species]
+
+    ## Measure lambda
+    return(motmot::transformPhylo.ML(phy = sub_tree, y = matrix(sub_var, ncol = 1, dimnames = list(names(sub_var))), model = method, ...))
+}
+
+
+
+## Get the lambdas for all levels for the elaborations
+overall_lambda_elaboration <- get.p.lambda(species = ploting_data$consensus_tree$tip.label, variable = ploting_data$median_elaborations, tree = ploting_data$consensus_tree, modelCIs = FALSE)
+all_lambdas_elaboration <- lapply(group_species_names, lapply, function(x, tree, variable, ...) {cat(".") ; get.p.lambda(names(x), variable, tree, ...)},
+                                  tree = ploting_data$consensus_tree,
+                                  variable = ploting_data$median_elaborations,
+                                  modelCIs = FALSE)
+overall_lambda_innovation <- get.p.lambda(species = ploting_data$consensus_tree$tip.label, variable = ploting_data$median_innovations, tree = ploting_data$consensus_tree, modelCIs = FALSE)
+all_lambdas_innovation <- lapply(group_species_names, lapply, function(x, tree, variable, ...) {cat(".") ; get.p.lambda(names(x), variable, tree, ...)},
+                                  tree = ploting_data$consensus_tree,
+                                  variable = ploting_data$median_innovations,
+                                  modelCIs = FALSE)
+## Make into a table
+lambda_elaboration <- list(overall_lambda_elaboration$Lambda, lapply(all_lambdas_elaboration, lapply, function(X) return(X$Lambda)))
+lambda_innovation <- list(overall_lambda_innovation$Lambda, lapply(all_lambdas_innovation, lapply, function(X) return(X$Lambda)))
+lambda_table <- cbind(unlist(lambda_elaboration), unlist(lambda_innovation))
+lambdas_superorder <- lambda_table[c(2: 9), ]
+lambdas_order <- lambda_table[-c(1: 9), ]
+```
+
 
 ```{r}
 
@@ -334,7 +384,8 @@ for(i in 1:length(tip_order)) {
     covars_cent_tend <- lapply(sample.n(get.subsets(superorder_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
     dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
     # text(0,0.3, paste0(names(name.col), " (", which(dim_var == max(dim_var)), ")"), cex = 1, col = name.col)
-    text(0,0.3, paste0(names(name.col)), cex = 1.2, col = name.col)
+    text_main <- paste0(names(name.col))#, "\n", "λe = ", round(lambdas_superorder[paste0("superorders.", names(name.col)),][1], 2), "; λi = ", round(lambdas_superorder[paste0("superorders.", names(name.col)),][2], 2))
+    text(0,0.3, text_main, cex = 1.2, col = name.col)
 
     ## Plot the elaboration/exploration
     par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
@@ -443,7 +494,8 @@ for(i in 1:length(tip_order)) {
     covars_cent_tend <- lapply(sample.n(get.subsets(order_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
     dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
     # text(0,0.3, paste0(names(name.col), " (", which(dim_var == max(dim_var)), ")"), cex = 1, col = name.col)
-    text(0,0.3, paste0(names(name.col)), cex = 1.2, col = name.col)
+    text_main <- paste0(names(name.col))#, "\n", "λe = ", round(lambdas_order[paste0("orders.", names(name.col)),][1], 2), "; λi = ", round(lambdas_order[paste0("orders.", names(name.col)),][2], 2))
+    text(0,0.3, text_main, cex = 1.2, col = name.col)
 
     ## Plot the elaboration/exploration
     par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
