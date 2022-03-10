@@ -32,3 +32,18 @@ TODO supplementaries:
  - [ ] Thomas: mcmcmcglmmm vignette -> now in the mcmcmcglmmm package
  - [ ] Thomas: projection vignette (with all the math bits) -> now in the dispRity package
  - [ ] Thomas: clean the figure markdowns
+
+
+ - Figure 2: calculate pagel's lambda for 1) the whole tree 2) per super order and 3) per order for innovation and elaboration (and squeeze these results in figure 1 as Order_name\nE_lambda =, I_lambda =...)
+  - [ ] Thomas: 
+ - Figure 0: try with transparency of ellipses
+  - [ ] Thomas: 
+ - Figure 1: add A abd B for order/super
+            change elaboration to just E and innovation to just have them as a letter above the boxplot (line)
+    - [ ] Thomas: 
+ - Start doing a 1st and last paragraph for the 7 paragraphs
+  - [ ] Thomas: 
+ - Think about making some kind of shiny app (not me) on a dynamic variation of figure 0 (with VCV tools).
+  - [ ] Thomas: 
+ - Set up the analysis to run just for passeriformes. Use patchclades and suborders as nested levels.
+  - [ ] Thomas: 
