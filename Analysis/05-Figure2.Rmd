@@ -39,8 +39,6 @@ get.p.lambda <- function(species, variable, tree, method = "lambda", ...) {
     return(motmot::transformPhylo.ML(phy = sub_tree, y = matrix(sub_var, ncol = 1, dimnames = list(names(sub_var))), model = method, ...))
 }
 
-
-
 ## Get the lambdas for all levels for the elaborations
 overall_lambda_elaboration <- get.p.lambda(species = ploting_data$consensus_tree$tip.label, variable = ploting_data$median_elaborations, tree = ploting_data$consensus_tree, modelCIs = FALSE)
 all_lambdas_elaboration <- lapply(group_species_names, lapply, function(x, tree, variable, ...) {cat(".") ; get.p.lambda(names(x), variable, tree, ...)},
@@ -56,6 +54,7 @@ all_lambdas_innovation <- lapply(group_species_names, lapply, function(x, tree, 
 lambda_elaboration <- list(overall_lambda_elaboration$Lambda, lapply(all_lambdas_elaboration, lapply, function(X) return(X$Lambda)))
 lambda_innovation <- list(overall_lambda_innovation$Lambda, lapply(all_lambdas_innovation, lapply, function(X) return(X$Lambda)))
 lambda_table <- cbind(unlist(lambda_elaboration), unlist(lambda_innovation))
-lambdas_superorder <- lambda_table[c(2: 9), ]
-lambdas_order <- lambda_table[-c(1: 9), ]
+lambda_table <- data.frame(rbind(c("class", "aves"), do.call(rbind, strsplit(rownames(lambda_table), split = "\\."))), lambda_table)
+colnames(lambda_table) <- c("level", "name", "elaboration", "innovation")
+rownames(lambda_table) <- lambda_table$name
 ```
