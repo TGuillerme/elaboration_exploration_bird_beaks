@@ -9,6 +9,8 @@ output:
     fig_height: 8
 ---
 
+<!-- Compilation time: 30 minutes -->
+
 All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
 Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
 The following code snippets are used to illustrate the implementation of the functions.
@@ -224,6 +226,33 @@ levels_list <- list("super_orders"   = unlist(lapply(super_orders, length)),
                     "families"       = unlist(lapply(families, length)))
 save(levels_list, file = "../Data/Processed/levels_list.rda")
 ```
+
+
+## Passeriformes focus
+
+```{r}
+## Making a Passeriformes only list
+clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
+clades_list_passeriformes <- clades_list[which(clades_list$level2_order == "Passeriformes"), c(3, 5)]
+clades_list_passeriformes[,1] <- as.factor(as.character(clades_list_passeriformes[,1]))
+clades_list_passeriformes[,2] <- as.factor(as.character(clades_list_passeriformes[,2]))
+
+
+## Shapespace passeriformes
+shapespace_passeriformes <- shapespace[rownames(shapespace) %in% rownames(clades_list_passeriformes), ]
+
+## Do the prep data from here (with all the trees! ouch!)
+shapsepace_passeriformes_suborder_family <- prep.data(
+                                          level = 0, lvl.inc = c(1,2),
+                                          clades    = clades_list_passeriformes,
+                                          space     = shapespace_passeriformes,
+                                          dim       = 1:8,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapsepace_passeriformes_suborder_family, file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+```
+
 
 
 ## References
