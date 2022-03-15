@@ -70,7 +70,7 @@ est_params <- extract.parameters(param_chains)
 
 ### Running the mini-chains
 
-```{r, set_the_mini_chains, eval = TRUE}
+```{r, set_the_mini_chains, eval = FALSE}
 ## The thinning parameter
 thin <- 200
 ## The number of samples per chains
