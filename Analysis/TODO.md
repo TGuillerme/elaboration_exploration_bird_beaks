@@ -35,7 +35,7 @@ TODO supplementaries:
 
 
  - Figure 2: calculate pagel's lambda for 1) the whole tree 2) per super order and 3) per order for innovation and elaboration (and squeeze these results in figure 1 as Order_name\nE_lambda =, I_lambda =...)
-  - [ ] Thomas: 
+  - [x] Thomas: 
  - Figure 0: try with transparency of ellipses
   - [ ] Thomas: 
  - Figure 1: add A abd B for order/super
