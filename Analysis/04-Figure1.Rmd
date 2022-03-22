@@ -65,7 +65,7 @@ colour.palette <- gg.color.hue
 
 ```{r, echo = FALSE}
 ## Quick load
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_4k.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
@@ -73,6 +73,7 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ## Phylogeny window (detailed)
 
 ```{r}
+source("../Functions/covar.utilities.R")
 ## Plotting the ellipses
 plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", legend = FALSE, with.phylo = FALSE) {
 
@@ -202,27 +203,26 @@ add.dims <- function(data, name.col, n = 1000) {
 
 
 ```{r}
-source("../Functions/covar.utilities.R")
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure1_phylo_Dplot.pdf", height = box_size*2, width = box_size*2)
+# pdf(file = "../Manuscript/Figures/Figure1_phylo_Dplot.pdf", height = box_size*2, width = box_size*2)
 
-lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
-plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = "")
-abline(v = 0, col = "grey", lwd = 0.5)
-abline(h = 0, col = "grey", lwd = 0.5)
+# lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
+# plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = "")
+# abline(v = 0, col = "grey", lwd = 0.5)
+# abline(h = 0, col = "grey", lwd = 0.5)
 
-covars_cent_tend <- lapply(sample.n(get.subsets(data, subset = "phylogeny")$covar, n), VCV.cent.tend, mean)
-dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-dim_var <- dim_var/max(dim_var)/10
-x_start <- 0.2
-y_start <- -0.1
-buffer <- 0
-for(one_dim in 1:length(dim_var)) {
-    lines(x = c(x_start, x_start+dim_var[one_dim]), y = rep(y_start+buffer, 2), lwd = 3, col = "grey")
-    buffer <- buffer - 0.02
-}
+# covars_cent_tend <- lapply(sample.n(get.subsets(data, subset = "phylogeny")$covar, n), VCV.cent.tend, mean)
+# dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
+# dim_var <- dim_var/max(dim_var)/10
+# x_start <- 0.2
+# y_start <- -0.1
+# buffer <- 0
+# for(one_dim in 1:length(dim_var)) {
+#     lines(x = c(x_start, x_start+dim_var[one_dim]), y = rep(y_start+buffer, 2), lwd = 3, col = "grey")
+#     buffer <- buffer - 0.02
+# }
 
-dev.off()
+# dev.off()
 
 
 
