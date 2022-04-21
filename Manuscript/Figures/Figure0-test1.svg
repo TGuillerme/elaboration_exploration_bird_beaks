@@ -9,7 +9,7 @@
    id="svg5"
    sodipodi:docname="Figure0-test1.svg"
    inkscape:version="1.1.2 (1:1.1+202202050950+0a00cf5339)"
-   inkscape:export-filename="/home/tguillerme/Projects/elaboration_exploration_bird_beaks/Manuscript/Figures/Figure0-test6.png"
+   inkscape:export-filename="/home/tguillerme/Projects/elaboration_exploration_bird_beaks/Manuscript/Figures/Figure0-test7.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -633,7 +633,7 @@
      id="layer7"
      inkscape:label="Ellipses blob">
     <ellipse
-       style="fill:#ff6600;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ff6600;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939"
        cx="-4.4535265"
        cy="93.080032"
@@ -641,7 +641,7 @@
        ry="5.3455873"
        transform="rotate(-19.671074)" />
     <ellipse
-       style="fill:#ff6600;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ff6600;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-3"
        cx="42.302792"
        cy="110.56361"
@@ -649,7 +649,7 @@
        ry="5.3455873"
        transform="rotate(-19.671074)" />
     <ellipse
-       style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#0000ff;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-3-5"
        cx="46.786343"
        cy="96.632027"
@@ -657,7 +657,15 @@
        ry="5.3455873"
        transform="rotate(-19.671074)" />
     <ellipse
-       style="fill:#ff6600;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#0000ff;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="path939-3-5-3"
+       cx="42.484001"
+       cy="148.35916"
+       rx="20.788082"
+       ry="5.3455873"
+       transform="rotate(-19.671074)" />
+    <ellipse
+       style="fill:#f86300;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-6"
        cx="60.856949"
        cy="55.749329"
@@ -687,7 +695,7 @@
          x="55.561852"
          y="8.9046354">B</tspan></text>
     <ellipse
-       style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#0000ff;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-3-7"
        cx="77.273804"
        cy="55.425835"
@@ -771,21 +779,13 @@
        d="m 52.833542,113.95494 v 45.36951 h 45.506497"
        id="path19255-9-6-9-3" />
     <ellipse
-       style="fill:#ff6600;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ff6600;fill-opacity:0.60000002;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="path939-3-56"
        cx="22.953997"
        cy="162.56723"
        rx="20.788082"
        ry="5.3455873"
        transform="rotate(-19.671074)" />
-    <ellipse
-       style="fill:#0000ff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
-       id="path939-3-5-2"
-       cx="-77.951706"
-       cy="133.17494"
-       rx="20.788082"
-       ry="5.3455873"
-       transform="rotate(-66.666097)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
