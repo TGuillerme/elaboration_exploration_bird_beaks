@@ -43,11 +43,11 @@ However, note that due to the large amount of data and computational time and re
     - [ ] english language check
     - [ ] links check
  * **03-Elaboration_innovation_analysis** ([.Rmd](), [.html]()) contains the script to measure the elaboration and innovation. Note that this script is moderately computationally heavy. For a more manageable example, you can refer to the [reproducible vignette](link_to_projection_vignette).
-    - [ ] compile check
+    - [x] compile check
     - [ ] english language check
     - [ ] links check
  * **04-Figure1** ([.Rmd](), [.html]()) contains the script to reproduce the elements in figure 1 in the main text.
-    - [ ] compile check
+    - [x] compile check
     - [ ] english language check
     - [ ] links check
  * **05-Figure2** ([.Rmd](), [.html]()) contains the script to reproduce the elements in figure 2 in the main text.
@@ -59,7 +59,7 @@ However, note that due to the large amount of data and computational time and re
     - [ ] english language check
     - [ ] links check
  * **07-Supplementary_figures_tables** ([.Rmd](), [.html]()) contains the script to reproduce the [supplementary tables and figures](link_to_supp).
-    - [ ] compile check
+    - [x] compile check
     - [ ] english language check
     - [ ] links check
 
