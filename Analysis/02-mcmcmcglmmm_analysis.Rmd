@@ -186,8 +186,6 @@ consensus_tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
 trees_list <- shapsepace_passeriformes_suborder_family[[1]]$trees_list
 ```
 
-# All birds shapespace analyses
-
 ## Mini-chains parametrization
 
 ```{r, parametrise_the_model, eval = FALSE}
@@ -201,7 +199,7 @@ param_MCMCglmm <- make.mini.chains(data         = shapespace,
                                    priors       = 0.02,
                                    verbose      = TRUE,
                                    parameters   = list(
-                                       nitt   = 100000,
+                                       nitt   = 50000,
                                        thin   = 500,
                                        burnin = 0))
 
