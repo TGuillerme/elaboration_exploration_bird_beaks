@@ -31,3 +31,4 @@ TODO meeting:
  - [ ] Discuss the narrative I ended up stuck with (see paper draft)
  - [ ] Maybe think twice about those ellipses: we have been easily mixing them up with an idea of volume where they are in fact an idea of variance-covariance (in our case). Maybe that's something important to keep in mind?
  - [ ] Do we add passeriformes to it? Results are pending (probably 2 weeks more for stable results/next week for exploitable results): this will add an extra panel to the figures 1 and 3.
+ - [ ] Chat about ideas for Emma's data collection work.
