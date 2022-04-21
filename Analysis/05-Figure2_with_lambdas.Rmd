@@ -12,7 +12,7 @@ output:
 
 ## Calculate the lambdas for the whole tree and nested clades
 
-```{r}
+```{r, echo = FALSE}
 ## Loading the clade info
 load("../Data/Processed/group_species_names.rda")
 
@@ -39,6 +39,7 @@ get.p.lambda <- function(species, variable, tree, method = "lambda", ...) {
     return(motmot::transformPhylo.ML(phy = sub_tree, y = matrix(sub_var, ncol = 1, dimnames = list(names(sub_var))), model = method, ...))
 }
 
+
 ## Get the lambdas for all levels for the elaborations
 overall_lambda_elaboration <- get.p.lambda(species = ploting_data$consensus_tree$tip.label, variable = ploting_data$median_elaborations, tree = ploting_data$consensus_tree, modelCIs = FALSE)
 all_lambdas_elaboration <- lapply(group_species_names, lapply, function(x, tree, variable, ...) {cat(".") ; get.p.lambda(names(x), variable, tree, ...)},
@@ -57,4 +58,10 @@ lambda_table <- cbind(unlist(lambda_elaboration), unlist(lambda_innovation))
 lambda_table <- data.frame(rbind(c("class", "aves"), do.call(rbind, strsplit(rownames(lambda_table), split = "\\."))), lambda_table)
 colnames(lambda_table) <- c("level", "name", "elaboration", "innovation")
 rownames(lambda_table) <- lambda_table$name
+```
+
+```{r}
+rownames(lambda_table) <- NULL
+## Save the lambda table:
+knitr::kable(lambda_table)
 ```
