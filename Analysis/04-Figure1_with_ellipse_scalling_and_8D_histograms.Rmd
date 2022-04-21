@@ -311,6 +311,8 @@ tip_order <- c(
 
 tip_colours <- colour.palette(Ntip(tree_short))
 names(tip_colours) <- names(sort(tip_order))
+tip_colours_super_orders <- tip_colours
+save(tip_colours_super_orders, file = "../Data/Processed/tip_colours_super_orders.rda")
 
 # par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
 # plot(rep(1,27), 1:27, col = "white")
@@ -425,6 +427,8 @@ tip_order <- c(
 
 tip_colours <- colour.palette(Ntip(tree_short))
 names(tip_colours) <- names(sort(tip_order))
+tip_colours_orders <- tip_colours
+save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
 
 
 
