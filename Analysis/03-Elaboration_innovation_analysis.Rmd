@@ -265,6 +265,35 @@ ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(res
 
 ## Save all that as a list
 save(ploting_data, file = "ploting_data.rda")
+
+## Group info
+super_orders <- lapply(results$super_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$super_results_phylo$position$matrix[[1]])
+orders <- lapply(results$order_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$order_results_phylo$position$matrix[[1]])
+## Adding the colours
+load("../Data/Processed/tip_colours_super_orders.rda")
+load("../Data/Processed/tip_colours_orders.rda")
+add.col <- function(one_order, one_col) {
+    one_order$col <- one_col
+    return(one_order)
+}
+super_orders <- mapply(add.col, one_order = super_orders[1:8], one_col = as.list(tip_colours_super_orders), SIMPLIFY = FALSE)
+orders <- mapply(add.col, one_order = orders[1:27], one_col = as.list(tip_colours_orders), SIMPLIFY = FALSE)
+
+## Big list:
+clade_info <- list(super_orders = super_orders,
+                   orders = orders)
+## Save all that data
+save(clade_info, file = "../Data/Processed/clade_info.rda")
+
+## Get the names
+names(clade_info$orders)
+
+## Get the colours
+unlist(lapply(clade_info$orders, `[[`, "col"))
+
+## Get the species in one specific group
+clade_info$orders$Cuculiformes$species
+
 ```
 
 
