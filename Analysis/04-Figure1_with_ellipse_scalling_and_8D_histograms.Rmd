@@ -147,7 +147,7 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
     exploration_quantiles <- quantile(exploration, prob = c(0.025, 0.25, 0.50, 0.975))
 
     ## Empty plot
-    par(bty = "n")
+    par(bty = "o")
     plot(NULL, xlim = c(-0.5,1.5), ylim = c(0,lim_up), xaxt = "n", yaxt = "n", xlab = "", ylab = "")
 
     ## Add the lines
@@ -339,7 +339,7 @@ for(i in 1:length(tip_order)) {
     text(0,0.3, text_main, cex = 1.2, col = name.col)
 
     ## Plot the elaboration/exploration
-    par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
+    par(mar = c(2, 1, 1, 1)+0.1)
     plot.one.proj.rej(results$super_results_between, name.col, x = TRUE, y = FALSE)
 }
 
