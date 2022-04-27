@@ -137,7 +137,7 @@ lambda_distributions <- lapply(species_results, lapply, lapply, get.lambdas, tre
 save(lambda_distributions, file = "../Data/Processed/lambda_distributions.rda")
 ```
 
-```{r, echo = FALSE, eval = TRUE, fig.height = 12, fig.width = 6}
+```{r, echo = FALSE, eval = TRUE, fig.height = 18, fig.width = 12}
 ## Summarising the lambdas
 load(file = "../Data/Processed/lambda_distributions.rda")
 
