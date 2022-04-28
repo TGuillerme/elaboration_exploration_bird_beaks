@@ -376,6 +376,9 @@ dev.off()
 ## Figure 3b
 
 ```{r, echo = FALSE, eval = FALSE}
+## Loading the distances from centre for each species
+load("../Data/Processed/ploting_data.rda")
+centroids <- ploting_data$distances_to_centre[[1]]
 
 pdf("../Manuscript/Figures/Figure3_cd.pdf", height = 12, width = 8)
 ## Great the plot layout
@@ -383,8 +386,7 @@ layout_matrix <- cbind(matrix(0,2,2), matrix(0,2,2))
 layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4, byrow = TRUE)), matrix(9:16, 2, 4,  byrow = TRUE))
 plot_layout <- layout(layout_matrix)
 # layout.show(plot_layout)
-
-one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter) {
+one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter, contour = NULL) {
 
     if(missing(col.sub)) {
         col.sub <- NULL
@@ -430,10 +432,34 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
         plot_data <- rbind(plot_data, selected_data)
     }
 
-    ## Plot the points
-    plot(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col, xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
+    ## Empty plot
+    plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
     axis(1, at = pretty(plot_data$x, n = 4))
     axis(2, at = pretty(plot_data$y, n = 4), las = 2)
+
+    ## Adding contours
+    if(!is.null(contour)) {
+        ## Select the right contour data
+        contour_data <- contour[match(rownames(plot_data), names(contour))]        
+        ## Calculate the contour
+        contour_z <- MASS::kde2d(contour_data/max(contour_data)*max(plot_data$x), contour_data/max(contour_data)*max(plot_data$y), n = 50)
+
+        contour_z <- matrix(0, nrow = length(contour_data), ncol = length(contour_data))
+        diag(contour_z) <-  contour_data
+        # contour_z <- outer(contour_data/max(contour_data)*max(plot_data$x), contour_data/max(contour_data)*max(plot_data$y))
+
+        ## Adding the contour in the background
+        contour(contour_z, lwd = 1, add = TRUE, col = hcl.colors(12, palette = "viridis"), labels = pretty(contour_data))
+    }
+
+    # ## col test for contour
+    # color.gradient <- function(x, colors=c("red","yellow","green"), colsteps=100) {
+    #     return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+    # }
+
+    ## Plot the points
+    points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col)
+    # points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = color.gradient(contour_data))
 
     if(!is.null(col.sub)) {
         ## See if there is any others
@@ -463,7 +489,7 @@ legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_phylo_cor[[i]],col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter)
+    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = centroids)
 }
 
 
