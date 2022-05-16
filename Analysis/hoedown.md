@@ -36,9 +36,18 @@ TODO technicals (Thomas):
     - Done.
 - Re-do the box plots: order them by scores and remove the angle bit
     - Done
-
 - Check the blind spots in the ela/ino corelation plots (add a species in a weird place of the morphospace)
+    - Add species with elaboration around 0.8 and exploration around 0
+    - Add species with elaboration around 0 and exploration around 1.0
+
 - On the correlation plots add a phylo panel with the clades coloured
     - Done.
+
+- Do the bird beak thing from the other way around (i.e. from the correlation plot to the PCA: where do things fall in the PCA when plotted in a weird corrner)
+- Vary length and orientation of Phylo axis for the tissue pulling thing
+
+- For ranking, try using just one of the two variables AND try to rank by the difference (elaboration - innovation)
+
+- For finding Simone's Sausage, do the flattening the PCA from 2, 3, 4, .. 8 D and then the correlation plot and everytime measure the distance between the minimum innovation and the centre (the idea being that that distance increases non-linearly with the number of dimensions)
 
 Question ideas:

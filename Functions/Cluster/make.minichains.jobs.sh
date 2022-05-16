@@ -39,8 +39,6 @@ cp job_template.job ${LOCALPATH}${CHAINNAME}_template.job
 echo "" >> ${LOCALPATH}${CHAINNAME}_template.job
 echo "## Run the script" >> ${LOCALPATH}${CHAINNAME}_template.job
 echo "Rscript ${LOCALPATH}${CHAINNAME}_<REPLICATE>.R" >> ${LOCALPATH}${CHAINNAME}_template.job
-## Bug on this line!!!!
-
 
 ## Creating the Rscript template
 echo ".libPaths(\"~/homelib\")" > ${LOCALPATH}${CHAINNAME}_template.R
@@ -48,7 +46,8 @@ echo "library(MCMCglmm)" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "library(mcmcmcglmmm)" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "load(\"${LOCALPATH}${CHAINNAME}.mini.chains\")" >> ${LOCALPATH}${CHAINNAME}_template.R
 echo "model <- run.mini.chains(${CHAINNAME}, replicates = 1, record.tree = TRUE)" >> ${LOCALPATH}${CHAINNAME}_template.R
-echo "save(model, file = \"${LOCALPATH}${CHAINNAME}_<REPLICATE>.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
+# echo "save(model, file = \"${LOCALPATH}${CHAINNAME}_<REPLICATE>.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
+echo "save(model, file = \"/data/bo1tgu/shapespace_allbirds_lvl_superorder_order_tmp_store/${CHAINNAME}_<REPLICATE>.rda\")" >> ${LOCALPATH}${CHAINNAME}_template.R
 
 
 ## Get the number of digits in REPLICATES

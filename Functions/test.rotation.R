@@ -19,13 +19,16 @@ plot.base <- function(matrix, base_vector, lim) {
     } else {
         par(bty = "n")
         plot(NULL, xlim = lim, ylim = lim, xlab = "x", ylab = "y")
-        abline(v = 0, col = "grey")
-        abline(h = 0, col = "grey")
+        abline(v = 0, col = "grey", lwd = 0.5)
+        abline(h = 0, col = "grey", lwd = 0.5)
         text(matrix[,1:2], labels = rownames(matrix), col = "grey", cex = 1.5)
+        for(i in 1:nrow(matrix)) {
+            lines(rbind(base_vector[1,], matrix[i,]), col = "grey", lwd = 1, lty = 2)
+        }
         lines(base_vector, col = "grey", lwd = 1.5)
     }
 }
-plot.recentred <- function(matrix, base_vector) {
+plot.recentred <- function(matrix, base_vector, col = c("orange", "blue", "darkgreen", "black", "black")) {
     if(ncol(matrix) == 3) {
         text3d(matrix, texts = rownames(matrix), col = "black")
         for(i in 1:nrow(matrix)) {
@@ -33,14 +36,14 @@ plot.recentred <- function(matrix, base_vector) {
         }
         segments3d(base_vector, col = "black", lwd = 2)
     } else {
-        text(matrix, labels = rownames(matrix), col = "black", cex = 1.5)
         for(i in 1:nrow(matrix)) {
-            lines(rbind(c(0,0), matrix[i,]), col = "grey", lwd = 1.5)
+            lines(rbind(c(0,0), matrix[i,]), col = "grey", lwd = 1,)
         }
-        lines(base_vector, col = "black", lwd = 1.5)
+        lines(base_vector, col = "grey", lwd = 4)
+        text(matrix, labels = rownames(matrix), col = col, cex = 1.5)
     }
 }
-plot.projections <- function(matrix, projections, rejections) {
+plot.projections <- function(matrix, projections, rejections, col = c("orange", "blue", "darkgreen", "black", "black")) {
     if(ncol(matrix) == 3) {
         for(i in 1:nrow(matrix)) {
             ## Plot the projections
@@ -50,15 +53,22 @@ plot.projections <- function(matrix, projections, rejections) {
         }
 
     } else {
-        for(i in 1:nrow(matrix)) {
+        ## Sort projections in increasing orders
+        order_proj <- projections[-c(nrow(projections)-1, nrow(projections)), ]
+        order_proj <- sort(abs(order_proj[, 1]), decreasing = TRUE)
+        new_order <- match(names(order_proj), letters[1:length(order_proj)])
+        order_col <- col[new_order]
+        order_proj <- projections[new_order, ]
+        order_rej <- rejections[new_order, ]
+
+        for(i in 1:length(new_order)) {
             ## Plot the projections
-            lines(rbind(c(0,0), projections[i,]), col = "blue", lwd = 1.5)
+            lines(rbind(c(0,0), order_proj[i, ]), col = order_col[i], lwd = 1)
             ## Plot the rejection
-            lines(rbind(projections[i, ], rejections[i,]+projections[i, ]), col = "orange", lwd = 1.5)
-        }        
+            lines(rbind(order_proj[i, ], order_rej[i,] + order_proj[i, ]), col = order_col[i], lty = 3)
+        }
     }
 }
-
 ## Angle between two vectors
 vector.angle <- function(v1, v2, degree = TRUE) {
     angle <- acos(geometry::dot(v1, v2, d = 1) / (sqrt(sum(v1^2))*sqrt(sum(v2^2))))
@@ -157,8 +167,6 @@ projections.debug <- function(matrix, point1 = 0, point2 = colMeans(matrix), mea
 
     return(values)
 }
-
-
 test.fun <- function(seed, n) {
     set.seed(seed)
     if(n == 3) {
@@ -174,16 +182,11 @@ test.fun <- function(seed, n) {
     projections.debug(matrix, point1 = point1, point2 = point2, measure = "position", scaled = TRUE)
 }
 
-library(rgl)
+# library(rgl)
 matrix <- point1 <- point2 <- base_vector <- projections <- rejections <- base_angl <- NULL
 set.seed(2) #1,4
-#for(i in 1:10) {
-i = 10
+# for(i in 1:10) {
+i = 39 #16, 27, 30, 34
     test.fun(seed = i, n = 2) #2, 4, 7
-    Sys.sleep(0.5)
+
 # }
-
-
-
-
-

@@ -78,3 +78,7 @@ The approach is slightly similar but less fancy (no MCMC) and here we focus on i
  * [ ] Test: elaboration/exploration scores from different base vectors
  * [ ] Test: current elaboration/exploration in both groups
  * [ ] Test: elaboration/exploration through time in both groups
+ * [x] Sanity checks: check ellipses + major axes in 2D and 3D in 03.1-results.Rmd
+ * [ ] Sanity checks: check the centering values for the projections in 03.1-results.Rmd
+ * [x] Sanity checks: check the top explorer/elaborators species names (whether they are in the correct clades)
+ * [ ] Write down the methods in Thomas english for the draft
