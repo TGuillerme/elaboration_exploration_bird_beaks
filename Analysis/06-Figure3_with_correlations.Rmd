@@ -501,27 +501,49 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
 
     ## Adding contours
     if(!is.null(contour)) {
-        ## Select the right contour data
-        contour_data <- contour[match(rownames(plot_data), names(contour))]        
-        ## Calculate the contour
-        contour_z <- MASS::kde2d(contour_data/max(contour_data)*max(plot_data$x), contour_data/max(contour_data)*max(plot_data$y), n = 50)
 
-        contour_z <- matrix(0, nrow = length(contour_data), ncol = length(contour_data))
-        diag(contour_z) <-  contour_data
-        # contour_z <- outer(contour_data/max(contour_data)*max(plot_data$x), contour_data/max(contour_data)*max(plot_data$y))
+        ## Get the contour data
+        contour_data <- contour[match(rownames(plot_data), names(contour))]
 
-        ## Adding the contour in the background
-        contour(contour_z, lwd = 1, add = TRUE, col = hcl.colors(12, palette = "viridis"), labels = pretty(contour_data))
+        ## This function is copied/modified from ContourFunctions
+        estimate.contour <- function(x, y, z) {
+            X <- data.frame(x, y, z)
+            ## Set the model for estiamtions
+            lfmod <- locfit::locfit(z ~ x + y, data=X, family=family)
+            ## Predicting function
+            pred.func <- function(xx) {
+              predict(lfmod, data.frame(x=xx[,1], y=xx[,2]))
+            }
+            ## Calculating the contour matrix
+            return(ContourFunctions::eval_over_grid_with_batch(x = seq(min(x), max(x), length.out = 100),
+                                                               y = seq(min(y), max(y), length.out = 100),
+                                                               fn = pred.func,
+                                                               batchmax = 500))
+        }
+
+        ## Plot the estimated contour
+        contour(estimate.contour(x = plot_data$x, y = plot_data$y, z = unname(contour_data)),
+                lwd = 1, add = TRUE,
+                col = hcl.colors(12, palette = "viridis"),
+                labels = pretty(contour_data))
+
+
+        ## TODO: scale and rescale the data (so that it's beyond c(0,1))
+        ## TODO: check bug with Strisores (i = 7)
+
+
+        ## TESTING
+        # ## col test for contour
+        # color.gradient <- function(x, colors=c("red","yellow","green"), colsteps=100) {
+        #     return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+        # }
+        
+        # plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
+        # points(plot_data$x, plot_data$y, pch = 19, cex = 1, col = color.gradient(contour_data))
     }
-
-    # ## col test for contour
-    # color.gradient <- function(x, colors=c("red","yellow","green"), colsteps=100) {
-    #     return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
-    # }
 
     ## Plot the points
     points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col)
-    # points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = color.gradient(contour_data))
 
     if(!is.null(col.sub)) {
         ## See if there is any others
@@ -551,7 +573,7 @@ legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = TRUE)
+    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = centroids, with.quadrant = TRUE)
 }
 
 
