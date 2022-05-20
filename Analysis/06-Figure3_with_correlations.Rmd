@@ -15,6 +15,7 @@ This section contains the code for reproducing the analyses. To get the details,
 library(dispRity)
 ```
 
+
 # All birds shapespace analyses
 
 ```{r, eval = TRUE, echo = FALSE}
@@ -255,19 +256,77 @@ super_group_cor <- get.correlations(results$super_results_within, exclude.phylo 
 Density plot of the correlation of the median elaboration and median exploration for all species.
 
 ```{r, echo = FALSE, eval = FALSE}
-library(ggplot2)
-## Getting the data to plot
-global_data <- super_phylo_cor$phylogeny
+pdf("../Manuscript/Figures/Figure3_b.pdf", height = 4.5, width = 4)
 
-gg.density.plot <- function(data, palette = "viridis") {
-    ggplot(data.frame("elaboration" = data$x, "exploration" = data$y), aes(x=elaboration, y=exploration) ) +
-      geom_hex() +
-      scale_fill_continuous(type = palette) +
-      theme_bw()
+data <- super_phylo_cor$phylogeny
+scale.rgb <- function(x, y, max.x, max.y, alpha = 1) {
+    return(rgb(red = 255-((x/max.x)*255), blue = 255-((y/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
+}
+add.quadrant <- function(data) {
+    max.x = max(range(pretty(data$x)))
+    max.y = max(range(pretty(data$y)))
+
+    ## Bottom left
+    polygon(x = c(0, 0, mean(range(pretty(data$x))), mean(range(pretty(data$x)))),
+            y = c(0, mean(range(pretty(data$y))), mean(range(pretty(data$y))), 0),
+            col = scale.rgb(0, 0, max.x, max.y, alpha = 1/3), border = "white")
+    ## Bottom right
+    polygon(x = c(mean(range(pretty(data$x))), mean(range(pretty(data$x))), max(range(pretty(data$x))), max(range(pretty(data$x)))),
+            y = c(0, mean(range(pretty(data$y))), mean(range(pretty(data$y))), 0),
+            col = scale.rgb(max(range(pretty(data$x))), 0, max.x, max.y, alpha = 1/3), border = "white")
+    ## Top left
+    polygon(x = c(0, 0, mean(range(pretty(data$x))), mean(range(pretty(data$x)))),
+            y = c(mean(range(pretty(data$y))), max(range(pretty(data$y))), max(range(pretty(data$y))), mean(range(pretty(data$y)))),
+            col = scale.rgb(0, max(range(pretty(data$y))), max.x, max.y, alpha = 1/3), border = "white")
+    ## Top right
+    polygon(x = c(mean(range(pretty(data$x))), mean(range(pretty(data$x))), max(range(pretty(data$x))), max(range(pretty(data$x)))),
+            y = c(mean(range(pretty(data$y))), max(range(pretty(data$y))), max(range(pretty(data$y))), mean(range(pretty(data$y)))),
+            col = scale.rgb(max(range(pretty(data$x))), max(range(pretty(data$y))), max.x, max.y, alpha = 1/3), border = "white")
+
+    abline(v = mean(range(pretty(data$x))), lwd = 0.5, lty = 2)
+    abline(h = mean(range(pretty(data$y))), lwd = 0.5, lty = 2)
+}
+quadrant.color <- function(elaboration, innovation, exact.color = FALSE, alpha = 1/3) {
+
+    ## Max values (from the whole dataset)
+    max.x <- 2.5
+    max.y <- 1.4
+
+    if(exact.color) {
+        return(rgb(red = 255-((elaboration/max.x)*255), blue = 255-((innovation/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
+    }
+
+    ## Get the position in the quadrant
+    quadrant <- as.integer(c(elaboration < (max.x/2), innovation < (max.y/2)))
+
+    ## Get the position name
+    if(all(quadrant == c(1, 1))) {
+        return(rgb(red = 255, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
+    } else {
+        if(all(quadrant == c(1, 0))) {
+            return(rgb(red = 0, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
+        } else {
+            if(all(quadrant == c(0, 1))) {
+                return(rgb(red = 255, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
+            } else {
+                if(all(quadrant == c(0, 0))) {
+                    return(rgb(red = 0, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
+                }
+            }
+        }
+    }
 }
 
-pdf("../Manuscript/Figures/Figure3_b.pdf", height = 4, width = 4)
-gg.density.plot(global_data)
+max.x = max(range(pretty(data$x)))
+max.y = max(range(pretty(data$y)))
+
+par(mar = c(5, 4, 4, 2) + 0.1)
+plot(NULL, xlab = "elaboration", ylab = "innovation", xlim = range(pretty(data$x)), ylim = range(pretty(data$y)))
+add.quadrant(data)
+# points(data$x, data$y, pch = 21, col = scale.rgb(data$x, data$y, max.x = max.x, max.y = max.y))
+colour_densities <- densCols(cbind(data$x, data$y), colramp = scales::viridis_pal(alpha = 1, begin = 0, end = 1, direction = 1, option = "D"))
+points(cbind(data$x, data$y), col = colour_densities, pch = 20)
+
 dev.off()
 ```
 
@@ -285,7 +344,6 @@ get.proj.line <- function(point, base) {
   proj_y <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[2];
   return(rbind(cbind(proj_x, proj_y), point))
 }
-
 
 set.seed(42)
 ## Space plot
@@ -386,7 +444,7 @@ layout_matrix <- cbind(matrix(0,2,2), matrix(0,2,2))
 layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4, byrow = TRUE)), matrix(9:16, 2, 4,  byrow = TRUE))
 plot_layout <- layout(layout_matrix)
 # layout.show(plot_layout)
-one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter, contour = NULL) {
+one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter, contour = NULL, with.quadrant = FALSE) {
 
     if(missing(col.sub)) {
         col.sub <- NULL
@@ -436,6 +494,10 @@ one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette
     plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
     axis(1, at = pretty(plot_data$x, n = 4))
     axis(2, at = pretty(plot_data$y, n = 4), las = 2)
+
+    if(with.quadrant) {
+        add.quadrant(plot_data)
+    }
 
     ## Adding contours
     if(!is.null(contour)) {
@@ -489,7 +551,7 @@ legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = centroids)
+    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = TRUE)
 }
 
 
@@ -506,7 +568,7 @@ legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter)
+    one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = TRUE)
 }
 dev.off()
 ```
