@@ -150,3 +150,61 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
     ## Add the y axis
     axis(2, at = seq(from = 0, to = lim_up, by = 5), labels = seq(from = 0, to = lim_up, by = 5), las = 2)
 }
+
+#' @title plot.short.tree
+#'
+#' @description plots the shorten tree (with tip numbers) and outputs the group colour vector (typically for the ellipse figure)
+#' 
+#' @param tree the complete tree
+#' @param shapespace the shapespace data frame (with levels)
+#' @param level which level to plot the short tree for
+#' @param colour.palette the colour palette to draw from
+#' @param tip.order the order of the tips in the tree (can be left missing)
+#'
+plot.short.tree <- function(tree, shapespace, level, colour.palette = gg.color.hue, tip.order) {
+
+    ## Ladderizing the tree
+    tree <- ladderize(tree)
+
+    ## Getting the correct level
+    selected_level <- coloured_levels <- shapespace[, level]
+
+    ## Replace the order levels as colours
+    colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
+    levels(coloured_levels) <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
+
+    ## Shorten the tree
+    selected_tips <- character()
+    for(one_level in 2:length(levels(selected_level))) {
+        selected_tips[one_level-1] <- rownames(shapespace)[which(selected_level == levels(selected_level)[one_level])[1]]
+        names(selected_tips)[one_level-1] <- levels(selected_level)[one_level]
+    }
+
+    ## Shorten the tree
+    tree_short <- drop.tip(tree, tip = tree$tip.label[!(tree$tip.label %in% selected_tips)])
+    tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selected_tips)]
+
+    ## Setting the tips edges colours
+    tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
+    ## Rainbow the tip edges
+    tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
+    ## Adding the number of tips
+    tree_plot <- tree_short
+    n_species <- table(selected_level)
+    for(i in 1:Ntip(tree_plot)) {
+        ## Get the number of species
+        n_sp <- n_species[which(names(n_species) %in% tree_plot$tip.label[i])]
+        tree_plot$tip.label[i] <- paste0(tree_plot$tip.label[i], " (", n_sp, " sp)")
+    }
+
+    ## Plotting the tree
+    par(mar = c(0, 0, 0, 0)+0.1)
+    plot(tree_plot, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
+
+    ## Save and return the tip order
+    if(!missing(tip.order)) {
+        tip_colours <- colour.palette(Ntip(tree_short))
+        names(tip_colours) <- names(sort(tip.order))
+        return(tip_colours)
+    }
+}
