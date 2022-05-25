@@ -1357,8 +1357,91 @@ for(i in 1:length(order_within_cor)) {
 
 
 
+# All birds shapespace analyses
 
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+## Select the data
+shapespace <- shapsepace_passeriformes_suborder_family[[1]]$space
+tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
+## Clean garbage
+rm(shapsepace_passeriformes_suborder_family)
 
+## Load the covar
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+shapespace_passeriformes <- shapespace_passeriformes[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_passeriformes) == "animal")
+suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
+family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
+
+## Creating the subsets
+suborder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+family_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_passeriformes)
+```
+
+## Calculate the elaborations/innovations
+
+```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = FALSE, results = 'hide', message = FALSE, warning = FALSE}
+## Run the analyses between groups
+suborder_results_between <- dispRity.covar.projections(suborder_shapespace,
+                                             type = "groups",
+                                             base = "phylogeny",
+                                             verbose = TRUE,
+                                             output = c("position", "distance"), centre = TRUE, abs = TRUE)
+## Run the analyses between groups
+family_results_between <- dispRity.covar.projections(family_shapespace,
+                                             type = "groups",
+                                             base = "phylogeny",
+                                             verbose = TRUE,
+                                             output = c("position", "distance"), centre = TRUE, abs = TRUE)
+## Run the analyses of groups on the phylogeny
+suborder_results_phylo <- dispRity.covar.projections(suborder_shapespace,
+                                            type = "elements",
+                                            base = "phylogeny",
+                                            inc.base = TRUE,
+                                            verbose = TRUE,
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
+
+## Run the analyses of groups on the phylogeny
+family_results_phylo <- dispRity.covar.projections(family_shapespace,
+                                            type = "elements",
+                                            base = "phylogeny",
+                                            inc.base = TRUE,
+                                            verbose = TRUE,
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
+## Run the analyses groups on themselves
+suborder_results_within <- dispRity.covar.projections(suborder_shapespace,
+                                            type = "elements",
+                                            verbose = TRUE,
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
+## Run the analyses groups on themselves
+family_results_within <- dispRity.covar.projections(family_shapespace,
+                                            type = "elements",
+                                            verbose = TRUE,
+                                            output = c("position", "distance"), centre = TRUE, abs = TRUE)
+shapespace_passeriformes_suborder_family_results_list <- list(
+        "suborder_results_between" = suborder_results_between,
+        "family_results_between"   = family_results_between,
+        "suborder_results_phylo"   = suborder_results_phylo,
+        "family_results_phylo"     = family_results_phylo,
+        "suborder_results_within"  = suborder_results_within,
+        "family_results_within"    = family_results_within)
+save(shapespace_passeriformes_suborder_family_results_list, file = "../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
+```
 
 
 
