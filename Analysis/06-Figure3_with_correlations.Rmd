@@ -13,8 +13,9 @@ This section contains the code for reproducing the analyses. To get the details,
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
+source("../Functions/ploting.utilities.R")
+source("../Functions/correlations.utilities.R")
 ```
-
 
 # All birds shapespace analyses
 
@@ -50,198 +51,14 @@ order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for 
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ## Clean garbage
 rm(shapespace_allbirds_lvl_superorder_order)
-```
 
-```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
-## The ggplot color panel
-gg.color.hue <- function(n) {
-    grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
-}
-
-# colour.palette <- rainbow
-colour.palette <- gg.color.hue
-```
-
-Loading the elaboration exploration results (from 03_results)
-
-```{r, echo = FALSE}
-## Quick load
+## Loading the projection/rejections results
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
-## Figure 3
-
-Density plot of the correlation of the median elaboration and median exploration for all species.
-
-```{r, echo = FALSE}
-## Calculating all the correlations
-get.correlations <- function(res, cent.tend = median, exclude.phylo = FALSE) {
-
-    ## Remove the phylo one (if needed)
-    if(exclude.phylo) {
-        select_pos <- names(size.subsets(res$position))
-        select_dis <- names(size.subsets(res$distance))
-        select_pos <- select_pos[-which(select_pos %in% "phylogeny")]
-        select_dis <- select_dis[-which(select_dis %in% "phylogeny")]
-        res$position <- get.subsets(res$position, subsets = select_pos)
-        res$distance <- get.subsets(res$distance, subsets = select_dis)
-    }
-
-    ## Extracting all the results
-    disparity_pos <- lapply(res$position$disparity, function(X, type) return(X$elements))
-    disparity_dis <- lapply(res$distance$disparity, function(X, type) return(X$elements))
-
-    ## Measure the central tendencies
-    centrals_pos <- lapply(disparity_pos, function(X, fun) apply(X, 1, fun), fun = cent.tend)
-    centrals_dis <- lapply(disparity_dis, function(X, fun) apply(X, 1, fun), fun = cent.tend)
-    
-    ## Number of groups
-    n_groups <- length(centrals_pos)
-
-    ## Prepare the results
-    prep.cor.results <- function(pos, dis, name) {
-        ## Run the correlation test
-        cor_test <- cor.test(pos, dis)
-        ## Prepare the plot title
-        plot_main <- paste0(name, ": ", unname(round(cor_test$estimate, 3)), " (p=", unname(round(cor_test$p.value, 3)), ")")
-        ## Return the plotting parameters
-        return(list(x = pos, y = dis, main = plot_main))
-    }
-
-    return(mapply(prep.cor.results, centrals_pos, centrals_dis, as.list(names(centrals_pos)), SIMPLIFY = FALSE))
-}
-    
-## Plotting one correlation 
-plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, tree, full.tree = FALSE, ...) {
-    dots <- list(...)
-
-    if(missing(col.sub)) {
-        col.sub <- NULL
-    }
-
-    ## Subbing the colours
-    if(!is.null(col.sub)) {
-        ## Reset the levels
-        col_sub <- as.factor(as.character(col.sub))
-        ## Make the empty level grey
-        if(any(levels(col_sub) == "")) {
-            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
-        } else {
-            col_avail <- col.fun(length(levels(col_sub)))
-        }
-        ## Create the colour vector
-        col_vector <- col_avail[as.numeric(col_sub)]
-
-    } else {
-        if(is.null(dots$col)) {
-            col_vector <- "black"
-        } else {
-            col_vector <- dots$col
-        }
-    }
-
-    if(!missing(tree)) {
-        op <- par(mfrow = c(1,2))
-        #c(bottom, left, top, right); c(5, 4, 4, 2) + 0.1
-        par(mar = c(5, 4, 4, 0)+0.1)   
-    }
-
-    ## Plotting the results
-    plot(cor.results$x, cor.results$y, pch = 19, xlab = "elaboration", ylab = "innovation", main = cor.results$main, cex = pt.cex, col = col_vector)
-
-    if(!is.null(col.sub)) {
-        ## Adding the legend
-        legend(x = legend.pos, legend = levels(col_sub), pch = 19, cex = legend.cex, col = col_avail)
-    }
-
-    if(!missing(tree)) {
-        par(mar = c(5, 0, 4, 2) + 0.1)
-
-        ## Recycle the colour vector
-        named_col_vector <- col_vector
-        names(named_col_vector) <- names(cor.results$x)
-
-        ## Reduce the tree
-        if(!full.tree) {
-            tree <- drop.tip(tree, tip = tree$tip.label[which(!(tree$tip.label %in% names(named_col_vector)))])
-        }
-
-        ## Matching edges and colours
-        match.edge.colours <- function(tree, named_col_vector, background = "grey") {
-            ## Get the background colour
-            edge_cols <- rep(background, Nedge(tree))
-            ## Get the clades
-            clades <- unique(named_col_vector)
-            ## Ignore the greys
-            if(any(which_grey <- clades == "grey")) {
-                clades <- clades[!which_grey]
-            }
-            ## Find the edges for each clade
-            for(clade in 1:length(clades)) {
-                ## Get the tips for the clade
-                tips <- which(named_col_vector == clades[clade])
-                ## Get the MRCA node
-                mrca_node <- getMRCA(tree, tips)
-                # stop_edge <- which(tree$edge[, 2] %in% mrca_node)
-
-                ## Handle non-monophyletic groups
-                clade_tree <- extract.clade(tree, node = mrca_node)
-                if(Ntip(clade_tree) > length(tips)) {
-                    clade_tree <- drop.tip(clade_tree, tip = clade_tree$tip.label[!(clade_tree$tip.label %in% names(tips))])
-                }
-                n_edges_target <- Nedge(clade_tree)
-
-                ## Get the tips ID
-                tip_ids <- which(tree$tip.label %in% names(tips))
-                ## Get the vector of edges
-                edges <- integer()
-                ## Get the first nodes (and edges)
-                new_edges <- which(tree$edge[, 2] %in% tip_ids)
-                edges <- unique(c(edges, new_edges))
-                nodes <- tree$edge[new_edges, 1]
-
-                # plot(tree, show.tip.label = FALSE)
-                # test.col <- c(replicate(10, c("red", "blue", "orange", "green", "pink", "yellow")))
-                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
-
-                ## Recursively loop through each node up until the last edge
-                # while(!(stop_edge %in% edges)) {
-                while(length(edges) <= n_edges_target) {
-                    ## Get the node edges
-                    new_edges <- which(tree$edge[, 2] %in% nodes)
-
-                    # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
-
-                    edges <- unique(c(edges, new_edges))
-                    ## Update the nodes
-                    nodes <- tree$edge[new_edges, 1]
-                }
-
-                # ## Do the last recursion
-                # new_edges <- which(tree$edge[, 2] %in% nodes)
-                # edges <- unique(c(edges, new_edges))
-
-                # edgelabels(".", cex = 0.5, new_edges, bg = test.col[1]) ; test.col <- test.col[-1]
-
-                ## Colour these edges
-                edge_cols[edges] <- clades[clade]
-            }
-            return(edge_cols)
-        }
-        ## Match the colour to the correct edge
-        edge_cols <- match.edge.colours(tree, named_col_vector)
-
-        ## Add the tree
-        plot(tree, show.tip.label = FALSE, edge.color = edge_cols)
-    }
-
-    return(invisible())
-}
-```
-
-Correlations per super order (species on phylogeny):
+Extract the median correlations from the results (for the groups ion the phylogeny and the groups on themselves)
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Calculate the correlations for the projections onto the phylo axis
@@ -251,86 +68,23 @@ super_phylo_cor <- get.correlations(results$super_results_phylo)
 super_group_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
 ```
 
-### Figure 3a - gg_version
+### Figure b): the overall density plot
 
 Density plot of the correlation of the median elaboration and median exploration for all species.
 
 ```{r, echo = FALSE, eval = FALSE}
 pdf("../Manuscript/Figures/Figure3_b.pdf", height = 4.5, width = 4)
 
-data <- super_phylo_cor$phylogeny
-scale.rgb <- function(x, y, max.x, max.y, alpha = 1) {
-    return(rgb(red = 255-((x/max.x)*255), blue = 255-((y/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
-}
-add.quadrant <- function(data) {
-    max.x = max(range(pretty(data$x)))
-    max.y = max(range(pretty(data$y)))
-
-    ## Bottom left
-    polygon(x = c(0, 0, mean(range(pretty(data$x))), mean(range(pretty(data$x)))),
-            y = c(0, mean(range(pretty(data$y))), mean(range(pretty(data$y))), 0),
-            col = scale.rgb(0, 0, max.x, max.y, alpha = 1/3), border = "white")
-    ## Bottom right
-    polygon(x = c(mean(range(pretty(data$x))), mean(range(pretty(data$x))), max(range(pretty(data$x))), max(range(pretty(data$x)))),
-            y = c(0, mean(range(pretty(data$y))), mean(range(pretty(data$y))), 0),
-            col = scale.rgb(max(range(pretty(data$x))), 0, max.x, max.y, alpha = 1/3), border = "white")
-    ## Top left
-    polygon(x = c(0, 0, mean(range(pretty(data$x))), mean(range(pretty(data$x)))),
-            y = c(mean(range(pretty(data$y))), max(range(pretty(data$y))), max(range(pretty(data$y))), mean(range(pretty(data$y)))),
-            col = scale.rgb(0, max(range(pretty(data$y))), max.x, max.y, alpha = 1/3), border = "white")
-    ## Top right
-    polygon(x = c(mean(range(pretty(data$x))), mean(range(pretty(data$x))), max(range(pretty(data$x))), max(range(pretty(data$x)))),
-            y = c(mean(range(pretty(data$y))), max(range(pretty(data$y))), max(range(pretty(data$y))), mean(range(pretty(data$y)))),
-            col = scale.rgb(max(range(pretty(data$x))), max(range(pretty(data$y))), max.x, max.y, alpha = 1/3), border = "white")
-
-    abline(v = mean(range(pretty(data$x))), lwd = 0.5, lty = 2)
-    abline(h = mean(range(pretty(data$y))), lwd = 0.5, lty = 2)
-}
-quadrant.color <- function(elaboration, innovation, exact.color = FALSE, alpha = 1/3) {
-
-    ## Max values (from the whole dataset)
-    max.x <- 2.5
-    max.y <- 1.4
-
-    if(exact.color) {
-        return(rgb(red = 255-((elaboration/max.x)*255), blue = 255-((innovation/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
-    }
-
-    ## Get the position in the quadrant
-    quadrant <- as.integer(c(elaboration < (max.x/2), innovation < (max.y/2)))
-
-    ## Get the position name
-    if(all(quadrant == c(1, 1))) {
-        return(rgb(red = 255, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
-    } else {
-        if(all(quadrant == c(1, 0))) {
-            return(rgb(red = 0, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
-        } else {
-            if(all(quadrant == c(0, 1))) {
-                return(rgb(red = 255, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
-            } else {
-                if(all(quadrant == c(0, 0))) {
-                    return(rgb(red = 0, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
-                }
-            }
-        }
-    }
-}
-
-max.x = max(range(pretty(data$x)))
-max.y = max(range(pretty(data$y)))
-
+## Plotting the densities with the quadrant
 par(mar = c(5, 4, 4, 2) + 0.1)
-plot(NULL, xlab = "elaboration", ylab = "innovation", xlim = range(pretty(data$x)), ylim = range(pretty(data$y)))
-add.quadrant(data)
-# points(data$x, data$y, pch = 21, col = scale.rgb(data$x, data$y, max.x = max.x, max.y = max.y))
-colour_densities <- densCols(cbind(data$x, data$y), colramp = scales::viridis_pal(alpha = 1, begin = 0, end = 1, direction = 1, option = "D"))
-points(cbind(data$x, data$y), col = colour_densities, pch = 20)
+plot.densities(super_phylo_cor$phylogeny, with.quadrant = TRUE)
 
 dev.off()
 ```
 
-Can't seem to integrate the density plot to the base R layout so I'll just do it in Inkscape for now
+### Figure a): explanations
+
+This might have to be removed.
 
 ```{r, echo = FALSE, eval = FALSE}
 pdf("../Manuscript/Figures/Figure3_a.pdf", height = 6, width = 3)
@@ -428,152 +182,36 @@ for(i in 1:nrow(matrix_cent)) {
 dev.off()
 ```
 
-
-
-
-## Figure 3b
+## Figure c) and d): the correlation plots for each group
 
 ```{r, echo = FALSE, eval = FALSE}
-## Loading the distances from centre for each species
+## Loading the distances from centre for each species (if adding outlines)
 load("../Data/Processed/ploting_data.rda")
 centroids <- ploting_data$distances_to_centre[[1]]
 
+## Setting the colour pallette
+colour.palette <- gg.color.hue
+
 pdf("../Manuscript/Figures/Figure3_cd.pdf", height = 12, width = 8)
-## Great the plot layout
+
+## Make the plot layout
 layout_matrix <- cbind(matrix(0,2,2), matrix(0,2,2))
 layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8, 2, 4, byrow = TRUE)), matrix(9:16, 2, 4,  byrow = TRUE))
 plot_layout <- layout(layout_matrix)
 # layout.show(plot_layout)
-one.plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter, contour = NULL, with.quadrant = FALSE) {
 
-    if(missing(col.sub)) {
-        col.sub <- NULL
-    }
-
-    ## Subbing the colours
-    if(!is.null(col.sub)) {
-        ## Reset the levels
-        col_sub <- as.factor(as.character(col.sub))
-        ## Make the empty level grey
-        if(any(levels(col_sub) == "")) {
-            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
-        } else {
-            col_avail <- col.fun(length(levels(col_sub)))
-        }
-        ## Create the colour vector
-        col_vector <- col_avail[as.numeric(col_sub)]
-    } else {
-        if(is.null(dots$col)) {
-            col_vector <- "black"
-        } else {
-            col_vector <- dots$col
-        }
-    }
-
-    ## Sort the data by group size
-    all_data <- cbind(x = cor.results$x, y = cor.results$y)
-    ## Classify the groups per numbers of species
-    all_data <- data.frame(all_data, col = col_vector)
-
-    ## Sort the data per group size
-    group_order <- sort(table(all_data$col), decreasing = TRUE)
-
-    ## Set the plotting data
-    plot_data <- data.frame()
-    # col_adjust <- seq(from = 1/length(group_order), to = 1, by = 0.1)*3
-    for(i in 1:length(group_order)) {
-        ## Get the data from the biggest group
-        selected_data <- all_data[which(all_data$col == names(group_order[i])), ]
-        ## Transparantise the colours (for the background)
-        # selected_data$col <- adjustcolor(selected_data$col, alpha = col_adjust[i])
-        ## Combine the plotting data
-        plot_data <- rbind(plot_data, selected_data)
-    }
-
-    ## Empty plot
-    plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
-    axis(1, at = pretty(plot_data$x, n = 4))
-    axis(2, at = pretty(plot_data$y, n = 4), las = 2)
-
-    if(with.quadrant) {
-        add.quadrant(plot_data)
-    }
-
-    ## Adding contours
-    if(!is.null(contour)) {
-
-        ## Get the contour data
-        contour_data <- contour[match(rownames(plot_data), names(contour))]
-
-        ## This function is copied/modified from ContourFunctions
-        estimate.contour <- function(x, y, z) {
-            X <- data.frame(x, y, z)
-            ## Set the model for estiamtions
-            lfmod <- locfit::locfit(z ~ x + y, data=X, family=family)
-            ## Predicting function
-            pred.func <- function(xx) {
-              predict(lfmod, data.frame(x=xx[,1], y=xx[,2]))
-            }
-            ## Calculating the contour matrix
-            return(ContourFunctions::eval_over_grid_with_batch(x = seq(min(x), max(x), length.out = 100),
-                                                               y = seq(min(y), max(y), length.out = 100),
-                                                               fn = pred.func,
-                                                               batchmax = 500))
-        }
-
-        ## Plot the estimated contour
-        contour(estimate.contour(x = plot_data$x, y = plot_data$y, z = unname(contour_data)),
-                lwd = 1, add = TRUE,
-                col = hcl.colors(12, palette = "viridis"),
-                labels = pretty(contour_data))
-
-
-        ## TODO: scale and rescale the data (so that it's beyond c(0,1))
-        ## TODO: check bug with Strisores (i = 7)
-
-
-        ## TESTING
-        # ## col test for contour
-        # color.gradient <- function(x, colors=c("red","yellow","green"), colsteps=100) {
-        #     return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
-        # }
-        
-        # plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
-        # points(plot_data$x, plot_data$y, pch = 19, cex = 1, col = color.gradient(contour_data))
-    }
-
-    ## Plot the points
-    points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col)
-
-    if(!is.null(col.sub)) {
-        ## See if there is any others
-        levels <- levels(col_sub)
-        if(length(other <- which(levels == "")) > 0) {
-            legend_text <- c(1, 1:(length(levels(col_sub))-1)+legend_counter)
-        } else {
-            legend_text <- c(1:(length(levels(col_sub)))+legend_counter)
-        }
-        ## Update the legend counter
-        legend_counter <<- max(legend_text)
-        ## Adding the legend
-        legend(x = legend.pos, legend = legend_text, pch = 19, cex = legend.cex, col = col_avail, bg = "white")
-    }
-
-    return(invisible())
-}
-
-# par(mfrow = c(2, 4))
 ## Getting the subsets for the colouring
 col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
 ## Set the vector of legend positions
 legends_pos <- c("topleft", "topright", "topright", "topright",
                  "topleft", "topright", "topleft", "topright")
+## Creat the vector for counting the legend numbers
 legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = centroids, with.quadrant = TRUE)
+    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = FALSE)
 }
 
 
@@ -590,8 +228,69 @@ legend_counter <- 1
 
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    one.plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = TRUE)
+    plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = FALSE, contour = NULL)
 }
+dev.off()
+```
+
+
+# Correlations for passeriformes
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+## Select the data
+shapespace <- shapsepace_passeriformes_suborder_family[[1]]$space
+tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
+## Clean garbage
+rm(shapsepace_passeriformes_suborder_family)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+shapespace_passeriformes <- shapespace_passeriformes[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_passeriformes) == "animal")
+subor_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
+famil_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
+
+## Creating the subsets
+suborder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(subor_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+family_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(famil_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_passeriformes)
+
+## Loading the results
+load(file = "../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
+results <- shapespace_passeriformes_suborder_family_results_list
+rm(shapespace_passeriformes_suborder_family_results_list)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+## Calculate the correlations for the projections onto the phylo axis
+suborder_phylo_cor <- get.correlations(results$suborder_results_phylo)
+
+## Calculate the correlations for the projections onto the group' axes
+suborder_group_cor <- get.correlations(results$suborder_results_within, exclude.phylo = TRUE)
+```
+
+
+```{r, echo = FALSE, eval = FALSE}
+pdf("../Manuscript/Figures/Figure3_b.pdf", height = 4.5, width = 4)
+
+## Plotting the densities with the quadrant
+par(mar = c(5, 4, 4, 2) + 0.1)
+plot.densities(suborder_phylo_cor$phylogeny, with.quadrant = TRUE)
+
 dev.off()
 ```
 
@@ -600,121 +299,43 @@ dev.off()
 
 
 
+## Figure 3b
 
-
-
-
-
-
-
-
-
-
-
-### Correlations within super orders (species on group)
-
-Regardless, here are the results when projecting the species on their own group's VCV
-
-
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12, eval = TRUE}
-## Getting the subsets for the colouring
-col_subs <- split(shapespace$level2, f = shapespace$level1)[-1]
-
-## Calculate the correlations
-super_within_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
-## Set the vector of legend positions
-legends_pos <- c("topleft", "topright", "topright", "topright", "topleft", "topright", "topleft", "topright", "topright")
-for(i in 1:length(super_within_cor)) {
-    plot.correlations(super_within_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], tree = tree)
-}
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- THIS BIT IS IGNORED FOR NOW -->
-
-
-
-
-
-### Correlations per order (species on phylogeny)
-
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
-## Loading the sub-order levels
-load(file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
-## Select the data
-shapespaces <- lapply(shapespace_superorder_lvl_order_suborder, function(X) X$space)
-## Create a level 3
-order_space <- do.call(rbind, shapespaces)
-
-## Calculate the correlations
-order_phylo_cor <- get.correlations(results$order_results_phylo, exclude.phylo = TRUE)
+```{r, echo = FALSE, eval = FALSE}
+pdf("../Manuscript/Figures/Figure3_cd_passeriformes_1.pdf", height = 8, width = 8)
+par(mfrow = c(2,2))
 
 ## Getting the subsets for the colouring
-split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
-col_subs <- replicate(length(order_phylo_cor), NULL)
-col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
 ## Set the vector of legend positions
-for(i in 1:length(order_phylo_cor)) {
-    plot.correlations(order_phylo_cor[[i]], col.sub = col_subs[[i]])
+legends_pos <- c("topleft", "topright", "topright", "topright",
+                 "topleft", "topright", "topleft", "topright")
+legend_counter <- 1
+
+for(i in 1:2) {
+    par(mar = c(2,2.5,2,1.5))
+    plot.correlations(suborder_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = FALSE)
 }
-```
-
-### Correlations within orders (species on group)
 
 
-```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 6, eval = FALSE}
-## Calculate the correlations
-order_within_cor <- get.correlations(results$order_results_within, exclude.phylo = TRUE)
+## Fig 3c
 
+# par(mfrow = c(2, 4))
 ## Getting the subsets for the colouring
-split_tmp <- split(order_space$level2, f = order_space$level1)[-1] ## "Charadriiformes" "Galliformes" not included?
-col_subs <- replicate(length(order_within_cor), NULL)
-col_subs[-c(6,12)] <- split_tmp[match(sort(names(split_tmp)), names(split_tmp))]
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
 
 ## Set the vector of legend positions
-for(i in 1:length(order_within_cor)) {
-    plot.correlations(order_within_cor[[i]], col.sub = col_subs[[i]])
+legends_pos <- c("bottomright", "topright", "topleft", "topleft",
+                 "topleft", "topleft", "topright", "bottomright")
+legend_counter <- 1
+
+for(i in 1:2) {
+    par(mar = c(2,2.5,2,1.5))
+    plot.correlations(suborder_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = TRUE, contour = NULL)
 }
+dev.off()
 ```
-
-
-
-
-
-
-
-
-
-
 
 
 
