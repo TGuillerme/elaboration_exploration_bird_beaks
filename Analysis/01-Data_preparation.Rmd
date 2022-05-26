@@ -237,7 +237,6 @@ clades_list_passeriformes <- clades_list[which(clades_list$level2_order == "Pass
 clades_list_passeriformes[,1] <- as.factor(as.character(clades_list_passeriformes[,1]))
 clades_list_passeriformes[,2] <- as.factor(as.character(clades_list_passeriformes[,2]))
 
-
 ## Shapespace passeriformes
 shapespace_passeriformes <- shapespace[rownames(shapespace) %in% rownames(clades_list_passeriformes), ]
 
