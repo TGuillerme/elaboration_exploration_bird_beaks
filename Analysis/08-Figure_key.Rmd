@@ -1,0 +1,152 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+source("../Functions/ploting.utilities.R")
+source("../Functions/covar.utilities.R")
+
+```
+
+# All birds shapespace analyses
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+```
+
+# Extract only the Mirandornithes
+
+```{r, eval = TRUE, echo = FALSE}
+## Selecting the paleo data
+space_paleo <- get.subsets(superorder_shapespace, subsets = c("phylogeny", "Paleognathae"))
+
+## PANEL 1
+
+## General plot
+pdf("../Manuscript/Figures/figure_key_space_plot.pdf")
+plot(shapespace[, c(1,2)], col = "lightgrey", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.5))
+points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+covar.plot(space_paleo,
+      col = c("grey", gg.color.hue(1)),
+      ellipses = mean,
+      major.axes = mean,
+      legend = FALSE,
+      points = FALSE,
+      cex = 0.5, apply.to.VCV = TRUE,
+      lwd = 4,
+      add = TRUE,
+      scale = 2)
+dev.off()
+
+## Plotting the projection cartoon
+
+## Do the projection
+matrix <- as.matrix(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)])
+rownames(matrix) <- NULL
+## Get the base vectors
+covars <- sample.n(space_paleo$covar, 1000)
+centres <- lapply(unlist(space_paleo$subsets, recursive = FALSE) ,function(group, data, fun) fun(data[c(group), ]), data = space_paleo$matrix[[1]], fun = colMeans)
+covars <- mapply(recentre, covars, centres, MoreArgs = list(dimensions = c(1,2)), SIMPLIFY = FALSE)
+covars <- lapply(covars, function(one_covar, scale) mapply(scale.VCV, one_covar, scale, SIMPLIFY = FALSE), scale = covars[[2]])
+covars_cent_tend <- lapply(covars, VCV.cent.tend, mean)
+base_vectors <- lapply(lapply(covars_cent_tend, get.one.axis, axis = 1, level = 0.95, dimensions = c(1,2)), list)
+
+## Get projection lines
+get.proj.line <- function(point, base) {
+  point <- t(point)
+  base <- t(base)
+  proj_x <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[1];
+  proj_y <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[2];
+  return(rbind(cbind(proj_x, proj_y), point))
+}
+
+## Projection onto the phylo line
+pdf("../Manuscript/Figures/figure_key_projection_on_phylo.pdf")
+plot(NULL, xlab = "PC1", ylab = "PC2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.5))
+# lines(base_vector)
+for(i in 1:nrow(matrix)) {
+      lines(get.proj.line(matrix[i, ], base_vectors$phylogeny[[1]]))
+}
+points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+covar.plot(space_paleo,
+      col = c("grey", gg.color.hue(1)),
+      ellipses = mean,
+      major.axes = mean,
+      legend = FALSE,
+      points = FALSE,
+      cex = 0.5, apply.to.VCV = TRUE,
+      lwd = 4,
+      add = TRUE,
+      scale = 2)
+dev.off()
+
+## Projection onto the group line
+pdf("../Manuscript/Figures/figure_key_projection_on_group.pdf")
+plot(NULL, xlab = "PC1", ylab = "PC2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.5))
+points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+
+base <- base_vectors$Paleognathae[[1]]
+base <- matrix(c(base)[c(1, 1, 4, 4)], 2, 2, byrow = FALSE) # or c(1, 4, 3, 2)
+for(i in 1:nrow(matrix)) {
+      lines(get.proj.line(matrix[i, ], test))
+}
+
+points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+covar.plot(space_paleo,
+      col = c("grey", gg.color.hue(1)),
+      ellipses = mean,
+      major.axes = mean,
+      legend = FALSE,
+      points = FALSE,
+      cex = 0.5, apply.to.VCV = TRUE,
+      lwd = 4,
+      add = TRUE,
+      scale = 2)
+dev.off()
+
+
+## Phylo plot
+tree_paleo <- drop.tip(tree, tip = rownames(shapespace)[which(shapespace$level1 != "Paleognathae")])
+plot(ladderize(tree_paleo), show.tip.label = FALSE)
+
+## Loading the distances from centre for each species (if adding outlines)
+load("../Data/Processed/ploting_data.rda")
+centroids <- ploting_data$distances_to_centre[[1]]
+
+
+```
