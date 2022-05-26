@@ -208,3 +208,34 @@ plot.short.tree <- function(tree, shapespace, level, colour.palette = gg.color.h
         return(tip_colours)
     }
 }
+
+#' @name wrap.plot.ellipses
+#'    
+#' @description plots the ellipses, dimensionality and projection/rejection thermos
+#'
+#' @param i the index of the element to plot (usually along tip_order)
+#' @param tip.colours the named vector with colours and group names
+#' @param shapespace the shapespace as a dispRity object
+#' @param results the list of dispRity objects containing the results (typically output from dispRity.covar.projections)
+#
+## Plotting the ellipses, the dimensions and the projection/rejection
+wrap.plot.ellipses <- function(i, tip.colours, shapespace, results) {
+    ## Select the colour and name
+    name.col <- tip.colours[i]
+
+    ## Plot the ellipse
+    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
+    plot.one.ellipse(shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
+
+    ## Calculate which dimension contains the most variance
+    add.dims(shapespace, name.col)
+    n <- 1000
+    covars_cent_tend <- lapply(sample.n(get.subsets(shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
+    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
+    text_main <- paste0(names(name.col))
+    text(0,0.3, text_main, cex = 1.2, col = name.col)
+
+    ## Plot the elaboration/exploration
+    par(mar = c(2, 1, 1, 1)+0.1)
+    plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE)
+}
