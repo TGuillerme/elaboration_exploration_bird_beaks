@@ -79,3 +79,28 @@ get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
     ## Get the edges coordinates
     return(edges[c(axis, axis+dims), , drop = FALSE])
 }
+
+## Scale a VCV matrix to another one
+scale.VCV <- function(VCV1, VCV2) {
+    ## Dividing both VCVs
+    
+    ## Getting the off diagonal (the scaling ratio)
+    # VCV <- VCV1$VCV/VCV2$VCV
+    # ratio <- abs(VCV[(nrow(VCV))^2-(1:nrow(VCV))*(nrow(VCV)-1)])
+
+    ## Getting the scaling ratio based on the major axis length
+    ratio <- dist(get.one.axis(VCV1))[1]/dist(get.one.axis(VCV2))[1]
+
+    ## Scaling VCV1
+    VCV1$VCV <- VCV1$VCV/ratio^2
+    return(VCV1)
+}
+
+## Internal: recentring the covar matrices (changing their loc)
+recentre <- function(one_group, one_centre, dimensions) {
+    recentre.loc <- function(covar, centre, dim) {
+        covar$loc[dim] <- centre[dim]
+        return(covar)
+    }
+    return(lapply(one_group, recentre.loc, centre = one_centre, dim = dimensions))
+}
