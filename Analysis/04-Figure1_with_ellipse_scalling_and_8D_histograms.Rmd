@@ -58,9 +58,11 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
-```{r}
+```{r, eval = TRUE, echo = FALSE}
 box_size <- 1.5
 pdf(file = "../Manuscript/Figures/Figure1.pdf", height = box_size*8, width = box_size*10)
+
+## SETTING THE WINDOW PARAMETERS
 
 ## Global window parameters
 lay_mat_order <- rbind(
@@ -80,6 +82,7 @@ widths_vals <- rep(c(1, 1/3), 5)
 layout_matrix <- layout(rbind(lay_mat_super, (lay_mat_order+17)), widths = widths_vals, heights = heights_vals, respect = TRUE)
 
 ## PLOTTING THE SUPERORDERS
+
 ## Getting the tip order for the ladderised super order tree
 tip_order <- c(
     "Paleognathae" = 1,
@@ -97,28 +100,12 @@ save(tip_colours_super_orders, file = "../Data/Processed/tip_colours_super_order
 
 ## Plotting the ellipses
 for(i in 1:length(tip_order)) {
-    ## Select the colour and name
-    name.col <- tip_colours[i]
-
-    ## Plot the ellipse
-    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(superorder_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
-
-    ## Calculate which dimension contains the most variance
-    add.dims(superorder_shapespace, name.col)
-    n <- 1000
-    covars_cent_tend <- lapply(sample.n(get.subsets(superorder_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
-    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-    text_main <- paste0(names(name.col))
-    text(0,0.3, text_main, cex = 1.2, col = name.col)
-
-    ## Plot the elaboration/exploration
-    par(mar = c(2, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results$super_results_between, name.col, x = TRUE, y = FALSE)
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_super_orders, superorder_shapespace, results$super_results_between)
 }
 
-
 ## PLOTTING THE ORDERS
+
 ## Matching the order and the colours to the ladderised tree
 tip_order <- c(
     "Tinamiformes"= 1,
@@ -153,26 +140,10 @@ tip_order <- c(
 tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
 save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
 
-
+## Plotting the ellipses
 for(i in 1:length(tip_order)) {
-    ## Select the colour and name
-    name.col <- tip_colours[i]
-
-    ## Plot the ellipse
-    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(order_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
-
-    ## Calculate which dimension contains the most variance
-    add.dims(order_shapespace, name.col)
-    n <- 1000
-    covars_cent_tend <- lapply(sample.n(get.subsets(order_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
-    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-    text_main <- paste0(names(name.col))
-    text(0,0.3, text_main, cex = 1.2, col = name.col)
-
-    ## Plot the elaboration/exploration
-    par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results$order_results_between, name.col, x = TRUE, y = FALSE)
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_orders, order_shapespace, results$order_results_between)
 }
 dev.off()
 
@@ -180,16 +151,7 @@ dev.off()
 
 
 
-
-
-
-
-
-
-
-
-
-# Passeriformes bit
+# Passeriformes shapespace analyses
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
@@ -223,12 +185,8 @@ family_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ## Clean garbage
 rm(shapespace_passeriformes)
-```
 
-First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
-
-```{r, echo = FALSE}
-## Quick load
+## Loading the results
 load(file = "../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
 results <- shapespace_passeriformes_suborder_family_results_list
 rm(shapespace_passeriformes_suborder_family_results_list)
@@ -237,10 +195,6 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 ## Phylogeny window (detailed)
 
 ```{r}
-
-source("../Functions/covar.utilities.R")
-source("../Functions/ploting.utilities.R")
-
 box_size <- 1.5
 pdf(file = "../Manuscript/Figures/Figure1_passeriformes.pdf", height = box_size*7, width = box_size*10)
 
@@ -256,143 +210,28 @@ lay_mat_family <- rbind(
 lay_mat_sub <- rbind(
         matrix(c(1,1, 2:5, rep(0, 4)), ncol = 10, nrow = 1) # line 7
     )
-
 heights_vals <- rep(1, 8)
 widths_vals <- rep(c(1, 1/3), 5)
 layout_matrix <- layout(rbind(lay_mat_sub, (lay_mat_family+5)), widths = widths_vals, heights = heights_vals, respect = TRUE)
 
-# layout.show(layout_matrix)
-
-
-## TODO: FUNCTIONALISE THE TREE PLOTTING: START
-
-
 ## PLOTTING THE SUBORDERS
-tree <- ladderize(tree)
-## Get the tip_values
-families_lvl <- shapespace$level2
-suborders_lvl <- shapespace$level1
 
-## Select the level
-selected_level <- coloured_levels <- suborders_lvl
-
-## Replace the order levels as colours
-colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
-levels(coloured_levels) <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
-
-## Shorten the tree
-selected_tips <- character()
-for(one_level in 2:length(levels(selected_level))) {
-    selected_tips[one_level-1] <- rownames(shapespace)[which(selected_level == levels(selected_level)[one_level])[1]]
-    names(selected_tips)[one_level-1] <- levels(selected_level)[one_level]
-}
-
-## Shorten the tree
-tree_short <- drop.tip(tree, tip = tree$tip.label[!(tree$tip.label %in% selected_tips)])
-tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selected_tips)]
-
-## Setting the tips edges colours
-tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
-## Rainbow the tip edges
-tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
-## Adding the number of tips
-tree_plot <- tree_short
-n_species <- table(selected_level)
-for(i in 1:Ntip(tree_plot)) {
-    ## Get the number of species
-    n_sp <- n_species[which(names(n_species) %in% tree_plot$tip.label[i])]
-    tree_plot$tip.label[i] <- paste0(tree_plot$tip.label[i], " (", n_sp, " sp)")
-}
-
-## Plotting the tree
-par(mar = c(0, 0, 0, 0)+0.1)
-plot(tree_plot, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
-
-
-## TODO: FUNCTIONALISE THE TREE PLOTTING: END
-
-
-## Matching the order and the colours to the ladderised tree
+## Getting the tip order for the ladderised super order tree
 tip_order <- c(
     "Tyranni" = 1,
     "Passeri" = 2)
 
-tip_colours <- colour.palette(Ntip(tree_short))
-names(tip_colours) <- names(sort(tip_order))
-tip_colours_suborders <- tip_colours
+## Plotting the tree and getting the tip orders
+tip_colours_suborders <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
 save(tip_colours_suborders, file = "../Data/Processed/tip_colours_suborders.rda")
 
-## Plotting the ellipses for each suborder
+## Plotting the ellipses
 for(i in 1:length(tip_order)) {
-
-    ## TODO: FUNCTIONALISE THE ELLIPSE PLOTTING: START
-
-
-    ## Select the colour and name
-    name.col <- tip_colours[i]
-
-    ## Plot the ellipse
-    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(suborder_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
-
-    ## Calculate which dimension contains the most variance
-    add.dims(suborder_shapespace, name.col)
-    n <- 1000
-    covars_cent_tend <- lapply(sample.n(get.subsets(suborder_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
-    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-    text_main <- paste0(names(name.col))
-    text(0,0.3, text_main, cex = 1.2, col = name.col)
-
-    ## Plot the elaboration/exploration
-    par(mar = c(2, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results$suborder_results_between, name.col, x = TRUE, y = FALSE)
-
-        ## TODO: FUNCTIONALISE THE ELLIPSE PLOTTING: END
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_suborders, suborder_shapespace, results$suborder_results_between)
 }
-
-
-
-
-
 
 ## PLOTTING THE FAMILIES
-tree <- ladderize(tree)
-## Select the level
-selected_level <- coloured_levels <- families_lvl
-
-## Replace the order levels as colours
-colour_palette <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
-levels(coloured_levels) <- c("grey", colour.palette(length(levels(coloured_levels)[-1])))
-
-## Shorten the tree
-selected_tips <- character()
-for(one_level in 2:length(levels(selected_level))) {
-    selected_tips[one_level-1] <- rownames(shapespace)[which(selected_level == levels(selected_level)[one_level])[1]]
-    names(selected_tips)[one_level-1] <- levels(selected_level)[one_level]
-}
-
-## Shorten the tree
-tree_short <- drop.tip(tree, tip = tree$tip.label[!(tree$tip.label %in% selected_tips)])
-tree_short$tip.label <- names(selected_tips)[match(tree_short$tip.label, selected_tips)]
-
-## Setting the tips edges colours
-tip_edges <- match.tip.edge(tree_short$tip.label, tree_short, replace.na = "grey")
-## Rainbow the tip edges
-tip_edges[!(tip_edges %in% "grey")] <- rev(colour.palette(Ntip(tree_short)))
-
-## Adding the number of tips
-tree_plot <- tree_short
-n_species <- table(selected_level)
-for(i in 1:Ntip(tree_plot)) {
-    ## Get the number of species
-    n_sp <- n_species[which(names(n_species) %in% tree_plot$tip.label[i])]
-    tree_plot$tip.label[i] <- paste0(tree_plot$tip.label[i], " (", n_sp, " sp)")
-}
-
-## Plotting the tree
-par(mar = c(0, 0, 0, 0)+0.1)
-plot(tree_plot, show.tip.label = TRUE, edge.color = tip_edges, edge.width = 3, cex = 1)
-
 
 ## Matching the order and the colours to the ladderised tree
 tip_order <- c(
@@ -424,30 +263,14 @@ tip_order <- c(
     "Troglodytidae" = 27,
     "Sittidae" = 26)
 
-tip_colours <- colour.palette(Ntip(tree_short))
-names(tip_colours) <- names(sort(tip_order))
-tip_colours_families <- tip_colours
+## Plotting the tree and getting the tip orders
+tip_colours_families <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
 save(tip_colours_families, file = "../Data/Processed/tip_colours_families.rda")
 
+## Plotting the ellipses
 for(i in 1:length(tip_order)) {
-    ## Select the colour and name
-    name.col <- tip_colours[i]
-
-    ## Plot the ellipse
-    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(family_shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
-
-    ## Calculate which dimension contains the most variance
-    add.dims(family_shapespace, name.col)
-    n <- 1000
-    covars_cent_tend <- lapply(sample.n(get.subsets(family_shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
-    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-    text_main <- paste0(names(name.col))
-    text(0,0.3, text_main, cex = 1.2, col = name.col)
-
-    ## Plot the elaboration/exploration
-    par(bty = "n", mar = c(2, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results$family_results_between, name.col, x = TRUE, y = FALSE)
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_families, family_shapespace, results$family_results_between)
 }
 dev.off()
 
