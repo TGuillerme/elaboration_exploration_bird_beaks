@@ -141,12 +141,26 @@ dev.off()
 
 
 ## Phylo plot
+## Get the tree
 tree_paleo <- drop.tip(tree, tip = rownames(shapespace)[which(shapespace$level1 != "Paleognathae")])
-plot(ladderize(tree_paleo), show.tip.label = FALSE)
+## Ladderize
+tree_paleo <- ladderize(tree_paleo)
 
-## Loading the distances from centre for each species (if adding outlines)
+## Get the data (in the right order)
 load("../Data/Processed/ploting_data.rda")
-centroids <- ploting_data$distances_to_centre[[1]]
+elaborations <- ploting_data$median_elaborations[tree_paleo$tip.label]
+innovations <- ploting_data$median_innovations[tree_paleo$tip.label]
 
+## Transform them into a colour gradient
+col.grad <- colorRamp(c("blue","orange"))
+cols_elab <- col.grad(elaborations/max(elaborations))
+cols_innov <- col.grad(innovations/max(innovations))
+
+## Plot the tree
+pdf("../Manuscript/Figures/figure_key_tree_example.pdf")
+plot(tree_paleo, show.tip.label = FALSE, type = "fan")
+tiplabels("", frame = "none", pch = 19, cex = 2, col = rgb(cols_elab, maxColorValue = 256), offset = -1)
+tiplabels("", frame = "none", pch = 19, cex = 2, col = rgb(cols_innov, maxColorValue = 256), offset = 4)
+dev.off()
 
 ```
