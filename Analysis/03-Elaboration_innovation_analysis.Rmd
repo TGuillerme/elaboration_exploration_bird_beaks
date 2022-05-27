@@ -260,11 +260,29 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ## Getting the plotting data
 ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
                      "median_innovations"  = apply(get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "distances_to_centre" =  get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "consensus_tree"      = tree) 
+
+## Getting the plotting data super_order_level
+ploting_data_superorder <- list(
+                     "median_elaborations" = apply(get.disparity(get.subsets(results$super_results_within$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "median_innovations"  = apply(get.disparity(get.subsets(results$super_results_within$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "consensus_tree"      = tree) 
+
+## Getting the plotting data super_order_level
+ploting_data_order <- list(
+                     "median_elaborations" = apply(get.disparity(get.subsets(results$order_results_within$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "median_innovations"  = apply(get.disparity(get.subsets(results$order_results_within$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
                      "consensus_tree"      = tree) 
 
 ## Save all that as a list
-save(ploting_data, file = "ploting_data.rda")
+save(ploting_data, file = "../Data/Processed/ploting_data.rda")
+save(ploting_data_superorder, file = "../Data/Processed/ploting_data_superorder.rda")
+save(ploting_data_order, file = "../Data/Processed/ploting_data_order.rda")
+
+
 
 ## Group info
 super_orders <- lapply(results$super_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$super_results_phylo$position$matrix[[1]])
