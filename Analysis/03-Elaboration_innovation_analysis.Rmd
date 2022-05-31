@@ -1375,7 +1375,7 @@ for(i in 1:length(order_within_cor)) {
 
 
 
-# All birds shapespace analyses
+# Passeriformes shapespace analyses
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
