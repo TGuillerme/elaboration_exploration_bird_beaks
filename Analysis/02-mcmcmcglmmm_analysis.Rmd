@@ -174,20 +174,20 @@ library(MCMCglmm)
 library(dispRity)
 
 ## Loading the parametrisation data
-load(file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+load(file = "../Data/Processed/shapespace_passeriformes_suborder_family.rda")
 
 ## Select the data
-shapespace <- shapsepace_passeriformes_suborder_family[[1]]$space
-selected_dim <- shapsepace_passeriformes_suborder_family[[1]]$dimensions
-consensus_tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
-trees_list <- shapsepace_passeriformes_suborder_family[[1]]$trees_list
+shapespace <- shapespace_passeriformes_suborder_family[[1]]$space
+selected_dim <- shapespace_passeriformes_suborder_family[[1]]$dimensions
+consensus_tree <- shapespace_passeriformes_suborder_family[[1]]$consensus_tree
+trees_list <- shapespace_passeriformes_suborder_family[[1]]$trees_list
 ```
 
 ## Mini-chains parametrization
 
 ```{r, parametrise_the_model, eval = FALSE}
 ## Set up the parametrising chains models
-param_MCMCglmm <- make.mini.chains(data         = shapespace,
+param_chains <- make.mini.chains(data         = shapespace,
                                    dimensions   = selected_dim,
                                    tree         = consensus_tree,
                                    trait.family = "gaussian",
@@ -200,8 +200,8 @@ param_MCMCglmm <- make.mini.chains(data         = shapespace,
                                        thin   = 500,
                                        burnin = 0))
 
-## Running the three MCMCglmm models
-save(param_chains, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_29levels_5k_chain1.rda")
+# Running the three MCMCglmm models
+save(param_chains, file = "../Data/Processed/params_shapespace_8D_50levels_50k_chain1.rda")
 ```
 
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
