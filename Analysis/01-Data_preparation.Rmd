@@ -233,7 +233,7 @@ save(levels_list, file = "../Data/Processed/levels_list.rda")
 ```{r}
 ## Making a Passeriformes only list
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
-clades_list_passeriformes <- clades_list[which(clades_list$level2_order == "Passeriformes"), c(3, 5)]
+clades_list_passeriformes <- clades_list[which(clades_list$level2_order == "Passeriformes"), c(3, 6)]
 clades_list_passeriformes[,1] <- as.factor(as.character(clades_list_passeriformes[,1]))
 clades_list_passeriformes[,2] <- as.factor(as.character(clades_list_passeriformes[,2]))
 
@@ -241,7 +241,7 @@ clades_list_passeriformes[,2] <- as.factor(as.character(clades_list_passeriforme
 shapespace_passeriformes <- shapespace[rownames(shapespace) %in% rownames(clades_list_passeriformes), ]
 
 ## Do the prep data from here (with all the trees! ouch!)
-shapsepace_passeriformes_suborder_family <- prep.data(
+shapespace_passeriformes_suborder_family <- prep.data(
                                           level = 0, lvl.inc = c(1,2),
                                           clades    = clades_list_passeriformes,
                                           space     = shapespace_passeriformes,
@@ -249,8 +249,9 @@ shapsepace_passeriformes_suborder_family <- prep.data(
                                           consensus = consensus_tree,
                                           trees     = trees_list,
                                           verbose   = TRUE)
-save(shapsepace_passeriformes_suborder_family, file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+save(shapespace_passeriformes_suborder_family, file = "../Data/Processed/shapespace_passeriformes_suborder_family.rda")
 ```
+
 
 
 
