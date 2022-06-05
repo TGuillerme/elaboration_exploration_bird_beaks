@@ -30,7 +30,7 @@ dev.off()
 
 
 ## Ploting the tree
-pdf(file = "tree_draft.pdf", height = 40, width = 26)
+pdf(file = "tree_orders.pdf", height = 40, width = 26)
 
 tree <- ladderize(ploting_data$consensus_tree, right = FALSE)
 
@@ -45,11 +45,18 @@ cols_innov <- col.grad(innovations/max(innovations))
 
 ## Match the colours correctly to match the ellipse figure
 #TODO: fix this!
-order_vector <- shapespace[, "level2"]
-names(order_vector) <- rownames(shapespace)
-edge_colors <- as.factor(match.tip.edge(order_vector, tree, replace.na = 0))
-levels(edge_colors) <- c("grey","grey", tip_colours_orders)
-plot(tree, show.tip.label = FALSE, edge.color = as.character(edge_colors))
+level_colors <- tip_colours_orders
+level_vector <- shapespace[, "level2"]
+names(level_vector) <- rownames(shapespace)
+edge_colors <- as.factor(match.tip.edge(level_vector, tree, replace.na = 0))
+levels(edge_colors) <- c("grey","grey", level_colors[match(levels(level_vector), names(level_colors))[-1]])
+plot(tree, show.tip.label = FALSE, edge.color = as.character(edge_colors), edge.width = 3, edge.lty = 1)
 tiplabels("", frame = "none", pch = 15, col = rgb(cols_elab, maxColorValue = 256), offset = 2)
 tiplabels("", frame = "none", pch = 15, col = rgb(cols_innov, maxColorValue = 256), offset = 4)
 dev.off()
+
+164.760
+210.800
+
+20
+150
