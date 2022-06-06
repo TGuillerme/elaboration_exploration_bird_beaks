@@ -66,7 +66,10 @@ However, note that due to the large amount of data and computational time and re
 
 ## Reproducible examples {#reproducible}
  * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](link_to_mcmcmcmglmmm_vignette) (or download the markdown file by right click + "save as" [this link](raw_vignette_link))
+ - [ ] checked by NC
+
  * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](link_to_projection_vignette) (or download the markdown file by right click + "save as" [this link](raw_vignette_link)).
+ - [ ] checked by NC
 
 
 ## Citing this work
