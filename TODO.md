@@ -8,8 +8,8 @@
 
 ## Manuscript
 
- - [ ] clean the google doc [TG]
- - [ ] add figures [TG]
+ - [x] clean the google doc [TG]
+ - [x] add figures [TG]
  - [ ] go through all the manuscript by the end of Friday [GT]
  - [ ] Check the methods section [NC AB]
  - [ ] Decide on the main narrative (the beer brocolli?) [to be figured out while working on the draft]
@@ -31,12 +31,15 @@
  - [ ] Passerines?
  - [ ] methods vignettes (but see reproducibility)?
  - [ ] start adding them at the bottom of the google doc [TG]
+      - [ ] missing the math thingy
+      - [ ] missing the projection/rejection illustration
 
 ## README and reproducibility
 
  - [ ] check list is already in the README (needing to check english/compiling/links for all of them)
  - [ ] deciding of a realease date for the packages?
  - [ ] make sure the data is there and available (tidied and packaged!)
+ - [ ] Natalie to check the vignettes
 
 ## Poster
 
