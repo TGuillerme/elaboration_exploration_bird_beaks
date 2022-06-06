@@ -30,3 +30,7 @@
 
  - [ ] check list is already in the README (needing to check english/compiling/links for all of them)
  - [ ] deciding of a realease date for the packages?
+
+## Poster
+
+ - [ ] Do poster for ESEB [TG]
