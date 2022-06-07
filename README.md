@@ -54,7 +54,8 @@ However, note that due to the large amount of data and computational time and re
     - [ ] compile check
     - [ ] english language check
     - [ ] links check
- * **06-Figure3** ([.Rmd](), [.html]()) contains the script to reproduce the elements in figure 3 in the main text.
+ * **06-Figure2_with_correlations.Rmd** ([.Rmd](), [.html]()) contains the script to reproduce the elements in figure 2 in the main text.
+    - [ ] add passeriformes
     - [ ] compile check
     - [ ] english language check
     - [ ] links check
