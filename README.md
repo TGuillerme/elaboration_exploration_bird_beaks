@@ -65,11 +65,13 @@ However, note that due to the large amount of data and computational time and re
 
 
 ## Reproducible examples {#reproducible}
- * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](link_to_mcmcmcmglmmm_vignette) (or download the markdown file by right click + "save as" [this link](raw_vignette_link))
+ * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](https://github.com/TGuillerme/mcmcmcglmmm/blob/main/inst/MCMCglmm_mini_chains.Rmd) (or download the markdown file by right click + "save as" [this link](raw_vignette_link))
  - [ ] checked by NC
+ - [ ] set raw link [TG]
 
- * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](link_to_projection_vignette) (or download the markdown file by right click + "save as" [this link](raw_vignette_link)).
+ * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](https://github.com/TGuillerme/dispRity/blob/MCMCglmm/inst/vignettes/Projection_analysis.Rmd) (or download the markdown file by right click + "save as" [this link](raw_vignette_link)).
  - [ ] checked by NC
+ - [ ] set raw link [TG]
 
 
 ## Citing this work
