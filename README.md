@@ -71,7 +71,8 @@ However, note that due to the large amount of data and computational time and re
  - [ ] set raw link [TG]
 
  * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](https://github.com/TGuillerme/dispRity/blob/MCMCglmm/inst/vignettes/Projection_analysis.Rmd) (or download the markdown file by right click + "save as" [this link](raw_vignette_link)).
- - [ ] checked by NC
+ - [x] checked by NC
+ - [ ] TG to check comments (search \%NC)
  - [ ] set raw link [TG]
 
 
