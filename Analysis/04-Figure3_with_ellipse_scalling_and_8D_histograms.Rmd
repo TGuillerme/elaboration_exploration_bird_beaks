@@ -60,7 +60,7 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 
 ```{r, eval = TRUE, echo = FALSE}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure1.pdf", height = box_size*8, width = box_size*10)
+pdf(file = "../Manuscript/Figures/Figure3_ellipses.pdf", height = box_size*8, width = box_size*10)
 
 ## SETTING THE WINDOW PARAMETERS
 
