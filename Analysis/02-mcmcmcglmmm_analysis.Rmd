@@ -211,10 +211,14 @@ For those values, we took the highest burnin as the overall burnin and the media
 ```{r, get_model_parameters, eval = FALSE}
 ## Load the computed models
 param_chains <- list()
-for(i in 1:3) {
-    load(paste0("../Data/Cluster/shapespace_passeriformes/param_chains/params_shapespace_passeriformes_chain", i, ".rda"))
-    param_chains[[i]] <- params_shapespace_passeriformes[[1]]
-}
+# for(i in 1:3) {
+    load(paste0("../Data/Cluster/shapespace_passeriformes/param_chains/param_chain_passeriformes_50levels_chain", 1, ".rda"))
+    param_chains[[1]] <- param_chain_passeriformes_50levels_chain1[[1]]
+    load(paste0("../Data/Cluster/shapespace_passeriformes/param_chains/param_chain_passeriformes_50levels_chain", 2, ".rda"))
+    param_chains[[2]] <- param_chain_passeriformes_50levels_chain1[[1]]
+    load(paste0("../Data/Cluster/shapespace_passeriformes/param_chains/param_chain_passeriformes_50levels_chain", 3, ".rda"))
+    param_chains[[3]] <- param_chain_passeriformes_50levels_chain1[[1]]
+# }
 ## Extract the parameters from the parameter chains
 est_params <- extract.parameters(param_chains)
 ```
