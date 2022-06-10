@@ -227,7 +227,7 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ## Getting the plotting data
 ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
                      "median_innovations"  = apply(get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = dispRity::centroids, centroid = 0))[[1]],
                      "consensus_tree"      = tree) 
 
 ## Get the data at the macro level (with no missing data)
@@ -240,10 +240,13 @@ get.macro.projection <- function(data, what) {
     }
     ## Getting all the species
     all_species <- apply(get.disparity(get.subsets(data, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median)
+    names(all_species) <- rownames(get.subsets(data, subsets = "phylogeny")$matrix[[1]])
     ## Getting the species that have a projection on their own group
     macro_level <- apply(do.call(rbind, get.disparity(get.subsets(data, subsets = names(size.subsets(data))[-n.subsets(data)]), concatenate = FALSE)), 1, median)
+    names(macro_level) <- unlist(lapply(lapply(get.subsets(data, subsets = names(size.subsets(data))[-n.subsets(data)])$subsets, `[[`, "elements"), function(X, matrix) rownames(matrix)[X], matrix = data$matrix[[1]]))
     ## Replacing the species that have their own group
     all_species[match(names(macro_level), names(all_species))] <- macro_level
+    return(all_species)
 }
 
 ## Getting the plotting data super_order_level
