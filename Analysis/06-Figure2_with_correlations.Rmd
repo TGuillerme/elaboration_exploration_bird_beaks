@@ -119,7 +119,7 @@ legend_counter <- 1
 ## Plotting each individual correlation plots
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
-    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = FALSE)
+    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = TRUE)
 }
 
 ## --------
