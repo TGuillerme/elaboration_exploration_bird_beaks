@@ -1,0 +1,94 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This markdown contains the code to reproduce the figures containing the elaboration and innovation per species for the all birds and the passeriformes analyses.
+For the details on how to get the data objects called here, refer to `03-elaboration_innovation_analyses.Rmd`.
+
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+library(phylolm)
+source("../Functions/ploting.utilities.R")
+source("../Functions/correlations.utilities.R")
+```
+
+# All birds analysis
+
+## PGLS tables
+
+This table contains the results of the model `centroids ~ elaboration*innovation` where `centroids` is a proxy for novelty.
+Results at different levels are for that level (i.e. or the Anseriformes results, it's their distance from their centroid and their elaboration/projection on their VCV major axis).
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/ploting_data_superorder.rda")
+load("../Data/Processed/ploting_data_order.rda")
+load("../Data/Processed/clade_info.rda")
+
+## Running one pgls
+run.one.pgls <- function(group, data, clade_info) {
+      cat(".")
+      if(group != "all_birds") {
+            ## Extract the specific group
+            if(group %in% names(clade_info[[1]])) {
+                  ## Is super order
+                  clade_info <- clade_info[[1]]
+            } else {
+                  ## Is order
+                  clade_info <- clade_info[[2]]
+            }
+
+            ## Get the species in the clade
+            sp_list <- clade_info[[which(names(clade_info) == group)]]$species
+
+            ## Clean the tree
+            short_tree <- drop.tip(data$consensus_tree,
+                                   tip = data$consensus_tree$tip.label[!(data$consensus_tree$tip.label %in% sp_list)])
+      } else {
+            ## Doing it on all birds
+            sp_list <- names(data$median_elaborations)
+            short_tree <- data$consensus_tree
+      }
+
+      ## Set up the data
+      short_data <- data.frame("centroids" = data$distances_to_centre[sp_list],
+                               "elaboration" = data$median_elaborations[sp_list],
+                               "innovation" = data$median_innovation[sp_list])
+
+      ## Run the piggles
+      return(phylolm::phylolm(centroids ~ elaboration*innovation, data = short_data, phy = short_tree, model = "lambda"))
+}
+
+## Get the mega level pgls
+all_birds_pgls <- run.one.pgls("all_birds", ploting_data, clade_info)
+
+## Get the macro level pgls
+superorder_pgls <- lapply(as.list(names(clade_info[[1]])), run.one.pgls, ploting_data_superorder, clade_info)
+order_pgls <- lapply(as.list(names(clade_info[[2]])), run.one.pgls, ploting_data_order, clade_info)
+
+## Summarise that?
+extract.summary <- function(model) {
+      sum_mod <- summary(model)
+      coefficients <- c(t(sum_mod$coefficients[-1, c(1, 4)]))
+      names(coefficients) <- c("elaboration", "p_elab", "innovation", "p_innov", "interaction", "p_interact")
+      c("lambda" = sum_mod$optpar, coefficients)
+}
+
+## Combine these results
+all_results <- as.data.frame(rbind(extract.summary(all_birds_pgls),
+                     do.call(rbind, lapply(superorder_pgls, extract.summary)),
+                     do.call(rbind, lapply(order_pgls, extract.summary))))
+## Add the labels
+labels <- data.frame("name"  = c("All_birds", names(clade_info[[1]]), names(clade_info[[2]])),
+                     "level" = c("all_birds", rep("super_order", length(clade_info[[1]])),  rep("order", length(clade_info[[2]]))))
+
+knitr::kable(cbind(labels, round(all_results, 3)))
+```
