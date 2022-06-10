@@ -14,6 +14,7 @@ This script take around 6 minutes to compile.
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
+source("../Functions/ploting.utilities.R")
 ```
 
 # All birds shapespace analyses
@@ -55,11 +56,6 @@ rm(shapespace_allbirds_lvl_superorder_order)
 First we can visualise the global bird shape space (or at least the 2 first of the 8 dimensions):
 
 ```{r, message = FALSE, warning = FALSE, fig.height = 8, fig.width = 8, echo = FALSE}
-## The ggplot color panel
-gg.color.hue <- function(n) {
-    grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
-}
-
 # colour.palette <- rainbow
 colour.palette <- gg.color.hue
 
@@ -130,35 +126,6 @@ Note that both problems are only visual though since: 1) we don't use averages a
 Here's a visualisation of how the variance in VCVs affects the averaging artefact:
 
 ```{r, eval = TRUE, echo = FALSE}
-visualisation.group <- function(data, subset, dimensions, n = 100) {
-
-    ## Get the subset
-    sub <- get.subsets(data, subsets = subset)
-
-    ## Make 2D
-    if(!missing(dimensions)) {
-        sub$matrix[[1]] <- sub$matrix[[1]][,dimensions]
-        sub$call$dimensions <- dimensions
-        fun2d <- function(covar) {
-            covar$VCV <- covar$VCV[dimensions, dimensions]
-            covar$loc <- covar$loc[dimensions]
-            return(covar)
-        }
-        sub$covar <- lapply(sub$covar, lapply, fun2d)
-        main_D <- "2D"
-    } else {
-        main_D <- "8D"
-    }
-
-    ## Make the tile
-    main <- paste0(n, " random ", subset, " VCV (", main_D, ")")
-
-    ## Plot
-    covar.plot(sub, major.axes = TRUE, ellipses = TRUE, points = FALSE, legend = FALSE, main = main)
-    covar.plot(sub, major.axes = mean, ellipses = mean, points = FALSE, col = "red", add = TRUE)
-    rm(sub)
-}
-
 visualisation.group(superorder_shapespace, "Mirandornithes")
 ```
 
@@ -263,26 +230,40 @@ ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(res
                      "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
                      "consensus_tree"      = tree) 
 
+## Get the data at the macro level (with no missing data)
+get.macro.projection <- function(data, what) {
+    if(what == "centroids") {
+        ## Measuring the centroid distances
+        data <- dispRity(data, metric = dispRity::centroids)
+    } else {
+        data <- data[[what]]
+    }
+    ## Getting all the species
+    all_species <- apply(get.disparity(get.subsets(data, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median)
+    ## Getting the species that have a projection on their own group
+    macro_level <- apply(do.call(rbind, get.disparity(get.subsets(data, subsets = names(size.subsets(data))[-n.subsets(data)]), concatenate = FALSE)), 1, median)
+    ## Replacing the species that have their own group
+    all_species[match(names(macro_level), names(all_species))] <- macro_level
+}
+
 ## Getting the plotting data super_order_level
 ploting_data_superorder <- list(
-                     "median_elaborations" = apply(get.disparity(get.subsets(results$super_results_within$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "median_innovations"  = apply(get.disparity(get.subsets(results$super_results_within$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "median_elaborations" = get.macro.projection(results$super_results_within, what = "position"),
+                     "median_innovations"  = get.macro.projection(results$super_results_within, what = "distance"),
+                     "distances_to_centre" = get.macro.projection(superorder_shapespace, what = "centroids"),
                      "consensus_tree"      = tree) 
 
 ## Getting the plotting data super_order_level
 ploting_data_order <- list(
-                     "median_elaborations" = apply(get.disparity(get.subsets(results$order_results_within$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "median_innovations"  = apply(get.disparity(get.subsets(results$order_results_within$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
-                     "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = centroids, centroid = 0)),
+                     "median_elaborations" = get.macro.projection(results$order_results_within, what = "position"),
+                     "median_innovations"  = get.macro.projection(results$order_results_within, what = "distance"),
+                     "distances_to_centre" = get.macro.projection(order_shapespace, what = "centroids"),
                      "consensus_tree"      = tree) 
 
 ## Save all that as a list
 save(ploting_data, file = "../Data/Processed/ploting_data.rda")
 save(ploting_data_superorder, file = "../Data/Processed/ploting_data_superorder.rda")
 save(ploting_data_order, file = "../Data/Processed/ploting_data_order.rda")
-
-
 
 ## Group info
 super_orders <- lapply(results$super_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$super_results_phylo$position$matrix[[1]])
@@ -294,8 +275,8 @@ add.col <- function(one_order, one_col) {
     one_order$col <- one_col
     return(one_order)
 }
-super_orders <- mapply(add.col, one_order = super_orders[1:8], one_col = as.list(tip_colours_super_orders), SIMPLIFY = FALSE)
-orders <- mapply(add.col, one_order = orders[1:27], one_col = as.list(tip_colours_orders), SIMPLIFY = FALSE)
+super_orders <- mapply(add.col, one_order = super_orders[1:8][match(names(super_orders[1:8]), names(tip_colours_super_orders))], one_col = as.list(tip_colours_super_orders), SIMPLIFY = FALSE)
+orders <- mapply(add.col, one_order = orders[1:27][match(names(orders[1:27]), names(tip_colours_orders))], one_col = as.list(tip_colours_orders), SIMPLIFY = FALSE)
 
 ## Big list:
 clade_info <- list(super_orders = super_orders,

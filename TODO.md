@@ -37,7 +37,7 @@
 ## README and reproducibility
 
  - [ ] check list is already in the README (needing to check english/compiling/links for all of them)
- - [ ] deciding of a realease date for the packages?
+ - [ ] deciding of a release date for the packages?
  - [ ] make sure the data is there and available (tidied and packaged!)
  - [ ] Natalie to check the vignettes
 
