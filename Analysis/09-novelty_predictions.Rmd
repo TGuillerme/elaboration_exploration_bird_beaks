@@ -9,7 +9,7 @@ output:
     fig_height: 8
 ---
 
-This markdown contains the code to reproduce the figures containing the elaboration and innovation per species for the all birds and the passeriformes analyses.
+This markdown contains the code to reproduce the PGLS analyses.
 For the details on how to get the data objects called here, refer to `03-elaboration_innovation_analyses.Rmd`.
 
 
