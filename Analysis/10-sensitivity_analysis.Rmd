@@ -1,0 +1,323 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This markdown contains the script for runing the sensitivty analyses.
+Due to computational time, the sensitivity analysis are only run on a subset of the entire trait space, the charadriiformes.
+
+```{r}
+library(dispRity)
+library(mcmcmcglmmm)
+```
+
+## Observed results for charadriiformes
+
+For this section we are just running the normal analysis (as in the main text) but on the charadriiformes species only.
+The charadriiformes dataset is a present as an example dataset in the dispRity package
+
+```{r, echo = FALSE, eval = TRUE}
+## Loading the Charadriiformes data
+data(charadriiformes)
+## Extracting the tree
+tree <- charadriiformes$tree
+## Extracting the data column that contains the clade assignments
+data <- charadriiformes$data[, "clade"]
+## Changing the levels names (the clade names) to colours
+levels(data) <- c("orange", "blue", "darkgreen")
+data <- as.character(data)
+## Matching the data rownames to the tip order in the tree
+data <- data[match(ladderize(tree)$tip.label, rownames(charadriiformes$data))]
+
+## Matching the tip colours (labels) to their descending edges in the tree
+## (and making the non-match edges grey)
+clade_edges <- match.tip.edge(data, tree, replace.na = "grey")
+
+## Plotting the results
+plot(ladderize(tree), show.tip.label = FALSE, edge.color = clade_edges, main = "Charadriiformes")
+legend("bottomleft", lty = c(1,1,1), col = c("blue", "darkgreen", "orange"), legend = c("plovers", "sandpipers", "gulls"))
+axisPhylo()
+```
+Fgure 1: the charadriiformes consensus tree
+
+```{r, echo = FALSE, eval = TRUE}
+## Creating a dispRity object from the charadriiformes model
+plot(shapespace[, c(1,2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4), main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+legend("bottomrigh", pch = 19, legend = c("gulls", "plovers", "sandpipers"), col= c("orange", "blue", "darkgreen"))
+```
+Figure 2: the charadriiformes shapespace
+
+
+## Ball shapesapce
+
+In this sensitivity analysis we transform the shapespace to make each dimension the same size (i.e. each dimension explains the same amount of variance).
+We do that by simply scaling the values on each dimensions.
+
+
+## No phylogenetic signal
+
+In this sensitivity we are aiming to "remove" the phylogenetic signal by randomising the attribution of each species traits.
+We keep the phylogenetic structure as presented above (i.e. the charadriiformes tree) but randomly attribute a beak shape value to each species to dilute or "remove" the phylogenetic signal in each clade.
+
+
+
+
+
+### Preparing the data
+
+```{r, eval = FALSE, echo = FALSE}
+source("../Functions/prep.data.R")
+## Reading the different trait spaces
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
+shapespace <- shapespace$PCscores
+## Reading the consensus tree
+consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
+## Reading the distribution of trees
+trees_list <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
+
+## Making a charadriiformes only list
+data(charadriiformes)
+clade_list <- charadriiformes$data[,18, drop = FALSE]
+colnames(clade_list) <- "level1"
+
+## Shapespace passeriformes
+shapespace_charadriiformes <- shapespace[match(rownames(clade_list),rownames(shapespace)), ]
+
+## Do the prep data from here (with all the trees)
+shapespace_charadriiformes_family <- prep.data(
+                                          level = 0, lvl.inc = c(1),
+                                          clades    = clade_list,
+                                          space     = shapespace_charadriiformes,
+                                          dim       = 1:8,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_charadriiformes_family, file = "../Data/Processed/shapespace_charadriiformes_family.rda")
+```
+
+### Setting the mini-chains
+
+```{r, eval = TRUE, message = FALSE}
+## Loading the parametrisation data
+load(file = "../Data/Processed/shapespace_charadriiformes_family.rda")
+
+## Select the data
+shapespace <- shapespace_charadriiformes_family[[1]]$space
+selected_dim <- shapespace_charadriiformes_family[[1]]$dimensions
+consensus_tree <- shapespace_charadriiformes_family[[1]]$consensus_tree
+trees_list <- shapespace_charadriiformes_family[[1]]$trees_list
+```
+
+## Mini-chains parametrization
+
+```{r, eval = TRUE}
+## Set up the parametrising chains models
+param_chains <- make.mini.chains(data         = shapespace,
+                                 dimensions   = selected_dim,
+                                 tree         = consensus_tree,
+                                 trait.family = "gaussian",
+                                 randoms      = c("global", "level1"),
+                                 residuals    = "global",
+                                 priors       = 0.02,
+                                 verbose      = TRUE,
+                                 parameters   = list(
+                                       nitt   = 20000,
+                                       thin   = 500,
+                                       burnin = 0))
+
+# Running the three MCMCglmm models
+save(param_chains, file = "../Data/Processed/params_shapespace_charadriiformes.rda")
+```
+
+```{r, eval = TRUE}
+## Run the parametrisation chains (local)
+params <- run.mini.chains(param_chains, replicates = 3)
+
+## Get the estimated parameters
+est_params <- extract.parameters(params)
+```
+
+## Set up the mini-chain
+
+```{r, eval = TRUE}
+## The thinning parameter
+thin <- 200
+## The number of samples per chains
+samples <- 10
+## Set up the mini-chains models
+shapespace_charadriiformes <- make.mini.chains(
+                                data         = shapespace,
+                                dimensions   = selected_dim,
+                                tree         = trees_list[sample(1:1000, 400)],
+                                trait.family = "gaussian",
+                                randoms      = c("global", "level1"),
+                                residuals    = "global",
+                                priors       = est_params$priors,
+                                verbose      = TRUE,
+                                parameters   = list(
+                                      nitt   = est_params$burnin + thin * samples,
+                                      thin   = thin,
+                                      burnin = est_params$burnin))
+## Save the mini.chains
+save(shapespace_charadriiformes, file = "../Data/Cluster/shapespace_charadriiformes/shapespace_charadriiformes.mini.chains")
+```
+
+
+
+
+
+# Randomspace
+
+```{r}
+## Get the scaling the variance of each dimension
+randospace <- shapespace
+randomise.space <- function(space, dims) {
+      rando <- space
+      rando[, dims] <- space[sample(1:nrow(space), nrow(space)), dims]
+      return(rando)
+}
+
+## Comparing D1 and D3 for the contrast
+par(mfrow = c(2,1))
+plot(shapespace[, c(1, 2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
+      main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+plot(randomise.space(shapespace, selected_dim)[, c(1, 2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
+      main = "randomised shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+```
+
+## Mini-chains (using the parameters from the normal chain above)
+
+
+```{r, eval = TRUE}
+## The thinning parameter
+thin <- 200
+## The number of samples per chains
+samples <- 10
+
+## Setting up 20 random replicates
+for(i in 1:25) {
+      ## Set up the mini-chains models
+      randospace_charadriiformes_ <- make.mini.chains(
+                                      data         = randomise.space(shapespace, selected_dim),
+                                      dimensions   = selected_dim,
+                                      tree         = trees_list[sample(1:1000, 400)],
+                                      trait.family = "gaussian",
+                                      randoms      = c("global", "level1"),
+                                      residuals    = "global",
+                                      priors       = est_params$priors,
+                                      verbose      = TRUE,
+                                      parameters   = list(
+                                            nitt   = est_params$burnin + thin * samples,
+                                            thin   = thin,
+                                            burnin = est_params$burnin))
+      ## Save the mini.chains
+      save(randospace_charadriiformes_, file = paste0("../Data/Cluster/shapespace_charadriiformes/randospace_charadriiformes_", i, ".mini.chains"))
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Ballspace
+
+```{r}
+## Get the scaling the variance of each dimension
+ballspace <- shapespace
+ballspace[, selected_dim] <- apply(shapespace[, selected_dim], 2, scale)
+
+## Comparing D1 and D3 for the contrast
+par(mfrow = c(2,1))
+plot(shapespace[, c(1,3)], xlab = "PC1", ylab = "PC3", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
+      main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+plot(ballspace[, c(1,3)], xlab = "PC1", ylab = "PC3", xlim = c(-3, 3), ylim = c(-3, 3), ,
+      main = "balled shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+```
+
+## Mini-chains parametrization
+
+```{r, eval = TRUE}
+## Set up the parametrising chains models
+param_chains <- make.mini.chains(data         = ballspace,
+                                 dimensions   = selected_dim,
+                                 tree         = consensus_tree,
+                                 trait.family = "gaussian",
+                                 randoms      = c("global", "level1"),
+                                 residuals    = "global",
+                                 priors       = 0.02,
+                                 verbose      = TRUE,
+                                 parameters   = list(
+                                       nitt   = 20000,
+                                       thin   = 500,
+                                       burnin = 0))
+
+# Running the three MCMCglmm models
+save(param_chains, file = "../Data/Processed/params_ballspace_charadriiformes.rda")
+```
+
+```{r, eval = TRUE}
+## Run the parametrisation chains (local)
+params <- run.mini.chains(param_chains, replicates = 3)
+
+## Get the estimated parameters
+est_params <- extract.parameters(params)
+```
+
+## Set up the mini-chain
+
+```{r, eval = TRUE}
+## The thinning parameter
+thin <- 200
+## The number of samples per chains
+samples <- 10
+## Set up the mini-chains models
+ballspace_charadriiformes <- make.mini.chains(
+                                data         = ballspace,
+                                dimensions   = selected_dim,
+                                tree         = trees_list[sample(1:1000, 400)],
+                                trait.family = "gaussian",
+                                randoms      = c("global", "level1"),
+                                residuals    = "global",
+                                priors       = est_params$priors,
+                                verbose      = TRUE,
+                                parameters   = list(
+                                      nitt   = est_params$burnin + thin * samples,
+                                      thin   = thin,
+                                      burnin = est_params$burnin))
+## Save the mini.chains
+save(ballspace_charadriiformes, file = "../Data/Cluster/shapespace_charadriiformes/ballspace_charadriiformes.mini.chains")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
