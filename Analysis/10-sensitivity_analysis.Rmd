@@ -382,12 +382,12 @@ save(ballspace_charadriiformes, file = "../Data/Cluster/shapespace_charadriiform
 The mini-chains were run for 100 replicates to have 1000 exploitable posterior VCV results for each model.
 The following table summarises the modeel parameters, number of trees and spaces sampled (because the randomspace and the BMspace are stochastic we generated 25 of them) and number of explotable VCVs
 
-Model | parameters | replicates | trees sampled | spaces sampled | posterior VCVs |
-------|------------|------------|---------------|----------------|----------------|
-shapespace | from shapespace | 100 | 1 | 1000
-randomspace | from shapespace | 100 | 25 | 1000
-BMspace | from shapespace | 100 | 25 | 1000
-ballspace | from ballspace | 100 | 1 | 1000
+Model       | parameters      | replicates | trees sampled | spaces sampled | posterior VCVs |
+------------|-----------------|------------|---------------|----------------|----------------|
+shapespace  | from shapespace | 100        | 100           | 1              | 1000
+randomspace | from shapespace | 100        | 100           | 25             | 1000
+BMspace     | from shapespace | 100        | 100           | 25             | 1000
+ballspace   | from ballspace  | 100        | 100           | 1              | 1000
 
 
 
