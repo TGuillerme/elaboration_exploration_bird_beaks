@@ -231,25 +231,40 @@ save(levels_list, file = "../Data/Processed/levels_list.rda")
 ## Passeriformes focus
 
 ```{r}
-## Making a Passeriformes only list
+## Get the traitspace for all passeriformes
+load("../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
-clades_list_passeriformes <- clades_list[which(clades_list$level2_order == "Passeriformes"), c(3, 6)]
-clades_list_passeriformes[,1] <- as.factor(as.character(clades_list_passeriformes[,1]))
-clades_list_passeriformes[,2] <- as.factor(as.character(clades_list_passeriformes[,2]))
+shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[(clades_list[, "level2_order"] == "Passeriformes"), ]
 
-## Shapespace passeriformes
-shapespace_passeriformes <- shapespace[rownames(shapespace) %in% rownames(clades_list_passeriformes), ]
+## Loading the Passeriformes clades
+load("../Data/Processed/clade.info_passerines.rda")
+## Clean the levels
+shapespace_passeriformes$level1 <- rep("", nrow(shapespace_passeriformes))
+shapespace_passeriformes$level2 <- rep("", nrow(shapespace_passeriformes))
+
+## Fill in the level1
+for(clade in 1:length(clade_info_passerines$passerine_big_clades)) {
+  clade_name <- names(clade_info_passerines$passerine_big_clades)[clade]
+  shapespace_passeriformes[clade_info_passerines$passerine_big_clades[[clade]], "level1"] <- clade_name
+}
+## Fill in the level2
+for(clade in 1:length(clade_info_passerines$passerine_small_clades)) {
+  clade_name <- names(clade_info_passerines$passerine_small_clades)[clade]
+  shapespace_passeriformes[clade_info_passerines$passerine_small_clades[[clade]], "level2"] <- clade_name
+}
+shapespace_passeriformes[, "level1"] <- as.factor(shapespace_passeriformes[, "level1"])
+shapespace_passeriformes[, "level2"] <- as.factor(shapespace_passeriformes[, "level2"])
 
 ## Do the prep data from here (with all the trees! ouch!)
-shapespace_passeriformes_suborder_family <- prep.data(
+shapespace_passeriformes_two_levels <- prep.data(
                                           level = 0, lvl.inc = c(1,2),
-                                          clades    = clades_list_passeriformes,
+                                          clades    = shapespace_passeriformes[, c("level1", "level2")],
                                           space     = shapespace_passeriformes,
                                           dim       = 1:8,
                                           consensus = consensus_tree,
                                           trees     = trees_list,
                                           verbose   = TRUE)
-save(shapespace_passeriformes_suborder_family, file = "../Data/Processed/shapespace_passeriformes_suborder_family.rda")
+save(shapespace_passeriformes_two_levels, file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
 ```
 
 
