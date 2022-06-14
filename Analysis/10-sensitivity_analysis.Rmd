@@ -17,10 +17,63 @@ library(dispRity)
 library(mcmcmcglmmm)
 ```
 
-## Observed results for charadriiformes
+# Null models
 
-For this section we are just running the normal analysis (as in the main text) but on the charadriiformes species only.
-The charadriiformes dataset is a present as an example dataset in the dispRity package
+From this space we simulated three null model scenarios to test the impact of specific parameters in our approach:
+
+ * the `randomspace` model to test the effect of phylogenetic signal on our results: we can test the effect of phylogenetic correlation and phylogenetic signal on our results by randomly assigning beaks to different species to "dilute" the phylogenetic signal: i.e. so that there is no assumption that two closely related species have similar beaks. We do that be reasigning beaks shape in the shapespace randomly for each species in each step of the `mcmcmcglmmm` analysis.
+
+ * the `ballspace` model to test the effect of decreasing variance on each dimension of the shapespace: in fact, our main findings (elaboration is more common than innovation at the species level) might be due to the nature of the shapespace where the first dimension (PC1) has more variance than the other ones. This can pull the major axis of the global phylogenetic VCV to be aligned with PC1 where there is more opportunity for each individiual species to have higher values of elaboration (i.e. more changes aligned with PC1) that innovation (i.e. less changes on the other PCs). We can test this by rescaling the variance of each PC axes to be equal.
+
+ * the `BMspace` model to test the deviation from a base Brownian Motion trait evolution model: for this model we simulate a series of shapespaces with the same number of species and the same phylogeny using a Brownian motion process for each 8 dimensions with a decreasing variance on each dimensions to match the observed variance in per dimension in the shapespace.
+
+For each of these null models, we resimulated a shapespace with the modifications highlighted above and rerun the whole `mcmcmcglmmm` and projection pipeline as for in the main study.
+For calculation speed reasons we only ran these models on a subset of the global dataset, the charadriiformes containing 359 sp divided into three groups (159 gulls, 98 plovers and 102 sandpipers).
+
+# Simulating the different spaces
+
+## Original data
+
+```{r, eval = FALSE, echo = FALSE}
+source("../Functions/prep.data.R")
+## Reading the different trait spaces
+shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
+shapespace <- shapespace$PCscores
+## Reading the consensus tree
+consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
+## Reading the distribution of trees
+trees_list <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
+
+## Making a charadriiformes only list
+data(charadriiformes)
+clade_list <- charadriiformes$data[,18, drop = FALSE]
+colnames(clade_list) <- "level1"
+
+## Shapespace passeriformes
+shapespace_charadriiformes <- shapespace[match(rownames(clade_list),rownames(shapespace)), ]
+
+## Do the prep data from here (with all the trees)
+shapespace_charadriiformes_family <- prep.data(
+                                          level = 0, lvl.inc = c(1),
+                                          clades    = clade_list,
+                                          space     = shapespace_charadriiformes,
+                                          dim       = 1:8,
+                                          consensus = consensus_tree,
+                                          trees     = trees_list,
+                                          verbose   = TRUE)
+save(shapespace_charadriiformes_family, file = "../Data/Processed/shapespace_charadriiformes_family.rda")
+```
+
+```{r, eval = TRUE, echo = FALSE}
+## Loading the parametrisation data
+load(file = "../Data/Processed/shapespace_charadriiformes_family.rda")
+
+## Select the data
+shapespace <- shapespace_charadriiformes_family[[1]]$space
+selected_dim <- shapespace_charadriiformes_family[[1]]$dimensions
+consensus_tree <- shapespace_charadriiformes_family[[1]]$consensus_tree
+trees_list <- shapespace_charadriiformes_family[[1]]$trees_list
+```
 
 ```{r, echo = FALSE, eval = TRUE}
 ## Loading the Charadriiformes data
@@ -53,70 +106,104 @@ legend("bottomrigh", pch = 19, legend = c("gulls", "plovers", "sandpipers"), col
 ```
 Figure 2: the charadriiformes shapespace
 
+## The randomspace
 
-## Ball shapesapce
+To generate the `randomspace` we shuffle each beak to random species (i.e. reshuffling rows in the shapespace):
 
-In this sensitivity analysis we transform the shapespace to make each dimension the same size (i.e. each dimension explains the same amount of variance).
-We do that by simply scaling the values on each dimensions.
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
+## Randomise each species
+randospace <- shapespace
+randomise.space <- function(space, dims) {
+      rando <- space
+      rando[, dims] <- space[sample(1:nrow(space), nrow(space)), dims]
+      return(rando)
+}
 
+## Comparing D1 and D3 for the contrast
+par(mfrow = c(1,2))
+plot(shapespace[, c(1, 2)], xlab = write.pc(1, shape_var_prop), ylab = write.pc(2, shape_var_prop),
+      xlim = range.axis(shapespace, selected_dim), ylim = range.axis(shapespace, selected_dim),
+      main = "Original shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+plot(randomise.space(shapespace, selected_dim)[, c(1, 2)], xlab = write.pc(1, shape_var_prop), ylab = write.pc(2, shape_var_prop),
+      xlim = range.axis(shapespace, selected_dim), ylim = range.axis(shapespace, selected_dim),
+      main = "Randomised shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+```
 
-## No phylogenetic signal
+## The ballspace
 
-In this sensitivity we are aiming to "remove" the phylogenetic signal by randomising the attribution of each species traits.
-We keep the phylogenetic structure as presented above (i.e. the charadriiformes tree) but randomly attribute a beak shape value to each species to dilute or "remove" the phylogenetic signal in each clade.
+To generate the `ballspace` we scaled the data on each dimension to have same variance:
 
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
+## Get the scaling the variance of each dimension
+ballspace <- shapespace
+ballspace[, selected_dim] <- apply(shapespace[, selected_dim], 2, scale)
 
+shape_var_prop <-  apply(shapespace[, selected_dim], 2, var)
+shape_var_prop <- shape_var_prop/sum(shape_var_prop)*100
+ball_var_prop <-  apply(ballspace[, selected_dim], 2, var)
+ball_var_prop <- ball_var_prop/sum(ball_var_prop)*100
 
+## Plotting fun
+write.pc <- function(axis, space) {
+      paste0("PC", axis, " (", round(var[axis], 2), "%)")
+}
+range.axis <- function(space, dims) {
+      return(range(pretty(unlist(c(space[, dims])))))
+}
 
+## Comparing D1 and D3 for the contrast
+par(mfrow = c(1,2))
+plot(shapespace[, c(1,3)], xlab = write.pc(1, shape_var_prop), ylab = write.pc(3, shape_var_prop),
+      xlim = range.axis(shapespace, selected_dim), ylim = range.axis(shapespace, selected_dim),
+      main = "Original shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+plot(ballspace[, c(1,3)], xlab = write.pc(1, ball_var_prop), ylab = write.pc(3, ball_var_prop),
+      xlim = range.axis(ballspace, selected_dim), ylim = range.axis(ballspace, selected_dim),
+      main = "Balled shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+```
 
-### Preparing the data
+## The BMspace
+
+To generate the `BMspace` we simulate 8 uncorrelated Brownian Motions on the consensus tree with the variance for each BM being the observed one for each dimension of the shapespace:
+
+```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
+## Get the scaling the variance of each dimension
+BMise.space <- function(space, tree, dims) {
+      ## Get the space dimenions variance
+      space_var_prop <-  apply(space[, dims], 2, var)
+      space_var_prop <- space_var_prop/sum(space_var_prop)*100
+
+      ## Simulate the space
+      return(sapply(space_var_prop, function(var, tree) fastBM(tree = tree, sig2 = var), tree))
+}
+
+## Comparing D1 and D3 for the contrast
+par(mfrow = c(1,2))
+plot(shapespace[, c(1, 2)], xlab = write.pc(1, shape_var_prop), ylab = write.pc(2, shape_var_prop),
+      xlim = range.axis(shapespace, selected_dim), ylim = range.axis(shapespace, selected_dim),
+      main = "Original shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+BMspace <- BMise.space(shapespace, tree, selected_dim)
+BM_var_prop <-  apply(BMspace[, selected_dim], 2, var)
+BM_var_prop <- BM_var_prop/sum(BM_var_prop)*100
+plot(BMspace[, c(1, 2)], xlab = write.pc(1, BM_var_prop), ylab = write.pc(2, BM_var_prop),
+      xlim = range.axis(BMspace, selected_dim), ylim = range.axis(BMspace, selected_dim),
+      main = "Randomised shapespace", pch = 19,
+      col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+```
+
+# Setting the mini-chains
+
+## Original, BM space and randomised spaces (same parameters)
+
+We used the same mini chains parameters for the BMspace and the randomspace since both are stochastic spaces (i.e. each space is a different itteration) making it to intensive computationally to estimate the starting parameters every iteration.
+We therefore used the conservative parameters from the original space.
+We used three chains of 20000 iterations for the parameterisation chains. 
 
 ```{r, eval = FALSE, echo = FALSE}
-source("../Functions/prep.data.R")
-## Reading the different trait spaces
-shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
-shapespace <- shapespace$PCscores
-## Reading the consensus tree
-consensus_tree <- read.nexus("../Data/Raw/Tree_data/9993taxa_1_tree_Global_MCC_CA.tre")
-## Reading the distribution of trees
-trees_list <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
-
-## Making a charadriiformes only list
-data(charadriiformes)
-clade_list <- charadriiformes$data[,18, drop = FALSE]
-colnames(clade_list) <- "level1"
-
-## Shapespace passeriformes
-shapespace_charadriiformes <- shapespace[match(rownames(clade_list),rownames(shapespace)), ]
-
-## Do the prep data from here (with all the trees)
-shapespace_charadriiformes_family <- prep.data(
-                                          level = 0, lvl.inc = c(1),
-                                          clades    = clade_list,
-                                          space     = shapespace_charadriiformes,
-                                          dim       = 1:8,
-                                          consensus = consensus_tree,
-                                          trees     = trees_list,
-                                          verbose   = TRUE)
-save(shapespace_charadriiformes_family, file = "../Data/Processed/shapespace_charadriiformes_family.rda")
-```
-
-### Setting the mini-chains
-
-```{r, eval = TRUE, message = FALSE}
-## Loading the parametrisation data
-load(file = "../Data/Processed/shapespace_charadriiformes_family.rda")
-
-## Select the data
-shapespace <- shapespace_charadriiformes_family[[1]]$space
-selected_dim <- shapespace_charadriiformes_family[[1]]$dimensions
-consensus_tree <- shapespace_charadriiformes_family[[1]]$consensus_tree
-trees_list <- shapespace_charadriiformes_family[[1]]$trees_list
-```
-
-## Mini-chains parametrization
-
-```{r, eval = TRUE}
 ## Set up the parametrising chains models
 param_chains <- make.mini.chains(data         = shapespace,
                                  dimensions   = selected_dim,
@@ -135,7 +222,7 @@ param_chains <- make.mini.chains(data         = shapespace,
 save(param_chains, file = "../Data/Processed/params_shapespace_charadriiformes.rda")
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = FALSE}
 ## Run the parametrisation chains (local)
 params <- run.mini.chains(param_chains, replicates = 3)
 
@@ -143,9 +230,7 @@ params <- run.mini.chains(param_chains, replicates = 3)
 est_params <- extract.parameters(params)
 ```
 
-## Set up the mini-chain
-
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = FALSE}
 ## The thinning parameter
 thin <- 200
 ## The number of samples per chains
@@ -168,33 +253,7 @@ shapespace_charadriiformes <- make.mini.chains(
 save(shapespace_charadriiformes, file = "../Data/Cluster/shapespace_charadriiformes/shapespace_charadriiformes.mini.chains")
 ```
 
-
-
-
-
-# Randomspace
-
-```{r}
-## Get the scaling the variance of each dimension
-randospace <- shapespace
-randomise.space <- function(space, dims) {
-      rando <- space
-      rando[, dims] <- space[sample(1:nrow(space), nrow(space)), dims]
-      return(rando)
-}
-
-## Comparing D1 and D3 for the contrast
-par(mfrow = c(2,1))
-plot(shapespace[, c(1, 2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
-      main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
-plot(randomise.space(shapespace, selected_dim)[, c(1, 2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
-      main = "randomised shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
-```
-
-## Mini-chains (using the parameters from the normal chain above)
-
-
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = FALSE}
 ## The thinning parameter
 thin <- 200
 ## The number of samples per chains
@@ -221,42 +280,39 @@ for(i in 1:25) {
 }
 ```
 
+```{r, eval = FALSE, echo = FALSE}
+## The thinning parameter
+thin <- 200
+## The number of samples per chains
+samples <- 10
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Ballspace
-
-```{r}
-## Get the scaling the variance of each dimension
-ballspace <- shapespace
-ballspace[, selected_dim] <- apply(shapespace[, selected_dim], 2, scale)
-
-## Comparing D1 and D3 for the contrast
-par(mfrow = c(2,1))
-plot(shapespace[, c(1,3)], xlab = "PC1", ylab = "PC3", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4),
-      main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
-plot(ballspace[, c(1,3)], xlab = "PC1", ylab = "PC3", xlim = c(-3, 3), ylim = c(-3, 3), ,
-      main = "balled shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+## Setting up 20 random replicates
+for(i in 1:25) {
+      ## Set up the mini-chains models
+      randospace_charadriiformes_ <- make.mini.chains(
+                                      data         = BMise.space(shapespace, tree, selected_dim),
+                                      dimensions   = selected_dim,
+                                      tree         = trees_list[sample(1:1000, 400)],
+                                      trait.family = "gaussian",
+                                      randoms      = c("global", "level1"),
+                                      residuals    = "global",
+                                      priors       = est_params$priors,
+                                      verbose      = TRUE,
+                                      parameters   = list(
+                                            nitt   = est_params$burnin + thin * samples,
+                                            thin   = thin,
+                                            burnin = est_params$burnin))
+      ## Save the mini.chains
+      save(randospace_charadriiformes_, file = paste0("../Data/Cluster/shapespace_charadriiformes/randospace_charadriiformes_", i, ".mini.chains"))
+}
 ```
 
-## Mini-chains parametrization
+## Ball space
 
-```{r, eval = TRUE}
+Since this space is not stochastic, we used the normal procedure for setting up the mini-chains.
+We used three chains of 20000 iterations for the parameterisation chains. 
+
+```{r, eval = FALSE, echo = FALSE}
 ## Set up the parametrising chains models
 param_chains <- make.mini.chains(data         = ballspace,
                                  dimensions   = selected_dim,
@@ -275,7 +331,7 @@ param_chains <- make.mini.chains(data         = ballspace,
 save(param_chains, file = "../Data/Processed/params_ballspace_charadriiformes.rda")
 ```
 
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = FALSE}
 ## Run the parametrisation chains (local)
 params <- run.mini.chains(param_chains, replicates = 3)
 
@@ -283,9 +339,7 @@ params <- run.mini.chains(param_chains, replicates = 3)
 est_params <- extract.parameters(params)
 ```
 
-## Set up the mini-chain
-
-```{r, eval = TRUE}
+```{r, eval = FALSE, echo = FALSE}
 ## The thinning parameter
 thin <- 200
 ## The number of samples per chains
@@ -308,8 +362,17 @@ ballspace_charadriiformes <- make.mini.chains(
 save(ballspace_charadriiformes, file = "../Data/Cluster/shapespace_charadriiformes/ballspace_charadriiformes.mini.chains")
 ```
 
+## Running the mini-chains
 
+The mini-chains were run for 100 replicates to have 1000 exploitable posterior VCV results for each model.
+The following table summarises the modeel parameters, number of trees and spaces sampled (because the randomspace and the BMspace are stochastic we generated 25 of them) and number of explotable VCVs
 
+Model | parameters | replicates | trees sampled | spaces sampled | posterior VCVs |
+------|------------|------------|---------------|----------------|----------------|
+shapespace | from shapespace | 100 | 1 | 1000
+randomspace | from shapespace | 100 | 25 | 1000
+BMspace | from shapespace | 100 | 25 | 1000
+ballspace | from ballspace | 100 | 1 | 1000
 
 
 
