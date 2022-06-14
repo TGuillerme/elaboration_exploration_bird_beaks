@@ -189,7 +189,13 @@ BMise.space <- function(space, tree, dims) {
       space_var_prop <- space_var_prop/sum(space_var_prop)*100
 
       ## Simulate the space
-      return(sapply(space_var_prop, function(var, tree) phytools::fastBM(tree = tree, sig2 = var), tree))
+      BMspace <- as.data.frame(sapply(space_var_prop, function(var, tree) phytools::fastBM(tree = tree, sig2 = var), tree))
+
+      ## Match the species with the correct levels
+      BMspace <- BMspace[match(space$animal, rownames(BMspace)), ]
+      BMspace$level1 <- space$level1
+      BMspace$animal <- space$animal
+      return(BMspace)
 }
 
 ## Comparing D1 and D3 for the contrast
@@ -296,16 +302,48 @@ for(i in 1:25) {
 ```
 
 ```{r, eval = FALSE, echo = FALSE}
-## The thinning parameter
-thin <- 200
-## The number of samples per chains
-samples <- 10
+## Loading the parametrisation data
+load(file = "../Data/Processed/shapespace_charadriiformes_family.rda")
 
-## Setting up 20 random replicates
+## Select the data
+shapespace <- shapespace_charadriiformes_family[[1]]$space
+selected_dim <- shapespace_charadriiformes_family[[1]]$dimensions
+consensus_tree <- shapespace_charadriiformes_family[[1]]$consensus_tree
+trees_list <- shapespace_charadriiformes_family[[1]]$trees_list
+
 for(i in 1:25) {
+      ## Create the space
+      BM_space <- BMise.space(shapespace, tree, selected_dim)
+
+      ## Set up the parametrising chains models
+      param_chains <- make.mini.chains(data         = BM_space,
+                                       dimensions   = selected_dim,
+                                       tree         = consensus_tree,
+                                       trait.family = "gaussian",
+                                       randoms      = c("global", "level1"),
+                                       residuals    = "global",
+                                       priors       = 0.02,
+                                       verbose      = TRUE,
+                                       parameters   = list(
+                                             nitt   = 20000,
+                                             thin   = 500,
+                                             burnin = 0))
+
+      ## Run the parametrisation chains (local)
+      params <- run.mini.chains(param_chains, replicates = 3)
+
+      ## Get the estimated parameters
+      est_params <- extract.parameters(params)
+
+      ## The thinning parameter
+      thin <- 200
+      ## The number of samples per chains
+      samples <- 10
+
+      ## Setting up 20 random replicates
       ## Set up the mini-chains models
-      randospace_charadriiformes_ <- make.mini.chains(
-                                      data         = BMise.space(shapespace, tree, selected_dim),
+      BMspace_charadriiformes_ <- make.mini.chains(
+                                      data         = BM_space,
                                       dimensions   = selected_dim,
                                       tree         = trees_list[sample(1:1000, 400)],
                                       trait.family = "gaussian",
@@ -318,7 +356,7 @@ for(i in 1:25) {
                                             thin   = thin,
                                             burnin = est_params$burnin))
       ## Save the mini.chains
-      save(randospace_charadriiformes_, file = paste0("../Data/Cluster/shapespace_charadriiformes/randospace_charadriiformes_", i, ".mini.chains"))
+      save(BMspace_charadriiformes_, file = paste0("../Data/Cluster/shapespace_charadriiformes/BMspace_charadriiformes_", i, ".mini.chains"))
 }
 ```
 
@@ -384,11 +422,13 @@ The following table summarises the modeel parameters, number of trees and spaces
 
 Model       | parameters      | replicates | trees sampled | spaces sampled | posterior VCVs |
 ------------|-----------------|------------|---------------|----------------|----------------|
-shapespace  | from shapespace | 100        | 100           | 1              | 1000
-randomspace | from shapespace | 100        | 100           | 25             | 1000
-BMspace     | from shapespace | 100        | 100           | 25             | 1000
-ballspace   | from ballspace  | 100        | 100           | 1              | 1000
+shapespace  | from shapespace | 100        | 100           | 1              | 1000 |
+randomspace | from shapespace | 100        | 100           | 25             | 1000 |
+BMspace     | from shapespace | 100        | 100           | 25             | 1000 |
+ballspace   | from ballspace  | 100        | 100           | 1              | 1000 |
 
+
+# Analysing the results
 
 
 
