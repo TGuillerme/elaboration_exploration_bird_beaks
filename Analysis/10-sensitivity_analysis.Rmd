@@ -13,6 +13,7 @@ This markdown contains the script for runing the sensitivty analyses.
 Due to computational time, the sensitivity analysis are only run on a subset of the entire trait space, the charadriiformes.
 
 ```{r}
+set.seed(42)
 library(dispRity)
 library(mcmcmcglmmm)
 ```
@@ -97,13 +98,29 @@ plot(ladderize(tree), show.tip.label = FALSE, edge.color = clade_edges, main = "
 legend("bottomleft", lty = c(1,1,1), col = c("blue", "darkgreen", "orange"), legend = c("plovers", "sandpipers", "gulls"))
 axisPhylo()
 ```
+
 Fgure 1: the charadriiformes consensus tree
 
 ```{r, echo = FALSE, eval = TRUE}
+## Shapespace var
+shape_var_prop <-  apply(shapespace[, selected_dim], 2, var)
+shape_var_prop <- shape_var_prop/sum(shape_var_prop)*100
+
+## Plotting fun
+write.pc <- function(axis, var) {
+      paste0("PC", axis, " (", round(var[axis], 2), "%)")
+}
+range.axis <- function(space, dims) {
+      return(range(pretty(unlist(c(space[, dims])))))
+}
+
 ## Creating a dispRity object from the charadriiformes model
-plot(shapespace[, c(1,2)], xlab = "PC1", ylab = "PC2", xlim = c(-0.4, 0.4), ylim = c(-0.4, 0.4), main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
+plot(shapespace[, c(1,2)], xlab = write.pc(1, shape_var_prop), ylab = write.pc(2, shape_var_prop),
+    xlim = range.axis(shapespace, selected_dim), ylim = range.axis(shapespace, selected_dim),
+    main = "shapespace", pch = 19, col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
 legend("bottomrigh", pch = 19, legend = c("gulls", "plovers", "sandpipers"), col= c("orange", "blue", "darkgreen"))
 ```
+
 Figure 2: the charadriiformes shapespace
 
 ## The randomspace
@@ -112,7 +129,6 @@ To generate the `randomspace` we shuffle each beak to random species (i.e. reshu
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 6, fig.width = 12}
 ## Randomise each species
-randospace <- shapespace
 randomise.space <- function(space, dims) {
       rando <- space
       rando[, dims] <- space[sample(1:nrow(space), nrow(space)), dims]
@@ -131,6 +147,8 @@ plot(randomise.space(shapespace, selected_dim)[, c(1, 2)], xlab = write.pc(1, sh
       col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
 ```
 
+Figure 3: difference between the shapespace and the randomspace
+
 ## The ballspace
 
 To generate the `ballspace` we scaled the data on each dimension to have same variance:
@@ -140,18 +158,9 @@ To generate the `ballspace` we scaled the data on each dimension to have same va
 ballspace <- shapespace
 ballspace[, selected_dim] <- apply(shapespace[, selected_dim], 2, scale)
 
-shape_var_prop <-  apply(shapespace[, selected_dim], 2, var)
-shape_var_prop <- shape_var_prop/sum(shape_var_prop)*100
+## Ballspace var
 ball_var_prop <-  apply(ballspace[, selected_dim], 2, var)
 ball_var_prop <- ball_var_prop/sum(ball_var_prop)*100
-
-## Plotting fun
-write.pc <- function(axis, space) {
-      paste0("PC", axis, " (", round(var[axis], 2), "%)")
-}
-range.axis <- function(space, dims) {
-      return(range(pretty(unlist(c(space[, dims])))))
-}
 
 ## Comparing D1 and D3 for the contrast
 par(mfrow = c(1,2))
@@ -165,6 +174,9 @@ plot(ballspace[, c(1,3)], xlab = write.pc(1, ball_var_prop), ylab = write.pc(3, 
       col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
 ```
 
+Figure 4: difference between the shapespace and the ballspace
+
+
 ## The BMspace
 
 To generate the `BMspace` we simulate 8 uncorrelated Brownian Motions on the consensus tree with the variance for each BM being the observed one for each dimension of the shapespace:
@@ -177,7 +189,7 @@ BMise.space <- function(space, tree, dims) {
       space_var_prop <- space_var_prop/sum(space_var_prop)*100
 
       ## Simulate the space
-      return(sapply(space_var_prop, function(var, tree) fastBM(tree = tree, sig2 = var), tree))
+      return(sapply(space_var_prop, function(var, tree) phytools::fastBM(tree = tree, sig2 = var), tree))
 }
 
 ## Comparing D1 and D3 for the contrast
@@ -191,9 +203,12 @@ BM_var_prop <-  apply(BMspace[, selected_dim], 2, var)
 BM_var_prop <- BM_var_prop/sum(BM_var_prop)*100
 plot(BMspace[, c(1, 2)], xlab = write.pc(1, BM_var_prop), ylab = write.pc(2, BM_var_prop),
       xlim = range.axis(BMspace, selected_dim), ylim = range.axis(BMspace, selected_dim),
-      main = "Randomised shapespace", pch = 19,
+      main = "BM simulated shapespace", pch = 19,
       col = c("orange", "blue", "darkgreen")[as.numeric(shapespace$level)])
 ```
+
+Figure 5: difference between the shapespace and the BMspace
+
 
 # Setting the mini-chains
 
