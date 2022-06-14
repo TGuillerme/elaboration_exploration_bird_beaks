@@ -174,13 +174,13 @@ library(MCMCglmm)
 library(dispRity)
 
 ## Loading the parametrisation data
-load(file = "../Data/Processed/shapespace_passeriformes_suborder_family.rda")
+load(file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
 
 ## Select the data
-shapespace <- shapespace_passeriformes_suborder_family[[1]]$space
-selected_dim <- shapespace_passeriformes_suborder_family[[1]]$dimensions
-consensus_tree <- shapespace_passeriformes_suborder_family[[1]]$consensus_tree
-trees_list <- shapespace_passeriformes_suborder_family[[1]]$trees_list
+shapespace <- shapespace_passeriformes_two_levels[[1]]$space
+selected_dim <- shapespace_passeriformes_two_levels[[1]]$dimensions
+consensus_tree <- shapespace_passeriformes_two_levels[[1]]$consensus_tree
+trees_list <- shapespace_passeriformes_two_levels[[1]]$trees_list
 ```
 
 ## Mini-chains parametrization
@@ -188,20 +188,20 @@ trees_list <- shapespace_passeriformes_suborder_family[[1]]$trees_list
 ```{r, parametrise_the_model, eval = FALSE}
 ## Set up the parametrising chains models
 param_chains <- make.mini.chains(data         = shapespace,
-                                   dimensions   = selected_dim,
-                                   tree         = consensus_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "level1", "level2"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
+                                 dimensions   = selected_dim,
+                                 tree         = consensus_tree,
+                                 trait.family = "gaussian",
+                                 randoms      = c("global", "level1", "level2"),
+                                 residuals    = "global",
+                                 priors       = 0.02,
+                                 verbose      = TRUE,
+                                 parameters   = list(
                                        nitt   = 50000,
                                        thin   = 500,
                                        burnin = 0))
 
 # Running the three MCMCglmm models
-save(param_chains, file = "../Data/Processed/params_shapespace_8D_50levels_50k_chain1.rda")
+save(param_chains, file = "../Data/Processed/params_passerines_shapespace_8D_28levels_50k.rda")
 ```
 
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
