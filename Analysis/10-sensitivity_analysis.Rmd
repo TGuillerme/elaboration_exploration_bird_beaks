@@ -218,7 +218,7 @@ Figure 5: difference between the shapespace and the BMspace
 
 # Setting the mini-chains
 
-## Original, BM space and randomised spaces (same parameters)
+## Original and randomised spaces (same parameters)
 
 We used the same mini chains parameters for the BMspace and the randomspace since both are stochastic spaces (i.e. each space is a different itteration) making it to intensive computationally to estimate the starting parameters every iteration.
 We therefore used the conservative parameters from the original space.
@@ -300,6 +300,12 @@ for(i in 1:25) {
       save(randospace_charadriiformes_, file = paste0("../Data/Cluster/shapespace_charadriiformes/randospace_charadriiformes_", i, ".mini.chains"))
 }
 ```
+
+
+## BM space
+
+For the BM space, the parameters are estimated for each simulation individually to avoid corner case bugs (e.g. wrong Choleski decompositions!).
+We used three chains of 20000 iterations for the parameterisation chains. 
 
 ```{r, eval = FALSE, echo = FALSE}
 ## Loading the parametrisation data
@@ -424,12 +430,168 @@ Model       | parameters      | replicates | trees sampled | spaces sampled | po
 ------------|-----------------|------------|---------------|----------------|----------------|
 shapespace  | from shapespace | 100        | 100           | 1              | 1000 |
 randomspace | from shapespace | 100        | 100           | 25             | 1000 |
-BMspace     | from shapespace | 100        | 100           | 25             | 1000 |
+BMspace     | from each BMspace | 100        | 100           | 25             | 1000 |
 ballspace   | from ballspace  | 100        | 100           | 1              | 1000 |
 
 
+
+## Combining and diagnosing the results
+
+```{r, eval = TRUE, echo = FALSE}
+## Set up the variables
+models_path <- "../Data/Cluster/shapespace_charadriiformes/"
+model_files <- list.files(models_path, pattern = ".rda")
+
+## Original space
+shapespace_models_names <- model_files[grep("shapespace", model_files)]
+## Models placeholder
+shapespace_models <- list()
+
+## Load the models
+for(i in 1:length(shapespace_models_names)) {
+      load(paste0(models_path, shapespace_models_names[i], collapse = "/"))
+      shapespace_models <- c(shapespace_models, shapespace_20)
+}
+
+## Combine and diagnose
+shapespace_charadriiformes_posteriors <- combine.mini.chains(shapespace_models)
+silent <- diagnose.mini.chains(shapespace_charadriiformes_posteriors)
+save(shapespace_charadriiformes_posteriors, file = "../Data/Processed/shapespace_charadriiformes_posteriors.MCMCglmm")
+
+```
+
+Figure 6: Original shapespace mcmcmcglmmm diagnosis
+
+
+```{r, eval = TRUE, echo = FALSE}
+## Ball space
+ballspace_models_names <- model_files[grep("ballspace", model_files)]
+## Models placeholder
+ballspace_models <- list()
+
+## Load the models
+for(i in 1:length(ballspace_models_names)) {
+      load(paste0(models_path, ballspace_models_names[i], collapse = "/"))
+      ballspace_models <- c(ballspace_models, ballspace_20)
+}
+
+## Combine and diagnose
+ballspace_charadriiformes_posteriors <- combine.mini.chains(ballspace_models)
+silent <- diagnose.mini.chains(ballspace_charadriiformes_posteriors)
+save(ballspace_charadriiformes_posteriors, file = "../Data/Processed/ballspace_charadriiformes_posteriors.MCMCglmm")
+```
+
+Figure 7: Balled shapespace mcmcmcglmmm diagnosis
+
+
+```{r, eval = TRUE, echo = FALSE}
+## Random space
+randospace_models_names <- model_files[grep("randospace", model_files)]
+## Models placeholder
+randospace_models <- list()
+
+## Load the models
+for(i in 1:length(randospace_models_names)) {
+      load(paste0(models_path, randospace_models_names[i], collapse = "/"))
+      randospace_models <- c(randospace_models, unlist(randospace_20, recursive = FALSE))
+}
+
+## Combine and diagnose
+randospace_charadriiformes_posteriors <- combine.mini.chains(randospace_models)
+silent <- diagnose.mini.chains(randospace_charadriiformes_posteriors)
+save(randospace_charadriiformes_posteriors, file = "../Data/Processed/randospace_charadriiformes_posteriors.MCMCglmm")
+```
+
+Figure 8: Randomised shapespace mcmcmcglmmm diagnosis
+
+
+```{r, eval = FALSE, echo = FALSE}
+## Random space
+BMspace_models_names <- model_files[grep("BMspace", model_files)]
+## Models placeholder
+BMspace_models <- list()
+
+## Load the models
+for(i in 1:length(BMspace_models_names)) {
+      load(paste0(models_path, BMspace_models_names[i], collapse = "/"))
+      BMspace_models <- c(BMspace_models, unlist(BMspace_20, recursive = FALSE))
+}
+
+## Combine and diagnose
+BMspace_charadriiformes_posteriors <- combine.mini.chains(BMspace_models)
+silent <- diagnose.mini.chains(BMspace_charadriiformes_posteriors)
+save(BMspace_charadriiformes_posteriors, file = "../Data/Processed/BMspace_charadriiformes_posteriors.MCMCglmm")
+```
+
+<!-- Figure 9: BMised shapespace mcmcmcglmmm diagnosis -->
+
 # Analysing the results
 
+## Creating the dispRity objects
+
+```{r, eval = TRUE, echo = FALSE}
+## Get the shapespace
+load(file = "../Data/Processed/params_shapespace_charadriiformes.rda")
+shapespace <- param_chains$data
+## Get the posteriors
+load(file = "../Data/Processed/shapespace_charadriiformes_posteriors.MCMCglmm")
+
+## Make the dispRity object
+chara_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+                                     data          = shapespace,
+                                     posteriors    = shapespace_charadriiformes_posteriors,
+                                     group         = MCMCglmm.levels(shapespace_charadriiformes_posteriors)[1:4],
+                                     rename.groups = c(levels(shapespace$level1), "phylogeny"))
+covar.plot(chara_shapespace, ellipses = TRUE, major.axes = TRUE, n = 100, col = c("orange", "blue", "darkgreen", "grey"), legend = TRUE)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+## Get the shapespace
+load(file = "../Data/Processed/params_ballspace_charadriiformes.rda")
+shapespace <- param_chains$data
+## Get the posteriors
+load(file = "../Data/Processed/ballspace_charadriiformes_posteriors.MCMCglmm")
+
+## Make the dispRity object
+chara_ballspace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+                                    data          = shapespace,
+                                    posteriors    = ballspace_charadriiformes_posteriors,
+                                    group         = MCMCglmm.levels(ballspace_charadriiformes_posteriors)[1:4],
+                                    rename.groups = c(levels(shapespace$level1), "phylogeny"))
+covar.plot(chara_ballspace, ellipses = TRUE, major.axes = TRUE, n = 100, col = c("orange", "blue", "darkgreen", "grey"), legend = TRUE)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+## Get the shapespace
+load(file = "../Data/Cluster/shapespace_charadriiformes/randospace_charadriiformes_1.mini.chains")
+shapespace <- randospace_charadriiformes_$data
+## Get the posteriors
+load(file = "../Data/Processed/randospace_charadriiformes_posteriors.MCMCglmm")
+
+## Make the dispRity object
+chara_randospace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+                                     data          = shapespace,
+                                     posteriors    = randospace_charadriiformes_posteriors,
+                                     group         = MCMCglmm.levels(randospace_charadriiformes_posteriors)[1:4],
+                                     rename.groups = c(levels(shapespace$level1), "phylogeny"))
+covar.plot(chara_randospace, ellipses = TRUE, major.axes = TRUE, n = 100, col = c("orange", "blue", "darkgreen", "grey"), legend = TRUE)
+```
+
+```{r, eval = FALSE, echo = FALSE}
+## Get the shapespace
+load(file = "../Data/Cluster/shapespace_charadriiformes/BMspace_charadriiformes_1.mini.chains")
+shapespace <- BMspace_charadriiformes_$data
+## Get the posteriors
+load(file = "../Data/Processed/BMspace_charadriiformes_posteriors.MCMCglmm")
+
+## Make the dispRity object
+chara_BMspace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+                                  data          = shapespace,
+                                  posteriors    = BMspace_charadriiformes_posteriors,
+                                  group         = MCMCglmm.levels(BMspace_charadriiformes_posteriors)[1:4],
+                                  rename.groups = c(levels(shapespace$level1), "phylogeny"))
+covar.plot(chara_BMspace, ellipses = TRUE, major.axes = TRUE, n = 100, col = c("orange", "blue", "darkgreen", "grey"), legend = TRUE)
+```
 
 
 
