@@ -24,8 +24,8 @@
  - [ ] Finalise figure anus: what info do we want in it? [GT]
  - [x] Finalise correlation figure: alignments and stuff [TG]
  - [x] Finalise ellipses figure: alignnments and stuff [TG]
- - [ ] Check figure 0 (helper) [TG]
- - [ ] Write a detailed explanation for that figure (cheat sheet)
+ - [x] Check figure 0 (helper) [TG]
+ - [x] Write a detailed explanation for that figure (cheat sheet)
 
 ## Supplementaries
 
