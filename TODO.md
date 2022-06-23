@@ -31,7 +31,7 @@
 
  - [ ] Passerines?
  - [ ] methods vignettes (but see reproducibility)?
- - [ ] start adding them at the bottom of the google doc [TG]
+ - [x] start adding them at the bottom of the google doc [TG]
       - [ ] missing the math thingy
       - [ ] missing the projection/rejection illustration
 
