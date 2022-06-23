@@ -2,6 +2,7 @@
 *.html
 
 Data/Cluster/shapespace_charadriiformes/*
+Poster/*
 
 ## R ignore
 .Rhistory
