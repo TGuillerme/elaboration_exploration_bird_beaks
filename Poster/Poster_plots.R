@@ -39,9 +39,9 @@ elaborations <- ploting_data$median_elaborations[match(tree$tip.label, names(plo
 innovations <- ploting_data$median_innovations[match(tree$tip.label, names(ploting_data$median_innovations))]
 
 ## Transform them into a colour gradient
-col.grad <- colorRamp(c("blue","orange"))
+col.grad <- colorRamp(rev(c("#d7191c", "#fdae61", "#ffffbf", "#abdda4", "#2b83ba")))
 cols_elab <- col.grad(elaborations/max(elaborations))
-cols_innov <- col.grad(innovations/max(innovations))
+cols_innov <- col.grad(innovations/max(elaborations))
 
 ## Match the colours correctly to match the ellipse figure
 #TODO: fix this!
@@ -51,12 +51,30 @@ names(level_vector) <- rownames(shapespace)
 edge_colors <- as.factor(match.tip.edge(level_vector, tree, replace.na = 0))
 levels(edge_colors) <- c("grey","grey", level_colors[match(levels(level_vector), names(level_colors))[-1]])
 plot(tree, show.tip.label = FALSE, edge.color = as.character(edge_colors), edge.width = 3, edge.lty = 1)
-tiplabels("", frame = "none", pch = 15, col = rgb(cols_elab, maxColorValue = 256), offset = 2)
-tiplabels("", frame = "none", pch = 15, col = rgb(cols_innov, maxColorValue = 256), offset = 4)
+tiplabels("", frame = "none", pch = 15, col = rgb(cols_elab, maxColorValue = 255), offset = 2)
+tiplabels("", frame = "none", pch = 15, col = rgb(cols_innov, maxColorValue = 255), offset = 4)
 dev.off()
 
-164.760
-210.800
+# 164.760
+# 210.800
 
-20
-150
+# 20
+# 150
+
+data(charadriiformes)
+
+## Creating a dispRity object from the charadriiformes model
+covar <- MCMCglmm.subsets(data       = charadriiformes$data,
+                          posteriors = charadriiformes$posteriors,
+                          group      = MCMCglmm.levels(
+                                         charadriiformes$posteriors)[1:4],
+                          rename.groups = c("gulls", "plovers",
+                                            "sandpipers", "phylogeny"))
+
+pdf(file = "covars.pdf", height = 8, width = 8)
+## Same plot with more options
+covar.plot(covar, n = 100, ellipses = TRUE, major.axes = TRUE, 
+           col = c("orange", "blue", "darkgreen", "grey", "grey"),
+           legend = TRUE, points = TRUE, points.cex = 0.5,
+           main = "Charadriiformes shapespace")
+dev.off()
