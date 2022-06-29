@@ -78,3 +78,84 @@ covar.plot(covar, n = 100, ellipses = TRUE, major.axes = TRUE,
            legend = TRUE, points = TRUE, points.cex = 0.5,
            main = "Charadriiformes shapespace")
 dev.off()
+
+
+
+
+
+## Correlation plots
+library(dispRity)
+source("../Functions/ploting.utilities.R")
+source("../Functions/correlations.utilities.R")
+## Loading the projection/rejections results
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
+## Calculate the correlations for the projections onto the phylo axis
+super_phylo_cor <- get.correlations(results$super_results_phylo)
+## Calculate the correlations for the projections onto the group' axes
+super_group_cor <- get.correlations(results$super_results_within, exclude.phylo = TRUE)
+
+
+load("../Data/Processed/tip_colours_orders.rda")
+
+## Set the pdf parameters
+pdf("correlations.pdf", height = 12, width = 8)
+
+## Set up the plotting layout
+layout_matrix <- cbind(matrix(1,2,2), matrix(0,2,2))
+layout_matrix <- rbind(rbind(layout_matrix, matrix(1:8+1, 2, 4, byrow = TRUE)), matrix(9:16+1, 2, 4,  byrow = TRUE))
+plot_layout <- layout(layout_matrix)
+# layout.show(plot_layout)
+
+## Setting the colour pallette for the subsequent plots
+colour.palette <- gg.color.hue
+
+## --------
+## PANEL A
+## --------
+
+## Plotting the densities (with the quadrants) in the first panel
+par(mar = c(5, 4, 4, 2) + 0.1)
+plot.densities(super_phylo_cor$phylogeny, with.quadrant = TRUE)
+
+## --------
+## PANEL B
+## --------
+
+## Getting the subsets for the colouring
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
+
+## Set the vector of legend positions
+legends_pos <- c("topleft", "topright", "topright", "topright",
+                 "topleft", "topright", "topleft", "topright")
+## Create the vector for counting the legend numbers
+legend_counter <- 1
+
+## Plotting each individual correlation plots
+for(i in 1:8) {
+    par(mar = c(2,2.5,2,1.5))
+    plot.correlations(super_phylo_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, contour = NULL, with.quadrant = TRUE, colour.palette = tip_colours_orders)
+}
+
+## --------
+## PANEL C
+## --------
+
+## Getting the subsets for the colouring
+col_subs <- c(split(shapespace$level2, f = shapespace$level1)[-1], "phylogeny" = list(shapespace$level1))
+
+## Set the vector of legend positions
+legends_pos <- c("bottomright", "topright", "topleft", "topleft",
+                 "topleft", "topleft", "topright", "bottomright")
+## Resetting the legend_counter
+legend_counter <- 1
+
+## Plotting each individual correlation plots
+for(i in 1:8) {
+    par(mar = c(2,2.5,2,1.5))
+    plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = FALSE, contour = NULL)
+}
+dev.off()
+
+
