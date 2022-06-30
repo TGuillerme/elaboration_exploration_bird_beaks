@@ -155,12 +155,12 @@ dev.off()
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
-load(file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+load(file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
 ## Select the data
-shapespace <- shapsepace_passeriformes_suborder_family[[1]]$space
-tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
+shapespace <- shapespace_passeriformes_two_levels[[1]]$space
+tree <- shapespace_passeriformes_two_levels[[1]]$consensus_tree
 ## Clean garbage
-rm(shapsepace_passeriformes_suborder_family)
+rm(shapespace_passeriformes_two_levels)
 
 ## Load the covar
 load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
@@ -168,20 +168,20 @@ shapespace_passeriformes <- shapespace_passeriformes[[1]]
 
 ## Get the levels
 phylo_lvl <- which(MCMCglmm.levels(shapespace_passeriformes) == "animal")
-subor_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
-famil_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
+suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
+family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
 
 ## Creating the subsets
-suborder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+suborder_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
-      group         = MCMCglmm.levels(shapespace_passeriformes)[c(subor_lvl, phylo_lvl)],
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-family_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+family_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
-      group         = MCMCglmm.levels(shapespace_passeriformes)[c(famil_lvl, phylo_lvl)],
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ## Clean garbage
 rm(shapespace_passeriformes)
@@ -196,7 +196,7 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 
 ```{r}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure1_passeriformes.pdf", height = box_size*7, width = box_size*10)
+pdf(file = "../Manuscript/Figures/Figure3_passeriformes.pdf", height = box_size*7, width = box_size*10)
 
 ## Global window
 lay_mat_family <- rbind(
@@ -205,72 +205,73 @@ lay_mat_family <- rbind(
         matrix(c(1,1, 18:25), ncol = 10, nrow = 1), # line 3
         matrix(c(26:35), ncol = 10, nrow = 1), # line 4
         matrix(c(36:45), ncol = 10, nrow = 1), # line 5
-        matrix(c(46:55), ncol = 10, nrow = 1) # line 6
+        matrix(c(46:47, rep(-13,8)), ncol = 10, nrow = 1) # line 6
     )
 lay_mat_sub <- rbind(
-        matrix(c(1,1, 2:5, rep(0, 4)), ncol = 10, nrow = 1) # line 7
+        matrix(c(1,1, 2:9, c(1,1), 10:13, rep(0, 4)), ncol = 10, nrow = 2, byrow = TRUE) # line 7
     )
 heights_vals <- rep(1, 8)
 widths_vals <- rep(c(1, 1/3), 5)
-layout_matrix <- layout(rbind(lay_mat_sub, (lay_mat_family+5)), widths = widths_vals, heights = heights_vals, respect = TRUE)
+layout_matrix <- layout(rbind(lay_mat_sub, (lay_mat_family+13)), widths = widths_vals, heights = heights_vals, respect = TRUE)
+# layout.show(layout_matrix)
 
 ## PLOTTING THE SUBORDERS
 
 ## Getting the tip order for the ladderised super order tree
 tip_order <- c(
-    "Tyranni" = 1,
-    "Passeri" = 2)
+    "Suboscines" = 1,
+    "Meliphagoidea" = 2,
+    "Corvides" = 3,
+    "Sylviida" = 4,
+    "Muscicapida" = 5,
+    "Passerida" = 6)
 
 ## Plotting the tree and getting the tip orders
-tip_colours_suborders <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
-save(tip_colours_suborders, file = "../Data/Processed/tip_colours_suborders.rda")
+tip_colours_passeriformes_level1 <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_passeriformes_level1, file = "../Data/Processed/tip_colours_passeriformes_level1.rda")
 
 ## Plotting the ellipses
 for(i in 1:length(tip_order)) {
     ## Plot each pannel
-    wrap.plot.ellipses(i, tip_colours_suborders, suborder_shapespace, results$suborder_results_between)
+    wrap.plot.ellipses(i, tip_colours_passeriformes_level1, suborder_shapespace, results$suborder_results_between)
 }
 
 ## PLOTTING THE FAMILIES
 
 ## Matching the order and the colours to the ladderised tree
 tip_order <- c(
-    "Pittidae" = 2,
-    "Eurylaimidae" = 1,
-    "Tyrannidae" = 5,
-    "Pipridae" = 3,
-    "Cotingidae" = 4,
-    "Thamnophilidae" = 6,
-    "Furnaridae" = 9,
-    "Rhinocryptidae" = 8,
-    "Grallariidae" = 7,
-    "Ptilonorhynchidae" = 10,
-    "Maluridae" = 11,
-    "Meliphagidae" = 13,
-    "Acanthizidae" = 12,
-    "Vireonidae" = 20,
-    "Pachycephalidae" = 18,
-    "Oriolidae" = 19,
-    "Laniidae" = 25,
-    "Corvidae" = 24,
-    "Paradisaeidae" = 23,
-    "Monarchidae" = 22,
-    "Dicruridae" = 21,
-    "Campephagidae" = 14,
-    "Malaconotidae" = 16,
-    "Vangidae" = 15,
-    "Platysteiridae" = 17,
-    "Troglodytidae" = 27,
-    "Sittidae" = 26)
+    "Aegithaloidea"= 12,
+    "Bombycilloidea"= 17,
+    "Cisticolidae"= 14,
+    "Corvoidea"= 7,
+    "Emberizoidea"= 23,
+    "Eurylaimides"= 1,
+    "Fringillidae"= 10,
+    "Furnariida"= 3,
+    "Hirundinidae"= 11,
+    "Locustelloidea"= 15,
+    "Malaconotoidea"= 5,
+    "Meliphagoidea"= 4,
+    "Motacillidae"= 22,
+    "Muscicapoidea"= 18,
+    "Nectariniidae"= 19,
+    "Orioloidea"= 6,
+    "Paridae"= 9,
+    "Passeridae"= 21,
+    "Petroicidae"= 8,
+    "PloceidaeEstrildidae"= 20,
+    "Pycnonotidae"= 13,
+    "Sylvioidea"= 16,
+    "Tyrannida" = 2)
 
 ## Plotting the tree and getting the tip orders
-tip_colours_families <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
-save(tip_colours_families, file = "../Data/Processed/tip_colours_families.rda")
+tip_colours_passeriformes_level2 <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_passeriformes_level2, file = "../Data/Processed/tip_colours_passeriformes_level2.rda")
 
 ## Plotting the ellipses
 for(i in 1:length(tip_order)) {
     ## Plot each pannel
-    wrap.plot.ellipses(i, tip_colours_families, family_shapespace, results$family_results_between)
+    wrap.plot.ellipses(i, tip_colours_passeriformes_level2, family_shapespace, results$family_results_between)
 }
 dev.off()
 
