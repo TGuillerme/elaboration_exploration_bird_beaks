@@ -236,6 +236,8 @@ load("../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
 shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[(clades_list[, "level2_order"] == "Passeriformes"), ]
 
+## Check what's happening with Neodrepanis_hypoxantha
+
 ## Loading the Passeriformes clades
 load("../Data/Processed/clade.info_passerines.rda")
 ## Clean the levels
@@ -244,13 +246,25 @@ shapespace_passeriformes$level2 <- rep("", nrow(shapespace_passeriformes))
 
 ## Fill in the level1
 for(clade in 1:length(clade_info_passerines$passerine_big_clades)) {
+  ## Get the clade name
   clade_name <- names(clade_info_passerines$passerine_big_clades)[clade]
+  ## Attribute the species/clade
   shapespace_passeriformes[clade_info_passerines$passerine_big_clades[[clade]], "level1"] <- clade_name
+  ## Remove species not present originally in the shapespace
+  if(length(nas <- which(apply(shapespace_passeriformes[, 1:8], 1, function(row) any(is.na(row))))) > 0) {
+      shapespace_passeriformes <- shapespace_passeriformes[-nas, ]
+  }
 }
 ## Fill in the level2
 for(clade in 1:length(clade_info_passerines$passerine_small_clades)) {
+  ## Get the clade name
   clade_name <- names(clade_info_passerines$passerine_small_clades)[clade]
+  ## Attribute the species/clade
   shapespace_passeriformes[clade_info_passerines$passerine_small_clades[[clade]], "level2"] <- clade_name
+  ## Remove species not present originally in the shapespace
+  if(length(nas <- which(apply(shapespace_passeriformes[, 1:8], 1, function(row) any(is.na(row))))) > 0) {
+      shapespace_passeriformes <- shapespace_passeriformes[-nas, ]
+  }
 }
 shapespace_passeriformes[, "level1"] <- as.factor(shapespace_passeriformes[, "level1"])
 shapespace_passeriformes[, "level2"] <- as.factor(shapespace_passeriformes[, "level2"])
