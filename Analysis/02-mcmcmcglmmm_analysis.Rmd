@@ -273,8 +273,8 @@ if(!("shapespace_passeriformes.MCMCglmm" %in% list.files("../Data/Processed/")))
     model_files <- model_files[-1]
 } else {
     ## Updating the model
-    load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-    model_list <- shapespace_allbirds_lvl_superorder_order
+    load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+    model_list <- shapespace_passeriformes
 }
 
 ## Get the subsequent models and merge them as we go
