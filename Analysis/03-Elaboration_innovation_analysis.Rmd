@@ -1363,12 +1363,12 @@ for(i in 1:length(order_within_cor)) {
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
-load(file = "../Data/Processed/shapsepace_passeriformes_suborder_family.rda")
+load(file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
 ## Select the data
-shapespace <- shapsepace_passeriformes_suborder_family[[1]]$space
-tree <- shapsepace_passeriformes_suborder_family[[1]]$consensus_tree
+shapespace <- shapespace_passeriformes_two_levels[[1]]$space
+tree <- shapespace_passeriformes_two_levels[[1]]$consensus_tree
 ## Clean garbage
-rm(shapsepace_passeriformes_suborder_family)
+rm(shapespace_passeriformes_two_levels)
 
 ## Load the covar
 load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
@@ -1380,13 +1380,13 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
 
 ## Creating the subsets
-suborder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+suborder_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-family_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+family_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
