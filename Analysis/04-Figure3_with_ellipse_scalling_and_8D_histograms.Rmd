@@ -150,6 +150,36 @@ dev.off()
 ```
 
 
+## Overlapping ellipses plot
+
+```{r}
+load("../Data/Processed/tip_colours_super_orders.rda")
+load("../Data/Processed/tip_colours_orders.rda")
+
+## Matching colours (fast utility)
+match.col <- function(data, col) {
+    return(c(col[match(names(size.subsets(data)), names(col))[-length(size.subsets(data))]], "grey"))
+}
+
+pdf(file = "../Manuscript/Figures/Figure_supplementary_aligned_ellipses.pdf", height = 6, width = 12)
+par(mfrow = c(1,2))
+## Plotting the aligned and scale ellipses for the superorders
+covar.plot(superorder_shapespace, ellipses = mean,
+           col = match.col(superorder_shapespace, tip_colours_super_orders),
+           legend = TRUE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(1, length(tip_colours_super_orders)), 3),
+           main = "Scaled and centred average super order VCV")
+
+## Plotting the aligned and scale ellipses for the superorders
+covar.plot(order_shapespace, ellipses = mean,
+           col = match.col(order_shapespace, tip_colours_orders),
+           legend = FALSE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(0.5, length(tip_colours_orders)), 3),
+           main = "Scaled and centred average order VCV")
+dev.off()
+```
+
+
 
 # Passeriformes shapespace analyses
 
