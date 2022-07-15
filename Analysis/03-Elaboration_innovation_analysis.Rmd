@@ -491,7 +491,79 @@ shapespace_passeriformes_suborder_family_results_list <- list(
 save(shapespace_passeriformes_suborder_family_results_list, file = "../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
 ```
 
+## Saving plotting data (median values)
 
+
+```{r, echo = FALSE, eval = FALSE}
+load("../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
+results <- shapespace_passeriformes_suborder_family_results_list
+rm(shapespace_passeriformes_suborder_family_results_list)
+## Getting the plotting data
+ploting_data_passeriformes <- list(
+                     "median_elaborations" = apply(get.disparity(get.subsets(results$suborder_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "median_innovations"  = apply(get.disparity(get.subsets(results$suborder_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median),
+                     "distances_to_centre" = get.disparity(dispRity(get.subsets(suborder_shapespace, subsets = "phylogeny"), metric = dispRity::centroids, centroid = 0))[[1]],
+                     "consensus_tree"      = tree) 
+
+## Get the data at the macro level (with no missing data)
+get.macro.projection <- function(data, what) {
+    if(what == "centroids") {
+        ## Measuring the centroid distances
+        data <- dispRity(data, metric = dispRity::centroids)
+    } else {
+        data <- data[[what]]
+    }
+    ## Getting all the species
+    all_species <- apply(get.disparity(get.subsets(data, subsets = "phylogeny"), concatenate = FALSE)[[1]], 1, median)
+    names(all_species) <- rownames(get.subsets(data, subsets = "phylogeny")$matrix[[1]])
+    ## Getting the species that have a projection on their own group
+    macro_level <- apply(do.call(rbind, get.disparity(get.subsets(data, subsets = names(size.subsets(data))[-n.subsets(data)]), concatenate = FALSE)), 1, median)
+    names(macro_level) <- unlist(lapply(lapply(get.subsets(data, subsets = names(size.subsets(data))[-n.subsets(data)])$subsets, `[[`, "elements"), function(X, matrix) rownames(matrix)[X], matrix = data$matrix[[1]]))
+    ## Replacing the species that have their own group
+    all_species[match(names(macro_level), names(all_species))] <- macro_level
+    return(all_species)
+}
+
+## Getting the plotting data super_order_level
+ploting_data_passeriformes_suborder <- list(
+                     "median_elaborations" = get.macro.projection(results$suborder_results_within, what = "position"),
+                     "median_innovations"  = get.macro.projection(results$suborder_results_within, what = "distance"),
+                     "distances_to_centre" = get.macro.projection(suborder_shapespace, what = "centroids"),
+                     "consensus_tree"      = tree) 
+
+## Getting the plotting data super_order_level
+ploting_data_passeriformes_family <- list(
+                     "median_elaborations" = get.macro.projection(results$family_results_within, what = "position"),
+                     "median_innovations"  = get.macro.projection(results$family_results_within, what = "distance"),
+                     "distances_to_centre" = get.macro.projection(family_shapespace, what = "centroids"),
+                     "consensus_tree"      = tree) 
+
+## Save all that as a list
+save(ploting_data_passeriformes, file = "../Data/Processed/ploting_data_passeriformes.rda")
+## The projections within the suborders
+save(ploting_data_passeriformes_suborder, file = "../Data/Processed/ploting_data_passeriformes_suborder.rda")
+## The projections within the families
+save(ploting_data_passeriformes_family, file = "../Data/Processed/ploting_data_passeriformes_family.rda")
+
+## Group info
+suborders <- lapply(results$suborder_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$suborder_results_phylo$position$matrix[[1]])
+families <- lapply(results$family_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$family_results_phylo$position$matrix[[1]])
+## Adding the colours
+load("../Data/Processed/tip_colours_suborders.rda")
+load("../Data/Processed/tip_colours_families.rda")
+add.col <- function(one_order, one_col) {
+    one_order$col <- one_col
+    return(one_order)
+}
+suborders <- mapply(add.col, one_order = suborders[1:8][match(names(suborders[1:8]), names(tip_colours_suborders))], one_col = as.list(tip_colours_suborders), SIMPLIFY = FALSE)
+families <- mapply(add.col, one_order = families[1:27][match(names(families[1:27]), names(tip_colours_families))], one_col = as.list(tip_colours_families), SIMPLIFY = FALSE)
+
+## Big list:
+clade_info_passeriformes <- list(suborders = suborders,
+                                 families = families)
+## Save all that data
+save(clade_info_passeriformes, file = "../Data/Processed/clade_info_passeriformes.rda")
+```
 
 
 
