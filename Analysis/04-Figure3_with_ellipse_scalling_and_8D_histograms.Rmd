@@ -60,23 +60,26 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 
 ```{r, eval = TRUE, echo = FALSE}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure3_ellipses_2.pdf", height = box_size*8, width = box_size*10)
+pdf(file = "../Manuscript/Figures/Figure3_ellipses_2.pdf", height = box_size*10, width = box_size*10)
 
 ## SETTING THE WINDOW PARAMETERS
-
 ## Global window parameters
-lay_mat_order <- rbind(
-        matrix(c(1,1, 2:9), ncol = 10, nrow = 1), # line 1
-        matrix(c(1,1, 10:17), ncol = 10, nrow = 1), # line 2
-        matrix(c(57,58, 18:25), ncol = 10, nrow = 1), # line 3
-        matrix(c(26:35), ncol = 10, nrow = 1), # line 4
-        matrix(c(36:45), ncol = 10, nrow = 1), # line 5
-        matrix(c(46:55), ncol = 10, nrow = 1) # line 6
-    )
 lay_mat_super <- rbind(
-        matrix(c(1,1, 2:9), ncol = 10, nrow = 1), # line 7
-        matrix(c(73,0, 10:17), ncol = 10, nrow = 1) # line 8
+        matrix(c(1,1, rep(73, 3), 0, 2:5), ncol = 10, nrow = 1), # line 7
+        matrix(c(1,1, rep(73, 3), 0, 6:9), ncol = 10, nrow = 1), # line 8
+        matrix(c(78,78, 10:17), ncol = 10, nrow = 1) # line 8
     )
+lay_mat_order <- rbind(
+        matrix(c(1,1, rep(57, 3), 60, 2:5), ncol = 10, nrow = 1), 
+        matrix(c(1,1, rep(57, 3), 60, 6:9), ncol = 10, nrow = 1), 
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1),
+        matrix(c(18:27), ncol = 10, nrow = 1),
+        matrix(c(28:37), ncol = 10, nrow = 1), 
+        matrix(c(38:47), ncol = 10, nrow = 1),
+        matrix(c(48:55, 58:59), ncol = 10, nrow = 1)
+    )
+
+
 heights_vals <- rep(1, 9)
 widths_vals <- rep(c(1, 1/3), 5)
 layout_matrix <- layout(rbind(lay_mat_super, (lay_mat_order+17)), widths = widths_vals, heights = heights_vals, respect = TRUE)
@@ -164,7 +167,6 @@ covar.plot(superorder_shapespace, ellipses = mean,
 
 ## PLOTTING THE ORDERS
 
-load("../Data/Processed/tip_colours_orders.rda")
 par(bty = "n")
 lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
 plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
@@ -288,13 +290,13 @@ tip_order <- c(
     "Passerida" = 6)
 
 ## Plotting the tree and getting the tip orders
-tip_colours_passeriformes_level1 <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
-save(tip_colours_passeriformes_level1, file = "../Data/Processed/tip_colours_passeriformes_level1.rda")
+tip_colours_passeriformes_suborder <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_passeriformes_suborder, file = "../Data/Processed/tip_colours_passeriformes_suborder.rda")
 
 ## Plotting the ellipses
 for(i in 1:length(tip_order)) {
     ## Plot each pannel
-    wrap.plot.ellipses(i, tip_colours_passeriformes_level1, suborder_shapespace, results$suborder_results_between)
+    wrap.plot.ellipses(i, tip_colours_passeriformes_suborder, suborder_shapespace, results$suborder_results_between)
 }
 
 ## PLOTTING THE FAMILIES
@@ -326,13 +328,13 @@ tip_order <- c(
     "Tyrannida" = 2)
 
 ## Plotting the tree and getting the tip orders
-tip_colours_passeriformes_level2 <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
-save(tip_colours_passeriformes_level2, file = "../Data/Processed/tip_colours_passeriformes_level2.rda")
+tip_colours_passeriformes_family <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_passeriformes_family, file = "../Data/Processed/tip_colours_passeriformes_family.rda")
 
 ## Plotting the ellipses
 for(i in 1:length(tip_order)) {
     ## Plot each pannel
-    wrap.plot.ellipses(i, tip_colours_passeriformes_level2, family_shapespace, results$family_results_between)
+    wrap.plot.ellipses(i, tip_colours_passeriformes_family, family_shapespace, results$family_results_between)
 }
 dev.off()
 
