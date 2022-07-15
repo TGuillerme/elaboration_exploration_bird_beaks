@@ -163,7 +163,7 @@ covar.plot(superorder_shapespace, ellipses = mean,
            col = match.col(superorder_shapespace, tip_colours_super_orders),
            legend = FALSE, points = FALSE, scale = "phylogeny",
            lines.lwd = c(rep(1, length(tip_colours_super_orders)), 3),
-           add = TRUE)
+           add = TRUE, n = 100)
 
 ## PLOTTING THE ORDERS
 
@@ -176,7 +176,7 @@ covar.plot(order_shapespace, ellipses = mean,
            col = match.col(order_shapespace, tip_colours_orders),
            legend = FALSE, points = FALSE, scale = "phylogeny",
            lines.lwd = c(rep(0.5, length(tip_colours_orders)), 3),
-           add = TRUE)
+           add = TRUE, n = 100)
 
 dev.off()
 
@@ -229,19 +229,23 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 
 ```{r}
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure3_passeriformes.pdf", height = box_size*7, width = box_size*10)
+pdf(file = "../Manuscript/Figures/Figure3_passeriformes.pdf", height = box_size*9, width = box_size*10)
 
 ## Global window
-lay_mat_family <- rbind(
-        matrix(c(1,1, 2:9), ncol = 10, nrow = 1), # line 1
-        matrix(c(1,1, 10:17), ncol = 10, nrow = 1), # line 2
-        matrix(c(1,1, 18:25), ncol = 10, nrow = 1), # line 3
-        matrix(c(26:35), ncol = 10, nrow = 1), # line 4
-        matrix(c(36:45), ncol = 10, nrow = 1), # line 5
-        matrix(c(46:47, rep(-13,8)), ncol = 10, nrow = 1) # line 6
-    )
+x <- 61
 lay_mat_sub <- rbind(
-        matrix(c(1,1, 2:9, c(1,1), 10:13, rep(0, 4)), ncol = 10, nrow = 2, byrow = TRUE) # line 7
+        matrix(c(1,1, rep(x, 3), 0, 2:5), ncol = 10, nrow = 1), # line 7
+        matrix(c(1,1, rep(x, 3), 0, 6:9), ncol = 10, nrow = 1), # line 8
+        matrix(c(x+2,x+2, 10:13, rep(x+3, 4)), ncol = 10, nrow = 1) # line 8
+    )
+y <- x - 13
+lay_mat_family <- rbind(
+        matrix(c(1,1, rep(y+1, 3), y+4, 2:5), ncol = 10, nrow = 1), 
+        matrix(c(1,1, rep(y+1, 3), y+4, 6:9), ncol = 10, nrow = 1), 
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1),
+        matrix(c(18:27), ncol = 10, nrow = 1),
+        matrix(c(28:37), ncol = 10, nrow = 1), 
+        matrix(c(38:47), ncol = 10, nrow = 1)
     )
 heights_vals <- rep(1, 8)
 widths_vals <- rep(c(1, 1/3), 5)
@@ -315,23 +319,22 @@ plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = 
 abline(v = 0, col = "grey", lwd = 0.5)
 abline(h = 0, col = "grey", lwd = 0.5)
 covar.plot(suborder_shapespace, ellipses = mean,
-           col = match.col(suborder_shapespace, tip_colours_suborders),
+           col = match.col(suborder_shapespace, tip_colours_passeriformes_suborder),
            legend = FALSE, points = FALSE, scale = "phylogeny",
-           lines.lwd = c(rep(1, length(tip_colours_suborders)), 3),
-           add = TRUE, n = 50)
+           lines.lwd = c(rep(1, length(tip_colours_passeriformes_suborder)), 3),
+           add = TRUE, n = 100)
 
 ## PLOTTING THE ORDERS
-
 par(bty = "n")
 lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
 plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
 abline(v = 0, col = "grey", lwd = 0.5)
 abline(h = 0, col = "grey", lwd = 0.5)
 covar.plot(family_shapespace, ellipses = mean,
-           col = match.col(family_shapespace, tip_colours_families),
+           col = match.col(family_shapespace, tip_colours_passeriformes_family),
            legend = FALSE, points = FALSE, scale = "phylogeny",
-           lines.lwd = c(rep(0.5, length(tip_colours_families)), 3),
-           add = TRUE, n =50)
+           lines.lwd = c(rep(0.5, length(tip_colours_passeriformes_family)), 3),
+           add = TRUE, n = 100)
 dev.off()
 
 ```
