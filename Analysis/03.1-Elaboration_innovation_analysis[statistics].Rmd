@@ -14,7 +14,6 @@ This script take around 6 minutes to compile.
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
-source("../Functions/ploting.utilities.R")
 ```
 
 # Measuring ellipse's statistics
@@ -34,85 +33,104 @@ For each group, we can calculate:
 ## Load the data for all birds
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
-shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
-tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+shapespace_allbirds <- shapespace_allbirds_lvl_superorder_order[[1]]$space
 ## Clean garbage
 rm(shapespace_allbirds_lvl_superorder_order)
 
 ## Load the covar
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+shapespace_allbirds_posteriors <- shapespace_allbirds_lvl_superorder_order[[1]]
+rm(shapespace_allbirds_lvl_superorder_order)
 
 ## Get the levels
-phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
-super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
-order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_posteriors) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_posteriors))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_posteriors))
 
 ## Create the subset for all birds
 all_birds_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
-      data          = shapespace,
-      posteriors    = shapespace_allbirds_lvl_superorder_order,
-      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, order_lvl, phylo_lvl)],
-      rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+      data          = shapespace_allbirds,
+      posteriors    = shapespace_allbirds_posteriors,
+      group         = MCMCglmm.levels(shapespace_allbirds_posteriors)[c(super_lvl, order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace_allbirds$level1)[-1], levels(shapespace_allbirds$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ## Clean garbage
-rm(shapespace_allbirds_lvl_superorder_order)
+rm(shapespace_allbirds_posteriors)
 
 
-# Load the data for the passeriformes
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Load the covar
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+shapespace_passeriformes_posteriors <- shapespace_passeriformes[[1]]
+rm(shapespace_passeriformes)
+## Load the data for the passeriformes
+load(file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
 ## Select the data
-shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
-tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+shapespace_passeriformes <- shapespace_passeriformes_two_levels[[1]]$space
 ## Clean garbage
-rm(shapespace_allbirds_lvl_superorder_order)
-
-## Load the covar
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+rm(shapespace_passeriformes_two_levels)
 
 ## Get the levels
-phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
-super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
-order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+phylo_lvl <- which(MCMCglmm.levels(shapespace_passeriformes_posteriors) == "animal")
+suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes_posteriors))
+family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes_posteriors))
 
 ## Create the subset for all birds
-all_birds_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
-      data          = shapespace,
-      posteriors    = shapespace_allbirds_lvl_superorder_order,
-      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, order_lvl, phylo_lvl)],
-      rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+passeriformes_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
+      data          = shapespace_passeriformes,
+      posteriors    = shapespace_passeriformes_posteriors,
+      group         = MCMCglmm.levels(shapespace_passeriformes_posteriors)[c(suborder_lvl, family_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace_passeriformes$level1)[-1], levels(shapespace_passeriformes$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
 ## Clean garbage
-rm(shapespace_allbirds_lvl_superorder_order)
-
-
-
-
+rm(shapespace_passeriformes_posteriors)
 ```
 
+```{r}
+## Creating the nested levels subgroups
+make.nested.subset <- function(group, data, group.data) {
+    ## Get the subsets within the group
+    level2_groups <- as.character(unique(group.data$level2[group.data$level1 == group]))
+    if(any(empty <- level2_groups == "")) {
+        level2_groups <- level2_groups[-which(empty)]
+    }
+    if(length(level2_groups) < 1) {
+        return(NULL)
+    }
+    ## Create a subset
+    return(get.subsets(data, subsets = c(level2_groups, group)))
+}
 
-
-
+## Get the subgroups for all_birds
+all_birds_shapespace_subgroups <- lapply(as.list(levels(shapespace_allbirds$level1)[-1]), make.nested.subset, data = all_birds_shapespace, group.data = shapespace_allbirds)
+names(all_birds_shapespace_subgroups) <- levels(shapespace_allbirds$level1)[-1]
+## Get the subgroups for the passeriformes
+passeriformes_shapespace_subgroups <- lapply(as.list(levels(shapespace_passeriformes$level1)[-1]), make.nested.subset, data = passeriformes_shapespace, group.data = shapespace_passeriformes)
+names(passeriformes_shapespace_subgroups) <- levels(shapespace_passeriformes$level1)[-1]
+```
 
 ### Groups compared to the phylogeny
 
 ```{r, eval = FALSE, echo = FALSE}
 source("../Functions/stats.utilities.R")
+
+## Fucked up thing happening here:
+cd("~/Packaging/dispRity/")
+load_all()
+
 ## General measurement
-super_orders_stats <- ellipse.stats(superorder_shapespace)
-orders_stats <- ellipse.stats(order_shapespace)
-suborder_stats <- ellipse.stats(suborder_shapespace)
-family_stats <- ellipse.stats(family_shapespace)
+all_birds_all_levels <- ellipse.stats(all_birds_shapespace)
+passeriformes_all_levels <- ellipse.stats(passeriformes_shapespace)
 
-ellipse_stats <- list(super_orders_stats = super_orders_stats, 
-                      orders_stats = orders_stats,
-                      suborder_stats = suborder_stats,
-                      family_stats = family_stats)
-save(ellipse_stats, file = "../Data/Processed/ellipse_stats.rda")
+## Nested measurements
+all_birds_nested_levels <- lapply(all_birds_shapespace_subgroups, ellipse.stats)
+passeriformes_nested_levels <- lapply(passeriformes_shapespace_subgroups, ellipse.stats)
+
+## Big measurements list
+ellipses_stats <- list("all_birds" = all_birds_all_levels)
+ellipses_stats <- c(ellipses_stats, all_birds_nested_levels)
+ellipses_stats$Passeriformes <- passeriformes_all_levels
+ellipses_stats <- c(ellipses_stats, passeriformes_nested_levels)
+
+save(ellipses_stats, file = "../Data/Processed/ellipses_stats.rda")
 ```
-
-
-
-
 
 
 ```{r, eval = TRUE, echo = FALSE}
