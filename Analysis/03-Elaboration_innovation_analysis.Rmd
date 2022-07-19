@@ -457,42 +457,19 @@ clade_info_passeriformes <- list(suborders = suborders,
 save(clade_info_passeriformes, file = "../Data/Processed/clade_info_passeriformes.rda")
 ```
 
-
-
-
 ## Measuring ellipse's statistics
 
 For each group, we can calculate:
 
- * It's orientation (angle) relative to the whole phylogeny
  * It's (dis)alignment relative to the the phylogeny
  * It's distance from the centroid of the phylogeny
-
-We can also calculate for each group:
-
- * It's angle internal variance (as a proxy for internal variance)
- * It's axis significance (Andrew's bit)
+ * It's angles sd
+ * It's orientation (angle) relative to the whole phylogeny
+ * Whether that orientation is significant
 
 ### Groups compared to the phylogeny
 
 ```{r, eval = FALSE, echo = FALSE}
-## Measuring fun
-ellipse.stats <- function(data) {
-    ## Get the groups list
-    groups_list <- unlist(apply(matrix(c(1:(n.subsets(data)-1), rep(n.subsets(data),(n.subsets(data)-1))), ncol = 2), 1, list), recursive = FALSE)
-
-    ## Renanme the phylogeny subset
-    names(data$subsets)[n.subsets(data)] <- "phy"
-
-    ## Measure the disparities
-    results <- list(
-        angles     = dispRity(data, metric = as.covar(projections.between), measure = "degree", between.groups = groups_list),
-        alignments = dispRity(data, metric = as.covar(disalignment, VCV = c(FALSE, TRUE), loc = c(TRUE, FALSE)), between.groups = groups_list),
-        distances  = dispRity(data, metric = group.dist, probs = c(0.5), between.groups = groups_list)
-    )
-    return(results)
-}
-
 ## General measurement
 super_orders_stats <- ellipse.stats(superorder_shapespace)
 orders_stats <- ellipse.stats(order_shapespace)
@@ -505,6 +482,50 @@ ellipse_stats <- list(super_orders_stats = super_orders_stats,
                       family_stats = family_stats)
 save(ellipse_stats, file = "../Data/Processed/ellipse_stats.rda")
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r, eval = TRUE, echo = FALSE}
 load("../Data/Processed/ellipse_stats.rda")
@@ -542,6 +563,14 @@ knitr::kable(all_results)
 ```
 
 
+
+
+
+
+
+
+
+
 ```{r, eval = TRUE, echo = FALSE}
 load("../Data/Processed/tip_colours_super_orders.rda")
 ploting.stats(ellipse_stats$super_orders_stats, col = tip_colours_super_orders)
@@ -561,16 +590,6 @@ ploting.stats(ellipse_stats$suborder_stats, col = tip_colours_passeriformes_subo
 load("../Data/Processed/tip_colours_passeriformes_family.rda")
 ploting.stats(ellipse_stats$family_stats, col = tip_colours_passeriformes_family)
 ```
-
-
-
-
-### Groups compared in cherries
-
-
-### Groups own variance
-
-
 
 
 
