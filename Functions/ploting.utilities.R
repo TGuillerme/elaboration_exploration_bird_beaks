@@ -9,6 +9,43 @@ gg.color.hue <- function(n) {
     grDevices::hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
 }
 
+#' @title visualisation.group
+#'
+#' @description plotting the ellipses from a covar object
+#' 
+#' @param data a dispRity object containing the shapespace and covar components
+#' @param subset which subset to plot
+#' @param dimensions which dimensions to plot
+#' @param n the number of ellipses to plot
+#' 
+## The ggplot color panel
+visualisation.group <- function(data, subset, dimensions, n = 100) {
+    ## Get the subset
+    sub <- get.subsets(data, subsets = subset)
+
+    ## Make 2D
+    if(!missing(dimensions)) {
+        sub$matrix[[1]] <- sub$matrix[[1]][,dimensions]
+        sub$call$dimensions <- dimensions
+        fun2d <- function(covar) {
+            covar$VCV <- covar$VCV[dimensions, dimensions]
+            covar$loc <- covar$loc[dimensions]
+            return(covar)
+        }
+        sub$covar <- lapply(sub$covar, lapply, fun2d)
+        main_D <- "2D"
+    } else {
+        main_D <- "8D"
+    }
+
+    ## Make the tile
+    main <- paste0(n, " random ", subset, " VCV (", main_D, ")")
+
+    ## Plot
+    covar.plot(sub, major.axes = TRUE, ellipses = TRUE, points = FALSE, legend = FALSE, main = main)
+    covar.plot(sub, major.axes = mean, ellipses = mean, points = FALSE, col = "red", add = TRUE)
+    rm(sub)
+}
 
 #' @title plot.one.ellipse
 #'
@@ -66,7 +103,7 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
                lwd = 4,
                add = TRUE,
                legend = legend,
-               scale = "phylogeny")        
+               scale = "phylogeny")
     }
 }
 
@@ -238,4 +275,264 @@ wrap.plot.ellipses <- function(i, tip.colours, shapespace, results) {
     ## Plot the elaboration/exploration
     par(mar = c(2, 1, 1, 1)+0.1)
     plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE)
+}
+
+#' @name scale rgb color
+#'    
+#' @description Scales a point on the blue/yellow/green colour scheme 
+#'
+#' @param x the x coordinates
+#' @param y the y coordinates
+#' @param max.x the highest x value
+#' @param max.y the highest y value
+#' @param alpha a transparency scaling (1 is not transparent)
+#'
+## Scale point to RGB
+scale.rgb <- function(x, y, max.x, max.y, alpha = 1) {
+    return(rgb(red = 255-((x/max.x)*255), blue = 255-((y/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
+}
+
+#' @name add.quadrant
+#'
+#' @description add the elaboration innovation quadrants on a plot
+#'
+#' @param data the data output from get.correlations
+#' @param midpoint where to put the midpoint of the quadrant, either a numeric value (default is 1) or "middle" for the middle of the plot window
+#'
+add.quadrant <- function(data, midpoint = 1, color = TRUE) {
+    max.x = max(range(pretty(data$x)))
+    max.y = max(range(pretty(data$y)))
+
+    ## Select the quadrant values
+    if(is(midpoint, "character") && midpoint == "middle") {
+        x_val1 <- mean(range(pretty(data$x)))
+        y_val1 <- mean(range(pretty(data$y)))
+    } else {
+        x_val1 <- y_val1 <- midpoint
+    }
+    x_val2 <- max(range(pretty(data$x)))
+    y_val2 <- max(range(pretty(data$y)))
+
+    if(color) {
+        ## Bottom left
+        polygon(x = c(0, 0, x_val1, x_val1),
+                y = c(0, y_val1, y_val1, 0),
+                col = scale.rgb(0, 0, max.x, max.y, alpha = 1/3), border = "white")
+        ## Bottom right
+        polygon(x = c(x_val1, x_val1, x_val2, x_val2),
+                y = c(0, y_val1, y_val1, 0),
+                col = scale.rgb(x_val2, 0, max.x, max.y, alpha = 1/3), border = "white")
+        ## Top left
+        polygon(x = c(0, 0, x_val1, x_val1),
+                y = c(y_val1, y_val2, y_val2, y_val1),
+                col = scale.rgb(0, y_val2, max.x, max.y, alpha = 1/3), border = "white")
+        ## Top right
+        polygon(x = c(x_val1, x_val1, x_val2, x_val2),
+                y = c(y_val1, y_val2, y_val2, y_val1),
+                col = scale.rgb(x_val2, y_val2, max.x, max.y, alpha = 1/3), border = "white")
+    }
+
+    abline(v = x_val1, lwd = 0.5, lty = 2)
+    abline(h = y_val1, lwd = 0.5, lty = 2)
+}
+
+#' @name quadrant.color
+#'
+#' @description get the quadrant equivalent color for a species elaboration/innovation
+#'
+#' @param elaboration the elaboration score
+#' @param innovation the innovation score
+#' @param exact.color whether to return the exact color (TRUE) or the quadrant color (FALSE - default)
+#' @param alpha the transparency value (default is 1/3 to match the one in the correlation figure)
+#'
+quadrant.color <- function(elaboration, innovation, exact.color = FALSE, alpha = 1/3) {
+
+    ## Max values (from the whole dataset)
+    max.x <- 2.5
+    max.y <- 1.4
+
+    if(exact.color) {
+        return(rgb(red = 255-((elaboration/max.x)*255), blue = 255-((innovation/max.y)*255), green = 255, maxColorValue = 255, alpha = alpha*255))
+    }
+
+    ## Get the position in the quadrant
+    quadrant <- as.integer(c(elaboration < (max.x/2), innovation < (max.y/2)))
+
+    ## Get the position name
+    if(all(quadrant == c(1, 1))) {
+        return(rgb(red = 255, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
+    } else {
+        if(all(quadrant == c(1, 0))) {
+            return(rgb(red = 0, blue = 255, green = 255, maxColorValue = 255, alpha = alpha*255))
+        } else {
+            if(all(quadrant == c(0, 1))) {
+                return(rgb(red = 255, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
+            } else {
+                if(all(quadrant == c(0, 0))) {
+                    return(rgb(red = 0, blue = 0, green = 255, maxColorValue = 255, alpha = alpha*255))
+                }
+            }
+        }
+    }
+}
+
+#' @name plot.densities
+#'
+#' @description plotting the densities of the results of a correlation plot
+#'
+#' @param data the data to plot (output from get.correlations)
+#' @param with.quadrant whether to add the quadrant or not
+##
+plot.densities <- function(data, with.quadrant = TRUE) {
+    plot(NULL, xlab = "elaboration", ylab = "innovation", xlim = range(pretty(data$x)), ylim = range(pretty(data$y)))
+    if(with.quadrant) {
+        add.quadrant(data)
+    }
+    ## Calculate the points densities
+    colour_densities <- densCols(cbind(data$x, data$y), colramp = scales::viridis_pal(alpha = 1, begin = 0, end = 1, direction = 1, option = "D"))
+    points(cbind(data$x, data$y), col = colour_densities, pch = 20)
+}
+
+
+#' @name plot.correlations
+#'    
+#' @description wrapping function for plotting the correlation results
+#'
+#' @param cor.results the correlation results (output from get.correlations)
+#' @param col.sub the list of factors for sub dividing the colours for plotting (basically the overall group colours)
+#' @param col.fun the function for the colour palette
+#' @param legend.pos where to plot the legend
+#' @param ID the plot number
+#' @param pt.cex point size
+#' @param legend.cex legend size
+#' @param legend_counter counting the legend for numbering
+#' @param contour whether to add contour lines (leave as null for no contour, else, add a named vector of distances from centre)
+#' @param with.quadrant whether to add the quadrants or not
+#' @param quadrant.color whether to colour the quadrant
+#'
+## Plotting one correlation
+plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, legend.pos = "topleft", pt.cex = 0.5, legend.cex = 0.5, ID, legend_counter, contour = NULL, with.quadrant = FALSE, quadrant.color = FALSE) {
+
+    if(missing(col.sub)) {
+        col.sub <- NULL
+    }
+
+    ## Subbing the colours
+    if(!is.null(col.sub)) {
+        ## Reset the levels
+        col_sub <- as.factor(as.character(col.sub))
+        ## Make the empty level grey
+        
+        # if(is(col.fun)) ## With col.fun a function or not (if not, take the colours directly from the colour vector)
+
+
+        if(any(levels(col_sub) == "")) {
+            col_avail <- c("grey", col.fun(length(levels(col_sub))-1))
+        } else {
+            col_avail <- col.fun(length(levels(col_sub)))
+        }
+
+
+
+
+        ## Create the colour vector
+        col_vector <- col_avail[as.numeric(col_sub)]
+    } else {
+        if(is.null(dots$col)) {
+            col_vector <- "black"
+        } else {
+            col_vector <- dots$col
+        }
+    }
+
+    ## Sort the data by group size
+    all_data <- cbind(x = cor.results$x, y = cor.results$y)
+    ## Classify the groups per numbers of species
+    all_data <- data.frame(all_data, col = col_vector)
+
+    ## Sort the data per group size
+    group_order <- sort(table(all_data$col), decreasing = TRUE)
+
+    ## Set the plotting data
+    plot_data <- data.frame()
+    # col_adjust <- seq(from = 1/length(group_order), to = 1, by = 0.1)*3
+    for(i in 1:length(group_order)) {
+        ## Get the data from the biggest group
+        selected_data <- all_data[which(all_data$col == names(group_order[i])), ]
+        ## Transparantise the colours (for the background)
+        # selected_data$col <- adjustcolor(selected_data$col, alpha = col_adjust[i])
+        ## Combine the plotting data
+        plot_data <- rbind(plot_data, selected_data)
+    }
+
+    ## Empty plot
+    plot(NULL, xlim = range(plot_data$x), ylim = range(plot_data$y), xaxt = "n", yaxt = "n", xlab = "", ylab = "", main = strsplit(cor.results$main, split = ":")[[1]][1])
+    axis(1, at = pretty(plot_data$x, n = 4))
+    axis(2, at = pretty(plot_data$y, n = 4), las = 2)
+
+    if(with.quadrant) {
+        add.quadrant(plot_data, color = quadrant.color)
+    }
+
+    ## Adding contours
+    if(!is.null(contour)) {
+
+        ## Get the contour data
+        contour_data <- contour[match(rownames(plot_data), names(contour))]
+
+        ## This function is copied/modified from ContourFunctions
+        estimate.contour <- function(x, y, z) {
+            X <- data.frame(x, y, z)
+            ## Set the model for estiamtions
+            if(nrow(X) > 25) {
+                ## Predicting model (using a general additive model)
+                gammod <- mgcv::gam(z ~ te(x, y), data = X, family= "gaussian")
+                ## Predicting function
+                pred.func <- function(xx) {
+                  predict(gammod, data.frame(x = xx[,1], y = xx[,2]), type = "response")
+                }
+            } else {
+                ## Using a local regression
+                lfmod <- locfit::locfit(z ~ x + y, data = X, family = "gaussian")
+                ## Predicting function
+                pred.func <- function(xx) {
+                  predict(lfmod, data.frame(x=xx[,1], y=xx[,2]))
+                }
+            }
+
+            ## Calculating the contour matrix
+            return(ContourFunctions::eval_over_grid_with_batch(x = seq(min(x), max(x), length.out = 100),
+                                                               y = seq(min(y), max(y), length.out = 100),
+                                                               fn = pred.func,
+                                                               batchmax = 500))
+        }
+
+        ## Adding the contours
+        z_matrix <- estimate.contour(x = plot_data$x, y = plot_data$y, z = unname(contour_data))
+        x_seq <- seq(min(plot_data$x), max(plot_data$x), length.out = 100)
+        y_seq <- seq(min(plot_data$y), max(plot_data$y), length.out = 100)
+        contour(x_seq, y_seq, z_matrix,
+                lwd = 1, add = TRUE,
+                col = hcl.colors(12, palette = "viridis"),
+                labels = pretty(contour_data))
+    }
+
+    ## Plot the points
+    points(plot_data$x, plot_data$y, pch = 19, cex = pt.cex, col = plot_data$col)
+
+    if(!is.null(col.sub)) {
+        ## See if there is any others
+        levels <- levels(col_sub)
+        if(length(other <- which(levels == "")) > 0) {
+            legend_text <- c(1, 1:(length(levels(col_sub))-1)+legend_counter)
+        } else {
+            legend_text <- c(1:(length(levels(col_sub)))+legend_counter)
+        }
+        ## Update the legend counter
+        legend_counter <<- max(legend_text)
+        ## Adding the legend
+        legend(x = legend.pos, legend = legend_text, pch = 19, cex = legend.cex, col = col_avail, bg = "white")
+    }
+
+    return(invisible())
 }
