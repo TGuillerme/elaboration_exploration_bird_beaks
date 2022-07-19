@@ -470,6 +470,7 @@ For each group, we can calculate:
 ### Groups compared to the phylogeny
 
 ```{r, eval = FALSE, echo = FALSE}
+source("../Functions/stats.utilities.R")
 ## General measurement
 super_orders_stats <- ellipse.stats(superorder_shapespace)
 orders_stats <- ellipse.stats(order_shapespace)
