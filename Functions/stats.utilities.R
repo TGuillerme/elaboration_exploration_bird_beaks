@@ -131,9 +131,15 @@ run.ellipse.test <- function(data, base = "phylogeny", p.value.method = "Bayesia
     if(verbose) cat("Testing the ellipses differences (from the base):")
 
     ## Setting up the base
-    base <- data$covar[[base]]
+    if(!(base %in% names(data$covar))) {
+        ## By default set the last subset as the base
+        base_name <- names(data$covar)[length((data$covar))]
+    } else {
+        base_name <- base
+    }
+    base <- data$covar[[base_name]]
     ## Setting up the other sets
-    posteriors <- data$covar
+    posteriors <- data$covar[names(data$covar) != base_name]
     
     ## Measuring everything
     all_results <- lapply(posteriors, covar.ellipse.test, y = base, p.value.method = p.value.method, measure = measure, major.axis = major.axis, verbose = verbose)
@@ -177,14 +183,15 @@ ellipse.stats <- function(data, verbose = TRUE) {
     results$distances  <- dispRity(data, metric = group.dist, probs = c(0.5), between.groups = groups_list, verbose = verbose)
 
     if(verbose) cat("Measuring sd:")
-    results$distances  <- unlist(lapply(lapply(get.disparity(dispRity(data, metric = as.covar(angles.base), verbose = verbose), concatenate = FALSE), c), sd))
+    covar.angles <- as.covar(angles.base)
+    results$sd  <- unlist(lapply(lapply(get.disparity(dispRity(data, metric = covar.angles, verbose = verbose), concatenate = FALSE), c), sd))
 
     if(verbose) cat("Measuring alignments:")
-    results$alignments <- dispRity(data, metric = as.covar(disalignment, VCV = c(FALSE, TRUE), loc = c(TRUE, FALSE)), between.groups = groups_list, verbose = verbose)
+    covar.disalignment <- as.covar(disalignment, VCV = c(FALSE, TRUE), loc = c(TRUE, FALSE))
+    results$alignments <- dispRity(data, metric = covar.disalignment, between.groups = groups_list, verbose = verbose)
 
     if(verbose) cat("Measuring orthogonality:")
     results$angles     <- dispRity(data, metric = as.covar(projections.between), measure = "orthogonality", between.groups = groups_list, verbose = verbose)
-
     if(verbose) cat("Testing orthogonality:")
     results$tests      <- run.ellipse.test(data)
 
