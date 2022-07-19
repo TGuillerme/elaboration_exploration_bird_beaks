@@ -1,0 +1,183 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This section contains the code for reproducing the analyses. To get the details, refer to [`dispRity` vignette](link_to_projection_vignette).
+This script take around 6 minutes to compile.
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+source("../Functions/ploting.utilities.R")
+```
+
+# Measuring ellipse's statistics
+
+For each group, we can calculate:
+
+ * It's (dis)alignment relative to the the phylogeny
+ * It's distance from the centroid of the phylogeny
+ * It's angles sd
+ * It's orientation (angle) relative to the whole phylogeny
+ * Whether that orientation is significant
+
+
+# Loading the data
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data for all birds
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Create the subset for all birds
+all_birds_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+
+# Load the data for the passeriformes
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Create the subset for all birds
+all_birds_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+
+
+
+```
+
+
+
+
+
+### Groups compared to the phylogeny
+
+```{r, eval = FALSE, echo = FALSE}
+source("../Functions/stats.utilities.R")
+## General measurement
+super_orders_stats <- ellipse.stats(superorder_shapespace)
+orders_stats <- ellipse.stats(order_shapespace)
+suborder_stats <- ellipse.stats(suborder_shapespace)
+family_stats <- ellipse.stats(family_shapespace)
+
+ellipse_stats <- list(super_orders_stats = super_orders_stats, 
+                      orders_stats = orders_stats,
+                      suborder_stats = suborder_stats,
+                      family_stats = family_stats)
+save(ellipse_stats, file = "../Data/Processed/ellipse_stats.rda")
+```
+
+
+
+
+
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/ellipse_stats.rda")
+## Ploting fun
+ploting.stats <- function(results, col) {
+
+    col <- col[match(names(size.subsets(results[[1]])), names(col))]
+
+    layout_matrix <- layout(matrix(1:3, nrow = 1), widths = c(4.2, 3, 3), heights = n.subsets(results[[1]])/2)
+    par(mar = c(5, 10, 2, 1) + 0.1)
+    plot(results[[1]], horizontal = TRUE, las = 1, xlab = "angle", ylab = "", col = col)
+    par(mar = c(5, 1, 2, 1) + 0.1)
+    plot(results[[2]], horizontal = TRUE, las = 1, xlab = "disalignment", ylab = "", yaxt = "n", col = col)
+    par(mar = c(5, 1, 2, 1) + 0.1)
+    plot(results[[3]], horizontal = TRUE, las = 1, xlab = "distance between centroids", ylab = "", yaxt = "n", col = col)
+}
+
+## Ploting fun
+table.stats <- function(results, class) {
+    ## Table results
+    table <- cbind(summary(results[[1]])[, -c(1:3)], summary(results[[2]])[, -c(1:3)], summary(results[[3]])[, -c(1:3)])
+    rownames(table) <- gsub(":phy", "", as.vector(summary(results[[1]])[,1]))
+    colnames(table)[c(1,6,11)] <- c("angle", "disalignment", "distance")
+    if(!missing(class)) {
+        table <- cbind(class = class, table)
+    }
+    return(table)
+}
+
+all_results <- rbind(table.stats(ellipse_stats$super_orders_stats, class = "superorder"),
+                     table.stats(ellipse_stats$orders_stats, class = "orders"),
+                     table.stats(ellipse_stats$suborder_stats, class = "suborder"),
+                     table.stats(ellipse_stats$family_stats, class = "family"))
+knitr::kable(all_results)
+```
+
+
+
+
+
+
+
+
+
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/tip_colours_super_orders.rda")
+ploting.stats(ellipse_stats$super_orders_stats, col = tip_colours_super_orders)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/tip_colours_orders.rda")
+ploting.stats(ellipse_stats$orders_stats, col = tip_colours_orders)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/tip_colours_passeriformes_suborder.rda")
+ploting.stats(ellipse_stats$suborder_stats, col = tip_colours_passeriformes_suborder)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+load("../Data/Processed/tip_colours_passeriformes_family.rda")
+ploting.stats(ellipse_stats$family_stats, col = tip_colours_passeriformes_family)
+```
+
+
+
