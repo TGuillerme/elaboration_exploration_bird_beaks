@@ -29,7 +29,7 @@ For each group, we can calculate:
 
 # Loading the data
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 ## Load the data for all birds
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
@@ -48,7 +48,7 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_posteriors))
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_posteriors))
 
 ## Create the subset for all birds
-all_birds_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
+all_birds_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 500 matrices for now
       data          = shapespace_allbirds,
       posteriors    = shapespace_allbirds_posteriors,
       group         = MCMCglmm.levels(shapespace_allbirds_posteriors)[c(super_lvl, order_lvl, phylo_lvl)],
@@ -74,16 +74,16 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes_posteri
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes_posteriors))
 
 ## Create the subset for all birds
-passeriformes_shapespace <- MCMCglmm.subsets(n = 500, # Just run it on 500 matrices for now
+passeriformes_shapespace <- MCMCglmm.subsets( # Just run it on 500 matrices for now
       data          = shapespace_passeriformes,
       posteriors    = shapespace_passeriformes_posteriors,
       group         = MCMCglmm.levels(shapespace_passeriformes_posteriors)[c(suborder_lvl, family_lvl, phylo_lvl)],
-      rename.groups = c(levels(shapespace_passeriformes$level1)[-1], levels(shapespace_passeriformes$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+      rename.groups = c(levels(shapespace_passeriformes$level1)[-1], levels(shapespace_passeriformes$level2)[-1], "Passeriformes")) #[-1] is because the first level is ""
 ## Clean garbage
 rm(shapespace_passeriformes_posteriors)
 ```
 
-```{r}
+```{r, eval = FALSE, echo = FALSE}
 ## Creating the nested levels subgroups
 make.nested.subset <- function(group, data, group.data) {
     ## Get the subsets within the group
@@ -132,67 +132,159 @@ ellipses_stats <- c(ellipses_stats, passeriformes_nested_levels)
 save(ellipses_stats, file = "../Data/Processed/ellipses_stats.rda")
 ```
 
+And here are the full results! Here's what's in each column:
+ 
+ * **Group**: the name of the group (a random term of the model), the focal VCV
+ * **Comparison**: to which group are the VCV compared (the group is either one or two levels higher)
+ * **n**: number of species
+ * **distance**: the distance between the focal and the comparison group's centers
+ * **ellipse sd**: the standard deviation of the angles in the the focal VCV distribution
+ * **disalignment**: the disalignment of the group compared to the focal group (0 = aligned), with the 95% CI
+ * **orthogonality**: the orthogonality amount between both groups (0 = parallel, 1 = orthogonal), with the 95% CI
+ * **Post. prob.**: the posterior probability of the orthogonality in the focal group being different from the comparison one (with the 95% CI estimated from the randomised posterior probabilities)
 
 ```{r, eval = TRUE, echo = FALSE}
-load("../Data/Processed/ellipse_stats.rda")
-## Ploting fun
-ploting.stats <- function(results, col) {
-
-    col <- col[match(names(size.subsets(results[[1]])), names(col))]
-
-    layout_matrix <- layout(matrix(1:3, nrow = 1), widths = c(4.2, 3, 3), heights = n.subsets(results[[1]])/2)
-    par(mar = c(5, 10, 2, 1) + 0.1)
-    plot(results[[1]], horizontal = TRUE, las = 1, xlab = "angle", ylab = "", col = col)
-    par(mar = c(5, 1, 2, 1) + 0.1)
-    plot(results[[2]], horizontal = TRUE, las = 1, xlab = "disalignment", ylab = "", yaxt = "n", col = col)
-    par(mar = c(5, 1, 2, 1) + 0.1)
-    plot(results[[3]], horizontal = TRUE, las = 1, xlab = "distance between centroids", ylab = "", yaxt = "n", col = col)
-}
+load("../Data/Processed/ellipses_stats.rda")
 
 ## Ploting fun
-table.stats <- function(results, class) {
+table.stats <- function(results) {
     ## Table results
-    table <- cbind(summary(results[[1]])[, -c(1:3)], summary(results[[2]])[, -c(1:3)], summary(results[[3]])[, -c(1:3)])
-    rownames(table) <- gsub(":phy", "", as.vector(summary(results[[1]])[,1]))
-    colnames(table)[c(1,6,11)] <- c("angle", "disalignment", "distance")
-    if(!missing(class)) {
-        table <- cbind(class = class, table)
-    }
+
+    ## Names, comparison and size
+    header <- summary(results$distances)[,c(1,2), drop = FALSE]
+    head_1 <- as.data.frame(do.call(rbind, strsplit(header[,1], split = ":")))
+    header <- cbind(head_1, "n" = header[, 2])
+    colnames(header)[c(1,2)] <- c("Group", "Comparison")
+
+    ## Adding the statistics
+    table <- cbind(header, "distance" = summary(results$distances)[,4])
+    table <- cbind(table, "ellipse sd" = results$sd[-length(results$sd)])
+    table <- cbind(table, summary(results$alignments, quantiles = c(95))[, -c(1:3)])
+    colnames(table)[ncol(table)-2] <- "disalignment"
+    table <- cbind(table, summary(results$angles, quantiles = c(95))[, -c(1:3)])
+    colnames(table)[ncol(table)-2] <- "orthogonality"
+    table <- cbind(table, results$test)
+    colnames(table)[ncol(table)-2] <- "Post. prob."
+    rownames(table) <- NULL
     return(table)
 }
 
-all_results <- rbind(table.stats(ellipse_stats$super_orders_stats, class = "superorder"),
-                     table.stats(ellipse_stats$orders_stats, class = "orders"),
-                     table.stats(ellipse_stats$suborder_stats, class = "suborder"),
-                     table.stats(ellipse_stats$family_stats, class = "family"))
+## Sorting all results
+all_results <- do.call(rbind, lapply(ellipses_stats[-12], table.stats)) ## Droping the Meliphagoidea (single group)
+rownames(all_results) <- NULL
+
+write.csv(all_results, "../Data/Processed/ellipses.stats.csv")
 knitr::kable(all_results)
 ```
 
+<!-- length(which(all_results[which(all_results[,"Post. prob."] >= 0.95), ]$orthogonality > 0.5)) -->
 
 
+```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
+# pdf("../Manuscript/Figures/orthogonality.results.pdf", width = 6, height = 15)
+source("../Functions/ploting.utilities.R")
+## Plot the orthogonality into context
+orthogonality <- all_results[, c(1:2, 9:14)]
 
+## Group per level
+super_orders <- orthogonality[c(1:8), ]
+orders <- orthogonality[c(36:60), ]
+orders_n2 <- orthogonality[c(9:35), ]
+sub_orders <- orthogonality[c(61:66), ]
+families <- orthogonality[c(90:110), ]
+families_n2 <- orthogonality[c(67:89), ]
 
+## Sort each level by orthogonality score
+ortho.sort <- function(data) {
+    return(data[order(data$orthogonality, decreasing = TRUE), , drop = FALSE])
+}
+## Plotting table (with the sorted orthogonality)
+plot_table <- rbind(ortho.sort(super_orders),
+                    ortho.sort(orders),
+                    ortho.sort(sub_orders),
+                    ortho.sort(families))
+colours <- c(rep(gg.color.hue(4)[1], nrow(super_orders)),
+             rep(gg.color.hue(4)[2], nrow(orders)),
+             rep(gg.color.hue(4)[3], nrow(sub_orders)),
+             rep(gg.color.hue(4)[4], nrow(families)))
 
+## Adding starts here and there
+get.signif <- function(prob) {
+    if(prob >= 0.99) {
+        return("***")
+    } else {
+        if(prob >= 0.95) {
+            return("**")
+        } else {
+            if(prob >= 0.90) {
+                return("*")
+            } else {
+                if(prob >= 0.80) {
+                    return(".")
+                } else {
+                    return("")
+                }
+            }
+        }
+    }
+}
+add.stars <- function(data, counter, shift = 0, total, ...) {
+    text(data[3] + 0.03, (total+1)-counter + shift + 0.2, labels = get.signif(data[6]), cex = 1, ...)   
+}
+add.line <- function(data, counter, shift = 0, total, ...) {
+    lines(matrix(c(data[4:5], rep((total+1)-counter + shift, 2)), 2, 2), ...)
+    points(data[3], (total+1)-counter + shift, pch = 19, ...)
+}
 
+## Plot frame
+par(mar = c(5, 9, 4, 2))
+plot(NULL, yaxt = "n", xaxt = "n", ylab = "", xlab = "orthogonality", ylim = c(1,nrow(plot_table)), xlim = c(0,1))
+abline(v = 0.5, lwd = 0.5, col = "grey")
+abline(v = 0.75, lty = 2, col = "grey", lwd = 0.5)
+axis(2, at = nrow(plot_table):1, labels = plot_table$Group, las = 2)
+axis(1, at = c(0, 0.5, 1), labels = c(0, 0.5, 1))
+## Adding the results
 
+for(i in 1:nrow(plot_table)) {
+    add.line(plot_table[i, ], counter = i, col = colours[i], total = nrow(plot_table))
+    add.stars(plot_table[i, ], counter = i, col = colours[i], total = nrow(plot_table))
+}
 
+## Adding the n2 results
+orders_n2_plot <- orders_n2[match(orders[order(orders$orthogonality, decreasing = TRUE), ]$Group, orders_n2$Group), ]
+families_n2_plot <- families_n2[match(families[order(families$orthogonality, decreasing = TRUE), ]$Group, families_n2$Group), ]
+for(i in 1:nrow(orders_n2_plot)) {
+    add.line(orders_n2_plot[i, ], shift = -1/3, counter = i+nrow(super_orders), col = adjustcolor(colours[i+nrow(super_orders)], alpha.f = 1/3), total = nrow(plot_table))
+    add.stars(orders_n2_plot[i, ], shift = -1/3, counter = i+nrow(super_orders), col = adjustcolor(colours[i+nrow(super_orders)], alpha.f = 1/3), total = nrow(plot_table))
+}
+for(i in 1:nrow(orders_n2)) {
+    add.line(families_n2_plot[i, ], shift = -1/3, counter = i+(nrow(plot_table)-nrow(families)), col = adjustcolor(colours[i+(nrow(plot_table)-nrow(families))], alpha.f = 0.5), total = nrow(plot_table))
+    add.line(families_n2_plot[i, ], shift = -1/3, counter = i+(nrow(plot_table)-nrow(families)), col = adjustcolor(colours[i+(nrow(plot_table)-nrow(families))], alpha.f = 0.5), total = nrow(plot_table))
+}
 
-```{r, eval = TRUE, echo = FALSE}
+legend("topleft", legend = c("Super orders (vs. phylogeny)", "Orders (vs. super orders)", "Orders (vs. phylogeny)", "Suborders (vs. passeriformes)", "Families (vs. suborders)", "Families (vs. passeriformes)"), col = c(gg.color.hue(4)[1], gg.color.hue(4)[2], adjustcolor(gg.color.hue(4)[2], alpha.f = 1/3), gg.color.hue(4)[3], gg.color.hue(4)[4], adjustcolor(gg.color.hue(4)[4], alpha.f = 1/3)), pch = 19, lty = 1, cex = 0.8)
+# dev.off()
+```
+
+Distribution of the VCV ellipses' orthogonality for all the groups compared to the ellipse of their parent clade (or n-2). 
+For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
+
+```{r, eval = FALSE, echo = FALSE}
 load("../Data/Processed/tip_colours_super_orders.rda")
 ploting.stats(ellipse_stats$super_orders_stats, col = tip_colours_super_orders)
 ```
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 load("../Data/Processed/tip_colours_orders.rda")
 ploting.stats(ellipse_stats$orders_stats, col = tip_colours_orders)
 ```
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 load("../Data/Processed/tip_colours_passeriformes_suborder.rda")
 ploting.stats(ellipse_stats$suborder_stats, col = tip_colours_passeriformes_suborder)
 ```
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 load("../Data/Processed/tip_colours_passeriformes_family.rda")
 ploting.stats(ellipse_stats$family_stats, col = tip_colours_passeriformes_family)
 ```
