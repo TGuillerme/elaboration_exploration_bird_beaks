@@ -63,7 +63,11 @@ covar.ellipse.test <- function(x, y, p.value.method = "Bayesian", measure = "ort
     ## Get the p value
     get.p.value <- switch(p.value.method,
         "Bayesian" = function(angles_within, angles_between) {
-            quantile(replicate(100, sum(angles_within[sample(length(angles_within))] < angles_between[sample(length(angles_within))])/length(angles_within)), prob = c(0.5, 0.025, 0.975))
+            ## All randomised posterior prob
+            # quantile(replicate(100, sum(angles_within[sample(length(angles_within))] < angles_between[sample(length(angles_within))])/length(angles_within)), prob = c(0.5, 0.025, 0.975))
+            ## Just randomised intervals
+            c(sum(angles_within < angles_between)/length(angles_within), quantile(replicate(100, sum(angles_within[sample(length(angles_within))] < angles_between[sample(length(angles_within))])/length(angles_within)), prob = c(0.025, 0.975)))
+
         },
         "Bootstrap" = function(angles_within, angles_between) {
             return((sum(angles_within >= mean(angles_between)) + 1)/(length(angles_within) + 1))
