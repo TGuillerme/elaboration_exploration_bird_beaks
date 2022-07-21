@@ -158,6 +158,54 @@ run.ellipse.test <- function(data, base = "phylogeny", p.value.method = "Bayesia
 #' @description measuring the angle from a VCV to the x axis
 #' 
 #' @param matrix a VCV
+## Internal function from dispRity to get the coordinates of one axes
+get.one.axis <- function(data, axis = 1, level = 0.95, dimensions) {
+
+    # The magic: https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331
+
+    ## VCVing the matrix
+    if(!is(data, "list")) {
+        data <- list(VCV = data)
+    } else {
+        if(is.null(data$VCV)) {
+            data$VCV <- data
+        }
+    }
+    ## adding a loc
+    if(is.null(data$loc)) {
+        data$loc <- rep(0, nrow(data$VCV))
+    }
+
+    ## Select the right dimensions
+    data$VCV <- data$VCV[dimensions, dimensions, drop = FALSE]
+
+    ## Get the data dimensionality
+    dims <- length(diag(data$VCV))
+
+    ## Create the unit hypersphere (a hypersphere of radius 1) for the scaling
+    unit_hypersphere1 <- unit_hypersphere2 <- matrix(0, ncol = dims, nrow = dims)
+    ## The "front" (e.g. "top", "right") units
+    diag(unit_hypersphere1) <- 1
+    ## The "back" (e.g. "bottom", "left") units
+    diag(unit_hypersphere2) <- -1
+    unit_hypersphere <- rbind(unit_hypersphere1, unit_hypersphere2)
+    ## Scale the hypersphere (where level is the confidence interval)
+    unit_hypersphere <- unit_hypersphere * sqrt(qchisq(level, dims))
+
+    ## Do the eigen decomposition (symmetric - faster)
+    eigen_decomp <- eigen(data$VCV, symmetric = TRUE)
+
+    ## Re-scaling the unit hypersphere
+    scaled_edges <- unit_hypersphere * rep(sqrt(abs(eigen_decomp$values)), each = dims*2)
+    ## Rotating the edges coordinates
+    edges <- tcrossprod(scaled_edges, eigen_decomp$vectors)
+
+    ## Move the matrix around
+    edges <- edges + rep(data$loc[dimensions, drop = FALSE], each = dims*2)
+
+    ## Get the edges coordinates
+    return(edges[c(axis, axis+dims), , drop = FALSE])
+}
 angles.base <- function(matrix, ...) {
     ## Measure the in a matrix (relative to the x axis)
     projected_vector <- get.one.axis(matrix, axis = 1, level = 0.95, dimensions = 1:length(diag(matrix)))
@@ -168,7 +216,7 @@ angles.base <- function(matrix, ...) {
     point2 <- c(1, rep(0, (length(diag(matrix))-1)))
 
     ## Measure the projection
-    return(projections(matrix, point1 = point1, point2 = point2, measure = "degree", scale = FALSE, centre = FALSE, abs = TRUE)[1]) 
+    return(dispRity::projections(matrix, point1 = point1, point2 = point2, measure = "degree", scale = FALSE, centre = FALSE, abs = TRUE)[1]) 
 }
 
 #' @name ellipse.stats 
@@ -187,12 +235,10 @@ ellipse.stats <- function(data, verbose = TRUE) {
     results$distances  <- dispRity(data, metric = group.dist, probs = c(0.5), between.groups = groups_list, verbose = verbose)
 
     if(verbose) cat("Measuring sd:")
-    covar.angles <- as.covar(angles.base)
-    results$sd  <- unlist(lapply(lapply(get.disparity(dispRity(data, metric = covar.angles, verbose = verbose), concatenate = FALSE), c), sd))
+    results$sd  <- unlist(lapply(lapply(get.disparity(dispRity(data, metric = as.covar(angles.base), verbose = verbose), concatenate = FALSE), c), sd))
 
     if(verbose) cat("Measuring alignments:")
-    covar.disalignment <- as.covar(disalignment, VCV = c(FALSE, TRUE), loc = c(TRUE, FALSE))
-    results$alignments <- dispRity(data, metric = covar.disalignment, between.groups = groups_list, verbose = verbose)
+    results$alignments <- dispRity(data, metric = as.covar(disalignment, VCV = c(FALSE, TRUE), loc = c(TRUE, FALSE)), between.groups = groups_list, verbose = verbose)
 
     if(verbose) cat("Measuring orthogonality:")
     results$angles     <- dispRity(data, metric = as.covar(projections.between), measure = "orthogonality", between.groups = groups_list, verbose = verbose)
