@@ -48,7 +48,7 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_posteriors))
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_posteriors))
 
 ## Create the subset for all birds
-all_birds_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 500 matrices for now
+all_birds_shapespace <- MCMCglmm.subsets(
       data          = shapespace_allbirds,
       posteriors    = shapespace_allbirds_posteriors,
       group         = MCMCglmm.levels(shapespace_allbirds_posteriors)[c(super_lvl, order_lvl, phylo_lvl)],
@@ -74,7 +74,7 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes_posteri
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes_posteriors))
 
 ## Create the subset for all birds
-passeriformes_shapespace <- MCMCglmm.subsets( # Just run it on 500 matrices for now
+passeriformes_shapespace <- MCMCglmm.subsets(
       data          = shapespace_passeriformes,
       posteriors    = shapespace_passeriformes_posteriors,
       group         = MCMCglmm.levels(shapespace_passeriformes_posteriors)[c(suborder_lvl, family_lvl, phylo_lvl)],
@@ -111,9 +111,9 @@ names(passeriformes_shapespace_subgroups) <- levels(shapespace_passeriformes$lev
 ```{r, eval = FALSE, echo = FALSE}
 source("../Functions/stats.utilities.R")
 
-## Fucked up thing happening here:
-cd("~/Packaging/dispRity/")
-load_all()
+# ## Fucked up thing happening here:
+# cd("~/Packaging/dispRity/")
+# load_all()
 
 ## General measurement
 all_birds_all_levels <- ellipse.stats(all_birds_shapespace)
@@ -145,29 +145,6 @@ And here are the full results! Here's what's in each column:
 
 ```{r, eval = TRUE, echo = FALSE}
 load("../Data/Processed/ellipses_stats.rda")
-
-## Ploting fun
-table.stats <- function(results) {
-    ## Table results
-
-    ## Names, comparison and size
-    header <- summary(results$distances)[,c(1,2), drop = FALSE]
-    head_1 <- as.data.frame(do.call(rbind, strsplit(header[,1], split = ":")))
-    header <- cbind(head_1, "n" = header[, 2])
-    colnames(header)[c(1,2)] <- c("Group", "Comparison")
-
-    ## Adding the statistics
-    table <- cbind(header, "distance" = summary(results$distances)[,4])
-    table <- cbind(table, "ellipse sd" = results$sd[-length(results$sd)])
-    table <- cbind(table, summary(results$alignments, quantiles = c(95))[, -c(1:3)])
-    colnames(table)[ncol(table)-2] <- "disalignment"
-    table <- cbind(table, summary(results$angles, quantiles = c(95))[, -c(1:3)])
-    colnames(table)[ncol(table)-2] <- "orthogonality"
-    table <- cbind(table, results$test)
-    colnames(table)[ncol(table)-2] <- "Post. prob."
-    rownames(table) <- NULL
-    return(table)
-}
 
 ## Sorting all results
 all_results <- do.call(rbind, lapply(ellipses_stats[-12], table.stats)) ## Droping the Meliphagoidea (single group)
@@ -268,26 +245,3 @@ legend("topleft", legend = c("Super orders (vs. phylogeny)", "Orders (vs. super 
 
 Distribution of the VCV ellipses' orthogonality for all the groups compared to the ellipse of their parent clade (or n-2). 
 For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
-
-```{r, eval = FALSE, echo = FALSE}
-load("../Data/Processed/tip_colours_super_orders.rda")
-ploting.stats(ellipse_stats$super_orders_stats, col = tip_colours_super_orders)
-```
-
-```{r, eval = FALSE, echo = FALSE}
-load("../Data/Processed/tip_colours_orders.rda")
-ploting.stats(ellipse_stats$orders_stats, col = tip_colours_orders)
-```
-
-```{r, eval = FALSE, echo = FALSE}
-load("../Data/Processed/tip_colours_passeriformes_suborder.rda")
-ploting.stats(ellipse_stats$suborder_stats, col = tip_colours_passeriformes_suborder)
-```
-
-```{r, eval = FALSE, echo = FALSE}
-load("../Data/Processed/tip_colours_passeriformes_family.rda")
-ploting.stats(ellipse_stats$family_stats, col = tip_colours_passeriformes_family)
-```
-
-
-

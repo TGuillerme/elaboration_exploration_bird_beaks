@@ -201,3 +201,29 @@ ellipse.stats <- function(data, verbose = TRUE) {
 
     return(results)
 }
+
+#' @name table.stats 
+#' @description Summarising the statistics into a table
+#'
+#' @param results the results output from ellipse.stats
+table.stats <- function(results) {
+    ## Table results
+
+    ## Names, comparison and size
+    header <- summary(results$distances)[,c(1,2), drop = FALSE]
+    head_1 <- as.data.frame(do.call(rbind, strsplit(header[,1], split = ":")))
+    header <- cbind(head_1, "n" = header[, 2])
+    colnames(header)[c(1,2)] <- c("Group", "Comparison")
+
+    ## Adding the statistics
+    table <- cbind(header, "distance" = summary(results$distances)[,4])
+    table <- cbind(table, "ellipse sd" = results$sd[-length(results$sd)])
+    table <- cbind(table, summary(results$alignments, quantiles = c(95))[, -c(1:3)])
+    colnames(table)[ncol(table)-2] <- "disalignment"
+    table <- cbind(table, summary(results$angles, quantiles = c(95))[, -c(1:3)])
+    colnames(table)[ncol(table)-2] <- "orthogonality"
+    table <- cbind(table, results$test)
+    colnames(table)[ncol(table)-2] <- "Post. prob."
+    rownames(table) <- NULL
+    return(table)
+}
