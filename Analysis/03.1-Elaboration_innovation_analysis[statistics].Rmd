@@ -161,7 +161,7 @@ knitr::kable(all_results)
 ```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
 #TODO: make the groups nested in the fable
 
-pdf("../Manuscript/Figures/orthogonality.results.pdf", width = 6, height = 15)
+pdf("../Manuscript/Figures/orthogonality.results.pdf", width = 9, height = 18)
 source("../Functions/ploting.utilities.R")
 ## Plot the orthogonality into context
 orthogonality <- all_results[, c(1:2, 9:14, 3, 5)]
@@ -313,13 +313,13 @@ plot.density(species = c(elaboration_species),
              group   = c(unlist(elaboration_super_orders), unlist(elaboration_orders)),
              xlab    = "relative elaboration", scale.x = TRUE,
              ylab    = "density",
-             main    = "A - Total posterior elaboration per group (scaled)\nand per species")
+             main    = "A - Total posterior elaboration per group\n(scaled) and per species")
 legend("topright", lty = 1, legend = c("species", "groups"), col = c("blue", "orange"))
 plot.density(species = c(innovation_species),
              group   = c(unlist(innovation_super_orders), unlist(innovation_orders)),
              xlab    = "relative innovation", scale.x = TRUE,
              ylab    = "density",
-             main    = "B - Total posterior innovation per group (scaled)\nand per species")
+             main    = "B - Total posterior innovation per group\n(scaled) and per species")
 plot.density(elaboration_species_auc, elaboration_group_auc, scale.x = FALSE, col = c("blue", "orange"), ylab = "density",
              xlab = "Posterior area under the curve (elaboration)",
              main = paste0("C - Difference in amounts of elaboration\nper group or per species\nBhattacharyya coefficient = ",
