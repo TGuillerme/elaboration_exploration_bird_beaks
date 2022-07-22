@@ -273,3 +273,43 @@ table.stats <- function(results) {
     rownames(table) <- NULL
     return(table)
 }
+
+#' @name scale.xy 
+#' @description Scales a density curve
+#'
+#' @param density a density curve
+#' @param x,y logical, whether to scale the x and or the y axis
+scale.xy <- function(density, x = TRUE, y = TRUE) {
+    if(x) {
+        density$x <- density$x/max(density$x)
+    }
+    if(y) {
+        density$y <- density$y/max(density$y)
+    }
+    return(density)
+}
+
+#' @name plot.density 
+#' @description Wrapper for plotting a density curve
+#'
+#' @param species the data per species
+#' @param group the data per group
+#' @param scale.x,scale.y logical, whether to scale the x and or the y axis
+plot.density <- function(species, group, scale.x = TRUE, scale.y = TRUE, col = c("blue", "orange"), ...) {
+    den_sp    <- scale.xy(density(species), x = scale.x, y = scale.y)
+    den_group <- scale.xy(density(group), x = scale.x, y = scale.y)
+
+    plot(NULL, xlim = range(c(den_sp$x, den_group$x)), ylim = range(c(den_sp$y, den_group$y)), ...)
+    lines(den_sp, col = col[1])
+    lines(den_group, col = col[2])
+}
+
+#' @name area.density
+#' @description area under the curve for density
+#'
+#' @param data calculate the area under a density curve
+#' @param scale.x,scale.y logical, whether to scale the x and or the y axis
+area.density <- function(data, scale.x = TRUE, scale.y = TRUE) {
+    density <- scale.xy(density(data), x = scale.x, y = scale.y)
+    area_under_curve <- sum(diff(density$x[order(density$x)]) * zoo::rollmean(density$y[order(density$x)], 2))
+}
