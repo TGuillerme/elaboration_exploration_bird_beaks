@@ -4,11 +4,10 @@
 
  - [ ] Passeriformes bit: just rerun the whole thing on passerines with 50 levels (2 sub-orders and 48 patch clades (~ families?)) [TG]
  - [ ] Sensitivity for clade effect: make a null to see if the main results (the nested structure) and orthogonality is present with no phylo signal. For tha just simulate a Brownian motion trait and a pure birth tree, cut two clades (first split) and run the beer pipeline on that? [TG]: actually do the simulations on the charadriiformes tree with two simulations: one is randomly assigning the beak shapes to each bird and second is generating brownian motion beask [for the pankackness, transform the pca to be spherical and rerun the analysis on charadriiformes to see if that changes anything.
- - [ ] Sensitivity: check the effect of using a phylo PCA or not (just on the Charadriformes for easiness) [No need to do it for now]
  - [x] fast piggles
- - [ ] check something about random skewers method (basically how many ellipses are expeccted to be the same geometrically)
- - [ ] make sure what we see is what we see.
- - [ ] put all the ellipses together in a figure and compare them scaled aligned. Then compare the position of the ellipses for each cherries in terms of angle, alignment and distance.
+ - [x] check something about random skewers method (basically how many ellipses are expeccted to be the same geometrically) + measure the angle variance for each ellipse
+ - [x] make sure what we see is what we see.
+ - [x] put all the ellipses together in a figure and compare them scaled aligned. Then compare the position of the ellipses for each cherries in terms of angle, alignment and distance.
 
 
 ## Manuscript
