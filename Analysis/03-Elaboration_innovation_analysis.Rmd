@@ -298,51 +298,6 @@ clade_info$orders$Cuculiformes$species
 
 ```
 
-```{r}
-## Distribution of elaboration and innovation at the species level
-elaboration_species      <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]]
-innovation_species       <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]]
-
-## Distribution of elaboration and innovation at the group level
-scale.group <- function(X) return(X/max(X))
-elaboration_super_orders <- lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), scale.group)
-innovation_super_orders  <- lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), scale.group)
-elaboration_orders       <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
-innovation_orders        <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
-
-## Plot all that
-plot.density <- function(species, group, main, scale.x = TRUE, scale.y = TRUE, col = c("blue", "orange")) {
-    scale.xy <- function(density, x = FALSE, y = TRUE) {
-        if(x) {
-            density$x <- density$x/max(density$x)
-        }
-        if(y) {
-            density$y <- density$y/max(density$y)
-        }
-        return(density)
-    }
-    den_sp    <- scale.xy(density(species), x = scale.x, y = scale.y)
-    den_group <- scale.xy(density(group), x = scale.x, y = scale.y)
-
-    plot(NULL, xlim = range(c(den_sp$x, den_group$x)), ylim = range(c(den_sp$y, den_group$y)), xlab = main, ylab = "density")
-    lines(den_sp, col = col[1])
-    lines(den_group, col = col[2])
-}
-
-pdf("../Manuscript/Figures/Relative_EI.pdf", height = 12, width = 6)
-par(mfrow = c(2,1))
-plot.density(species = c(elaboration_species),
-             group   = c(unlist(elaboration_super_orders), unlist(elaboration_orders)),
-             main    = "relative elaboration", scale.x = TRUE)
-plot.density(species = c(innovation_species),
-             group   = c(unlist(innovation_super_orders), unlist(innovation_orders)),
-             main    = "relative innovation", scale.x = TRUE)
-legend("topright", lty = 1, legend = c("species", "groups"), col = c("blue", "orange"))
-dev.off()
-```
-
-
-
 # Passeriformes shapespace analyses
 
 ```{r, eval = TRUE, echo = FALSE}

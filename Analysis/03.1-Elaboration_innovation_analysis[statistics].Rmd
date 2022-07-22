@@ -280,3 +280,53 @@ dev.off()
 
 Distribution of the VCV ellipses' orthogonality for all the groups compared to the ellipse of their parent clade (or n-2). 
 For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
+
+
+```{r, echo = FALSE, eval = TRUE}
+## Quick load
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
+
+## Distribution of elaboration and innovation at the species level
+elaboration_species      <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]]
+innovation_species       <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]]
+
+## Distribution of elaboration and innovation at the group level
+scale.group <- function(X) return(X/max(X))
+elaboration_super_orders <- lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), scale.group)
+innovation_super_orders  <- lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), scale.group)
+elaboration_orders       <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
+innovation_orders        <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
+elaboration_group <- rbind(do.call(rbind, elaboration_super_orders), do.call(rbind, elaboration_orders))
+innovation_group <- rbind(do.call(rbind, innovation_super_orders), do.call(rbind, innovation_orders))
+
+## Measuring the area under the curves
+elaboration_species_auc <- apply(elaboration_species, 2, area.density)
+innovation_species_auc <- apply(innovation_species, 2, area.density)
+elaboration_group_auc <- apply(elaboration_group, 2, area.density)
+innovation_group_auc <- apply(innovation_group, 2, area.density)
+
+pdf("../Manuscript/Figures/Relative_EI.pdf", height = 8, width = 8)
+par(mfrow = c(2,2))
+plot.density(species = c(elaboration_species),
+             group   = c(unlist(elaboration_super_orders), unlist(elaboration_orders)),
+             xlab    = "relative elaboration", scale.x = TRUE,
+             ylab    = "density",
+             main    = "A - Total posterior elaboration per group (scaled)\nand per species")
+legend("topright", lty = 1, legend = c("species", "groups"), col = c("blue", "orange"))
+plot.density(species = c(innovation_species),
+             group   = c(unlist(innovation_super_orders), unlist(innovation_orders)),
+             xlab    = "relative innovation", scale.x = TRUE,
+             ylab    = "density",
+             main    = "B - Total posterior innovation per group (scaled)\nand per species")
+plot.density(elaboration_species_auc, elaboration_group_auc, scale.x = FALSE, col = c("blue", "orange"), ylab = "density",
+             xlab = "Posterior area under the curve (elaboration)",
+             main = paste0("C - Difference in amounts of elaboration\nper group or per species\nBhattacharyya coefficient = ",
+                           round(bhatt.coeff(elaboration_species_auc, elaboration_group_auc), 3)))
+plot.density(innovation_species_auc, innovation_group_auc, scale.x = FALSE, col = c("blue", "orange"), ylab = "density",
+             xlab = "Posterior area under the curve (innovation)",
+             main = paste0("D - Difference in amounts of innovation\nper group or per species\nBhattacharyya coefficient = ",
+                           bhatt.coeff(innovation_species_auc, innovation_group_auc)))
+dev.off()
+```
