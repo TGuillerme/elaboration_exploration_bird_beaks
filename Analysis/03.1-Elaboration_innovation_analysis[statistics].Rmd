@@ -145,6 +145,7 @@ And here are the full results! Here's what's in each column:
 
 ```{r, eval = TRUE, echo = FALSE}
 load("../Data/Processed/ellipses_stats.rda")
+source("../Functions/stats.utilities.R")
 
 ## Sorting all results
 all_results <- do.call(rbind, lapply(ellipses_stats[-12], table.stats)) ## Droping the Meliphagoidea (single group)
@@ -158,10 +159,12 @@ knitr::kable(all_results)
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
-# pdf("../Manuscript/Figures/orthogonality.results.pdf", width = 6, height = 15)
+#TODO: make the groups nested in the fable
+
+pdf("../Manuscript/Figures/orthogonality.results.pdf", width = 6, height = 15)
 source("../Functions/ploting.utilities.R")
 ## Plot the orthogonality into context
-orthogonality <- all_results[, c(1:2, 9:14)]
+orthogonality <- all_results[, c(1:2, 9:14, 3, 5)]
 
 ## Group per level
 super_orders <- orthogonality[c(1:8), ]
@@ -213,18 +216,50 @@ add.line <- function(data, counter, shift = 0, total, ...) {
     points(data[3], (total+1)-counter + shift, pch = 19, ...)
 }
 
+
+## Add the number of species and sd to the group names
+convert.spaces <- function(x, max) {
+    shifts <- max-nchar(as.character(x))
+    if(shifts > 0) {
+        return(paste(c(x, rep(" ", shifts)), collapse = ""))
+    } else {
+        return(x)
+    }
+}
+group_names <- paste0(plot_table$Group, "(n = ", sapply(plot_table$n, convert.spaces, max = 4), " ; sd = ", sapply(round(plot_table$`ellipse sd`, 2), convert.spaces, max = 5), ")")
+
+plot_order <- 1:60
+## Nestedness bit (not finished)
+# plot_order <- integer()
+# ## Super-orders
+# for(i in 1:6) {
+#     plot_order <- c(plot_order, i) 
+#     sub_groups <- which(plot_table$Comparison == plot_table$Group[plot_order[length(plot_order)]])
+#     if(length(sub_groups)) {
+#         plot_order <- c(plot_order, sub_groups)
+#     }
+# }
+# ## Sub-orders
+# for(i in 34:39) {
+#     plot_order <- c(plot_order, i) 
+#     sub_groups <- which(plot_table$Comparison == plot_table$Group[plot_order[length(plot_order)]])
+#     if(length(sub_groups)) {
+#         plot_order <- c(plot_order, sub_groups)
+#     }
+# }
+
+
 ## Plot frame
-par(mar = c(5, 9, 4, 2))
+par(mar = c(5, 17, 4, 2))
 plot(NULL, yaxt = "n", xaxt = "n", ylab = "", xlab = "orthogonality", ylim = c(1,nrow(plot_table)), xlim = c(0,1))
 abline(v = 0.5, lwd = 0.5, col = "grey")
 abline(v = 0.75, lty = 2, col = "grey", lwd = 0.5)
-axis(2, at = nrow(plot_table):1, labels = plot_table$Group, las = 2)
+axis(2, at = nrow(plot_table):1, labels = group_names[plot_order], las = 2)
 axis(1, at = c(0, 0.5, 1), labels = c(0, 0.5, 1))
 ## Adding the results
-
 for(i in 1:nrow(plot_table)) {
-    add.line(plot_table[i, ], counter = i, col = colours[i], total = nrow(plot_table))
-    add.stars(plot_table[i, ], counter = i, col = colours[i], total = nrow(plot_table))
+    add.line (plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+    add.stars(plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
 }
 
 ## Adding the n2 results
@@ -240,7 +275,7 @@ for(i in 1:nrow(orders_n2)) {
 }
 
 legend("topleft", legend = c("Super orders (vs. phylogeny)", "Orders (vs. super orders)", "Orders (vs. phylogeny)", "Suborders (vs. passeriformes)", "Families (vs. suborders)", "Families (vs. passeriformes)"), col = c(gg.color.hue(4)[1], gg.color.hue(4)[2], adjustcolor(gg.color.hue(4)[2], alpha.f = 1/3), gg.color.hue(4)[3], gg.color.hue(4)[4], adjustcolor(gg.color.hue(4)[4], alpha.f = 1/3)), pch = 19, lty = 1, cex = 0.8)
-# dev.off()
+dev.off()
 ```
 
 Distribution of the VCV ellipses' orthogonality for all the groups compared to the ellipse of their parent clade (or n-2). 
