@@ -442,14 +442,14 @@ save(ploting_data_passeriformes_family, file = "../Data/Processed/ploting_data_p
 suborders <- lapply(results$suborder_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$suborder_results_phylo$position$matrix[[1]])
 families <- lapply(results$family_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$family_results_phylo$position$matrix[[1]])
 ## Adding the colours
-load("../Data/Processed/tip_colours_suborders.rda")
-load("../Data/Processed/tip_colours_families.rda")
+load("../Data/Processed/tip_colours_passeriformes_suborder.rda")
+load("../Data/Processed/tip_colours_passeriformes_family.rda")
 add.col <- function(one_order, one_col) {
     one_order$col <- one_col
     return(one_order)
 }
-suborders <- mapply(add.col, one_order = suborders[1:8][match(names(suborders[1:8]), names(tip_colours_suborders))], one_col = as.list(tip_colours_suborders), SIMPLIFY = FALSE)
-families <- mapply(add.col, one_order = families[1:27][match(names(families[1:27]), names(tip_colours_families))], one_col = as.list(tip_colours_families), SIMPLIFY = FALSE)
+suborders <- mapply(add.col, one_order = suborders[1:8][match(names(suborders[1:8]), names(tip_colours_passeriformes_suborder))], one_col = as.list(tip_colours_suborders), SIMPLIFY = FALSE)
+families <- mapply(add.col, one_order = families[1:27][match(names(families[1:27]), names(tip_colours_passeriformes_family))], one_col = as.list(tip_colours_families), SIMPLIFY = FALSE)
 
 ## Big list:
 clade_info_passeriformes <- list(suborders = suborders,
