@@ -30,7 +30,7 @@ dev.off()
 
 
 ## Ploting the tree
-pdf(file = "tree_orders.pdf", height = 40, width = 26)
+pdf(file = "tree_orders_col.pdf", height = 40, width = 26)
 
 tree <- ladderize(ploting_data$consensus_tree, right = FALSE)
 
@@ -54,6 +54,26 @@ plot(tree, show.tip.label = FALSE, edge.color = as.character(edge_colors), edge.
 tiplabels("", frame = "none", pch = 15, col = rgb(cols_elab, maxColorValue = 255), offset = 2)
 tiplabels("", frame = "none", pch = 15, col = rgb(cols_innov, maxColorValue = 255), offset = 4)
 dev.off()
+
+
+## Tiplabels is clade name
+clade_names <- rep("grey", Ntip(tree))
+names(clade_names) <- tree$tip.label
+load("../Data/Processed/clade_info.rda")
+load("../Data/Processed/clade_info_passeriformes.rda")
+
+for(i in 1:27) {
+    clade_names[clade_info$orders[[i]]$species] <- clade_info$orders[[i]]$col
+}
+for(i in 1:23) {
+    clade_names[clade_info_passeriformes$families[[i]]$species] <- clade_info_passeriformes$families[[i]]$col
+}
+
+length(unique(clade_names))
+
+plot(tree, show.tip.label = FALSE, edge.color = as.character(edge_colors), edge.width = 3, edge.lty = 1)
+tiplabels("", frame = "none", pch = 15, col = clade_names, offset = 2)
+
 
 # 164.760
 # 210.800
