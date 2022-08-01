@@ -448,8 +448,8 @@ add.col <- function(one_order, one_col) {
     one_order$col <- one_col
     return(one_order)
 }
-suborders <- mapply(add.col, one_order = suborders[1:8][match(names(suborders[1:8]), names(tip_colours_passeriformes_suborder))], one_col = as.list(tip_colours_suborders), SIMPLIFY = FALSE)
-families <- mapply(add.col, one_order = families[1:27][match(names(families[1:27]), names(tip_colours_passeriformes_family))], one_col = as.list(tip_colours_families), SIMPLIFY = FALSE)
+suborders <- mapply(add.col, one_order = suborders[1:6][match(names(suborders[1:6]), names(tip_colours_passeriformes_suborder))], one_col = as.list(tip_colours_passeriformes_suborder), SIMPLIFY = FALSE)
+families <- mapply(add.col, one_order = families[1:23][match(names(families[1:23]), names(tip_colours_passeriformes_family))], one_col = as.list(tip_colours_passeriformes_family), SIMPLIFY = FALSE)
 
 ## Big list:
 clade_info_passeriformes <- list(suborders = suborders,
