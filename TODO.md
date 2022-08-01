@@ -9,7 +9,7 @@
  - [ ] edit par5 with link to par4
  - [ ] table with the boxplot values results to add to supplementary
  - [ ] make passseriformes all results in supplementary
- - [ ] TODO: add PC1 loading for phylo group
+ - [ ] add PC1 loading for phylo group
 
 
 ## Analyses
