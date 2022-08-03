@@ -3,14 +3,13 @@
 ## TODOs comment from gdocs
 
  - [ ] ellipses comparison table
- - [ ] edits on fig_ortho (remove passersiformes and spaces)
- - [ ] edits on fig_ortho change transparency to dashes
- - [ ] edits on fig_ortho add the 0.75 line
+ - [x] edits on fig_ortho (remove passersiformes and spaces)
+ - [x] edits on fig_ortho change transparency to dashes
+ - [x] edits on fig_ortho add the 0.75 line
  - [ ] edit par5 with link to par4
  - [ ] table with the boxplot values results to add to supplementary
  - [ ] make passseriformes all results in supplementary
  - [ ] add PC1 loading for phylo group
-
 
 ## Analyses
 
