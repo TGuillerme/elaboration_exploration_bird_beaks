@@ -66,7 +66,7 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 # dev.off()
 
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure3_ellipses.pdf", height = box_size*10, width = box_size*10)
+pdf(file = "../Manuscript/Figures/ellipses.pdf", height = box_size*10, width = box_size*10)
 
 ## SETTING THE WINDOW PARAMETERS
 ## Global window parameters
@@ -241,7 +241,7 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 # dev.off()
 
 box_size <- 1.5
-pdf(file = "../Manuscript/Figures/Figure3_passeriformes.pdf", height = box_size*9, width = box_size*10)
+pdf(file = "../Manuscript/Figures/ellipses_passeriformes.pdf", height = box_size*9, width = box_size*10)
 
 ## Global window
 x <- 61
