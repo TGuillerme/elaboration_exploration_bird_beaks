@@ -161,7 +161,9 @@ save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapesp
 
 ```{r, eval = TRUE}
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+pdf(file = "../Manuscript/Figures/parameters_ESS_all_birds.pdf", height = 9, width = 4)
 diagnose.mini.chains(shapespace_allbirds_lvl_superorder_order[[1]])
+dev.off()
 ```
 
 ## Passeriformes focus
@@ -304,4 +306,12 @@ save(shapespace_passeriformes, file = "../Data/Processed/shapespace_passeriforme
 
 
 
+```
+
+
+```{r, eval = TRUE}
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+pdf(file = "../Manuscript/Figures/parameters_ESS_passeriformes.pdf", height = 9, width = 4)
+diagnose.mini.chains(shapespace_passeriformes[[1]])
+dev.off()
 ```
