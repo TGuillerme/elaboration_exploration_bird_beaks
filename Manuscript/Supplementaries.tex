@@ -71,6 +71,7 @@
 
 % Landscape pages for tables
 \usepackage{lscape}
+\usepackage{natbib}
 
 
 \begin{document}
@@ -124,7 +125,7 @@
 
 \maketitle
 
-\section{Supplementary material 1}
+\section{Supplementary material 1: additional results}
 
 \begin{figure}[!htbp]
 \centering
@@ -209,9 +210,170 @@ A species elaboration score is their projection onto the phylogenetics' VCV majo
 \label{fig_phylogeny_passeriformes}
 \end{figure}
 
+\newpage
+
+\section{Supplementary materials 3: detailed projection and rejection operations}
+
+The following section contains the detailed definition and procedure of how we measured elaboration and innovation
+
+We can define the major axis from the variance-covariance matrices and then project and reject each element of interest in the space onto this axis.
+The following steps are generalised to $n$ dimensions and detailed below (as well as the algorithm used in \texttt{dispRity} \citep{dispRity} to perform the transformations):
+
+\subsection{Defining the major axis}
+
+For $O_{n}$, the unit hypersphere matrix of $n$ dimensions and a radius composed of the two identity matrices $I_{n}$ and $-I_{n}$ so that: 
+
+\begin{equation}
+O_{n} = 
+    \begin{pmatrix}
+        1 & 0 & \cdots & 0 \\
+        0 & 1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & 1 \\
+        -1 & 0 & \cdots & 0 \\
+        0 & -1 & \cdots & 0 \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        0 & 0 & \cdots & -1 \\
+    \end{pmatrix}
+\end{equation}
+
+In other words, $O_{n}$ is the matrix representing the hypersphere of $n$ dimensions and of radius $1$ that fits in the centre of the trait-space;
+
+And $O'_{n}$ is the scaled matrix hypersphere to the 95\% confidence interval size using the $\chi^2$ distribution:
+
+$$O'_{n} = O_{n} \sqrt{\chi^2(0.95)}$$
+
+Then, for the variance-covariance matrix $VCV_{n}$ of $n$ dimensions obtained from the posterior distribution of the \texttt{mcmcmcglmmmm}:
+
+\begin{equation}
+VCV_{n} = 
+    \begin{pmatrix}
+        \sigma(a) & \sigma(a,b) & \cdots & \sigma(a,n) \\
+        \sigma(a,b) & \sigma(b) & \cdots & \sigma(b,n) \\
+        \vdots  & \vdots  & \ddots & \vdots  \\
+        \sigma(n,a) & \sigma(n,b) & \cdots & \sigma(n) \\
+    \end{pmatrix}
+\end{equation}
+
+and the eigenvectors \textbf{v} and the eigenvalues $\lambda$ satisfying the following eigen decomposition:
+
+$$VCV_{n} \textbf{v} = \lambda \textbf{v}$$
+
+We can get $M_{n}$, the matrix containing all the edge coordinates of the 0.95 CI hypersphere from $VCV_{n}$ using the transposition of the cross product between the eigenvectors \textbf{v} and the product of the scaled 0.95 CI unit sphere $O'_{n}$ and the eigenvalues $\lambda$:
+
+$$M_{n} = [(O'_{n}\sqrt{\lambda}) \times v]^{\text{T}}$$
+
+Finally, we can centre the matrix $M_{n}$ on the estimated solution of each GLMM (\texttt{model\$Sol}, in \texttt{MCMCglmm} \citep{MCMCglmm}) corresponding to the estimation of the position of the variance-covariance matrix in the trait-space.
+$M_{n}$ then contains all the major axes of the 0.95 hyper-ellipse fitting the variance-covariance matrix.
+We can then define the first row of the matrix, $M_{1,n}$, as the major axis, the second row, $M_{2,n}$, as the second major axis (the minor axis in a 2D ellipse), etc.
+
+The detailed procedure was adapted from \href{Zheyuan Li's}{https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331} post on Stack Overflow and implemented in \texttt{dispRity::axis.covar}.
+
+\subsection{Measuring projection and rejection}
+
+Once we have defined a major axis, we can project any elements in the trait-space onto that axis.
+Specifically, for any elements in the trait-space, we can define it as the vector $\vec{a}$ with one set of coordinates in $n$ dimensions:
+
+\begin{equation}
+    \vec{a} = 
+    \begin{bmatrix}
+    x \\
+    y \\
+    \cdots \\
+    n \\
+    \end{bmatrix}
+\end{equation}
+
+And for any major axis that we can define as a vector $\vec{b}$ as a set of pairs of coordinates in $n$ dimensions:
+
+\begin{equation}
+    \vec{b} = 
+    \begin{bmatrix}
+    x_{1} & x_{2} \\
+    y_{1} & y_{2} \\
+    \cdots & \cdots \\
+    n_{1} & n_{2} \\
+    \end{bmatrix}
+\end{equation}
+
+We can then calculate $\vec{a_{1}}$, the orthogonal projection of $\vec{a}$ onto $\vec{b}$ using:
+
+\begin{equation}
+    \vec{a_{1}} = \frac{\vec{a} \cdot \vec{b}}{\|\vec{b}\|}
+\end{equation}
+
+With $\|\vec{b}\| = \sqrt{\vec{b} \cdot \vec{b}}$ being the norm of $\vec{b}$.
+And $\vec{a_{2}}$, the rejection of $\vec{a}$ onto $\vec{b}$:
+
+\begin{equation}
+    \vec{a_{2}} = \vec{a} - \vec{a_{1}}
+\end{equation}
+
+\subsubsection{Generalisation of projection onto any vector in a set space}
+
+Using this, we can generalise the procedure so as to calculate the projection and rejection for any element within a trait-space $TS_{m,n}$:
+
+\begin{equation}
+    TS_{m,n} = 
+    \begin{bmatrix}
+    x_{1} & x_{2} & \cdots & x_{m} \\
+    y_{1} & y_{2} & \cdots & y_{m} \\
+    \vdots  & \vdots  & \ddots & \vdots \\
+    n_{1} & n_{2} & \cdots & n_{m} \\
+    \end{bmatrix}
+\end{equation}
+
+And any major axis defined as a vector $\vec{B}$:
+
+\begin{equation}
+    B = 
+    \begin{bmatrix}
+    x_{1} & x_{2}\\
+    y_{1} & y_{2}\\
+    \vdots  & \vdots  \\
+    n_{1} & n_{2} \\
+    \end{bmatrix}
+\end{equation}
+
+By using the linear transformation $f_{\vec{B}}$ of the trait-space $TS$ moving $\vec{B}$ onto $TS$'s first axis unit vector $\vec{\hat{\imath}}$:
+
+$$f_{\vec{B}}(TS) = \left( \frac{TS - [Bx_{1}, By_{1}, \cdots, Bn_{1}]^{\text{T}}}{\|\vec{B}\|} \right) \cdot R_{\vec{B}}$$
+
+With $R_{\vec{B}}$ being the rotation matrix of the vector $\vec{B}$ onto $\vec{\hat{\imath}}$:
+
+\begin{equation}
+R_{\vec{B}} = I_{\vec{B}} - \vec{B}\vec{B}^\text{T} - \vec{\hat{\imath}}\vec{\hat{\imath}}^\text{T} + [\vec{B} \vec{\hat{\imath}}]
+    \begin{bmatrix}
+        cos(\theta) & -sin(\theta)\\
+        sin(\theta) & cos(\theta)\\
+    \end{bmatrix} [\vec{B} \vec{\hat{\imath}}]^\text{T}
+\end{equation}
+
+Where $\theta$ is:
+
+\begin{equation}
+    \theta = acos \left(\frac{\vec{B} \cdot \vec{\hat{\imath}}}{\|\vec{B}\| \cdot \|\vec{\hat{\imath}}\|} \right)
+\end{equation}
+
+Or $\theta = acos (B_x)$ since both $\|\vec{B}\|$ and $\|\vec{\hat{\imath}}\|$ are equal to 1 and $\|\vec{\hat{\imath}}\|$ is the unit vector on the first axis.
+
+\subsection{Algorithm for calculating the projection/rejection of any element in a defined space}
+
+In practice we followed this \href{procedure}{https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions} and applied a modification of this  \href{implementation}{https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385} (see \cite{aguilera2004} for the formal generalisation of this algorithm in $n$ dimensions) using the following algorithm implemented in \texttt{dispRity::projections}:
+
+\begin{enumerate}
+ \item In the trait-space, define $\vec{B}$ as the base vector (typically $\vec{B}$ is defined as the pair of coordinates from the major axis described above).
+ \item Centre the trait-space on the origin of $\vec{B}$ so that the first set of coordinates of $\vec{B}$ are 0.
+ \item Scale the trait-space to the norm of $\vec{B}$ so that the norm of $\vec{B}$ is now 1.
+ \item Rotate the trait-space using the rotation matrix $R_{\vec{B}}$ to satisfy the linear transformation $\vec{B} \rightarrow \vec{\hat{\imath}}$ (with $\vec{\hat{\imath}}$ being the first unit vector of the trait-space - typically the x axis unit vector). 
+ \item Project/reject every element in the trait-space on $\vec{B}$ (that is now $\vec{\hat{\imath}}$). In practice, the first coordinate (x) of each element is now its projection onto $\vec{B}$.
+\end{enumerate}
 
 
-\bibliography{sn-bibliography}% common bib file
+
+
+\bibliographystyle{sysbio}
+\bibliography{References}% common bib file
 %% if required, the content of .bbl file can be included here once bbl is generated
 %%\input sn-article.bbl
 
