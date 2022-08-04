@@ -59,6 +59,12 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
+## Get the bar plots for the loadings of the phylogeny component
+# pdf(file = "../Manuscript/Figures/phylo_loadings.pdf", height = 4, width = 4)
+# plot(NULL, xlim = range(superorder_shapespace$matrix), ylim = range(superorder_shapespace$matrix))
+# add.dims(superorder_shapespace, name.col = c(phylogeny = "grey"), n = 1000)
+# dev.off()
+
 box_size <- 1.5
 pdf(file = "../Manuscript/Figures/Figure3_ellipses.pdf", height = box_size*10, width = box_size*10)
 
@@ -228,6 +234,12 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 ## Phylogeny window (detailed)
 
 ```{r}
+## Adding the bar plot for the phylogeny component
+# pdf(file = "../Manuscript/Figures/phylo_loadings.pdf", height = 4, width = 4)
+# plot(NULL, xlim = range(suborder_shapespace$matrix), ylim = range(suborder_shapespace$matrix))
+# add.dims(suborder_shapespace, name.col = c(phylogeny = "grey"), n = 1000)
+# dev.off()
+
 box_size <- 1.5
 pdf(file = "../Manuscript/Figures/Figure3_passeriformes.pdf", height = box_size*9, width = box_size*10)
 
