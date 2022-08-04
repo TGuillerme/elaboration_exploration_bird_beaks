@@ -123,6 +123,10 @@ levels(clades)[1] <- "no clade"
 ## Make a dispRity object and get axes data
 shape_axes <- select.axes(custom.subsets(shapespace, group = clades))
 form_axes  <- select.axes(custom.subsets(formspace, group = clades))
+
+pdf(file = "../Manuscript/Figures/axis_selection.pdf", height = 8, width = 12)
+plot(shape_axes)
+dev.off()
 ```
 
 ```{r, echo = FALSE}

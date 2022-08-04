@@ -158,7 +158,10 @@ write.csv(all_results, "../Data/Processed/ellipses.stats.csv")
 knitr::kable(all_results)
 
 ## tex results
-make.xtable(all_results[, -c(4, 6:8)], digit = 3, caption = "Posterior variance-covariance ellipses results for each clade compared to their parent clade or their parent parents clade (Comparison). n = the number of species per group. sd = the standard deviation of the ellipses orientation (across the posterior distribution). orthogonality = the degree of right angle for each group compared to their parent or parent's group (0 = parellel, 1 = orthogonal). Post. prob = the posterior probability of the orthogonality in the focal group being different from the comparison one (the 95% CI is from the randomised posterior probabilities).", label = "tab_ortho_results", longtable = FALSE, path = "../Manuscript/Tables/", include.rownames = FALSE)
+to_export <- all_results[, -c(4, 6:8)]
+colnames(to_export)[c(6,9)] <- "2.5\\%"
+colnames(to_export)[c(7,10)] <- "97.5\\%"
+make.xtable(to_export, digit = 3, caption = "Posterior variance-covariance ellipses results for each clade compared to their parent clade or their parent parents clade (Comparison). n = the number of species per group. sd = the standard deviation of the ellipses orientation (across the posterior distribution). orthogonality = the degree of right angle for each group compared to their parent or parent's group (0 = parellel, 1 = orthogonal). Post. prob = the posterior probability of the orthogonality in the focal group being different from the comparison one (the 95\\% CI is from the randomised posterior probabilities).", label = "tab_ortho_results", longtable = FALSE, path = "../Manuscript/Tables/", include.rownames = FALSE)
 ```
 
 Median orthogonality for all super-orders and orders to the phylogeny (paragraph 4)
@@ -366,7 +369,7 @@ innovation_species_auc <- apply(innovation_species, 2, area.density)
 elaboration_group_auc <- apply(elaboration_group, 2, area.density)
 innovation_group_auc <- apply(innovation_group, 2, area.density)
 
-pdf("../Manuscript/Figures/Relative_EI.pdf", height = 8, width = 8)
+pdf("../Manuscript/Figures/relative_EI.pdf", height = 8, width = 8)
 par(mfrow = c(2,2))
 plot.density(species = c(elaboration_species),
              group   = c(unlist(elaboration_super_orders), unlist(elaboration_orders)),

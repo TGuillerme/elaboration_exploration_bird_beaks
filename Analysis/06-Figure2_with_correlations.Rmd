@@ -84,7 +84,7 @@ Density plot of the correlation of the median elaboration and median exploration
 
 ```{r, echo = TRUE, eval = TRUE}
 ## Set the pdf parameters
-pdf("../Manuscript/Figures/Figure2_correlations.pdf", height = 12, width = 8)
+pdf("../Manuscript/Figures/correlations.pdf", height = 12, width = 8)
 
 ## Set up the plotting layout
 layout_matrix <- cbind(matrix(1,2,2), matrix(0,2,2))
@@ -213,7 +213,7 @@ Density plot of the correlation of the median elaboration and median exploration
 
 ```{r, echo = TRUE, eval = TRUE}
 ## Set the pdf parameters
-pdf("../Manuscript/Figures/Figure2_correlations_passeriformes.pdf", height = 12, width = 6)
+pdf("../Manuscript/Figures/correlations_passeriformes.pdf", height = 12, width = 6)
 
 ## Set up the plotting layout
 layout_matrix <- cbind(matrix(1,2,2), matrix(0,2,1))
