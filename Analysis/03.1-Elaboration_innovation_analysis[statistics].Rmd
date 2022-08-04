@@ -155,6 +155,27 @@ write.csv(all_results, "../Data/Processed/ellipses.stats.csv")
 knitr::kable(all_results)
 ```
 
+Median orthogonality for all super-orders and orders to the phylogeny (paragraph 4)
+
+```{r}
+get.angles <- function(X) {
+    unlist(get.disparity(X$angles, concatenate = FALSE))
+}
+## Median angle
+median(get.angles(ellipses_stats$all_birds)) * 90
+## Median angle CI
+quantile(get.angles(ellipses_stats$all_birds), probs = c(0.025, 0.975)) * 90
+```
+
+Median orthogonality for all super-orders and orders to the phylogeny (paragraph 4)
+
+```{r}
+## Median angle
+median(unlist(lapply(ellipses_stats[2:9], get.angles))) * 90
+## Median angle CI
+quantile(unlist(lapply(ellipses_stats[2:9], get.angles)), probs = c(0.025, 0.975)) * 90
+```
+
 <!-- length(which(all_results[which(all_results[,"Post. prob."] >= 0.95), ]$orthogonality > 0.5)) -->
 
 
