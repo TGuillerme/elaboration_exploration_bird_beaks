@@ -18,3 +18,14 @@ Data/Raw/Tree_data/*
 ## The example pipelines
 Analysis/mcmc-plus-tensor-master/*
 Analysis/MCMCglmm_covar/*
+
+
+## LaTeX BS
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
