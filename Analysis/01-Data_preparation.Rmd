@@ -27,6 +27,11 @@ devtools::install_github("TGuillerme/dispRity@MCMCglmm")
 ```{r load_beer, eval = TRUE}
 ## Loading packages
 library(dispRity) #v>=1.7
+library(xtable)
+library(knitr)
+source("../Functions/stats.utilities.R")
+
+
 ```
 
 
@@ -113,7 +118,7 @@ How many dimensions do we need to represent at least 95% of the variance in each
 ```{r}
 ## Temporary change the empty levels to noclade
 clades <- clades_list[, c(1)]
-levels(clades)[1] <- "noclade"
+levels(clades)[1] <- "no clade"
 
 ## Make a dispRity object and get axes data
 shape_axes <- select.axes(custom.subsets(shapespace, group = clades))
@@ -122,7 +127,11 @@ form_axes  <- select.axes(custom.subsets(formspace, group = clades))
 
 ```{r, echo = FALSE}
 kable(summary(shape_axes)[, c(1:((length(shape_axes$dimensions)+1)*2))], caption = "variance per axes for the Shape space", label = "Table X2")
+to_export <- summary(shape_axes)[, c(1:((length(shape_axes$dimensions)+1)*2))]
+rownames(to_export)[nrow(to_export)] <- "Entire space"
+silent <- make.xtable(to_export, caption = "Variance per axis and per group in the shape space. The \"no clade\" group contains birds not attributed to any of the other groups (i.e. from a clade with less than 15 species).", label = "tab_variance_per_axis", path = "../Manuscript/Tables/", include.rownames = TRUE)
 ```
+
 
 ```{r, echo = FALSE}
 kable(summary(form_axes)[, c(1:((length(form_axes$dimensions)+1)*2))], caption = "variance per axes for the Form space", label = "Table X3")
