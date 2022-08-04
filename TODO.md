@@ -2,14 +2,13 @@
 
 ## TODOs comment from gdocs
 
- - [ ] ellipses comparison table
  - [x] edits on fig_ortho (remove passersiformes and spaces)
  - [x] edits on fig_ortho change transparency to dashes
  - [x] edits on fig_ortho add the 0.75 line
- - [ ] edit par5 with link to par4
- - [ ] table with the boxplot values results to add to supplementary
- - [ ] make passseriformes all results in supplementary
- - [ ] add PC1 loading for phylo group
+ - [x] edit par5 with link to par4
+ - [x] table with the boxplot values results to add to supplementary
+ - [x] make passseriformes all results in supplementary
+ - [x] add PC1 loading for phylo group
 
 ## Analyses
 
@@ -42,6 +41,12 @@
  - [x] Write a detailed explanation for that figure (cheat sheet)
 
 ## Supplementaries
+
+ - [ ] supp tables from the main text
+ - [ ] supp math from the main text
+ - [ ] supp passerines results
+ - [ ] supp big ellipse table containing n, sd, orthogonality, elaboration/innovation.
+
 
  - [ ] Passerines?
  - [ ] methods vignettes (but see reproducibility)?
