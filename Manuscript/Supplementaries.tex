@@ -128,7 +128,7 @@
 
 \begin{figure}[!htbp]
 \centering
-   \includegraphics[width=0.9\textwidth]{Figures/figure_cheat_sheet.pdf}
+   \includegraphics[width=0.9\textwidth]{Figures/cheat_sheet.pdf}
 \caption{Relation between the figures in the main text.
 The top left panel represents the two first dimensions of the 8 dimensional trait space with all bird beaks represented as grey circles and the Palaeognathes as red ones.
 The grey ellipse represents the average posterior variance covariance matrix (VCV) from the general phylogenetic random term of the MCMCglmm model (i.e. the overall phylogenetic axis of main variation).
@@ -147,7 +147,7 @@ A species elaboration score is their projection onto the phylogenetics' VCV majo
 
 \begin{figure}[!htbp]
 \centering
-   \includegraphics[width=0.9\textwidth]{Figures/Supplementary_figure_axis_selection.pdf}
+   \includegraphics[width=0.9\textwidth]{Figures/axis_selection.pdf}
 \caption{variance and cumulative variance for each 8 axis per super-order.}
 \label{Fig:axes_variance}
 \end{figure}
@@ -178,26 +178,37 @@ A species elaboration score is their projection onto the phylogenetics' VCV majo
 %TODO:TG: update the passeriformes parameters estimate (with more models)
 
 \begin{landscape}
-\input{Tables/Tab_variance_per_axis.tex}
+\input{Tables/tab_variance_per_axis.tex}
 \end{landscape}
+
+
+\input{Tables/tab_ortho_results.tex}
+
 
 \section{Supplementary material 2: Passeriformes results}
 
+\begin{figure}[!htbp]
+\centering
+   \includegraphics[width=1\textwidth]{Figures/ellipses_passeriformes.pdf}
+\caption{Elaboration and innovation at the group level for each passeriformes sub-orders and families. See the caption of figure 1 in the main text for details.}
+\label{fig_ellipses_passeriformes}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+   \includegraphics[width=0.9\textwidth]{Figures/orthogonality_results_passeriformes.pdf}
+\caption{Posterior results showing the orientation of phenotypic evolution (orthogonality) for each passeriformes sub-orders and families. See the caption of figure 2 in the main text for details.}
+\label{fig_orthogonality_passeriformes}
+\end{figure}
 
 
 \begin{figure}[!htbp]
 \centering
-   \includegraphics[width=0.9\textwidth]{Figures/Supplementary_figure_axis_selection.pdf}
-\caption{variance and cumulative variance for each 8 axis per super-order.}
-\label{fig_ellipses_passeriformes}
+   % \includegraphics[width=0.9\textwidth]{Figures/.pdf}
+\caption{Passeriformes phylogeny coloured by beak shape innovation and elaboration level. See the caption of figure 3 in the main text for details.}
+\label{fig_phylogeny_passeriformes}
 \end{figure}
 
-
-Figure {#fig_ellipses}: elaboration and innovation at the group level. Panel A) shows  ellipses representing the scaled median posterior variance-covariance response from the pGLMM models for each superorder (coloured ellipses) compared to the all-birds phylogenetic component of the models (grey ellipses). We scaled the ellipses so the length of the major axis of the clade ellipses is the same length as that of the global ellipse (in eight dimensions). The first inset ellipse plot shows the positions of all superorder ellipses relative to the all-bird phylogenetic ellipse. Subsequent inset plots show the results for each superorder. Inset barplots show the proportion of variance associated with each of the eight PC axes in shape morphospace.. The inset boxplots correspond to the elaboration (E) and innovation (I) scores  for all 4000 posterior samples. The dots represent the median elaboration and innovation values while the thick and dashed lines represent the 50% and 95% confidence intervals respectively. Note that these scores were calculated on the unscaled ellipses resulting in different scales of elaboration and innovation scores for each plot. Panel B) shows  the results for each order.
-
-Figure {#fig_orthogonality}. Posterior results showing the orientation of phenotypic evolution (orthogonality)of each group compared to their parent clade or to their parent’s parent clade. Orthogonality scales from 0 (modulo of 0°) to 1 (modulo of 90°). For each clade we indicate the number of species (n) and the standard deviation of ellipse orientation within the clade (sd; expressed in degrees). The lines represent the 95% credibility interval of the 4000 variance-covariance ellipses and the dots represent their median orthogonality value. Opaque lines represent the comparisons between the group’s ellipse and their parent clade and semi-transparent lines represent their comparison to their parent’s parent clade. The background grey and dashed grey lines represent respectively an orthogonality of 0.5 (modulo of 45°) and 0.75 (modulo of 67.5°) Note that some clades are both similarly orthogonal to their parent and parent’s parent clade (e.g. Pterocliformes) while some are not (e.g. Columbiformes). 
-
-The avian phylogeny (n = 8748 species) coloured by speciesbeak shape innovation and elaboration level. Blue and yellow colors highlight species with relatively low elaboration or low innovation, whereas orange to red colours indicate high innovation or elaboration. Innovations and elaboration are displayed as: a)comparisons of species to the phylogenetic major axis (inner two bands); b) comparisons of species to their superorder major axis (middle two bands); and c) comparisons of species to their order major axis (outer two bands). The branches are coloured by the species distance from the centroid of the shapespace and the estimation of their ancestors’ position in that space. A companion plot showing further nested structure within the Passeriformes is shown in Fig {supplementary_figure_passerines}.
 
 
 \bibliography{sn-bibliography}% common bib file
