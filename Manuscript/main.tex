@@ -195,7 +195,7 @@ The dominance of elaboration when measured at the species level is consistent wi
 \noindent \textbf{Figure \ref{Fig:phylogeny}:} The avian phylogeny (n=8748 species) coloured by speciesbeak shape innovation and elaboration level.
 Blue and yellow colors highlight species with relatively low elaboration or low innovation, whereas orange to red colours indicate high innovation or elaboration.
 Innovations and elaboration are displayed as: a)comparisons of species to the phylogenetic major axis (inner two bands); b) comparisons of species to their superorder major axis (middle two bands); and c) comparisons of species to their order major axis (outer two bands).
-The branches are coloured by the species distance from the centroid of the shapespace and the estimation of their ancestors’ position in that space.
+The branches are coloured by the species distance from the centroid of the shapespace and the estimation of their ancestors' position in that space.
 A companion plot showing further nested structure within the Passeriformes is shown in Fig. S\ref{fig_phylogeny_passeriformes}.
 
 The disconnect between observations of reorientation of trait space at the clade level and a dominance of elaboration at the species level could be viewed as a paradox.
@@ -227,12 +227,82 @@ We can see a clear difference in the amount of innovation across the posterior s
 
 Our results show that although at the species level most bird beaks are elaborating along a megaevolutionary line of least resistance, at the macroevolutionary level innovation along the megaevolutionary line of least resistance is much more common.
 This nested structure of elaboration at a higher taxonomic level and innovation at a lower taxonomic level could thus explain the diversity of bird beaks we observe today.
-However, individual specie-level variation in the past could also have led to a shift in a group’s line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape, Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
+However, individual specie-level variation in the past could also have led to a shift in a group's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape, Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
 Our results help to bridge the gap between micro- and macro-evolution by proposing a multi-scale framework for  phenotypic evolution that allows species to evolve along lines of least evolutionary resistance while accommodating frequent shifts in the direction of evolutionary change.
 
 \section{Methods}
 
 
+\textbf{Beak shape data.}
+We used the dataset from \cite{cooney2017mega,chira2020signature,hughes2022global} which consists of four landmarks and three curves of 25 semi-landmarks each, taken from 3D scans of  the beaks of 8748 bird species.
+The landmark data were aligned with Procrustes superimposition using the R package \texttt{Morpho} \cite{Rcore,Morpho} and we removed the size component and controlled for symmetry (see \cite{cooney2017mega,chira2020signature,hughes2022global} for detailed descriptions of data collection and processing).
+We ordinated the superimposed landmarks using a principal components analysis (PCA) and selected the first eight first dimensions of the resulting PCA.
+These eight dimensions contained at least 95\% of variance in each superorder, and 98.7\% of the variance in the whole dataset.
+We used a threshold of $>95$\% of variance explained for each superorder because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e.
+$\sigma$ PC1 $<$ $\sigma$ PC2 $<$ $\sigma$ PC3), this is not always true for each superorder.
+For example, in the Mirandornithes, PC2, then PC4, and then PC1 contained the most variance (Fig. \ref{Fig:ellipses} and S\ref{Fig:axes_variance}).
+This protocol for selecting the number of PC axes ensures that the resulting trait-space contains enough variance for each superorder (see Fig. S\ref{Fig:axes_variance} and Table \ref{tab_variance_per_axis}).
+This procedure resulted in an $8748 \times 8$ matrix that contains at least 95\% of the variance in all observed living bird beaks (hereafter, the shapespace).
+
+\textbf{Phylogenetic data.}
+We used a random subsample of 1000 trees from the avian tree distribution of \cite{jetz2012global} for the analyses and the one randomly selected tree for the figures (Fig. \ref{Fig:phylogeny}).
+We pruned these trees to contain only the 8748 species present in our beak shapespace.
+
+
+
+
+\textbf{Phylogenetic GLMM analysis.}
+We ran a phylogenetic Bayesian generalised linear mixed effects model (pGLMM) using the \texttt{MCMCglmm} R package \cite{MCMCglmm} with the shapespace data as a multidimensional response variable, the error in the dataset as residuals, and each clade's phylogeny as a nested random term, i.e., a model of:
+
+\begin{equation}
+\text{shapespace} \mathtt{\sim} \text{residuals(shapespace)} + \text{random(phylogeny)} (equation 1)
+\end{equation}
+
+This model allows us to estimate a phenetic variance-covariance matrix for each clade and the phylogeny as a whole, and one for the residuals in the shapespace itself.
+These variance-covariance matrices were then used in a base projection-rejection analysis to measure the elaboration and innovation scores (see below).
+We ran two separate nested models.
+One model using one random term for the whole phylogeny and 35 nested random terms for each superorder and order containing more than 15 species in our dataset (Fig. \ref{Fig:ellipses}).
+And one model on a subset of the dataset containing only the 5966 passeriformes species with 30 nested random terms.
+This resulted in two multidimensional GLMM.
+One with a $8748 \times 8$ response variables, one global residual term and 36 random terms.
+And one with a $5966 \times 8$ response variable, one global residual term and 30 random terms.
+ 
+To account for phylogenetic uncertainty we needed to run the model using different tree topologies from the tree distribution in \cite{jetz2012global}.
+Because of the very large size of our model and dataset, however, running the full model on multiple trees was computationally unfeasible (it would require 2.1 CPU years and 4TB of RAM for the whole tree model and @@@ for the passeriformes model). %TODO: passeriformes model size
+Instead, we developed and implemented a ''mini chains'' MCMCglmm method using the R package mcmcmglmmm @@@(cite?).%TODO: cite mcmcmcglmmm
+
+\textbf{mcmcmcglmm.}
+This method consists in running relatively short monte-carlo markov chains (MCMC) across a large number of different phylogenetic trees and concatenating the resulting short posteriors into one larger one that contains the phylogenetic uncertainty information.
+This was effectively done in four steps (see Fig. S\ref{Fig:mcmcmcglmm})
+1) running three independent MCMCglmm chains (hereafter the parametrisation chains) for 50k generations with the traits data and the model described above on the consensus tree from the tree distribution, along with flat priors with a belief parameter of 2\% (effectively not a very low weight on the priors);
+2) extracting the following parameters from the parameterisation chains:
+a) the conservative burnin average time (across the three chains) defined as the highest number of iterations required to first reach the median posterior likelihood value multiplied by 1.1; and
+b) the mini-chains priors defined as the median posterior model values from the parameterisation chains with a belief parameter of 5\%.
+We then ran 400 mini chains in parallel with the estimated burnin time and priors in order to just run 10 samples past the burnin.
+This effectively resulted in getting 10 exploitable posterior samples per tree.
+We used 400 trees because that was the number of models required to reach an effective sample size (ESS) of at least 200 for all the estimated parameters (see Fig. S\ref{Fig:model_ess_all_birds} and S\ref{Fig:model_ess_passeriformes}).
+Using this approach, we reduced the computational time to around 45 CPU hours and 9GB of RAM per mini-chain (a 400 fold improvement).
+The whole procedure is reproducible in % TODO: add vignette @@@vignette name and implemented in the mcmcmcglmmm standalone package https://github.com/TGuillerme/mcmcmcglmmm.
+
+\textbf{Projection/rejection analyses.}
+We used the distributions of the 4000 posterior variance-covariance matrices to run the projection/rejection analyses to measure the bird beaks' elaboration and innovation scores.
+In fact we can use multilinear algebra to interpret elaboration and innovation \textit{sensu} \cite{endler2005animal} by using the major axis of the variance-covariance matrices as the ''line of least resistance'', or, specifically here, the line of elaboration for each random terms (corresponding to the elaboration axes for each clade) and project either species or other major axis onto that group (see Fig. S). %TODO: add figure projection
+In brief we can interpret where a species or a group falls on the major axis of reference as its elaboration score and how far a species is from that major axis as its innovation score.
+We calculated the elaboration and innovation scores using two main approaches:
+1) by clades (i.e. to measure the elaboration/innovation between clades) where we calculated the projections of the major axes of each clade onto the global phylogenetic major axes (Fig. \ref{Fig:ellipses});
+and 2) by species (i.e. to measure the elaboration/innovation within clades) where we calculated the projections of each species onto a) the global phylogenetic major axes and b) the phylogenetic major axes of their respective clade (Fig. \ref{Fig:phylogeny}).
+To make the results easier to interpret, we centered and scaled them onto the centre of the major axis of interest and made the elaboration values absolute.
+This way, we can interpret an elaboration or innovation score within the 0-1 range to be not exceptional (i.e within the 95\% confidence interval of the variance-covariance matrix).
+The entire mathematical procedure is described in details in % TODO: link to: @@@supplementary text@@@.
+The whole procedure applied to our dataset is reproducible in % TODO: link to: @@@vignette name
+and implemented in the dispRity package \cite{dispRity}.
+
+\textbf{Groups' orthogonality.}
+We measured the orthogonality of each group (i.e. random term in our models compared to their parent group and their parent parent's (e.g.
+the Columbimorphae random terms' variance-covariance matrices against the phylogeny ones, the Columbiformes ones against the Columbimorphae ones (parent) and the whole phylogeny ones (parent parents).To do so we measured the angles between the major axes of the focal group and their parent group for each posterior variance-covariance matrix as well as within each group by randomly comparing major axes within a group.
+We converted each angle measurement into an orthogonality metric where 0 corresponds to flat angles ($0^\circ$ or  $180^\circ$) and 1 to right angles ($90^\circ$ or $270^\circ$).
+We then measured the posterior probability of the angles within a group being different than the angles between groups.
+These results are available in Fig. \ref{Fig:orthogonality}.
 
 
 \bibliographystyle{naturemag}
