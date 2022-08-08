@@ -296,6 +296,15 @@ unlist(lapply(clade_info$orders, `[[`, "col"))
 ## Get the species in one specific group
 clade_info$orders$Cuculiformes$species
 
+
+## Get the median elaboration/innovation for the groups
+groups_median_EI <- list(
+    "super_orders" = list("elaboration" = unlist(lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), function(X) median(c(X)))),
+                          "innovation"  = unlist(lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), function(X) median(c(X))))) ,
+    "orders"       = list("elaboration" = unlist(lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), function(X) median(c(X)))),
+                          "innovation"  = unlist(lapply(get.disparity(results$order_results_between$distance, concatenate = FALSE), function(X) median(c(X)))))
+)
+save(groups_median_EI, file = "../Data/Processed/groups_median_EI.rda")
 ```
 
 # Passeriformes shapespace analyses
@@ -456,6 +465,15 @@ clade_info_passeriformes <- list(suborders = suborders,
                                  families = families)
 ## Save all that data
 save(clade_info_passeriformes, file = "../Data/Processed/clade_info_passeriformes.rda")
+
+## Get the median elaboration/innovation for the groups
+groups_median_EI_passeriformes <- list(
+    "sub_orders" = list("elaboration" = unlist(lapply(get.disparity(results$suborder_results_between$position, concatenate = FALSE), function(X) median(c(X)))),
+                          "innovation"  = unlist(lapply(get.disparity(results$suborder_results_between$distance, concatenate = FALSE), function(X) median(c(X))))) ,
+    "families"       = list("elaboration" = unlist(lapply(get.disparity(results$family_results_between$position, concatenate = FALSE), function(X) median(c(X)))),
+                          "innovation"  = unlist(lapply(get.disparity(results$family_results_between$distance, concatenate = FALSE), function(X) median(c(X)))))
+)
+save(groups_median_EI_passeriformes, file = "../Data/Processed/groups_median_EI_passeriformes.rda")
 ```
 
 
