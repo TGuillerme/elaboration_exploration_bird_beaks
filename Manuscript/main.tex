@@ -51,10 +51,12 @@ Version dated: \today
 \noindent{\Large \bf Innovation and elaboration on the avian tree of life}
 \bigskip
 
-\noindent {\normalsize \sc Thomas Guillerme$^{1,*}$, Natalie Cooper$^{2}$, Andrew P. Beckerman$^{1}$, and Gavin H. Thomas$^{1}$}\\
+\noindent {\normalsize \sc Thomas Guillerme$^{1,*}$, Natalie Cooper$^{2}$, Andrew P. Beckerman$^{1}$, and Gavin H. Thomas$^{1,3}$}\\
 \noindent {\small \it 
 $^1$chool of Biosciences, University of Sheffield, heffield, S10 2TN, United Kingdom.\\
-$^2$Natural History Museum, Cromwell Road, London, SW75BD, United Kingdom.\\}
+$^2$Natural History Museum, Cromwell Road, London, SW75BD, United Kingdom.\
+$^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring, Tring, United Kingdom.\\}
+
 
 \end{center}
 \medskip
@@ -72,8 +74,8 @@ $^2$Natural History Museum, Cromwell Road, London, SW75BD, United Kingdom.\\}
 %---------------------------------------------
 
 \noindent (Keywords: )\\
-P
-atterns of biological diversity across the tree of life are the result of millions of years of evolutionary history and are shaped by natural selection.
+
+Patterns of biological diversity across the tree of life are the result of millions of years of evolutionary history and are shaped by natural selection.
 A long-standing proposal is that most morphological diversity among species arises along ``an evolutionary line of least resistance'', where new phenotypes arise primarily by elaboration - evolution along this line of least resistance.
 At macro and mega-evolutionary scales, however, we frequently observe major shifts in phenotypes among lineages \cite{venditti2011multiple, pagel2022general}.
 The presence of distinct morphological forms suggests instead that diversity can arise via innovation - where species evolve away from the line of least resistance.
@@ -181,8 +183,8 @@ We found that high levels of elaboration are more common across all birds than h
 However, we also found various combinations of elaboration and innovation across birds.
 For example, compared to the phylogenetic major axis, the Trochilidae (hummingbirds, with long narrow beaks) display high levels of elaboration and low innovation whereas the Bucerotidae (hornbills, with large and oddly shaped beaks) display high levels of innovation and low elaboration.
 Other groups such as the Apodidae (swifts, with large but gaping beaks) and the distantly related but convergent Hirundidae (swallows and martins) display high levels of both elaboration and innovation.
-Overall, we find no consistent evidence that innovation is either positively correlated with, or trades-off with, elaboration. %(Fig. S{#fig_correlations}). %TODO: add to supp?
-The variability of, and apparent disconnect between, innovation and elaboration holds whether comparisons are made at the order, superorder, or class-wide phylogenetic level (Fig. \ref{Fig:phylogeny} and ),%{#fig_correlations}),%TODO: add to supp?
+Overall, we find no consistent evidence that innovation is either positively correlated with, or trades-off with, elaboration. %(Fig. S{#fig_correlations}). %TODO: maybe add to supp?
+The variability of, and apparent disconnect between, innovation and elaboration holds whether comparisons are made at the order, superorder, or class-wide phylogenetic level (Fig. \ref{Fig:phylogeny}). %{#fig_correlations}),%TODO: maybe add to supp?
  and in further nested analysis of the order Passeriformes (Fig. S\ref{fig_ellipses_passeriformes} and S\ref{fig_phylogeny_passeriformes}).
 The dominance of elaboration when measured at the species level is consistent with ideas of evolution along lines of least evolutionary resistance, yet contrasts with our observations of frequent innovation via reorientation of trait space within clades.
 
@@ -268,8 +270,8 @@ One with a $8748 \times 8$ response variables, one global residual term and 36 r
 And one with a $5966 \times 8$ response variable, one global residual term and 30 random terms.
  
 To account for phylogenetic uncertainty we needed to run the model using different tree topologies from the tree distribution in \cite{jetz2012global}.
-Because of the very large size of our model and dataset, however, running the full model on multiple trees was computationally unfeasible (it would require 2.1 CPU years and 4TB of RAM for the whole tree model and @@@ for the passeriformes model). %TODO: passeriformes model size
-Instead, we developed and implemented a ''mini chains'' MCMCglmm method using the R package mcmcmglmmm @@@(cite?).%TODO: cite mcmcmcglmmm
+Because of the very large size of our model and dataset, however, running the full model on multiple trees was computationally unfeasible (it would require 2 CPU years and 4TB of RAM for each - the whole tree and the passeriformes ones).
+Instead, we developed and implemented a ''mini chains'' MCMCglmm method using the R package \texttt{mcmcmglmmm} \cite{mcmcmcglmmm}.
 
 \textbf{mcmcmcglmm.}
 This method consists in running relatively short monte-carlo markov chains (MCMC) across a large number of different phylogenetic trees and concatenating the resulting short posteriors into one larger one that contains the phylogenetic uncertainty information.
@@ -282,19 +284,19 @@ We then ran 400 mini chains in parallel with the estimated burnin time and prior
 This effectively resulted in getting 10 exploitable posterior samples per tree.
 We used 400 trees because that was the number of models required to reach an effective sample size (ESS) of at least 200 for all the estimated parameters (see Fig. S\ref{Fig:model_ess_all_birds} and S\ref{Fig:model_ess_passeriformes}).
 Using this approach, we reduced the computational time to around 45 CPU hours and 9GB of RAM per mini-chain (a 400 fold improvement).
-The whole procedure is reproducible in % TODO: add vignette @@@vignette name and implemented in the mcmcmcglmmm standalone package https://github.com/TGuillerme/mcmcmcglmmm.
+The whole procedure is reproducible in the \href{https://raw.rawgit.net/TGuillerme/mcmcmcglmmm/main/inst/MCMCglmm_mini_chains.html}{\texttt{mcmcmcglmmm} vignette} \cite{mcmcmcglmmm}.
 
 \textbf{Projection/rejection analyses.}
 We used the distributions of the 4000 posterior variance-covariance matrices to run the projection/rejection analyses to measure the bird beaks' elaboration and innovation scores.
-In fact we can use multilinear algebra to interpret elaboration and innovation \textit{sensu} \cite{endler2005animal} by using the major axis of the variance-covariance matrices as the ''line of least resistance'', or, specifically here, the line of elaboration for each random terms (corresponding to the elaboration axes for each clade) and project either species or other major axis onto that group (see Fig. S). %TODO: add figure projection
+In fact we can use multilinear algebra to interpret elaboration and innovation \textit{sensu} \cite{endler2005animal} by using the major axis of the variance-covariance matrices as the ''line of least resistance'', or, specifically here, the line of elaboration for each random terms (corresponding to the elaboration axes for each clade) and project either species or other major axis onto that group.
 In brief we can interpret where a species or a group falls on the major axis of reference as its elaboration score and how far a species is from that major axis as its innovation score.
 We calculated the elaboration and innovation scores using two main approaches:
 1) by clades (i.e. to measure the elaboration/innovation between clades) where we calculated the projections of the major axes of each clade onto the global phylogenetic major axes (Fig. \ref{Fig:ellipses});
 and 2) by species (i.e. to measure the elaboration/innovation within clades) where we calculated the projections of each species onto a) the global phylogenetic major axes and b) the phylogenetic major axes of their respective clade (Fig. \ref{Fig:phylogeny}).
 To make the results easier to interpret, we centered and scaled them onto the centre of the major axis of interest and made the elaboration values absolute.
 This way, we can interpret an elaboration or innovation score within the 0-1 range to be not exceptional (i.e within the 95\% confidence interval of the variance-covariance matrix).
-The entire mathematical procedure is described in details in % TODO: link to: @@@supplementary text@@@.
-The whole procedure applied to our dataset is reproducible in % TODO: link to: @@@vignette name
+The entire mathematical procedure is described in details in the supplementary materials (section \ref{supp_projection}).
+The whole procedure applied to our dataset is reproducible in \href{https://raw.rawgit.net/TGuillerme/dispRity/MCMCglmm/inst/vignettes/model_test_vignette.html}{this \texttt{dispRity} vignette} % TODO: update link to release when releasing
 and implemented in the dispRity package \cite{dispRity}.
 
 \textbf{Groups' orthogonality.}
