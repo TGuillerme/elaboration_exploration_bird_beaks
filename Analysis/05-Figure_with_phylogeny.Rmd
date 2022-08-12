@@ -1,0 +1,274 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Gavin Thomas"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+## Plot the median elaboration/innovation on the phylogeny
+
+```{r, echo = FALSE}
+library(ggtree)
+library(ggtreeExtra)
+library(treeio)
+library(treeplyr)
+library(ggplot2)
+library(phytools)
+library(motmot)
+library(viridis)
+library(RColorBrewer)
+library(colorspace)
+library(ggnewscale)
+
+### All birds plot - main text
+
+# Load data for all phylo, superorder, and order comparisons
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/ploting_data_superorder.rda")
+load("../Data/Processed/ploting_data_order.rda")
+
+# Get clade info data (includes colours for clade labelling)
+load("../Data/Processed/clade_info.rda")
+load("../Data/Processed/tip_colours_orders.rda")
+
+
+tree <- ploting_data$consensus_tree
+tree <- ladderize(tree)
+
+# Set up data frame - with some missing data will need to use full_join
+beak_all <-  data.frame(species = names(ploting_data$median_elaborations), elab=ploting_data$median_elaborations, inov=ploting_data$median_innovations, phylogeny=ploting_data$distances_to_centre)
+beak_superorder <- data.frame(species = names(ploting_data_superorder$median_elaborations), elabsuperorder=ploting_data_superorder$median_elaborations,  inovsuperorder=ploting_data_superorder$median_innovations)
+beak_order <- data.frame(species = names(ploting_data_order$median_elaborations), elaborder=ploting_data_order$median_elaborations,  inovorder=ploting_data_order$median_innovations)
+
+beak <- left_join(beak_all, beak_superorder, by="species")
+beak <- left_join(beak, beak_order, by="species")
+
+# Combine data and tree to plot estimated ancestral states for distance to centroid per species
+beak_tree <- make.treedata(tree=tree, data= beak)
+dcen_plot <- getVector(beak_tree, phylogeny)
+fit <- phytools::fastAnc(beak_tree$phy, dcen_plot, vars=TRUE,CI=FALSE)
+
+# Combine ancestral state estimates with tip values and names 
+td <- data.frame(node = ggtree::nodeid(beak_tree$phy, names(dcen_plot)),
+               dist_cent = dcen_plot)
+nd <- data.frame(node = names(fit$ace), dist_cent = fit$ace)
+d <- rbind(td, nd)
+d$node <- as.numeric(d$node)
+
+# Join data frame with tree
+birdelabtree <- full_join(beak_tree$phy, d, by = "node")
+birdelabtree@phylo <- ladderize(birdelabtree@phylo)
+
+
+
+# The basic plotting call (1) including angle (5) 
+innovelab_plot <- ggtree(birdelabtree, aes(color= dist_cent), layout="fan",
+                      continuous = TRUE, size=0.5, ladderize=TRUE, open.angle=20) +
+  scale_color_gradientn(colours=cividis(100))  +
+  theme(legend.position="none", legend.box="horizontal") 
+
+# Set up data in long format with fudge to get variable names to plot correctly
+heatmapdat <- beak[,c(1:3,5:8)]
+colnames(heatmapdat) <- c("species", "Elaboration (all)", "Innovation (all)", 
+                      "Elab (superorder)", "Innov (superorder)",
+                      "Elab (order)", "Innov (order)")
+
+heatmapdat <- reshape2::melt(heatmapdat, id.vars="species", variable.name = "type", value.name="score", factorsAsStrings=FALSE)
+
+# Make data frame with node labels and node ids
+n <- length(clade_info[[2]])
+order_labels <- data.frame(order_label=rep(NA, n), node=rep(NA, n), colour_bar=rep(NA, n))
+
+for (i in 1:n) {
+  order_labels[i,1] <- names(clade_info[[2]][i])
+  order_labels[i,2] <- MRCA(birdelabtree, clade_info[[2]][[i]][[1]])
+}
+
+# Order data frame alphabetically according to the taxon labels
+# Necessary because geom_cladelabel adds labels alphabetically but plots colours 
+# in the order of the provided vector (alphatising ensures plotting order is correct)
+order_labels <-arrange(order_labels, order_label)
+order_labels[,3] <- arrange(data.frame(colour=tip_colours_orders, orders=names(tip_colours_orders)), orders)[,1]
+
+## Second part of plot - add heatmap for elaboration and innovation scores
+innovelab_plot <- innovelab_plot +
+  new_scale_fill() + 
+  geom_fruit(data=heatmapdat, geom=geom_tile, 
+             mapping=aes(y=species, x=type, fill=score),
+             axis.params=list(
+               axis="x",
+               text.angle = -90,
+               text.size = 4.5,
+               line.size = 0,
+               vjust = 0.5,
+               hjust=0),
+             offset = 0.02,size = 0.02) +
+  scale_fill_continuous_divergingx(palette = 'Spectral', rev=TRUE,
+                                   mid = 1, na.value="grey80") + 
+  theme(legend.position=c(0.52,0.43), legend.key.size = unit(0.5, "cm"), 
+        legend.key.width=unit(0.6, "cm")) + 
+  labs(fill= "Elab & Innov") +
+  labs(colour= "Distance") 
+
+## Third part of plot - add clade labels
+innovelab_plot <- innovelab_plot +
+  new_scale_colour() + 
+  geom_cladelab(data=order_labels, 
+                mapping=aes(node=node, 
+                            label=order_label,
+                            colour=order_label),
+                textcolour="black",
+                hjust=0,
+                angle="auto",
+                barsize=4,
+                horizontal=TRUE, 
+                fontsize=4,
+                offset=30,
+                offset.text=2,
+                show.legend=FALSE
+  ) +
+  scale_colour_manual(
+    values=order_labels$colour_bar, 
+    guide="none"
+    )
+
+## Save as png and pdf
+ggsave("../Manuscript/Figures/InnovElabTree_main_text.png", innovelab_plot_final, width=12, height=12)
+ggsave("../Manuscript/Figures/InnovElabTree_main_text.pdf", innovelab_plot_final, width=12, height=12)
+
+#####################################################################
+#####################################################################
+
+### Passerines supplementary plot
+
+# Load data for all phylo, superorder, and order comparisons
+load("../Data/Processed/ploting_data_passeriformes.rda")
+load("../Data/Processed/ploting_data_passeriformes_suborder.rda")
+load("../Data/Processed/ploting_data_passeriformes_family.rda")
+
+# Get clade info data (includes colours for clade labelling)
+load("../Data/Processed/clade_info_passeriformes.rda")
+load("../Data/Processed/tip_colours_passeriformes_family.rda")
+
+clades <- read.csv("../Data/Processed/BirdClades.csv")
+passerines <- clades$TipLabel[which(clades$level2_order=="Passeriformes")]
+
+tree_pass <- ploting_data_passeriformes$consensus_tree
+tree_pass <- ladderize(tree_pass)
+
+# Set up data frame - with some missing data will need to use full_join
+beak_pass <-  data.frame(species = names(ploting_data_passeriformes$median_elaborations), elab=ploting_data_passeriformes$median_elaborations, inov=ploting_data_passeriformes$median_innovations, phylogeny=ploting_data_passeriformes$distances_to_centre)
+beak_pass_suborder <- data.frame(species = names(ploting_data_passeriformes_suborder$median_elaborations), elabsuperorder=ploting_data_passeriformes_suborder$median_elaborations,  inovsuperorder=ploting_data_passeriformes_suborder$median_innovations)
+beak_pass_fam <- data.frame(species = names(ploting_data_passeriformes_family$median_elaborations), elaborder=ploting_data_passeriformes_family$median_elaborations,  inovorder=ploting_data_passeriformes_family$median_innovations)
+
+beak_pass <- left_join(beak_pass, beak_pass_suborder, by="species")
+beak_pass <- left_join(beak_pass, beak_pass_fam, by="species")
+
+# Ensure only passerines included
+beak_pass <- subset(beak_pass, species %in% passerines)
+
+# Combine data and tree to plot estimated ancestral states for distance to centroid per species
+beak_tree_pass <- make.treedata(tree=tree_pass, data= beak_pass)
+dcen_plot_pass <- getVector(beak_tree_pass, phylogeny)
+fit_pass <- phytools::fastAnc(beak_tree_pass$phy, dcen_plot_pass, vars=TRUE,CI=FALSE)
+
+# Combine ancestral state estimates with tip values and names 
+td_pass <- data.frame(node = nodeid(beak_tree_pass$phy, names(dcen_plot_pass)),
+                 dist_cent = dcen_plot_pass)
+nd_pass <- data.frame(node = names(fit_pass$ace), dist_cent = fit_pass$ace)
+d_pass <- rbind(td_pass, nd_pass)
+d_pass$node <- as.numeric(d_pass$node)
+
+# Join data frame with tree
+birdelabtree_pass <- full_join(beak_tree_pass$phy, d_pass, by = "node")
+birdelabtree_pass@phylo <- ladderize(birdelabtree_pass@phylo)
+
+
+# The basic plotting call (1) including angle (5) 
+innovelab_pass_plot <- ggtree(birdelabtree_pass, aes(color= dist_cent), layout="fan",
+                         continuous = TRUE, size=0.5, ladderize=TRUE, open.angle=25) +
+  scale_color_gradientn(colours=cividis(100))  +
+  theme(legend.position="none", legend.box="horizontal") 
+
+# Set up data in long format with fudge to get variable names to plot correctly
+heatmapdat_pass <- beak_pass[,c(1:3,5:8)]
+colnames(heatmapdat_pass) <- c("species", "Elaboration (all)", "Innovation (all)", 
+                          "Elab (suborder)", "Innov (suborder)",
+                          "Elab (family)", "Innov (family)")
+
+heatmapdat_pass <- reshape2::melt(heatmapdat_pass, id.vars="species", variable.name = "type", value.name="score", factorsAsStrings=FALSE)
+
+# Make data frame with node labels and node ids
+n_pass <- length(clade_info_passeriformes[[2]])
+family_labels_pass <- data.frame(family_label=rep(NA, n_pass), node=rep(NA, n_pass), colour_bar=rep(NA, n_pass))
+
+for (i in 1:n_pass) {
+  family_labels_pass[i,1] <- names(clade_info_passeriformes[[2]][i])
+  family_labels_pass[i,2] <- ggtree::MRCA(birdelabtree_pass, clade_info_passeriformes[[2]][[i]][[1]])
+  family_labels_pass[i,3] <- clade_info_passeriformes[[2]][[i]][[2]]
+}
+
+# Order data frame alphabetically according to the taxon labels
+# Necessary because geom_cladelabel adds labels alphabetically but plots colours 
+# in the order of the provided vector (alphatising ensures plotting order is correct)
+# Order data frame alphabetically according to the taxon labels
+# Necessary because geom_cladelabel adds labels alphabetically but plots colours 
+# in the order of the provided vector (alphatising ensures plotting order is correct)
+family_labels_pass <-arrange(family_labels_pass, family_label)
+family_labels_pass[,3] <- arrange(data.frame(colour=tip_colours_passeriformes_family, family_label=names(tip_colours_passeriformes_family)), family_label)[,1]
+
+
+## Second part of plot - add heatmap for elaboration and innovation scores
+innovelab_pass_plot <- innovelab_pass_plot +
+  new_scale_fill() + 
+  geom_fruit(data=heatmapdat_pass, geom=geom_tile, 
+             mapping=aes(y=species, x=type, fill=score),
+             axis.params=list(
+               axis="x",
+               text.angle = -90,
+               text.size = 4.5,
+               line.size = 0,
+               vjust = 0.5,
+               hjust=0),
+             offset = 0.02,size = 0.02) +
+  scale_fill_continuous_divergingx(palette = 'Spectral', rev=TRUE,
+                                   mid = 1, na.value="grey80") + 
+  theme(legend.position=c(0.56,0.43), legend.key.size = unit(0.5, "cm"), 
+        legend.key.width=unit(0.6, "cm")) + 
+  labs(fill= "Elab & Innov") +
+  labs(color= "Distance") 
+
+## Third part of plot - add clade labels
+innovelab_pass_plot <- innovelab_pass_plot +
+  new_scale_colour() + 
+  geom_cladelab(data=family_labels_pass, 
+                mapping=aes(node=node, 
+                            label=family_label,
+                            colour=family_label),
+                textcolour="black",
+                hjust=0,
+                angle="auto",
+                barsize=4,
+                horizontal=TRUE, 
+                fontsize=4,
+                offset=18.5,
+                offset.text=1.5,
+                show.legend=FALSE
+  ) +
+  scale_colour_manual(
+    values=family_labels_pass$colour_bar, 
+    guide="none"
+  )
+
+## Save as png and pdf
+ggsave("../Manuscript/Figures/InnovElabTree_passerine_supplement.png", innovelab_pass_plot, width=12, height=12)
+ggsave("../Manuscript/Figures/InnovElabTree_passerine_supplement.pdf", innovelab_pass_plot, width=12, height=12)
+
+
+
+```
