@@ -73,7 +73,7 @@ $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 %
 %---------------------------------------------
 
-\noindent (Keywords: macroevolution, variance-covariance matrices, line of least resistance, GLMM)\\
+\noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, line of least resistance, GLMM)\\
 
 Patterns of biological diversity across the tree of life are the result of millions of years of evolutionary history and are shaped by natural selection.
 A long-standing proposal is that most morphological diversity among species arises along ``an evolutionary line of least resistance'', where new phenotypes arise primarily by elaboration - evolution along this line of least resistance.
@@ -310,7 +310,7 @@ and 2) by species (i.e. to measure the elaboration/innovation within clades) whe
 To make the results easier to interpret, we centered and scaled them onto the centre of the major axis of interest and made the elaboration values absolute.
 This way, we can interpret an elaboration or innovation score within the 0-1 range to be not exceptional (i.e within the 95\% confidence interval of the variance-covariance matrix).
 The entire mathematical procedure is described in details in the supplementary materials (section \ref{supp_projection}).
-The whole procedure applied to our dataset is reproducible in \href{https://raw.rawgit.net/TGuillerme/dispRity/MCMCglmm/inst/vignettes/model_test_vignette.html}{this \texttt{dispRity} vignette} % TODO: update link to release when releasing
+The whole procedure applied to our dataset is reproducible in \href{https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html}{this \texttt{dispRity} vignette} % TODO: update link to release when releasing
 and implemented in the dispRity package \cite{dispRity}.
 
 \textbf{Groups' orthogonality.}
@@ -319,6 +319,13 @@ the Columbimorphae random terms' variance-covariance matrices against the phylog
 We converted each angle measurement into an orthogonality metric where 0 corresponds to flat angles ($0^\circ$ or  $180^\circ$) and 1 to right angles ($90^\circ$ or $270^\circ$).
 We then measured the posterior probability of the angles within a group being different than the angles between groups.
 These results are available in Fig. \ref{Fig:orthogonality}.
+
+\textbf{Reproducibility and repeatability.}
+The raw and processed data used in this analysis is available from \href{https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355}{figshare} \cite{fighsaredata}.
+The code used to reproduce the figures and tables is available from \href{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}{github} \cite{githubrepo}.
+
+\textbf{Funding.}
+This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
 
 
 \bibliographystyle{naturemag}
