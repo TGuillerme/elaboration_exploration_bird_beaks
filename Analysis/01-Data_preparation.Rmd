@@ -249,6 +249,9 @@ load("../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
 shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[(clades_list[, "level2_order"] == "Passeriformes"), ]
 
+# TODO: match the names properly here.
+
+
 ## Check what's happening with Neodrepanis_hypoxantha
 
 ## Loading the Passeriformes clades
