@@ -3,21 +3,19 @@
 Author(s): [Thomas Guillerme](https://github/TGuillerme), [Natalie Cooper](http://nhcooper123.github.io/), [Andrew P. Beckerman](https://andbeck.github.io/beckslab/), [Gavin H. Thomas](https://www.sheffield.ac.uk/biosciences/people/academic-staff/gavin-thomas)
 
 This repository contains all the code and data used in [the manuscript]().
-
-<!-- Repo zenodo: [![DOI](https://zenodo.org/badge/102496441.svg)](https://zenodo.org/badge/latestdoi/102496441) -->
+[![DOI](https://zenodo.org/badge/337779300.svg)](https://zenodo.org/badge/latestdoi/337779300)
 <!-- Preprint link: [![DOI](https://zenodo.org/badge/102496441.svg)](https://zenodo.org/badge/latestdoi/102496441) -->
-<!-- Paper link: [![DOI](https://zenodo.org/badge/102496441.svg)](https://zenodo.org/badge/latestdoi/102496441) -->
 
 ## Supplementary material
 
- * The supplementary tables and figures mentioned in the main text is available [here](link_to_supp).
+ * The supplementary tables and figures mentioned in the main text is available [here]().
  * The supplementary information about the mcmcmcglmmm method is available as a [reproducible vignette](https://raw.rawgit.net/TGuillerme/mcmcmcglmmm/main/inst/MCMCglmm_mini_chains.html).
  * The supplementary information about the elaboration and innovation analysis (or projection analysis) is available as a [reproducible vignette](https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html).
 
 ## Data
 The raw data phylogenetic data is available from [here](https://birdtree.org/).
-The raw morphological data is available from [here](beak_data).
-You can access the processed data used in this analysis [here](processed_data_repo).
+The raw morphological data is available from [here]().<!-- TODO: add link to beak data -->
+You can access the processed data used in this analysis [here](https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355).
 If you use either the processed or raw phylogenetic data in a publication, please cite the following papers [Cooney et al 2017](https://www.nature.com/articles/nature21074), [Chira et al 2020](https://royalsocietypublishing.org/doi/full/10.1098/rspb.2020.1585) and [Hughes et al 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13905).
 
 ## Analysis
@@ -32,7 +30,6 @@ However, note that due to the large amount of data and computational time and re
  <!-- * **06-Figure_with_correlations**  contains the script to reproduce the elements in figure 2 in the main text. -->
  * **07-Supplementary_figures_tables** contains the script to reproduce the supplementary tables and figures].
 
-
 ## Reproducible examples {#reproducible}
  * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](https://github.com/TGuillerme/mcmcmcglmmm/blob/main/inst/MCMCglmm_mini_chains.Rmd).
  * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](https://github.com/TGuillerme/dispRity/blob/MCMCglmm/inst/vignettes/Projection_analysis.Rmd).
@@ -44,13 +41,13 @@ To cite the paper, please use:
 <!-- Paper cite (link to cite formats) -->
 
 To cite this repository, please use:
-<!-- Repo Zenodo cite (link to cite formats) -->
+ * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/elaboration_exploration_bird_beaks: v0.1-preprint (v0.1). Zenodo. [https://doi.org/10.5281/zenodo.6984934](https://doi.org/10.5281/zenodo.6984934)
 
 To cite the mcmcmcglmmm method, please use **both**:
-<!-- Paper cite (link to cite formats) -->
-<!-- mcmcmcglmmm Zenodo cite (link to cite formats) -->
+ <!-- Paper cite (link to cite formats) -->
+ * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/mcmcmcglmmm: v0.9 (v0.9). Zenodo. [https://doi.org/10.5281/zenodo.6974582](https://doi.org/10.5281/zenodo.6974582)
 
 To cite the elaboration and innovation method, please use **both**:
-<!-- Paper cite (link to cite formats) -->
-<!-- dispRity paper (link to cite formats) -->
+ <!-- Paper cite (link to cite formats) -->
+ * Guillerme, T., 2018. dispRity: a modular R package for measuring disparity. Methods in Ecology and Evolution, 9(7), pp.1755-1763. [https://doi.org/10.1111/2041-210X.13022](https://doi.org/10.1111/2041-210X.13022)
 
