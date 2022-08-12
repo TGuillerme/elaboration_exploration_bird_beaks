@@ -45,7 +45,7 @@ Version dated: \today
 \end{flushright}
 
 \bigskip
-\medskip
+\bigskip
 \begin{center}
 
 \noindent{\Large \bf Innovation and elaboration on the avian tree of life}
@@ -53,13 +53,13 @@ Version dated: \today
 
 \noindent {\normalsize \sc Thomas Guillerme$^{1,*}$, Natalie Cooper$^{2}$, Andrew P. Beckerman$^{1}$, and Gavin H. Thomas$^{1,3}$}\\
 \noindent {\small \it 
-$^1$chool of Biosciences, University of Sheffield, heffield, S10 2TN, United Kingdom.\\
-$^2$Natural History Museum, Cromwell Road, London, SW75BD, United Kingdom.\
+$^1$School of Biosciences, University of Sheffield, Sheffield, S10 2TN, United Kingdom.\\
+$^2$Natural History Museum, Cromwell Road, London, SW7 5BD, United Kingdom.\\
 $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring, Tring, United Kingdom.\\}
 
 
 \end{center}
-\medskip
+\bigskip
 \noindent{*\bf Corresponding author.} \textit{guillert@tcd.ie}\\ 
 \vspace{1in}
 
@@ -73,12 +73,12 @@ $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 %
 %---------------------------------------------
 
-\noindent (Keywords: )\\
+\noindent (Keywords: macroevolution, variance-covariance matrices, line of least resistance, GLMM)\\
 
 Patterns of biological diversity across the tree of life are the result of millions of years of evolutionary history and are shaped by natural selection.
 A long-standing proposal is that most morphological diversity among species arises along ``an evolutionary line of least resistance'', where new phenotypes arise primarily by elaboration - evolution along this line of least resistance.
 At macro and mega-evolutionary scales, however, we frequently observe major shifts in phenotypes among lineages \cite{venditti2011multiple, pagel2022general}.
-The presence of distinct morphological forms suggests instead that diversity can arise via innovation - where species evolve away from the line of least resistance.
+The presence of distinct morphological forms suggests instead that diversity can arise via innovation - where species evolve away from the line of least resistance \cite{endler2005animal, renaud2006conserved}.
 Here we apply new multi-trait methods to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
 Our analyses show that elaboration is a common feature at all scales, consistent with theory.
 We also find that innovation is a common and major contributor to avian morphological diversity among clades.
@@ -86,11 +86,11 @@ Furthermore, we show that these patterns of innovation are replicated hierarchic
 These results suggest that both elaboration and innovation are ubiquitous from macro- to mega-evolutionary scales, and that macroevolutionary axes of multivariate evolution are frequently reoriented throughout the history of life, opening up new avenues for evolution to explore.
 
 Evolutionary theory predicts that over short (microevolutionary) timescales phenotypic evolution will tend to follow lines of genetic least resistance \cite{schluter1996adaptive}.
-Over longer timescales, the line of least evolutionary resistance is observable as the major axis of phenotypic variation \cite{marroig2005size,fasanelli2022allometry} and is an emergent property of genomic and developmental constraints interacting with selection on the adaptive landscape.
+Over longer timescales, the line of least evolutionary resistance is observable as the major axis of phenotypic variation \cite{marroig2005size,fasanelli2022allometry} and is an emergent property of genomic and developmental constraints interacting with selection on the adaptive landscape \cite{jones2004evolution}.
 Indeed, evidence suggests that genetic constraints can extend over timescales spanning tens of millions of years leading to remarkable macroevolutionary stability in the orientation of phenotypic evolution \cite{mcglothlin2018adaptive}.
 However, if most organisms evolve incrementally along stable lines of least resistance then how can we explain the staggering diversity of species morphologies across the tree of life? The widespread evidence of major shifts in phenotypes across the tree of life \cite{pagel2022general,cooney2017mega,venditti2011multiple,khabbazian2016fast,smaers2021evolution} suggests a tension in the evolvability of phenotypes across scales.
 This apparent tension implies deep-time reorientation of phenotypic lines of least resistance and points to alternative routes to the exploration of phenotypic space by evolving either along, or away from, the dominant phenotypic axis.
-We refer to these alternatives as elaboration - evolution along the phylogenetically constrained phenotypic major axis - and innovation - evolution away from the phylogenetically constrained phenotypic major axis.
+We refer to these alternatives as elaboration - evolution along the phylogenetically constrained phenotypic major axis - and innovation - evolution away from the phylogenetically constrained phenotypic major axis \cite{endler2005animal}.
 The contributions of these two multivariate pathways are poorly-known despite their importance for understanding the origins of diversity from macro- to mega-evolutionary scales.
 Here we estimate and compare major axes of beak shape evolution in birds across lineages and scales to address the contributions of elaboration and innovation to the generation of avian phenotypic diversity.
 
@@ -100,7 +100,7 @@ Addressing the relative contributions of elaboration and innovation to the origi
 and 3) a set of mathematical tools that can estimate degrees of elaboration and innovation at any scale.
 Here, we propose a novel analytical pipeline for measuring elaboration and innovation at the species- and higher taxonomic levels (Fig.S\ref{Fig:cheat_sheet} and S\ref{Fig:mcmcmcglmm}).
 All of our analyses use an eight-dimensional beak shape morphospace based on a geometric morphometric dataset of 8748 species of birds (described in \cite{hughes2022global}).
-We fitted a phylogenetic generalised linear mixed effect model (pGLMM with beak shape as an eight-dimensional response variable andtreated phylogeny as a nested random term including a phylogenetic partition and multiple partitions for nested clades (see Methods).
+We fitted a phylogenetic generalised linear mixed effect model (pGLMM with beak shape as an eight-dimensional response variable andtreated phylogeny as a nested random term including a phylogenetic partition and multiple partitions for nested clades (see Methods; \cite{MCMCglmm}).
 We regard the phylogenetic partition as a deep-time analogue of the microevolutionary \textbf{G} matrix and posit that it represents the line of least evolutionary resistance capturing the effects of historical contingency on multivariate evolution.
 The nested partitions of multivariate trait space provide the basis for all subsequent analyses.
 
@@ -120,6 +120,7 @@ These results suggest that the line of least evolutionary resistance is itself e
 \caption{.}
 \label{Fig:ellipses}
 \end{figure}
+\bigskip
 
 \noindent \textbf{Figure \ref{Fig:ellipses}:}
 Panel A) shows  ellipses representing the scaled median posterior variance-covariance response from the pGLMM models for each superorder (coloured ellipses) compared to the all-birds phylogenetic component of the models (grey ellipses)
@@ -131,12 +132,16 @@ The dots represent the median elaboration and innovation values while the thick 
 Note that these scores were calculated on the unscaled ellipses resulting in different scales of elaboration and innovation scores for each plot. Panel B) shows  the results for each order.
 A companion plot showing further nested structure within the Passeriformes is shown in Fig. S\ref{fig_ellipses_passeriformes}.
 
+\bigskip
+
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/orthogonality_results.pdf}
 \caption{.}
 \label{Fig:orthogonality}
 \end{figure}
+
+\bigskip
 
 \noindent \textbf{Figure \ref{Fig:orthogonality}:}
 Orthogonality of each clade's major axis compared to their parent or parent parent's clade.
@@ -146,19 +151,20 @@ No super order's major axis is parallel to the whole phylogeny (red lines and ci
 These results are even clearer when comparing them to the whole phylogeny (green dashed lines and open circles) where only 3/25 are not at least half orthogonal.
 Furtheremore we also indicate here the number of species (n) and the standard deviation of their major axes orientation over the 4000 variance-covariance posteriors (sd; expressed in degrees).
 For each clade we also measured the posterior propbabilityof each clade's orientation being different from their parent's clade or the whole phylogeny relative to their sample size and sd.
-The stars represent the posterior probability of the clade's orientation being different from the comparison clade. (*** = pp > 0.99; ** = pp > 0.95; * = pp > 0.9; . = pp > 0.8).
-Only two out of six super-orders; 6/25 orders relative to their super order and 9/25 orders relative to the phylogeny have a pp > 0.99.
+The stars represent the posterior probability of the clade's orientation being different from the comparison clade. (*** = pp $> 0.99$; ** = pp $>0.95$; * = pp $> 0.9$; . = pp $> 0.8$).
+Only two out of six super-orders; 6/25 orders relative to their super order and 9/25 orders relative to the phylogeny have a pp $> 0.99$.
 This is the result of a variation of sample size (n) and standard variation (sd) between clades. 
 A companion plot showing further nested structure within the Passeriformes is shown in Fig. S\ref{fig_orthogonality_passeriformes}.
 
+\bigskip
 
 However, this change in the line of least resistance's orientation between different clade levels varies between clades (Fig.\ref{Fig:ellipses}).
 While orthogonality provides a simple description of the degree of reorientation of phenotypic axes (measuring the two-dimensional plane of an angle), it does not fully capture the multi-dimensionality of the data.
 To further quantify the tension implied between theory on lines of least evolutionary resistance and observations of deep-time reorientation of trait covariance, we measured the elaboration and innovation of each different clades (\textit{cf.} the elaboration and innovation of a species - see below).
-As noted above, elaboration describes multivariate evolution that is primarily along the phylogenetically constrained phenotypic major axis whereas innovation describes multivariate evolution that is primarily away from the phylogenetically constrained phenotypic major axis.
+As noted above, elaboration describes multivariate evolution that is primarily along the phylogenetically constrained phenotypic major axis whereas innovation describes multivariate evolution that is primarily away from the phylogenetically constrained phenotypic major axis \cite{endler2005animal}.
 Clades (or species) can be both elaborators and innovators.
 To measure innovation and elaboration we translated the major axes of each group's (i.e. superorders and orders) phylogenetic variance-covariance matrices onto the global phylogenetic major axis so that they shared the same origin in the shapespace.
-We then used multilinear algebra to project a focal group's major axis onto the phylogenetic major axis (Fig.S\ref{Fig:cheat_sheett}).
+We then used multilinear algebra to project a focal group's major axis onto the phylogenetic major axis (Fig.S\ref{Fig:cheat_sheet}).
 We interpret the measured projection (distance onto the phylogenetic major axis) as the group's elaboration score and the measured rejection (distance from the major axis) as the group's innovation score.
 These scores were measured for each of 4000 posterior pairs of group vs. phylogenetic variance-covariance matrix (Fig.\ref{Fig:ellipses} boxplots).
 We found that for most groups the phenotypic major axis is not aligned with the global phylogenetic major axis, (Fig. \ref{Fig:ellipses}).
@@ -190,15 +196,20 @@ The dominance of elaboration when measured at the species level is consistent wi
 
 \begin{figure}[!htbp]
 \centering
-   % \includegraphics[width=0.9\textwidth]{Figures/phylogenys.pdf}
+    \includegraphics[width=0.9\textwidth]{Figures/InnovElabTree_main_text.pdf}
 \caption{.}
 \label{Fig:phylogeny}
 \end{figure}
+
+\bigskip
+
 \noindent \textbf{Figure \ref{Fig:phylogeny}:} The avian phylogeny (n=8748 species) coloured by speciesbeak shape innovation and elaboration level.
 Blue and yellow colors highlight species with relatively low elaboration or low innovation, whereas orange to red colours indicate high innovation or elaboration.
 Innovations and elaboration are displayed as: a)comparisons of species to the phylogenetic major axis (inner two bands); b) comparisons of species to their superorder major axis (middle two bands); and c) comparisons of species to their order major axis (outer two bands).
 The branches are coloured by the species distance from the centroid of the shapespace and the estimation of their ancestors' position in that space.
 A companion plot showing further nested structure within the Passeriformes is shown in Fig. S\ref{fig_phylogeny_passeriformes}.
+
+\bigskip
 
 The disconnect between observations of reorientation of trait space at the clade level and a dominance of elaboration at the species level could be viewed as a paradox.
 We formalise this paradox by testing whether elaboration is more common at higher taxonomic levels than at the species level.
@@ -215,6 +226,8 @@ This implies that gradual directional evolution \cite{pagel2022general} rather t
 \label{Fig:relative_EI}
 \end{figure}
 
+\bigskip
+
 \noindent \textbf{Figure \ref{Fig:relative_EI}:} Comparisons of relative elaboration and innovation among groups (illustrated in figure  \ref{Fig:ellipses}) and among species (figure \ref{Fig:phylogeny}).
 A - In blue, the elaboration for each species in each 4000 posterior samples compared to the elaboration for each 35 groups.
 The scores for each group is scaled by the maximum score within each group (corresponding to the scaled ellipses in figure  \ref{Fig:ellipses}) and the score for the species is scaled by the maximum species elaboration score.
@@ -226,6 +239,7 @@ The Bhattacharyya coefficient indicates the probability of overlap between the p
 D - same as C but for innovation.
 We can see a clear difference in the amount of innovation across the posterior samples between species or groups.
 
+\bigskip
 
 Our results show that although at the species level most bird beaks are elaborating along a megaevolutionary line of least resistance, at the macroevolutionary level innovation along the megaevolutionary line of least resistance is much more common.
 This nested structure of elaboration at a higher taxonomic level and innovation at a lower taxonomic level could thus explain the diversity of bird beaks we observe today.
@@ -260,7 +274,7 @@ We ran a phylogenetic Bayesian generalised linear mixed effects model (pGLMM) us
 \text{shapespace} \mathtt{\sim} \text{residuals(shapespace)} + \text{random(phylogeny)} (equation 1)
 \end{equation}
 
-This model allows us to estimate a phenetic variance-covariance matrix for each clade and the phylogeny as a whole, and one for the residuals in the shapespace itself.
+This model allows us to estimate a phenetic variance-covariance matrix for each clade and the phylogeny as a whole, and one for the residuals in the shapespace itself \cite{robinson2013quantifying}.
 These variance-covariance matrices were then used in a base projection-rejection analysis to measure the elaboration and innovation scores (see below).
 We ran two separate nested models.
 One model using one random term for the whole phylogeny and 35 nested random terms for each superorder and order containing more than 15 species in our dataset (Fig. \ref{Fig:ellipses}).
