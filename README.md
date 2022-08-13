@@ -2,9 +2,8 @@
 
 Author(s): [Thomas Guillerme](https://github/TGuillerme), [Natalie Cooper](http://nhcooper123.github.io/), [Andrew P. Beckerman](https://andbeck.github.io/beckslab/), [Gavin H. Thomas](https://www.sheffield.ac.uk/biosciences/people/academic-staff/gavin-thomas)
 
-This repository contains all the code and data used in [the manuscript]().
+This repository contains all the code and data used in [the manuscript](https://www.biorxiv.org/content/10.1101/2022.08.12.503188v1).
 [![DOI](https://zenodo.org/badge/337779300.svg)](https://zenodo.org/badge/latestdoi/337779300)
-<!-- Preprint link: [![DOI](https://zenodo.org/badge/102496441.svg)](https://zenodo.org/badge/latestdoi/102496441) -->
 
 ## Supplementary material
 
@@ -38,16 +37,16 @@ However, note that due to the large amount of data and computational time and re
 ## Citing this work
 
 To cite the paper, please use:
-<!-- Paper cite (link to cite formats) -->
+ * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin Huw Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188)
 
 To cite this repository, please use:
  * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/elaboration_exploration_bird_beaks: v0.1-preprint (v0.1). Zenodo. [https://doi.org/10.5281/zenodo.6984934](https://doi.org/10.5281/zenodo.6984934)
 
 To cite the mcmcmcglmmm method, please use **both**:
- <!-- Paper cite (link to cite formats) -->
+ * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin Huw Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188)
  * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/mcmcmcglmmm: v0.9 (v0.9). Zenodo. [https://doi.org/10.5281/zenodo.6974582](https://doi.org/10.5281/zenodo.6974582)
 
 To cite the elaboration and innovation method, please use **both**:
- <!-- Paper cite (link to cite formats) -->
+ * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin Huw Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188)
  * Guillerme, T., 2018. dispRity: a modular R package for measuring disparity. Methods in Ecology and Evolution, 9(7), pp.1755-1763. [https://doi.org/10.1111/2041-210X.13022](https://doi.org/10.1111/2041-210X.13022)
 
