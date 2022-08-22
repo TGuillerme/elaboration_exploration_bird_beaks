@@ -20,6 +20,8 @@
  - [x] put all the ellipses together in a figure and compare them scaled aligned. Then compare the position of the ellipses for each cherries in terms of angle, alignment and distance.
 
 
+ - [ ] Compare passeriformes ellipses from the whole space model (level 2) to the the ones from the passeriformes space model (level 0) to see the difference there.
+
 ## Manuscript
 
  - [x] clean the google doc [TG]
@@ -42,10 +44,10 @@
 
 ## Supplementaries
 
- - [ ] supp tables from the main text
+ - [x] supp tables from the main text
  - [ ] supp math from the main text
- - [ ] supp passerines results
- - [ ] supp big ellipse table containing n, sd, orthogonality, elaboration/innovation.
+ - [x] supp passerines results
+ - [x] supp big ellipse table containing n, sd, orthogonality, elaboration/innovation.
 
 
  - [ ] Passerines?
