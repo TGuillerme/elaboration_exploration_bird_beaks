@@ -11,41 +11,17 @@ output:
 
 <!-- Compilation time: 30 minutes -->
 
-All the custom code and custom functions called in this document can be downloaded and installed in `R` as the standalone working package `beer` (Beak Elaboration and Exploration in R).
-Although `beer` is intentionally designed to be portable and shareable, we advice workers to use it with moderation and tailor it's consumption to their specific research needs.
-The following code snippets are used to illustrate the implementation of the functions.
-See §§§ for running the actual analyses.
+All the custom code and custom functions called in this document can be downloaded and installed in `R`.
 
-The method described in the next three markdown is essentially a mini chains with pseudo-metropolis coupling markov chain generalised linear mixed model method to determine clades and tips elaboration and exploration (`mcmcpmcmcmcglmmmctee`) but we will refrain using this acronym and method name.
-
-
-```{r install_beer, eval = FALSE}
-## Installing the dispRity branch
-devtools::install_github("TGuillerme/dispRity@MCMCglmm")
-```
-
-```{r load_beer, eval = TRUE}
+```{r packages, eval = TRUE}
 ## Loading packages
 library(dispRity) #v>=1.7
 library(xtable)
 library(knitr)
 source("../Functions/stats.utilities.R")
-
-
 ```
 
-
 # Data preparation
-
-TODO: 
-
- * [ ] what's the data, where is it from
- * [ ] Procrustes
- * [ ] Building the trait space
-   - [ ] form space version?
-   - [ ] shape space version?
- * [ ] Clade data and grouping
-
 
 Trees were manipulated in `R` [@Rcore] using the package `ape` [@ape].
 
@@ -76,7 +52,7 @@ trees_list <- read.tree("../Data/Raw/Tree_data/AllBirdsHackett1.tre")
 ```
 
  * The clade data
-We used the different clade levels (the 11 magnificent 7 + the families). For each level/group, we removed any groups with less than 20 species.
+We used the different clade levels (super orders, orders, sub-orders and families). For each level/group, we removed any groups with less than 20 species.
 
 ```{r}
 ## Reading the clades list
@@ -109,7 +85,6 @@ save(clade_list, file = "../Data/Processed/clade_list.rda")
 library(knitr)
 kable(removed_table, caption = "List of removed clades by level and number of species in that clade in the dataset.", label = "Table X1")
 ```
-
 
 ### Selecting the number of axes
 
@@ -244,15 +219,11 @@ save(levels_list, file = "../Data/Processed/levels_list.rda")
 ## Passeriformes focus
 
 ```{r}
+source("../Functions/prep.data.R")
 ## Get the traitspace for all passeriformes
 load("../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 1, stringsAsFactors = TRUE))
-shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[(clades_list[, "level2_order"] == "Passeriformes"), ]
-
-# TODO: match the names properly here.
-
-
-## Check what's happening with Neodrepanis_hypoxantha
+shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[shapespace_allbirds_lvl_superorder_order[[1]]$space$level2 == "Passeriformes", ]
 
 ## Loading the Passeriformes clades
 load("../Data/Processed/clade.info_passerines.rda")
@@ -271,6 +242,7 @@ for(clade in 1:length(clade_info_passerines$passerine_big_clades)) {
       shapespace_passeriformes <- shapespace_passeriformes[-nas, ]
   }
 }
+
 ## Fill in the level2
 for(clade in 1:length(clade_info_passerines$passerine_small_clades)) {
   ## Get the clade name
@@ -285,7 +257,7 @@ for(clade in 1:length(clade_info_passerines$passerine_small_clades)) {
 shapespace_passeriformes[, "level1"] <- as.factor(shapespace_passeriformes[, "level1"])
 shapespace_passeriformes[, "level2"] <- as.factor(shapespace_passeriformes[, "level2"])
 
-## Do the prep data from here (with all the trees! ouch!)
+## Do the prep data from here
 shapespace_passeriformes_two_levels <- prep.data(
                                           level = 0, lvl.inc = c(1,2),
                                           clades    = shapespace_passeriformes[, c("level1", "level2")],
