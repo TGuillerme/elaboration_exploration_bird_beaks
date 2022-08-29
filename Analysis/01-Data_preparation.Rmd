@@ -31,14 +31,10 @@ Trees were manipulated in `R` [@Rcore] using the package `ape` [@ape].
 ## Reading the different trait spaces
 shapespace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
 shapespace <- shapespace$PCscores
-formspace <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_FORMSPACE_FULL.rds")
-formspace <- formspace$PCscores
 ```
 
 ```{r, echo = FALSE, fig.height = 16, fig.width = 8}
-par(mfrow = c(2,1))
 plot.dispRity(shapespace, type = "preview", pch = 21, main = "Shape space")
-plot.dispRity(formspace, type = "preview", pch = 21, main = "Form space")
 ```
 
  * The tree(s)
