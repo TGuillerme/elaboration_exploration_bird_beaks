@@ -58,7 +58,7 @@ rm(shapespace_allbirds_posteriors)
 
 
 ## Load the covar
-load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+load(file = "../Data/Processed/shapespace_passeriformes_5996t.MCMCglmm")
 shapespace_passeriformes_posteriors <- shapespace_passeriformes[[1]]
 rm(shapespace_passeriformes)
 ## Load the data for the passeriformes
@@ -82,6 +82,7 @@ passeriformes_shapespace <- MCMCglmm.subsets(
 ## Clean garbage
 rm(shapespace_passeriformes_posteriors)
 ```
+
 
 ```{r, eval = FALSE, echo = FALSE}
 ## Creating the nested levels subgroups
@@ -110,10 +111,6 @@ names(passeriformes_shapespace_subgroups) <- levels(shapespace_passeriformes$lev
 
 ```{r, eval = FALSE, echo = FALSE}
 source("../Functions/stats.utilities.R")
-
-# ## Fucked up thing happening here:
-# cd("~/Packaging/dispRity/")
-# load_all()
 
 ## General measurement
 all_birds_all_levels <- ellipse.stats(all_birds_shapespace)
@@ -390,5 +387,52 @@ plot.density(innovation_species_auc, innovation_group_auc, scale.x = FALSE, col 
              xlab = "Posterior area under the curve (innovation)",
              main = paste0("D - Difference in amounts of innovation\nper group or per species\nBhattacharyya coefficient = ",
                            bhatt.coeff(innovation_species_auc, innovation_group_auc)))
+dev.off()
+```
+
+## Testing whether the passeriformes ellipses are similar
+
+Basically whether the level 2 passeriformes random terms VCVs in the all birds models are similar to the level 0 passeriformes random terms VCVs in the passeriformes only model.
+We don't expect them to be identical due to randomness of the selected trees and random seeds but they should be at least very similar.
+
+```{r}
+## Get the VCVs from each model
+model1 <- all_birds_shapespace$covar$Passeriformes
+model2 <- passeriformes_shapespace$covar$Passeriformes
+allbirds <- all_birds_shapespace$covar$phylogeny
+passerida <- passeriformes_shapespace$covar$Passerida
+
+
+## Testing the differences between passeriformes in both spaces
+passeriformes_model1 <- covar.ellipse.test(model1, model2, n = 2000, measure = "orthogonality")
+passeriformes_model2 <- covar.ellipse.test(model2, model1, n = 2000, measure = "orthogonality")
+
+## Testing the differences between passeriformes in both spaces
+passeriformes_model1_vs_allbirds <- covar.ellipse.test(model1, allbirds, n = 2000, measure = "orthogonality")
+passeriformes_model2_vs_allbirds <- covar.ellipse.test(model2, allbirds, n = 2000, measure = "orthogonality")
+passeriformes_model1_vs_passerida <- covar.ellipse.test(model1, passerida, n = 2000, measure = "orthogonality")
+passeriformes_model2_vs_passerida <- covar.ellipse.test(model2, passerida, n = 2000, measure = "orthogonality")
+
+## Merging the results
+passeriformes_comparisons <- rbind(passeriformes_model1,
+                                   passeriformes_model1_vs_allbirds,
+                                   passeriformes_model1_vs_passerida,
+                                   passeriformes_model2,
+                                   passeriformes_model2_vs_allbirds,
+                                   passeriformes_model2_vs_passerida)
+
+## Visualising the differences
+pdf(file = "../Manuscript/Figures/Passeriformes_differences.pdf", width = 9, height = 5)
+par(mar = c(5, 12, 2, 2))
+plot(NULL, xlim = c(0.5, 1), ylim = c(6,1), xlab = "Posterior probability of orthogonality being different\n(comparing variance of orthogonality within vs. between)", yaxt = "n", ylab = "")
+axis(2, las = 2, at = c(1:6), labels = c("Model 2 (sd = 13.65)", "Whole phylogeny (sd = 3.4)", "Passerida (sd = 19.89)", "Model 1 (sd = 11.64)", "Whole phylogeny (sd = 3.4)", "
+    Passerida (sd = 19.89)"))
+legend("topleft", col = c("orange", "blue"), pch =  19, lty =  1, legend = c("Model 1 (whole tree; sd = 11.64) vs.", "Model 2 (passeriformes; sd = 13.65) vs."))
+
+col <- c(rep("orange", 3), rep("blue", 3))
+for(line in 1:6) {
+    lines(matrix(c(passeriformes_comparisons[line, c(2,3)], rep(line, 2)), 2, 2), col = col[line])
+    points(passeriformes_comparisons[line, 1], line, pch = 19, col = col[line])
+}
 dev.off()
 ```
