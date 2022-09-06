@@ -104,7 +104,7 @@ Addressing the relative contributions of elaboration and innovation to the origi
 and 3) a set of mathematical tools that can estimate degrees of elaboration and innovation at any scale.
 Here, we propose a novel analytical pipeline for measuring elaboration and innovation at the species- and higher taxonomic levels (Fig.S\ref{Fig:cheat_sheet} and S\ref{Fig:mcmcmcglmm}).
 All of our analyses use an eight-dimensional beak shape morphospace based on a geometric morphometric dataset of 8748 species of birds (described in \cite{hughes2022global}).
-We fitted a phylogenetic generalised linear mixed effect model (pGLMM with beak shape as an eight-dimensional response variable andtreated phylogeny as a nested random term including a phylogenetic partition and multiple partitions for nested clades (see Methods; \cite{MCMCglmm}).
+We fitted a phylogenetic generalised linear mixed effect model (pGLMM) with beak shape as an eight-dimensional response variable and treated phylogeny as a nested random term including a phylogenetic partition and multiple partitions for nested clades (see Methods; \cite{MCMCglmm}).
 We regard the phylogenetic partition as a deep-time analogue of the microevolutionary \textbf{G} matrix and posit that it represents the line of least evolutionary resistance capturing the effects of historical contingency on multivariate evolution.
 The nested partitions of multivariate trait space provide the basis for all subsequent analyses.
 
@@ -112,7 +112,7 @@ Adaptive radiation theory implies that phenotypic divergence arises primarily al
 However, this contrasts with observations of major jumps in phenotypic space at the megaevolutionary level \cite{puttick2014high,cooney2017mega,venditti2011multiple}.
 We used posterior distributions of variance-covariance matrices derived from our pGLMMs to calculate differences in the phenotypic major axis within different groups compared to the global phylogenetic major axis.
 We find overwhelming evidence that the orientation of evolution within clades is markedly different from - and frequently orthogonal to - the major phylogenetic axis (Fig. \ref{Fig:ellipses} - Fig. \ref{Fig:orthogonality}).
-Despite the limitations representing eight-dimensional space in 2D, our plots of the median elliptical representation of the phenotypic variance-covariance matrix for the global phylogenetic major axis and each super order (Fig. \ref{Fig:ellipses}a) and order (Fig. \ref{Fig:ellipses}b) highlight the variation in the orientation of phenotypic evolution among clades (Figure \ref{Fig:orthogonality}).
+Despite the limitations representing eight-dimensional space in 2D, our plots of the median elliptical representation of the phenotypic variance-covariance matrix for the global phylogenetic major axis and each super order (Fig. \ref{Fig:ellipses}a) and order (Fig. \ref{Fig:ellipses}b) highlight the variation in the orientation of phenotypic evolution among clades (Fig. \ref{Fig:orthogonality}).
 The median angle of the major axis for subclades approaches orthogonality, differing from the phylogenetic major axis by $68.14^\circ$ ($95$\% CI: $22.83^\circ$-$89.09^\circ$).
 Comparisons of orientation among subclades (i.e. orders within superorders) show similar differences (median = $47.17^\circ$; $95$\% CI: $13.64^\circ$-$87.62^\circ$), suggesting that reorientations in trait space are largely unconstrained at the megaevolutionary level and are no more likely to occur along any one axis than another.
 This differs from previous inference on a subset of our data that implied generally consistent and low dimensionality within clades \cite{cooney2017mega}.
@@ -151,7 +151,7 @@ A companion plot showing further nested structure within the Passeriformes is sh
 Orthogonality of each clade's major axis compared to their parent or parent parent's clade.
 Orthogonality is represented on the horizontal axis scales from 0 (modulo of $0^\circ$) to 1 (modulo of $90^\circ$) with the background grey and dashed grey lines represent respectively an orthogonality of 0.5 (modulo of $45^\circ$) and 0.75 (modulo of $67.5^\circ$).
 Dots represent the clades median orthogonality and the lines their 95\% CI.
-No super order's major axis is parallel to the whole phylogeny (red lines and circles) and 12/25 orders are at keast half orthogonal to their super-order (green lines and circles).
+No super order's major axis is parallel to the whole phylogeny (red lines and circles) and 12/25 orders are at least half orthogonal to their super-order (green lines and circles).
 These results are even clearer when comparing them to the whole phylogeny (green dashed lines and open circles) where only 3/25 are not at least half orthogonal.
 Furtheremore we also indicate here the number of species (n) and the standard deviation of their major axes orientation over the 4000 variance-covariance posteriors (sd; expressed in degrees).
 For each clade we also measured the posterior propbabilityof each clade's orientation being different from their parent's clade or the whole phylogeny relative to their sample size and sd.
@@ -174,11 +174,11 @@ These scores were measured for each of 4000 posterior pairs of group vs. phyloge
 We found that for most groups the phenotypic major axis is not aligned with the global phylogenetic major axis, (Fig. \ref{Fig:ellipses}).
 Remarkably, more than half of the assessed groups (4/8 superorders and 15/27 orders) displayed higher median innovation than median elaboration scores implying that, contrary to theory \cite{schluter1996adaptive,marroig2005size}, innovation is a more common generator of morphological diversity than elaboration.
 However, there is substantial variation in terms of elaboration and innovation across groups including relatively low elaboration and innovation (e.g. Cuculiformes; Fig. \ref{Fig:ellipses}), low elaboration and high innovation (e.g. Galliformes; Fig. \ref{Fig:ellipses}), high elaboration and low innovation (e.g. Coraciiformes; Fig. \ref{Fig:ellipses}) or both relatively high elaboration and innovation (e.g. Podicipediformes; Fig. \ref{Fig:ellipses}).
-These patterns hold across scales including within superorders and at finer scales within the order Passeriformes (Fig.S\ref{fig_ellipses_passeriformes}).
+These patterns hold across scales including within superorders and at finer scales within the order Passeriformes (Fig. S\ref{fig_ellipses_passeriformes}).
 This suggests that divergence away from line of least evolutionary resistance (i.e. the phylogenetic major axis) is a common feature of avian beak evolution across scales and further supports the suggestion of a remarkable flexibility in the direction of evolution in deep-time even in a developmentally constrained trait.
 
 This apparent lack of deep-time evolutionary constraint in bird beaks is supported by variation in both the dominant direction of evolution within clades and their relative dimensionality.
-Although the major axis of the global phylogenetic component aligns closely with the first dimension (70.96\% of the phylogenetic major axis is aligned on PC1; Fig. \ref{Fig:ellipses}) of the raw shapespace, no superorder, and only seven of the 27 orders (Procellariiformes, Pelecaniformes, Charadriiformes, Coraciiformes, Psittaciformes and Passeriformes), align with PC1 in shapespace Fig. \ref{Fig:ellipses}-bar plots).
+Although the major axis of the global phylogenetic component aligns closely with the first dimension (70.96\% of the phylogenetic major axis is aligned on PC1; Fig. \ref{Fig:ellipses}) of the raw shapespace, no superorder, and only seven of the 27 orders (Procellariiformes, Pelecaniformes, Charadriiformes, Coraciiformes, Psittaciformes and Passeriformes), mainly align with PC1 in shapespace Fig. \ref{Fig:ellipses}-bar plots).
 These patterns are similar (albeit more contrasted) when looking at sub-orders and families within passeriformes half off the sub-orders (Meliphagoidea, Corvides and Passerida) and seven out of the 23 families (Eurylaimides, Meliphagoidea, Petroicidea, Fringilidae, Aegithaloidea, Pyconotiae, Nectariniidae) align with PC1 (Fig. S\ref{fig_ellipses_passeriformes}).
 Moreover, we found that within clades, phenotypic variation is either highly constrained (varying almost entirely along a single axis) or higher-dimensional than expected from the global phylogenetic partition.
 For example, Accipitriformes (hawks and allies) have major axes that mainly align with the second dimension of the shapespace suggesting uniformity in their beak shape components, whereas the Podicipediformes (grebes) are highly variable across all dimensions suggesting that all components of the shapespace are necessary to describe their beaks.
@@ -187,14 +187,14 @@ However, although we see repeated innovation at the clade level, providing a new
 
 Abrupt reorientation of trait space in higher taxa would be consistent with Simpsonian megaevolutionary dynamics \cite{simpson1953major}.
 This would lead to an expectation that species should elaborate relative to their parent clade (e.g. within orders) but show a stronger tendency towards innovation relative to the global phylogeny.
-To assess the relative contributions of elaboration and innovation in beak morphology among species we estimated the algebraic projection and rejection of their position in the shape-space onto (i) the global phylogenetic major phenotypic axis, (ii) the major phenotypic axis of their respective parent superorder, and (iii) the major phenotypic axis of their respective parent order.
+To assess the relative contributions of elaboration and innovation in beak morphology among species we estimated the algebraic projection and rejection of their position in the shapespace onto (i) the global phylogenetic major phenotypic axis, (ii) the major phenotypic axis of their respective parent superorder, and (iii) the major phenotypic axis of their respective parent order.
 We did this by using the same multilinear algebraic method as described above but measuring elaboration and innovation for individual species (across the 4000 posterior samples) rather than for entire groups.
 We found that high levels of elaboration are more common across all birds than high levels of innovation (Fig. \ref{Fig:phylogeny}).
 However, we also found various combinations of elaboration and innovation across birds.
 For example, compared to the phylogenetic major axis, the Trochilidae (hummingbirds, with long narrow beaks) display high levels of elaboration and low innovation whereas the Bucerotidae (hornbills, with large and oddly shaped beaks) display high levels of innovation and low elaboration.
 Other groups such as the Apodidae (swifts, with large but gaping beaks) and the distantly related but convergent Hirundidae (swallows and martins) display high levels of both elaboration and innovation.
 Overall, we find no consistent evidence that innovation is either positively correlated with, or trades-off with, elaboration. %(Fig. S{#fig_correlations}). %TODO: maybe add to supp?
-The variability of, and apparent disconnect between, innovation and elaboration holds whether comparisons are made at the order, superorder, or class-wide phylogenetic level (Fig. \ref{Fig:phylogeny}). %{#fig_correlations}),%TODO: maybe add to supp?
+The variability of, and apparent disconnect between, innovation and elaboration holds whether comparisons are made at the order, superorder, or class-wide phylogenetic level (Fig. \ref{Fig:phylogeny})%{#fig_correlations}),%TODO: maybe add to supp?
  and in further nested analysis of the order Passeriformes (Fig. S\ref{fig_ellipses_passeriformes} and S\ref{fig_phylogeny_passeriformes}).
 The dominance of elaboration when measured at the species level is consistent with ideas of evolution along lines of least evolutionary resistance, yet contrasts with our observations of frequent innovation via reorientation of trait space within clades.
 
@@ -207,9 +207,9 @@ The dominance of elaboration when measured at the species level is consistent wi
 
 \bigskip
 
-\noindent \textbf{Figure \ref{Fig:phylogeny}:} The avian phylogeny (n=8748 species) coloured by speciesbeak shape innovation and elaboration level.
+\noindent \textbf{Figure \ref{Fig:phylogeny}:} The avian phylogeny (n=8748 species) coloured by species beak shape innovation and elaboration level.
 Blue and yellow colors highlight species with relatively low elaboration or low innovation, whereas orange to red colours indicate high innovation or elaboration.
-Innovations and elaboration are displayed as: a)comparisons of species to the phylogenetic major axis (inner two bands); b) comparisons of species to their superorder major axis (middle two bands); and c) comparisons of species to their order major axis (outer two bands).
+Innovations and elaboration are displayed as: a) comparisons of species to the phylogenetic major axis (inner two bands); b) comparisons of species to their superorder major axis (middle two bands); and c) comparisons of species to their order major axis (outer two bands).
 The branches are coloured by the species distance from the centroid of the shapespace and the estimation of their ancestors' position in that space.
 A companion plot showing further nested structure within the Passeriformes is shown in Fig. S\ref{fig_phylogeny_passeriformes}.
 
@@ -245,9 +245,9 @@ We can see a clear difference in the amount of innovation across the posterior s
 
 \bigskip
 
-Our results show that although at the species level most bird beaks are elaborating along a megaevolutionary line of least resistance, at the macroevolutionary level innovation along the megaevolutionary line of least resistance is much more common.
+Our results show that although at the species level most bird beaks are elaborating along a megaevolutionary line of least resistance, at the macroevolutionary level innovation way from the megaevolutionary line of least resistance is much more common.
 This nested structure of elaboration at a higher taxonomic level and innovation at a lower taxonomic level could thus explain the diversity of bird beaks we observe today.
-However, individual specie-level variation in the past could also have led to a shift in a group's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape, Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
+However, individual species-level variation in the past could also have led to a shift in a group's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape. Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
 Our results help to bridge the gap between micro- and macro-evolution by proposing a multi-scale framework for  phenotypic evolution that allows species to evolve along lines of least evolutionary resistance while accommodating frequent shifts in the direction of evolutionary change.
 
 \section{Methods}
@@ -256,7 +256,7 @@ Our results help to bridge the gap between micro- and macro-evolution by proposi
 \textbf{Beak shape data.}
 We used the dataset from \cite{cooney2017mega,chira2020signature,hughes2022global} which consists of four landmarks and three curves of 25 semi-landmarks each, taken from 3D scans of  the beaks of 8748 bird species.
 The landmark data were aligned with Procrustes superimposition using the R package \texttt{Morpho} \cite{Rcore,Morpho} and we removed the size component and controlled for symmetry (see \cite{cooney2017mega,chira2020signature,hughes2022global} for detailed descriptions of data collection and processing).
-We ordinated the superimposed landmarks using a principal components analysis (PCA) and selected the first eight first dimensions of the resulting PCA.
+We ordinated the superimposed landmarks using a principal components analysis (PCA) and selected the eight first dimensions of the resulting PCA.
 These eight dimensions contained at least 95\% of variance in each superorder, and 98.7\% of the variance in the whole dataset.
 We used a threshold of $>95$\% of variance explained for each superorder because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e.
 $\sigma$ PC1 $<$ $\sigma$ PC2 $<$ $\sigma$ PC3), this is not always true for each superorder.
@@ -275,17 +275,17 @@ We pruned these trees to contain only the 8748 species present in our beak shape
 We ran a phylogenetic Bayesian generalised linear mixed effects model (pGLMM) using the \texttt{MCMCglmm} R package \cite{MCMCglmm} with the shapespace data as a multidimensional response variable, the error in the dataset as residuals, and each clade's phylogeny as a nested random term, i.e., a model of:
 
 \begin{equation}
-\text{shapespace} \mathtt{\sim} \text{residuals(shapespace)} + \text{random(phylogeny)} (equation 1)
+\text{shapespace} \mathtt{\sim} \text{residuals(shapespace)} + \text{random(phylogeny)}
 \end{equation}
 
 This model allows us to estimate a phenetic variance-covariance matrix for each clade and the phylogeny as a whole, and one for the residuals in the shapespace itself \cite{robinson2013quantifying}.
 These variance-covariance matrices were then used in a base projection-rejection analysis to measure the elaboration and innovation scores (see below).
 We ran two separate nested models.
 One model using one random term for the whole phylogeny and 35 nested random terms for each superorder and order containing more than 15 species in our dataset (Fig. \ref{Fig:ellipses}).
-And one model on a subset of the dataset containing only the 5966 passeriformes species with 30 nested random terms.
+And one model on a subset of the dataset containing only the 5229 passeriformes species with 30 nested random terms.
 This resulted in two multidimensional GLMM.
 One with a $8748 \times 8$ response variables, one global residual term and 36 random terms.
-And one with a $5966 \times 8$ response variable, one global residual term and 30 random terms.
+And one with a $5229 \times 8$ response variable, one global residual term and 30 random terms.
  
 To account for phylogenetic uncertainty we needed to run the model using different tree topologies from the tree distribution in \cite{jetz2012global}.
 Because of the very large size of our model and dataset, however, running the full model on multiple trees was computationally unfeasible (it would require 2 CPU years and 4TB of RAM for each - the whole tree and the passeriformes ones).
@@ -315,11 +315,12 @@ To make the results easier to interpret, we centered and scaled them onto the ce
 This way, we can interpret an elaboration or innovation score within the 0-1 range to be not exceptional (i.e within the 95\% confidence interval of the variance-covariance matrix).
 The entire mathematical procedure is described in details in the supplementary materials (section \ref{supp_projection}).
 The whole procedure applied to our dataset is reproducible in \href{https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html}{this \texttt{dispRity} vignette} % TODO: update link to release when releasing
-and implemented in the dispRity package \cite{dispRity}.
+and implemented in the \texttt{dispRity} package \cite{dispRity}.
 
 \textbf{Groups' orthogonality.}
-We measured the orthogonality of each group (i.e. random term in our models compared to their parent group and their parent parent's (e.g.
-the Columbimorphae random terms' variance-covariance matrices against the phylogeny ones, the Columbiformes ones against the Columbimorphae ones (parent) and the whole phylogeny ones (parent parents).To do so we measured the angles between the major axes of the focal group and their parent group for each posterior variance-covariance matrix as well as within each group by randomly comparing major axes within a group.
+We measured the orthogonality of each random term in our models (clades) compared to their parent group and their parent parent's.
+For example, the Columbimorphae random terms' variance-covariance matrices against the phylogeny ones, the Columbiformes ones against the Columbimorphae ones (parent) and the whole phylogeny ones (parent parents).
+To do so we measured the angles between the major axes of the focal group and their parent group for each posterior variance-covariance matrix as well as within each group by randomly comparing major axes within a group.
 We converted each angle measurement into an orthogonality metric where 0 corresponds to flat angles ($0^\circ$ or  $180^\circ$) and 1 to right angles ($90^\circ$ or $270^\circ$).
 We then measured the posterior probability of the angles within a group being different than the angles between groups.
 These results are available in Fig. \ref{Fig:orthogonality}.
