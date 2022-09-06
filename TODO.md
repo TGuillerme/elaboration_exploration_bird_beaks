@@ -18,9 +18,7 @@
  - [x] check something about random skewers method (basically how many ellipses are expeccted to be the same geometrically) + measure the angle variance for each ellipse
  - [x] make sure what we see is what we see.
  - [x] put all the ellipses together in a figure and compare them scaled aligned. Then compare the position of the ellipses for each cherries in terms of angle, alignment and distance.
-
-
- - [ ] Compare passeriformes ellipses from the whole space model (level 2) to the the ones from the passeriformes space model (level 0) to see the difference there.
+ - [x] Compare passeriformes ellipses from the whole space model (level 2) to the the ones from the passeriformes space model (level 0) to see the difference there.
 
 ## Manuscript
 
@@ -29,14 +27,16 @@
  - [x] go through all the manuscript by the end of Friday [GT]
  - [x] Check the methods section [NC AB]
  - [x] Decide on the main narrative (the beer brocolli?) [to be figured out while working on the draft]
- - [ ] Lines of least resistance becomes major axis of phenotypic VCV
- - [ ] Finalise the manuscript writing (multiple passes, set an order and deadline for the multiple passes?)
- - [ ] Pepper with references (using google docs or LaTeX?) [TG to do later]
- - [ ] do a completion checkkist: abstract + acknowledgments + funding grant codes 
+ - [x] Lines of least resistance becomes major axis of phenotypic VCV
+ - [x] Finalise the manuscript writing (multiple passes, set an order and deadline for the multiple passes?)
+ - [x] Pepper with references (using google docs or LaTeX?) [TG to do later]
+ - [x] do a completion checkkist: abstract + acknowledgments + funding grant codes 
+ - [ ] ESEB suggestion: Rescale innovation scores so that 1 = 95% CI orthogonal to the major axis (the same way elaboration score of 1 = 95% CI)
+ - [ ] ESEB comment: Make clearer in the methods section about the nested phylo terms
 
 ## Figures
 
- - [ ] Finalise figure anus: what info do we want in it? [GT]
+ - [x] Finalise figure anus: what info do we want in it? [GT]
  - [x] Finalise correlation figure: alignments and stuff [TG]
  - [x] Finalise ellipses figure: alignnments and stuff [TG]
  - [x] Check figure 0 (helper) [TG]
@@ -45,24 +45,22 @@
 ## Supplementaries
 
  - [x] supp tables from the main text
- - [ ] supp math from the main text
+ - [x] supp math from the main text
  - [x] supp passerines results
  - [x] supp big ellipse table containing n, sd, orthogonality, elaboration/innovation.
-
-
- - [ ] Passerines?
- - [ ] methods vignettes (but see reproducibility)?
+ - [x] Passerines?
+ - [x] methods vignettes (but see reproducibility)?
  - [x] start adding them at the bottom of the google doc [TG]
-      - [ ] missing the math thingy
-      - [ ] missing the projection/rejection illustration
+      - [x] missing the math thingy
+      - [x] missing the projection/rejection illustration
 
 ## README and reproducibility
 
- - [ ] check list is already in the README (needing to check english/compiling/links for all of them)
- - [ ] deciding of a release date for the packages?
- - [ ] make sure the data is there and available (tidied and packaged!)
- - [ ] Natalie to check the vignettes
+ - [x] check list is already in the README (needing to check english/compiling/links for all of them)
+ - [x] deciding of a release date for the packages?
+ - [x] make sure the data is there and available (tidied and packaged!)
+ - [x] Natalie to check the vignettes
 
 ## Poster
 
- - [ ] Do poster for ESEB [TG]
+ - [x] Do poster for ESEB [TG]
