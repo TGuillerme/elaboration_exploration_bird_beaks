@@ -10,7 +10,6 @@ output:
 ---
 
 This script is a working script to run the chains on the SHARC Sheffield cluster.
-Refer to `02-MCMCglmm_mini_chains.Rmd` for more details and reproducibility
 
 ```{r load_packages, eval = TRUE, message = FALSE}
 set.seed(42)
@@ -303,9 +302,6 @@ shapespace_passeriformes <- model_list
 
 ## Saving the results
 save(shapespace_passeriformes, file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
-
-
-
 ```
 
 
