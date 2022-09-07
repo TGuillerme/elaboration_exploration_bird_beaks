@@ -19,6 +19,7 @@
  - [x] make sure what we see is what we see.
  - [x] put all the ellipses together in a figure and compare them scaled aligned. Then compare the position of the ellipses for each cherries in terms of angle, alignment and distance.
  - [x] Compare passeriformes ellipses from the whole space model (level 2) to the the ones from the passeriformes space model (level 0) to see the difference there.
+ - [ ] measure the variance explained in the model for the random terms and the residuals
 
 ## Manuscript
 
@@ -31,8 +32,9 @@
  - [x] Finalise the manuscript writing (multiple passes, set an order and deadline for the multiple passes?)
  - [x] Pepper with references (using google docs or LaTeX?) [TG to do later]
  - [x] do a completion checkkist: abstract + acknowledgments + funding grant codes 
- - [ ] ESEB suggestion: Rescale innovation scores so that 1 = 95% CI orthogonal to the major axis (the same way elaboration score of 1 = 95% CI)
  - [ ] ESEB comment: Make clearer in the methods section about the nested phylo terms
+ - [ ] make a glossary 
+ - [ ] rewrite the narrative start
 
 ## Figures
 
@@ -41,6 +43,8 @@
  - [x] Finalise ellipses figure: alignnments and stuff [TG]
  - [x] Check figure 0 (helper) [TG]
  - [x] Write a detailed explanation for that figure (cheat sheet)
+ - [ ] Figure 4: change "group" to "clade"
+ - [ ] Figure 4: remove the bottom row (and just write down the test results in the figure)
 
 ## Supplementaries
 
