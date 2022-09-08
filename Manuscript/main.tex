@@ -72,6 +72,28 @@ $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 %       ABSTRACT
 %
 %---------------------------------------------
+% QUESTIONS/narrative
+% How does phenotypic diversity arise?
+% "Disparity" through time = how is disparity within clades partitioned wrt overall disparity. Diversity accumulates in a boring way, but doesn't tell us about mechanisms, 
+% Lines of evolutionary least resistance theory. Very little testing 
+% Test this using new method: elaboration/innovation
+% How does this vary at different hierarchical levels - mega vs macro evolutionary?
+% Species-level analyses
+% Passerines
+
+% Bits from Andrew
+% A first insight into the evolutionary scale at which phenotypic diversity has arisen in birds comes from a simple exploration of the variance among major axes at different scales. If variance in the major axis is highest at the phylogenetic (mega) scale rather than the clade (macro) scale, it is evidence that diversity is very old.
+
+% ANSWER
+
+% Supporting this, we find overwhelming evidence that deep time evolutionary history does not constrain phenotypic variation.  This is evidenced by the orientation of evolution within clades being markedly different from and frequently orthogonal to the major phylogenetic axis, indicating that deep evolutionary history does not constrain diversity.
+
+% DETAILS
+
+% Against this backdrop, we then estimated the relative importance of elaboration or innovation to driving this pattern…. We made 3 specific investigations to do this....(Needs to be more precise about question, how we answer and answer - e.g. is elaboration most common at all evolutionary scales?  Is innovation isolated to evolutionary scales?).
+
+% Trick to embed question in 'result'??
+
 
 \noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, line of least resistance, GLMM)\\
 
@@ -110,7 +132,7 @@ The nested partitions of multivariate trait space provide the basis for all subs
 
 Adaptive radiation theory implies that phenotypic divergence arises primarily along a dominant phenotypic axis (the line of least evolutionary resistance; \cite{marroig2005size}).
 However, this contrasts with observations of major jumps in phenotypic space at the megaevolutionary level \cite{puttick2014high,cooney2017mega,venditti2011multiple}.
-We used posterior distributions of variance-covariance matrices derived from our pGLMMs to calculate differences in the phenotypic major axis within different groups compared to the global phylogenetic major axis.
+We used posterior distributions of variance-covariance matrices derived from our pGLMMs to calculate differences in the phenotypic major axis within different clades compared to the global phylogenetic major axis.
 We find overwhelming evidence that the orientation of evolution within clades is markedly different from - and frequently orthogonal to - the major phylogenetic axis (Fig. \ref{Fig:ellipses} - Fig. \ref{Fig:orthogonality}).
 Despite the limitations representing eight-dimensional space in 2D, our plots of the median elliptical representation of the phenotypic variance-covariance matrix for the global phylogenetic major axis and each super order (Fig. \ref{Fig:ellipses}a) and order (Fig. \ref{Fig:ellipses}b) highlight the variation in the orientation of phenotypic evolution among clades (Fig. \ref{Fig:orthogonality}).
 The median angle of the major axis for subclades approaches orthogonality, differing from the phylogenetic major axis by $68.14^\circ$ ($95$\% CI: $22.83^\circ$-$89.09^\circ$).
@@ -167,13 +189,13 @@ While orthogonality provides a simple description of the degree of reorientation
 To further quantify the tension implied between theory on lines of least evolutionary resistance and observations of deep-time reorientation of trait covariance, we measured the elaboration and innovation of each different clades (\textit{cf.} the elaboration and innovation of a species - see below).
 As noted above, elaboration describes multivariate evolution that is primarily along the phylogenetically constrained phenotypic major axis whereas innovation describes multivariate evolution that is primarily away from the phylogenetically constrained phenotypic major axis \cite{endler2005animal}.
 Clades (or species) can be both elaborators and innovators.
-To measure innovation and elaboration we translated the major axes of each group's (i.e. superorders and orders) phylogenetic variance-covariance matrices onto the global phylogenetic major axis so that they shared the same origin in the shapespace.
-We then used multilinear algebra to project a focal group's major axis onto the phylogenetic major axis (Fig.S\ref{Fig:cheat_sheet}).
-We interpret the measured projection (distance onto the phylogenetic major axis) as the group's elaboration score and the measured rejection (distance from the major axis) as the group's innovation score.
-These scores were measured for each of 4000 posterior pairs of group vs. phylogenetic variance-covariance matrix (Fig.\ref{Fig:ellipses} boxplots).
-We found that for most groups the phenotypic major axis is not aligned with the global phylogenetic major axis, (Fig. \ref{Fig:ellipses}).
-Remarkably, more than half of the assessed groups (4/8 superorders and 15/27 orders) displayed higher median innovation than median elaboration scores implying that, contrary to theory \cite{schluter1996adaptive,marroig2005size}, innovation is a more common generator of morphological diversity than elaboration.
-However, there is substantial variation in terms of elaboration and innovation across groups including relatively low elaboration and innovation (e.g. Cuculiformes; Fig. \ref{Fig:ellipses}), low elaboration and high innovation (e.g. Galliformes; Fig. \ref{Fig:ellipses}), high elaboration and low innovation (e.g. Coraciiformes; Fig. \ref{Fig:ellipses}) or both relatively high elaboration and innovation (e.g. Podicipediformes; Fig. \ref{Fig:ellipses}).
+To measure innovation and elaboration we translated the major axes of each clade's (i.e. superorders and orders) phylogenetic variance-covariance matrices onto the global phylogenetic major axis so that they shared the same origin in the shapespace.
+We then used multilinear algebra to project a focal clade's major axis onto the phylogenetic major axis (Fig.S\ref{Fig:cheat_sheet}).
+We interpret the measured projection (distance onto the phylogenetic major axis) as the clade's elaboration score and the measured rejection (distance from the major axis) as the clade's innovation score.
+These scores were measured for each of 4000 posterior pairs of clade vs. phylogenetic variance-covariance matrix (Fig.\ref{Fig:ellipses} boxplots).
+We found that for most clades the phenotypic major axis is not aligned with the global phylogenetic major axis, (Fig. \ref{Fig:ellipses}).
+Remarkably, more than half of the assessed clades (4/8 superorders and 15/27 orders) displayed higher median innovation than median elaboration scores implying that, contrary to theory \cite{schluter1996adaptive,marroig2005size}, innovation is a more common generator of morphological diversity than elaboration.
+However, there is substantial variation in terms of elaboration and innovation across clades including relatively low elaboration and innovation (e.g. Cuculiformes; Fig. \ref{Fig:ellipses}), low elaboration and high innovation (e.g. Galliformes; Fig. \ref{Fig:ellipses}), high elaboration and low innovation (e.g. Coraciiformes; Fig. \ref{Fig:ellipses}) or both relatively high elaboration and innovation (e.g. Podicipediformes; Fig. \ref{Fig:ellipses}).
 These patterns hold across scales including within superorders and at finer scales within the order Passeriformes (Fig. S\ref{fig_ellipses_passeriformes}).
 This suggests that divergence away from line of least evolutionary resistance (i.e. the phylogenetic major axis) is a common feature of avian beak evolution across scales and further supports the suggestion of a remarkable flexibility in the direction of evolution in deep-time even in a developmentally constrained trait.
 
@@ -188,11 +210,11 @@ However, although we see repeated innovation at the clade level, providing a new
 Abrupt reorientation of trait space in higher taxa would be consistent with Simpsonian megaevolutionary dynamics \cite{simpson1953major}.
 This would lead to an expectation that species should elaborate relative to their parent clade (e.g. within orders) but show a stronger tendency towards innovation relative to the global phylogeny.
 To assess the relative contributions of elaboration and innovation in beak morphology among species we estimated the algebraic projection and rejection of their position in the shapespace onto (i) the global phylogenetic major phenotypic axis, (ii) the major phenotypic axis of their respective parent superorder, and (iii) the major phenotypic axis of their respective parent order.
-We did this by using the same multilinear algebraic method as described above but measuring elaboration and innovation for individual species (across the 4000 posterior samples) rather than for entire groups.
+We did this by using the same multilinear algebraic method as described above but measuring elaboration and innovation for individual species (across the 4000 posterior samples) rather than for entire clades.
 We found that high levels of elaboration are more common across all birds than high levels of innovation (Fig. \ref{Fig:phylogeny}).
 However, we also found various combinations of elaboration and innovation across birds.
 For example, compared to the phylogenetic major axis, the Trochilidae (hummingbirds, with long narrow beaks) display high levels of elaboration and low innovation whereas the Bucerotidae (hornbills, with large and oddly shaped beaks) display high levels of innovation and low elaboration.
-Other groups such as the Apodidae (swifts, with large but gaping beaks) and the distantly related but convergent Hirundidae (swallows and martins) display high levels of both elaboration and innovation.
+Other clades such as the Apodidae (swifts, with large but gaping beaks) and the distantly related but convergent Hirundidae (swallows and martins) display high levels of both elaboration and innovation.
 Overall, we find no consistent evidence that innovation is either positively correlated with, or trades-off with, elaboration. %(Fig. S{#fig_correlations}). %TODO: maybe add to supp?
 The variability of, and apparent disconnect between, innovation and elaboration holds whether comparisons are made at the order, superorder, or class-wide phylogenetic level (Fig. \ref{Fig:phylogeny})%{#fig_correlations}),%TODO: maybe add to supp?
  and in further nested analysis of the order Passeriformes (Fig. S\ref{fig_ellipses_passeriformes} and S\ref{fig_phylogeny_passeriformes}).
@@ -218,8 +240,8 @@ A companion plot showing further nested structure within the Passeriformes is sh
 The disconnect between observations of reorientation of trait space at the clade level and a dominance of elaboration at the species level could be viewed as a paradox.
 We formalise this paradox by testing whether elaboration is more common at higher taxonomic levels than at the species level.
 We compared the area under the curve of the scaled density of elaboration and innovation at both the species level and the clade level.
-We then measured the difference between both areas and found that there was a significant difference in innovation between species and groups but no clear difference in elaboration (Fig. \ref{Fig:relative_EI}).
-This difference confirms our observation that innovation is more common at the group level rather than at the species level and that although species evolve preferentially along a line of least evolutionary resistance, this line of least resistance changes frequently among clades.
+We then measured the difference between both areas and found that there was a significant difference in innovation between species and clades but no clear difference in elaboration (Fig. \ref{Fig:relative_EI}).
+This difference confirms our observation that innovation is more common at the clade level rather than at the species level and that although species evolve preferentially along a line of least evolutionary resistance, this line of least resistance changes frequently among clades.
 However, we suggest that rather than a paradox the reorientation of trait space can instead be described as a gradual process occuring in response to shifting selection pressures acting on species evolving in similar adaptive zones.
 This implies that gradual directional evolution \cite{pagel2022general} rather than megaevolutionary jumps \cite{cooney2017mega,venditti2011multiple} may be sufficient to explain diversity in avian beak morphology.
 
@@ -232,22 +254,21 @@ This implies that gradual directional evolution \cite{pagel2022general} rather t
 
 \bigskip
 
-\noindent \textbf{Figure \ref{Fig:relative_EI}:} Comparisons of relative elaboration and innovation among groups (illustrated in figure  \ref{Fig:ellipses}) and among species (figure \ref{Fig:phylogeny}).
-A - In blue, the elaboration for each species in each 4000 posterior samples compared to the elaboration for each 35 groups.
-The scores for each group is scaled by the maximum score within each group (corresponding to the scaled ellipses in figure  \ref{Fig:ellipses}) and the score for the species is scaled by the maximum species elaboration score.
-This allows us to compare both types (species vs.
-groups) despite their different sample sizes.
+\noindent \textbf{Figure \ref{Fig:relative_EI}:} Comparisons of relative elaboration and innovation among clades (illustrated in figure  \ref{Fig:ellipses}) and among species (figure \ref{Fig:phylogeny}).
+A - In blue, the elaboration for each species in each 4000 posterior samples compared to the elaboration for each 35 clades.
+The scores for each clade is scaled by the maximum score within each clade (corresponding to the scaled ellipses in figure  \ref{Fig:ellipses}) and the score for the species is scaled by the maximum species elaboration score.
+This allows us to compare both types (species vs. clades) despite their different sample sizes.
 B - same as A but for the innovation score.
-C - density curve of the area under the curve for each posterior sample relative elaboration score as a proxy for the overall amount of elaboration per sample and per type (species or group - respectively blues and orange).
+C - density curve of the area under the curve for each posterior sample relative elaboration score as a proxy for the overall amount of elaboration per sample and per type (species or clade - respectively blues and orange).
 The Bhattacharyya coefficient indicates the probability of overlap between the posterior distributions.
 D - same as C but for innovation.
-We can see a clear difference in the amount of innovation across the posterior samples between species or groups.
+We can see a clear difference in the amount of innovation across the posterior samples between species or clades.
 
 \bigskip
 
 Our results show that although at the species level most bird beaks are elaborating along a megaevolutionary line of least resistance, at the macroevolutionary level innovation way from the megaevolutionary line of least resistance is much more common.
 This nested structure of elaboration at a higher taxonomic level and innovation at a lower taxonomic level could thus explain the diversity of bird beaks we observe today.
-However, individual species-level variation in the past could also have led to a shift in a group's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape. Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
+However, individual species-level variation in the past could also have led to a shift in a clade's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape. Taken together, our results suggest that the signature of evolutionary orientations in deep-time, coupled with elaboration at the species-level, is consistent with recent suggestions that the apparently abrupt phenotypic shifts can be explained by normal Darwinian processes \cite{pagel2022general}.
 Our results help to bridge the gap between micro- and macro-evolution by proposing a multi-scale framework for  phenotypic evolution that allows species to evolve along lines of least evolutionary resistance while accommodating frequent shifts in the direction of evolutionary change.
 
 \section{Methods}
@@ -306,8 +327,8 @@ The whole procedure is reproducible in the \href{https://raw.rawgit.net/TGuiller
 
 \textbf{Projection/rejection analyses.}
 We used the distributions of the 4000 posterior variance-covariance matrices to run the projection/rejection analyses to measure the bird beaks' elaboration and innovation scores.
-In fact we can use multilinear algebra to interpret elaboration and innovation \textit{sensu} \cite{endler2005animal} by using the major axis of the variance-covariance matrices as the ''line of least resistance'', or, specifically here, the line of elaboration for each random terms (corresponding to the elaboration axes for each clade) and project either species or other major axis onto that group.
-In brief we can interpret where a species or a group falls on the major axis of reference as its elaboration score and how far a species is from that major axis as its innovation score.
+In fact we can use multilinear algebra to interpret elaboration and innovation \textit{sensu} \cite{endler2005animal} by using the major axis of the variance-covariance matrices as the ''line of least resistance'', or, specifically here, the line of elaboration for each random terms (corresponding to the elaboration axes for each clade) and project either species or other major axis onto that clade.
+In brief we can interpret where a species or a clade falls on the major axis of reference as its elaboration score and how far a species is from that major axis as its innovation score.
 We calculated the elaboration and innovation scores using two main approaches:
 1) by clades (i.e. to measure the elaboration/innovation between clades) where we calculated the projections of the major axes of each clade onto the global phylogenetic major axes (Fig. \ref{Fig:ellipses});
 and 2) by species (i.e. to measure the elaboration/innovation within clades) where we calculated the projections of each species onto a) the global phylogenetic major axes and b) the phylogenetic major axes of their respective clade (Fig. \ref{Fig:phylogeny}).
@@ -318,11 +339,11 @@ The whole procedure applied to our dataset is reproducible in \href{https://raw.
 and implemented in the \texttt{dispRity} package \cite{dispRity}.
 
 \textbf{Groups' orthogonality.}
-We measured the orthogonality of each random term in our models (clades) compared to their parent group and their parent parent's.
+We measured the orthogonality of each random term in our models (clades) compared to their parent clade and their parent parent's.
 For example, the Columbimorphae random terms' variance-covariance matrices against the phylogeny ones, the Columbiformes ones against the Columbimorphae ones (parent) and the whole phylogeny ones (parent parents).
-To do so we measured the angles between the major axes of the focal group and their parent group for each posterior variance-covariance matrix as well as within each group by randomly comparing major axes within a group.
+To do so we measured the angles between the major axes of the focal clade and their parent clade for each posterior variance-covariance matrix as well as within each clade by randomly comparing major axes within a clade.
 We converted each angle measurement into an orthogonality metric where 0 corresponds to flat angles ($0^\circ$ or  $180^\circ$) and 1 to right angles ($90^\circ$ or $270^\circ$).
-We then measured the posterior probability of the angles within a group being different than the angles between groups.
+We then measured the posterior probability of the angles within a clade being different than the angles between clades.
 These results are available in Fig. \ref{Fig:orthogonality}.
 
 \textbf{Reproducibility and repeatability.}
