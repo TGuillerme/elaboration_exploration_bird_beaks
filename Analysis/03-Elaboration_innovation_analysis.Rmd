@@ -32,6 +32,17 @@ rm(shapespace_allbirds_lvl_superorder_order)
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
 shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
 
+## Get the variance for each level
+variance_per_levels <- MCMCglmm.variance(shapespace_allbirds_lvl_superorder_order)
+## Rename the columns
+colnames(variance_per_levels) <- c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny", "residuals")
+
+## Plot the results
+pdf(file = "../Manuscript/Figures/variance_per_levels_whole_tree.pdf")
+par(mar = c(5,10,2,2))
+boxplot(variance_per_levels, horizontal = TRUE, las = 1, main = "Scaled variance by term", xlab = "Scaled variance (sum of each VCV)")
+dev.off()
+
 ## Get the levels
 phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
 super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
