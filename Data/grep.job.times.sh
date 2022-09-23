@@ -12,3 +12,14 @@ do
 	## Convert the job time in CPU.hours
 	echo "${JOB_ID} - ${WALL_TIME}" >> report.txt
 done
+
+## Get the text ready for R
+sed 's/ - /CPU.hours("/g' report.txt > tmp
+mv tmp report.txt
+
+## Manually search repalce \n0 by ") #0
+
+## Then remove by search replace
+> CPU\..*\n
+\[[1]\] 
+
