@@ -21,6 +21,14 @@
  - [x] Compare passeriformes ellipses from the whole space model (level 2) to the the ones from the passeriformes space model (level 0) to see the difference there.
  - [ ] measure the variance explained in the model for the random terms and the residuals
 
+Standardise the vocabulary
+Describe the model more clearly
+Explain the parent to parent parent's details more clearly
+Highlight that ellipses are not areas but posterior VCVs
+Highlight that in figure 1 we're mainly looking at the orientation of ellipses, no shape and size, (the size is scaled and the shape is just a producct of 8 dimensionality)
+Maybe change "line of least resistance" to something else. 
+- Maybe check the phylo signal for the ellipses (orthogonality) with the non scaled non-absolute elaboration values
+
 ## Manuscript
 
  - [x] clean the google doc [TG]
@@ -33,8 +41,11 @@
  - [x] Pepper with references (using google docs or LaTeX?) [TG to do later]
  - [x] do a completion checkkist: abstract + acknowledgments + funding grant codes 
  - [ ] ESEB comment: Make clearer in the methods section about the nested phylo terms
- - [ ] make a glossary 
+ - [x] make a glossary 
  - [ ] rewrite the narrative start
+
+ - [ ] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
+
 
 ## Figures
 
