@@ -398,14 +398,14 @@ passerida <- passeriformes_shapespace$covar$Passerida
 
 
 ## Testing the differences between passeriformes in both spaces
-passeriformes_model1 <- covar.ellipse.test(model1, model2, n = 2000, measure = "orthogonality")
-passeriformes_model2 <- covar.ellipse.test(model2, model1, n = 2000, measure = "orthogonality")
+passeriformes_model1 <- covar.ellipse.test(model1, model2, n = 4000, measure = "orthogonality")
+passeriformes_model2 <- covar.ellipse.test(model2, model1, n = 4000, measure = "orthogonality")
 
 ## Testing the differences between passeriformes in both spaces
-passeriformes_model1_vs_allbirds <- covar.ellipse.test(model1, allbirds, n = 2000, measure = "orthogonality")
-passeriformes_model2_vs_allbirds <- covar.ellipse.test(model2, allbirds, n = 2000, measure = "orthogonality")
-passeriformes_model1_vs_passerida <- covar.ellipse.test(model1, passerida, n = 2000, measure = "orthogonality")
-passeriformes_model2_vs_passerida <- covar.ellipse.test(model2, passerida, n = 2000, measure = "orthogonality")
+passeriformes_model1_vs_allbirds <- covar.ellipse.test(model1, allbirds, n = 4000, measure = "orthogonality")
+passeriformes_model2_vs_allbirds <- covar.ellipse.test(model2, allbirds, n = 4000, measure = "orthogonality")
+passeriformes_model1_vs_passerida <- covar.ellipse.test(model1, passerida, n = 4000, measure = "orthogonality")
+passeriformes_model2_vs_passerida <- covar.ellipse.test(model2, passerida, n = 4000, measure = "orthogonality")
 
 ## Merging the results
 passeriformes_comparisons <- rbind(passeriformes_model1,
