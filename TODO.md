@@ -43,7 +43,6 @@ Maybe change "line of least resistance" to something else.
  - [ ] ESEB comment: Make clearer in the methods section about the nested phylo terms
  - [x] make a glossary 
  - [ ] rewrite the narrative start
-
  - [ ] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
 
 
@@ -54,8 +53,8 @@ Maybe change "line of least resistance" to something else.
  - [x] Finalise ellipses figure: alignnments and stuff [TG]
  - [x] Check figure 0 (helper) [TG]
  - [x] Write a detailed explanation for that figure (cheat sheet)
- - [ ] Figure 4: change "group" to "clade"
- - [ ] Figure 4: remove the bottom row (and just write down the test results in the figure)
+ - [x] Figure 4: change "group" to "clade"
+ - [x] Figure 4: remove the bottom row (and just write down the test results in the figure)
 
 ## Supplementaries
 
