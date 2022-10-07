@@ -58,7 +58,7 @@ rm(shapespace_allbirds_posteriors)
 
 
 ## Load the covar
-load(file = "../Data/Processed/shapespace_passeriformes_5996t.MCMCglmm")
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
 shapespace_passeriformes_posteriors <- shapespace_passeriformes[[1]]
 rm(shapespace_passeriformes)
 ## Load the data for the passeriformes
@@ -143,6 +143,7 @@ And here are the full results! Here's what's in each column:
 ```{r, eval = TRUE, echo = FALSE}
 load("../Data/Processed/ellipses_stats.rda")
 source("../Functions/stats.utilities.R")
+library(xtable)
 
 ## Sorting all results
 all_results <- do.call(rbind, lapply(ellipses_stats[-12], table.stats)) ## Droping the Meliphagoidea (single group)
