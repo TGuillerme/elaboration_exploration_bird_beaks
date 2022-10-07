@@ -119,6 +119,16 @@ covar.plot(superorder_shapespace,
            legend = TRUE,
            col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
            legend.args = list(x = "bottomright", cex = 2/3))
+
+## Saving as a pdf
+pdf(file = "../Manuscript/Figures/traitspace_plot.pdf")
+covar.plot(superorder_shapespace,
+           main = "Shapespace",
+           cex = 0.5,
+           legend = TRUE,
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
+           legend.args = list(x = "bottomright", cex = 2/3))
+dev.off()
 ```
 
 Figure: The global shape space
@@ -160,6 +170,42 @@ covar.plot(order_shapespace,
            legend = TRUE,
            points = FALSE,
            cex = 0.5, apply.to.VCV = TRUE)
+
+
+pdf(file = "../Manuscript/Figures/unscaled_ellipses.pdf", height = 8, width = 8)
+par(mfrow = c(2,2))
+## Plotting mean axes
+covar.plot(superorder_shapespace,
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
+           main = "Average ellipses by super order",
+           ellipses = mean,
+           legend = FALSE,
+           points = FALSE,
+           cex = 0.5, apply.to.VCV = TRUE)
+## Plotting mean ellipses
+covar.plot(superorder_shapespace,
+           col = c(colour.palette(n.subsets(superorder_shapespace)-1), "grey"),
+           main = "Average major axes by super order",
+           major.axes = mean,
+           legend = TRUE,
+           points = FALSE,
+           cex = 0.5, apply.to.VCV = TRUE)
+covar.plot(order_shapespace,
+           col = c(colour.palette(n.subsets(order_shapespace)-1), "grey"),
+           main = "Average ellipses by order",
+           ellipses = mean,
+           legend = FALSE,
+           points = FALSE,
+           cex = 0.5, apply.to.VCV = TRUE)
+## Plotting mean ellipses
+covar.plot(order_shapespace,
+           col = c(colour.palette(n.subsets(order_shapespace)-1), "grey"),
+           main = "Average major axes by order",
+           major.axes = mean,
+           legend = TRUE,
+           points = FALSE,
+           cex = 0.5, apply.to.VCV = TRUE)
+dev.off()
 ```
 
 Main axes and ellipses visualisation for each superorders and orders.
