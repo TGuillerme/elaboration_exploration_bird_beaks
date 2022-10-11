@@ -6,7 +6,15 @@
 #' @param p.value.method which method for calculating the p value (either "Bootstrap" for calculating it as in The Bootstrap, "Gavin" for using gavin's method or "Bayesian" for calculating it as a probability)
 #' @param measure whether to measure the angles in "degrees" or in "orthogonality" (0 = parallel, 1 = orthogonal). 
 #' @param verbose whether to be berbose or not.
-covar.ellipse.test <- function(x, y, p.value.method = "Bayesian", measure = "orthogonality", major.axis = 1, verbose = FALSE) {
+covar.ellipse.test <- function(x, y, p.value.method = "Bayesian", measure = "orthogonality", major.axis = 1, verbose = FALSE, n) {
+    
+    if(missing(n)) {
+        n <- function(x) sample(1:length(x))
+    } else {
+        samples <- n
+        n <- function(x) sample(1:length(x), samples)
+    }
+
     ## Extracting the VCV matrices
     tested_VCV    <- lapply(x, `[[`, "VCV")
     reference_VCV <- lapply(y, `[[`, "VCV")
@@ -16,13 +24,13 @@ covar.ellipse.test <- function(x, y, p.value.method = "Bayesian", measure = "ort
     ## Calculate the angles for all samples (randomly sorted)
     options(warn = -1) # Remove warnings (acos(eigval^0.5) : NaNs produced)
     list_of_angles_within   <- mapply(MCMCglmm::krzanowski.test,
-                                     tested_VCV[sample(length(tested_VCV))],
-                                     tested_VCV[sample(length(tested_VCV))],
+                                     tested_VCV[n(tested_VCV)],
+                                     tested_VCV[n(tested_VCV)],
                                      MoreArgs = list(vecsA = major.axis, vecsB = major.axis),
                                      SIMPLIFY = FALSE)
     list_of_angles_between  <- mapply(MCMCglmm::krzanowski.test,
-                                     tested_VCV[sample(length(tested_VCV))],
-                                     reference_VCV[sample(length(reference_VCV))],
+                                     tested_VCV[n(tested_VCV)],
+                                     reference_VCV[n(reference_VCV)],
                                      MoreArgs = list(vecsA = major.axis, vecsB = major.axis),
                                      SIMPLIFY = FALSE)
     options(warn = 0)
