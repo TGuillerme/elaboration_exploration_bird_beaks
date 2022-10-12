@@ -37,51 +37,39 @@ variance_per_clades <- MCMCglmm.variance(shapespace_allbirds_lvl_superorder_orde
 ## Rename the columns
 colnames(variance_per_clades) <- c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny", "residuals")
 reorder_clades <- c(9:35,1:8, 36, 37)
-## Pull by term
-variance_per_levels<- cbind("orders" = apply(variance_per_clades[, 9:35], 1, sum),
-                            "super-orders" = apply(variance_per_clades[, 1:8], 1, sum),
-                            "phylogeny" = variance_per_clades[, 36],
-                            "residuals" = variance_per_clades[, 37])
-variance_per_terms <- cbind("clades" = apply(variance_per_clades[, 1:35], 1, sum),
-                            "phylogeny" = variance_per_clades[, 36],
-                            "residuals" = variance_per_clades[, 37])
-## Plot the results
-pdf(file = "../Manuscript/Figures/variance_per_levels_whole_tree.pdf", height = 8, width = 14)
-par(mar = c(5,8,2,2), mfrow = c(1, 3))
-# boxplot(variance_per_terms, horizontal = TRUE, las = 1, main = "Scaled variance by terms", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# boxplot(variance_per_levels, horizontal = TRUE, las = 1, main = "Scaled variance by levels", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-boxplot(variance_per_clades[,reorder_clades], horizontal = TRUE, las = 1, main = "Scaled variance by clades", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-boxplot(log(variance_per_clades[,reorder_clades])/log(sample_sizes), horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing sample size effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-boxplot(log(variance_per_clades[,reorder_clades])/log(observed_variance)[names(variances)], horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing variance effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-dev.off()
+# ## Pull by term
+# variance_per_levels<- cbind("orders" = apply(variance_per_clades[, 9:35], 1, sum),
+#                             "super-orders" = apply(variance_per_clades[, 1:8], 1, sum),
+#                             "phylogeny" = variance_per_clades[, 36],
+#                             "residuals" = variance_per_clades[, 37])
+# variance_per_terms <- cbind("clades" = apply(variance_per_clades[, 1:35], 1, sum),
+#                             "phylogeny" = variance_per_clades[, 36],
+#                             "residuals" = variance_per_clades[, 37])
+# ## Plot the results
+# pdf(file = "../Manuscript/Figures/variance_per_levels_whole_tree.pdf", height = 8, width = 14)
+# par(mar = c(5,8,2,2), mfrow = c(1, 3))
+# # boxplot(variance_per_terms, horizontal = TRUE, las = 1, main = "Scaled variance by terms", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
+# # boxplot(variance_per_levels, horizontal = TRUE, las = 1, main = "Scaled variance by levels", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
+# boxplot(variance_per_clades[,reorder_clades], horizontal = TRUE, las = 1, main = "Scaled variance by clades", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
+# boxplot(log(variance_per_clades[,reorder_clades])/log(sample_sizes), horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing sample size effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
+# boxplot(log(variance_per_clades[,reorder_clades])/log(observed_variance)[names(variances)], horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing variance effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
+# dev.off()
 
-## Getting the variances per clades
-variances <- apply(variance_per_clades[,reorder_clades], 2, mean)
+# ## Getting the variances per clades
+# variances <- apply(variance_per_clades[,reorder_clades], 2, mean)
 
-## Getting the sample sizes per clades (the one for the residuals is the whole tree size)
-sample_sizes <- c("residuals" = size.subsets(order_shapespace)[28],
-                  size.subsets(superorder_shapespace),
-                  size.subsets(order_shapespace))[names(variances)]
+# ## Getting the sample sizes per clades (the one for the residuals is the whole tree size)
+# sample_sizes <- c("residuals" = size.subsets(order_shapespace)[28],
+#                   size.subsets(superorder_shapespace),
+#                   size.subsets(order_shapespace))[names(variances)]
 
-## Measuring the variance for each clade and for the residuals
-## the obs variance of the residuals is just the variance in the whole dataset (phylogeny)
-observed_variance <- c("residuals" = unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[28], 
-                       unlist(get.disparity(dispRity(superorder_shapespace, metric = sd))),
-                       unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[-28])^2
+# ## Measuring the variance for each clade and for the residuals
+# ## the obs variance of the residuals is just the variance in the whole dataset (phylogeny)
+# observed_variance <- c("residuals" = unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[28], 
+#                        unlist(get.disparity(dispRity(superorder_shapespace, metric = sd))),
+#                        unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[-28])^2
 
-plot(log(variances)/log(sample_sizes), log(sample_sizes), xlab = "log variance / log n", ylab = "log n")
-
-
-
-
-
-x <- rnorm(100)
-y <- rnorm(100)
-z <- rnorm(100)
-
-cor(x, y)
-cor(x/y, y)
-
+# plot(log(variances)/log(sample_sizes), log(sample_sizes), xlab = "log variance / log n", ylab = "log n")
 
 ## Get the levels
 phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
@@ -433,6 +421,36 @@ groups_median_EI <- list(
 )
 save(groups_median_EI, file = "../Data/Processed/groups_median_EI.rda")
 ```
+
+```{r}
+## Plotting the novelty for the phylo picture:
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/ploting_data_superorder.rda")
+load("../Data/Processed/ploting_data_order.rda")
+
+## Get the values
+elaborations_tree  <- ploting_data$median_elaborations
+innovations_tree   <- ploting_data$median_innovations
+elaborations_super <- ploting_data_superorder$median_elaborations
+innovations_super  <- ploting_data_superorder$median_innovations
+elaborations_order <- ploting_data_order$median_elaborations
+innovations_order  <- ploting_data_order$median_innovations
+
+pdf("../Manuscript/Figures/median_novelty_distributions.pdf", height = 4, width = 8)
+par(mfrow = c(1,2), bty = "n")
+## Same but boxplot version
+boxplot(cbind("Whole tree level"  = c(elaborations_tree, innovations_tree),
+              "Super-order level" = c(elaborations_super, innovations_super),
+              "Order level"       = c(elaborations_order, innovations_order)),
+        xlab = "Novelty per nested levels", ylab = "Novelty", col = colour.palette(5)[1:3])
+boxplot(cbind("Elaboration" = c(elaborations_tree, elaborations_super, elaborations_order),
+              "Innovation"  = c(innovations_tree, innovations_super, innovations_order)),
+        xlab = "Novelty per type", ylab = "Novelty", col = colour.palette(5)[4:5])
+dev.off() 
+```
+
+
+
 
 # Passeriformes shapespace analyses
 
