@@ -29,7 +29,7 @@ However, note that due to the large amount of data and computational time and re
  <!-- * **06-Figure_with_correlations**  contains the script to reproduce the elements in figure 2 in the main text. -->
  * **07-Supplementary_figures_tables** contains the script to reproduce the supplementary tables and figures].
 
-## Reproducible examples {#reproducible}
+## Reproducible examples
  * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](https://github.com/TGuillerme/mcmcmcglmmm/blob/main/inst/MCMCglmm_mini_chains.Rmd).
  * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](https://github.com/TGuillerme/dispRity/blob/MCMCglmm/inst/vignettes/Projection_analysis.Rmd).
 
