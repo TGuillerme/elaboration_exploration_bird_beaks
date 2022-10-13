@@ -29,6 +29,9 @@ Highlight that in figure 1 we're mainly looking at the orientation of ellipses, 
 Maybe change "line of least resistance" to something else. 
 - Maybe check the phylo signal for the ellipses (orthogonality) with the non scaled non-absolute elaboration values
 
+ - [ ] check variance partitioning with just 1D and then check the variance partition. Try running a 100 iterations on brms with the super-order model
+
+
 ## Manuscript
 
  - [x] clean the google doc [TG]
