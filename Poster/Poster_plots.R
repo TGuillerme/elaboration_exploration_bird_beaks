@@ -30,13 +30,25 @@ dev.off()
 
 
 ## Ploting the tree
-pdf(file = "tree_orders_col.pdf", height = 40, width = 26)
+pdf(file = "tree_orders_level2.pdf", height = 40, width = 26)
 
 tree <- ladderize(ploting_data$consensus_tree, right = FALSE)
 
 ## Add the elaboration/exploration scores
 elaborations <- ploting_data$median_elaborations[match(tree$tip.label, names(ploting_data$median_elaborations))]
 innovations <- ploting_data$median_innovations[match(tree$tip.label, names(ploting_data$median_innovations))]
+
+## Load the innver levels
+load(file = "../Data/Processed/ploting_data_passeriformes_family.rda")
+load(file = "../Data/Processed/ploting_data_order.rda")
+
+## Replace the E/I values by elaborationsthe level2 ones
+elaborations <- innovations <- rep(0, Ntip(tree))
+names(elaborations) <- names(innovations) <- tree$tip.label
+elaborations[names(ploting_data_order$median_elaborations)] <- ploting_data_order$median_elaborations
+elaborations[names(ploting_data_passeriformes_family$median_elaborations)] <- ploting_data_passeriformes_family$median_elaborations
+innovations[names(ploting_data_order$median_innovations)] <- ploting_data_order$median_innovations
+innovations[names(ploting_data_passeriformes_family$median_innovations)] <- ploting_data_passeriformes_family$median_innovations
 
 ## Transform them into a colour gradient
 col.grad <- colorRamp(rev(c("#d7191c", "#fdae61", "#ffffbf", "#abdda4", "#2b83ba")))
