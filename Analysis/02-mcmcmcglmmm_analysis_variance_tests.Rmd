@@ -61,7 +61,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_2D_9levels_20k_chain1.rda")
+save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain1.rda")
 end <- Sys.time()
 end - start
 ```
@@ -72,7 +72,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_2D_9levels_20k_chain2.rda")
+save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain2.rda")
 end <- Sys.time()
 end - start
 ```
@@ -83,7 +83,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_2D_9levels_20k_chain3.rda")
+save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain3.rda")
 end <- Sys.time()
 end - start
 ```
@@ -98,7 +98,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_32levels_20k_chain1.rda")
+save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain1.rda")
 end <- Sys.time()
 end - start
 ```
@@ -110,7 +110,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_32levels_20k_chain2.rda")
+save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain2.rda")
 end <- Sys.time()
 end - start
 ```
@@ -122,7 +122,7 @@ load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chai
 ## Running the three MCMCglmm models
 start <- Sys.time()
 params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_32levels_20k_chain3.rda")
+save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain3.rda")
 end <- Sys.time()
 end - start
 ```
@@ -167,8 +167,8 @@ For those values, we took the highest burnin as the overall burnin and the media
 ## Load the computed models
 param_chains <- list()
 for(i in 1:3) {
-    load(paste0("../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/shapespace_allbirds_lvl_superorder_order_param", i, ".rda"))
-    param_chains[[i]] <- shapespace_allbirds_lvl_superorder_order_param[[1]]
+    load(paste0("../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain", i, ".rda"))
+    param_chains[[i]] <- params_shapespace_2D_9levels_20k[[1]]
 }
 ## Extract the parameters from the parameter chains
 est_params <- extract.parameters(param_chains)
@@ -185,7 +185,7 @@ samples <- 10
 ## Set up the mini-chains models
 shapespace_allbirds_lvl_superorder_order_2D <- make.mini.chains(
                                 data         = shapespace,
-                                dimensions   = 1,
+                                dimensions   = 1:2,
                                 tree         = trees_list[sample(1:1000, 1000)],
                                 trait.family = "gaussian",
                                 randoms      = c("global", "level1"),
@@ -202,6 +202,28 @@ save(shapespace_allbirds_lvl_superorder_order_2D, file = "../Data/Cluster/shapes
 
 The chains are then run on the cluster
 TODO: details
+
+
+
+```{r}
+library(mcmcmcglmmm)
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/shapespace_allbirds_lvl_superorder_order_2D.mini.chains")
+## Running the three MCMCglmm models
+start <- Sys.time()
+shapespace_allbirds_lvl_superorder_order_2D <- run.mini.chains(shapespace_allbirds_lvl_superorder_order_2D, replicates = 20)
+save(shapespace_allbirds_lvl_superorder_order_2D, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain1_20.rda")
+end <- Sys.time()
+end - start
+```
+
+
+
+
+
+
+
+
+
 
 
 ### Combining the model data
