@@ -21,7 +21,7 @@ library(dads)
 
 Here I'm just doing a one dimensional model of a one dimensional trait (BM) and two clades (`"s"` and `"t"`).
 
-```{r}
+```{r, echo = FALSE}
 ## Setting the data
 set.seed(0)
 data_1 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
@@ -50,7 +50,7 @@ We will now run it as the following model:
 data ~ residuals + random.phylo + random.clade_s + random.clade_t
 ```
 
-```{r}
+```{r, echo = FALSE, message = FALSE}
 ## Setting up the model
 first_model <- make.mini.chains(data, dimensions = c(1:2), tree = tree, trait.family = "gaussian", residuals = "global", randoms = c("global", "clade"), verbose = TRUE, parameters =  list(nitt = 20000))
 
@@ -76,8 +76,25 @@ covar.plot(first_model_results, col = clade_cols, ellipses = mean, legend = TRUE
 ```
 We can then extract the variance of the model:
 
-```{r}
-plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", relative = FALSE, ...) {
+```{r, echo = FALSE}
+#@ name plot.decompose.var
+#@ description plotting the variance of a model in different ways
+#@ param data a dispRity object
+#@ param posteriors a MCMCglmm object
+#@ param group.cols the colours for each term
+#@ param obs.col the colour for the observed variance
+#@ param relative whether to make the variance relative or absolute
+#@ param plot which panels to plot. Can be any of the followings (default is all):
+# "var boxplot" = variance per group;
+# "var by n" = variance per sample size;
+# "log var boxplot" = logged variance per group;
+# "log var by n" = logged variance per sample size;
+# "corrected var boxplot" = logged variance divided by logged sample sizel;
+# "corrected var by n" = logged variance per logged sample size divided by logged sample size;
+# "standard error" = variance per group divided by sqrt(n);
+# "log standard error" = logged standard error;
+
+plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", relative = FALSE, plot = c("var boxplot", "var by n", "log var boxplot", "log var by n", "corrected var boxplot", "corrected var by n", "standard error", "log standard error"), ...) {
     ## Get the model variance
     model_variance <- MCMCglmm.variance(posteriors, scale = relative)
     colnames(model_variance) <- c(name.subsets(data), "residuals")
@@ -89,56 +106,102 @@ plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", re
     if(missing(group.cols)) {
         group_cols <- rep("grey", ncol(model_variance))
     }
+    sample_sizes <- c(size.subsets(data), "residuals" = nrow(data$matrix[[1]]))
+    median_variances <- apply(model_variance, 2, median)
 
     ## Plotting all these with logs
-    par(mfrow = c(2,2))
+    if(length(plot) > 1) {
+        par(mfrow = c(ceiling(length(plot)/2), 2))
+    }
 
     ## Overall results
-    boxplot(model_variance, main = paste0(var_name, " per terms"), xlab = var_name, col = group.cols, horizontal = TRUE, las = 1)
-    if(!relative) {
-        abline(v = obs_var, col = obs.col, lwd = 2)
-    }
-    legend("topright", legend = "data variance", col = obs.col, lty = 1, lwd = 2)
-
-    ## Logged results
-    boxplot(apply(model_variance, 2, log), main = paste0(var_name, " per terms (logged)"), xlab = paste0(var_name, "(logged)"), col = group.cols, horizontal = TRUE, las = 1)
-    if(!relative) {
-        abline(v = log(obs_var), col = obs.col, lwd = 2)
+    if("var boxplot" %in% plot) {
+        boxplot(model_variance, main = paste0(var_name, " per terms"), xlab = var_name, col = group.cols, horizontal = TRUE, las = 1)
+        if(!relative) {
+            abline(v = obs_var, col = obs.col, lwd = 2)
+        }
+        legend("topright", legend = "data variance", col = obs.col, lty = 1, lwd = 2)
     }
 
     ## Results by sample size
-    sample_sizes <- c(size.subsets(data), "residuals" = nrow(data$matrix[[1]]))
-    median_variances <- apply(model_variance, 2, median)    
-    plot(y = median_variances, x = sample_sizes, ylab = paste0("median ", var_name), xlab = "sample size", pch = 19, col =  group.cols)
-    if(!relative) {
-        points(y = obs_var, x = sample_sizes[length(sample_sizes)], col = "red", pch = 19)
+    if("var by n" %in% plot) {
+        plot(y = median_variances, x = sample_sizes, ylab = paste0("median ", var_name), xlab = "sample size", pch = 19, col =  group.cols, main = paste0(var_name, " by sample size"))
+        if(!relative) {
+            points(y = obs_var, x = sample_sizes[length(sample_sizes)], col = obs.col, pch = 21, cex = 2)
+        }
+        model <- lm(median_variances ~ sample_sizes)
+        fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
+        legend("topright", legend = fit, lty = 1)
     }
-    model <- lm(median_variances ~ sample_sizes)
-    abline(model$coefficients)
-    fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
-    legend("topright", legend = fit, lty = 1)
+
+    ## Logged results
+    if("log var boxplot" %in% plot) {
+        boxplot(apply(model_variance, 2, log), main = paste0(var_name, " per terms (logged)"), xlab = paste0(var_name, "(logged)"), col = group.cols, horizontal = TRUE, las = 1)
+        if(!relative) {
+            abline(v = log(obs_var), col = obs.col, lwd = 2)
+        }
+    }
 
     ## Results log logged
-    sample_sizes <- c(size.subsets(data), "residuals" = nrow(data$matrix[[1]]))
-    median_variances <- apply(model_variance, 2, median)    
-    plot(y = log(median_variances), x = log(sample_sizes), ylab = paste0("median ", var_name, " (log)"), xlab = "sample size (log)", pch = 19, col =  group.cols)
-    if(!relative) {
-        points(y = log(obs_var), x = log(sample_sizes[length(sample_sizes)]), col = "red", pch = 19)
+    if("log var by n" %in% plot) {
+        plot(y = log(median_variances), x = log(sample_sizes), ylab = paste0("median ", var_name, " (log)"), xlab = "sample size (log)", pch = 19, col =  group.cols, main = paste0("log ", var_name, " by sample size"))
+        if(!relative) {
+            points(y = log(obs_var), x = log(sample_sizes[length(sample_sizes)]), col = obs.col, pch = 21, cex = 2)
+        }
+        model <- lm(log(median_variances) ~ log(sample_sizes))
+        abline(model$coefficients)
+        fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
+        legend("topright", legend = fit, lty = 1)
     }
-    model <- lm(log(median_variances) ~ log(sample_sizes))
-    abline(model$coefficients)
-    fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
-    legend("topright", legend = fit, lty = 1)
-}
 
-plot.decompose.var(first_model_results, first_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE)
+    ## Boxplots of log logged sample size corrected results
+    if("corrected var boxplot" %in% plot) {
+        boxplot(apply(model_variance, 2, log)/log(sample_sizes), main = paste0(var_name, " per terms (logged)\ndivided by log(sample size)"), xlab = paste0(var_name, "(logged)/log(n)"), col = group.cols, horizontal = TRUE, las = 1)
+        if(!relative) {
+            abline(v = log(obs_var)/log(sample_sizes[length(sample_sizes)]), col = obs.col, lwd = 2)
+        }
+    }
+
+    ## Results log logged / log sample size
+    if("corrected var by n" %in% plot) {
+        plot(y = log(median_variances)/log(sample_sizes), x = log(sample_sizes), ylab = paste0("median ", var_name, " (log) / log(sample size)"), xlab = "sample size (log)", pch = 19, col =  group.cols, main = paste0("corrected", var_name, " by sample size"))
+        if(!relative) {
+            points(y = log(obs_var)/log(sample_sizes[length(sample_sizes)]), x = log(sample_sizes[length(sample_sizes)]), col = obs.col, pch = 21, cex = 2)
+        }
+        model <- lm(log(median_variances)/log(sample_sizes) ~ log(sample_sizes))
+        abline(model$coefficients)
+        fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
+        legend("topright", legend = fit, lty = 1)
+    }
+
+
+    ## Boxplot of standard error
+    if("standard error" %in% plot) {
+        boxplot(model_variance/sqrt(sample_sizes), main = "Standard error per terms", xlab = "standard error", col = group.cols, horizontal = TRUE, las = 1)
+        if(!relative) {
+            abline(v = obs_var/sqrt(sample_sizes[length(sample_sizes)]), col = obs.col, lwd = 2)
+        }
+    }
+
+    if("log standard error" %in% plot) {
+        boxplot(log(model_variance/sqrt(sample_sizes)), main = "Standard error per terms (logged)", xlab = "log standard error", col = group.cols, horizontal = TRUE, las = 1)
+        if(!relative) {
+            abline(v = log(obs_var/sqrt(sample_sizes[length(sample_sizes)])), col = obs.col, lwd = 2)
+        }
+    }
+}
+```
+
+```{r, echo = FALSE}
+## Plotting all the variance elements
+plot.decompose.var(first_model_results, first_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = 1:8, relative = FALSE)
 ```
 
 # More complex model with equal sample size
 
 For this model we can use the charadriiformes example data from `dispRity` where the groups are slightly different sizes (but equal-ish) but based on biological data.
 
-```{r}
+```{r, echo = FALSE}
 data(charadriiformes)
 ## Same but selecting only the three first random terms
 chara_data <- MCMCglmm.subsets(data       = charadriiformes$data,
@@ -150,7 +213,7 @@ chara_data <- MCMCglmm.subsets(data       = charadriiformes$data,
 
 This is what it looks like:
 
-```{r}
+```{r, echo = FALSE}
 ## Set up the clade colours
 clade_cols <- c("gulls" = "blue", "plovers" = "orange", "sandpipers" = "darkgreen", "phylogeny" = "grey")
 ## Plot the model
@@ -159,381 +222,88 @@ covar.plot(chara_data, col = clade_cols, ellipses = mean, legend = TRUE, lwd = 2
 
 And this is what the variances look like:
 
-```{r}
+```{r, echo = FALSE}
 plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"))
 ```
 
 # Model with different sample sizes
 
+This is the big model run just on 2D and only with the super orders levels.
+The differences with the true results are due to it:
+ * not being the same dataset!
+ * not having converged...
 
+```{r, echo = FALSE}
+## Load the models from the local files
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain1_20.rda")
+model_1_20 <- shapespace_allbirds_lvl_superorder_order_2D
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain21_40.rda")
+model_21_40 <- shapespace_allbirds_lvl_superorder_order_2D
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain41_60.rda")
+model_41_60 <- shapespace_allbirds_lvl_superorder_order_2D
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain61_80.rda")
+model_61_80 <- shapespace_allbirds_lvl_superorder_order_2D
+load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain81_100.rda")
+model_81_100 <-shapespace_allbirds_lvl_superorder_order_2D
+## Combine all the models
+model <- combine.mini.chains(unlist(list(model_1_20, model_21_40, model_41_60, model_61_80, model_81_100), recursive = FALSE))
 
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Set up the dispRity object
+birds_data <- MCMCglmm.subsets(data       = shapespace[, -c(3:8)],
+                               posteriors = model,
+                               group      = MCMCglmm.levels(model)[-10],
+                               rename.groups = c(levels(shapespace$level1)[-1], "phylogeny"))
+## Set up the clade colours
+load("../Data/Processed/tip_colours_super_orders.rda")
+clade_cols <- c(tip_colours_super_orders, "phylogeny" = "grey")
+## Plot the model
+covar.plot(birds_data, col = clade_cols, ellipses = mean, legend = TRUE, lwd = 2, points.cex = 0.5)
+```
+
+```{r, echo = FALSE}
+## Plotting the variance with different data
+plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"))
+```
 
 # Model used in this paper (8D + 32 terms)
 
-
-
-
-
-
-
-
-Here the model is highly dimensional and the terms sample sizes vary by two orders of magnitude.
-
-This script is a working script to run the chains on the SHARC Sheffield cluster.
-
-
-```{r load_packages, eval = TRUE, message = FALSE}
-set.seed(42)
-## Loading beer
-library(mcmcmcglmmm)
-library(MCMCglmm)
-library(dispRity)
-
-## Loading the parametrisation data
+```{r, echo = FALSE}
+## Load the data
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
-
 ## Select the data
 shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
-selected_dim <- shapespace_allbirds_lvl_superorder_order[[1]]$dimensions
-consensus_tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
-trees_list <- shapespace_allbirds_lvl_superorder_order[[1]]$trees_list
-```
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
 
-# All birds shapespace analyses
+## Load the posteriors
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+model <- shapespace_allbirds_lvl_superorder_order[[1]]
 
-## Mini-chains parametrization
+## Get the colourss
+load("../Data/Processed/tip_colours_orders.rda")
+clade_cols <- c(tip_colours_super_orders, tip_colours_orders, "phylogeny" = "grey")
 
-Making a 2D model with just the super order random terms
+## Set up the dispRity object
+full_model <- MCMCglmm.subsets(data       = shapespace,
+                               posteriors = model,
+                               group      = MCMCglmm.levels(model)[-37],
+                               rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny"))
 
-```{r, parametrise_the_model, eval = FALSE}
-## Set up the parametrising chains models
-param_MCMCglmm <- make.mini.chains(data         = shapespace,
-                                   dimensions   = selected_dim,
-                                   tree         = consensus_tree,
-                                   trait.family = "gaussian",
-                                   randoms      = c("global", "level1", "level2"),
-                                   residuals    = "global",
-                                   priors       = 0.02,
-                                   verbose      = TRUE,
-                                   parameters   = list(
-                                       nitt   = 20000,
-                                       thin   = 500,
-                                       burnin = 0))
-save(param_MCMCglmm, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k.rda")
+
+covar.plot(full_model, col = clade_cols, ellipses = mean, legend = TRUE, lines.lty = c(rep(1, length(levels(shapespace$level1)[-1])), rep(2, length(levels(shapespace$level2)[-1])), 1), points = FALSE)
 ```
 
 
-
-## Running the parametrisation chains (for the small model)
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain1.rda")
-end <- Sys.time()
-end - start
-```
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain2.rda")
-end <- Sys.time()
-end - start
-```
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_2D_9levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_2D_9levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain3.rda")
-end <- Sys.time()
-end - start
+```{r, echo = FALSE}
+## Plotting the variance with different data
+plot.decompose.var(full_model, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = 4)
 ```
 
 
-## (for the big model)
-
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain1.rda")
-end <- Sys.time()
-end - start
-```
-
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain2.rda")
-end <- Sys.time()
-end - start
-```
-
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k.rda")
-## Running the three MCMCglmm models
-start <- Sys.time()
-params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates = 1)
-save(params_shapespace_8D_32levels_20k, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_8D_32levels_20k_chain3.rda")
-end <- Sys.time()
-end - start
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
-We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
-For those values, we took the highest burnin as the overall burnin and the median of the three posteriors as the overall priors.
-
-```{r, get_model_parameters, eval = FALSE}
-## Load the computed models
-param_chains <- list()
-for(i in 1:3) {
-    load(paste0("../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain", i, ".rda"))
-    param_chains[[i]] <- params_shapespace_2D_9levels_20k[[1]]
-}
-## Extract the parameters from the parameter chains
-est_params <- extract.parameters(param_chains)
-```
-
-### Running the mini-chains
-
-```{r, set_the_mini_chains, eval = FALSE}
-## The thinning parameter
-thin <- 200
-## The number of samples per chains
-samples <- 10
-
-## Set up the mini-chains models
-shapespace_allbirds_lvl_superorder_order_2D <- make.mini.chains(
-                                data         = shapespace,
-                                dimensions   = 1:2,
-                                tree         = trees_list[sample(1:1000, 1000)],
-                                trait.family = "gaussian",
-                                randoms      = c("global", "level1"),
-                                residuals    = "global",
-                                priors       = est_params$priors,
-                                verbose      = TRUE,
-                                parameters   = list(
-                                    nitt   = est_params$burnin + thin * samples,
-                                    thin   = thin,
-                                    burnin = est_params$burnin))
-## Save the mini.chains
-save(shapespace_allbirds_lvl_superorder_order_2D, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/shapespace_allbirds_lvl_superorder_order_2D.mini.chains")
-```
-
-The chains are then run on the cluster
-TODO: details
-
-
-
-```{r}
-library(mcmcmcglmmm)
-load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/shapespace_allbirds_lvl_superorder_order_2D.mini.chains")
-## Running the three MCMCglmm models
-start <- Sys.time()
-shapespace_allbirds_lvl_superorder_order_2D <- run.mini.chains(shapespace_allbirds_lvl_superorder_order_2D, replicates = 20)
-save(shapespace_allbirds_lvl_superorder_order_2D, file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/param_chains/params_shapespace_2D_9levels_20k_chain1_20.rda")
-end <- Sys.time()
-end - start
-```
-
-
-
-
-
-
-
-
-
-
-
-### Combining the model data
-
-```{r, eval = FALSE}
-## Set up the variables
-models_path <- "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/cluster/"
-## Getting all the model files
-model_files <- list.files(models_path, pattern = ".rda")
-
-## Check if the model exists already
-if(!("shapespace_allbirds_lvl_superorder_order.MCMCglmm" %in% list.files("../Data/Processed/"))) {
-    ## Preparing the model files
-    model_list <- list()
-    class(model_list) <- c("beer", "mini.chains")
-    ## Get the first model
-    load(paste0(models_path, model_files[1], collapse = "/"))
-    ## Move it to the storage
-    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/")))
-    print(model_files[1])
-    ## Clean the bits that are not going to be used (but are huge)
-    model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
-    ## Update the model list
-    model_list[[length(model_list)+1]] <- model[[1]]
-    model <- NULL
-    model_files <- model_files[-1]
-} else {
-    ## Updating the model
-    load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-    model_list <- shapespace_allbirds_lvl_superorder_order
-}
-
-## Get the subsequent models and merge them as we go
-while(length(model_files) != 0) {
-    load(paste0(models_path, model_files[1], collapse = "/"))
-    ## Move it to storage
-    system(paste("mv", paste0(models_path, model_files[1]), paste0(models_path, "done/")))
-    print(model_files[1])
-    ## Clean the bits that are not going to be used (but are huge)
-    model[[1]][c("error.term", "family", "y.additional", "ginverse", "ZR")] <- NULL
-    ## Update the model list
-    model_list[[length(model_list)+1]] <- model[[1]]
-    ## Merge the models (overwrite the model list)
-    model_list <- list(combine.mini.chains(model_list))
-    ## DEBUG
-    print("model list size:")
-    print(format(object.size(model_list), units = "MB"))
-    model <- NULL
-    model_files <- model_files[-1]
-}
-
-## Combining the model files
-shapespace_allbirds_lvl_superorder_order <- model_list
-
-## Saving the results
-save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-
-
-
-```
-
-
-# Analysing the variance per terms
-
-
-```{r}
-## Get the variance for each level
-variance_per_clades <- MCMCglmm.variance(shapespace_allbirds_lvl_superorder_order, scale = TRUE)
-## Rename the columns
-colnames(variance_per_clades) <- c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny", "residuals")
-reorder_clades <- c(9:35,1:8, 36, 37)
-# ## Pull by term
-# variance_per_levels<- cbind("orders" = apply(variance_per_clades[, 9:35], 1, sum),
-#                             "super-orders" = apply(variance_per_clades[, 1:8], 1, sum),
-#                             "phylogeny" = variance_per_clades[, 36],
-#                             "residuals" = variance_per_clades[, 37])
-# variance_per_terms <- cbind("clades" = apply(variance_per_clades[, 1:35], 1, sum),
-#                             "phylogeny" = variance_per_clades[, 36],
-#                             "residuals" = variance_per_clades[, 37])
-# ## Plot the results
-# pdf(file = "../Manuscript/Figures/variance_per_levels_whole_tree.pdf", height = 8, width = 14)
-# par(mar = c(5,8,2,2), mfrow = c(1, 3))
-# # boxplot(variance_per_terms, horizontal = TRUE, las = 1, main = "Scaled variance by terms", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# # boxplot(variance_per_levels, horizontal = TRUE, las = 1, main = "Scaled variance by levels", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# boxplot(variance_per_clades[,reorder_clades], horizontal = TRUE, las = 1, main = "Scaled variance by clades", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# boxplot(log(variance_per_clades[,reorder_clades])/log(sample_sizes), horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing sample size effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# boxplot(log(variance_per_clades[,reorder_clades])/log(observed_variance)[names(variances)], horizontal = TRUE, las = 1, main = "Scaled variance by clades (removing variance effect)", xlab = "Scaled variance\n(sum of each VCV variance part (diagonal))")
-# dev.off()
-
-# ## Getting the variances per clades
-# variances <- apply(variance_per_clades[,reorder_clades], 2, mean)
-
-# ## Getting the sample sizes per clades (the one for the residuals is the whole tree size)
-# sample_sizes <- c("residuals" = size.subsets(order_shapespace)[28],
-#                   size.subsets(superorder_shapespace),
-#                   size.subsets(order_shapespace))[names(variances)]
-
-# ## Measuring the variance for each clade and for the residuals
-# ## the obs variance of the residuals is just the variance in the whole dataset (phylogeny)
-# observed_variance <- c("residuals" = unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[28], 
-#                        unlist(get.disparity(dispRity(superorder_shapespace, metric = sd))),
-#                        unlist(get.disparity(dispRity(order_shapespace, metric = sd)))[-28])^2
-
-# plot(log(variances)/log(sample_sizes), log(sample_sizes), xlab = "log variance / log n", ylab = "log n")
-
-```
-
-
-
-## Standard error per terms
-
-```{r}
-
-## Get the number of observations per groups
-variance_per_clades <- MCMCglmm.variance(shapespace_allbirds_lvl_superorder_order, scale = FALSE)
-colnames(variance_per_clades) <- c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny", "residuals")
-
-## Converting into standard errors
-get.se <- function(var, n) {
-    sqrt(var[[1]])/sqrt(n)
-}
-## Get the se per group
-se_per_clades <- mapply(get.se, apply(variance_per_clades, 2, list), as.list(c(size.subsets(superorder_shapespace)[-9], size.subsets(order_shapespace), "residuals" = 8748)))
-## Scale that
-se_per_clades <- se_per_clades/rowSums(se_per_clades)
-## Get the other levels
-se_per_levels<- cbind("orders" = apply(se_per_clades[, 9:35], 1, sum),
-                      "super-orders" = apply(se_per_clades[, 1:8], 1, sum),
-                      "phylogeny" = se_per_clades[, 36],
-                      "residuals" = se_per_clades[, 37])
-se_per_terms <- cbind("clades" = apply(se_per_clades[, 1:35], 1, sum),
-                      "phylogeny" = se_per_clades[, 36],
-                      "residuals" = se_per_clades[, 37])
-
-## Plot the results
-pdf(file = "../Manuscript/Figures/se_per_levels_whole_tree.pdf", height = 8, width = 14)
-par(mar = c(5,8,2,2), mfrow = c(1, 3))
-boxplot(se_per_terms, horizontal = TRUE, las = 1, main = "Scaled standard error by terms", xlab = "Scaled se ")
-boxplot(se_per_levels, horizontal = TRUE, las = 1, main = "Scaled standard error by levels", xlab = "Scaled se")
-boxplot(se_per_clades[,reorder_clades], horizontal = TRUE, las = 1, main = "Scaled standard error by clades", xlab = "Scaled variance")
-dev.off()
-```
