@@ -16,66 +16,6 @@ library(dispRity)
 library(mcmcmcglmmm)
 library(dads)
 ```
-
-# Variance explained in a simple model
-
-Here I'm just doing a one dimensional model of a one dimensional trait (BM) and two clades (`"s"` and `"t"`).
-
-```{r, echo = FALSE}
-## Setting the data
-set.seed(0)
-data_1 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
-data_2 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
-
-## Renaming the tips and data in data_2
-rownames(data_2$data)[match(data_2$tree$tip.label, rownames(data_2$data))] <- gsub("t", "s", data_2$tree$tip.label)
-data_2$tree$tip.label <- gsub("t", "s", data_2$tree$tip.label)
-data_1$tree$node.label <- data_2$tree$node.label <- NULL
-
-## Combine the trees
-ultrametric_tree <- chronos(multi2di(bind.tree(data_1$tree, data_2$tree)))
-class(ultrametric_tree) <- "phylo"
-tree <- slide.nodes(ultrametric_tree, node = 42, slide = 0.2)
-
-## Combine the data
-data <- c(data_1$data[match(data_1$tree$tip.label, rownames(data_1$data)), ], data_2$data[match(data_2$tree$tip.label, rownames(data_2$data)), ])
-data <- as.data.frame(matrix(data, ncol = 1, dimnames = list(c(names(data)), c("variable"))))
-data <- cbind(data, "var2" = rnorm(40), "clade" = as.factor(c(rep("t", 20), rep("s", 20))), "animal" = rownames(data))
-```
-
-
-We will now run it as the following model:
-
-```
-data ~ residuals + random.phylo + random.clade_s + random.clade_t
-```
-
-```{r, echo = FALSE, message = FALSE}
-## Setting up the model
-first_model <- make.mini.chains(data, dimensions = c(1:2), tree = tree, trait.family = "gaussian", residuals = "global", randoms = c("global", "clade"), verbose = TRUE, parameters =  list(nitt = 20000))
-
-## running the first model
-first_model_run <- run.mini.chains(first_model, replicates = 1)[[1]]
-```
-
-And this is what it looks like graphically
-
-```{r, echo = FALSE}
-## Model object
-first_model_results <- MCMCglmm.subsets(
-      data          = data,
-      posteriors    = first_model_run,
-      group         = MCMCglmm.levels(first_model_run)[c(1:3)],
-      rename.groups = c("clade_s", "clade_t", "phylogeny"))
-
-## Set the clade colours
-clade_cols <- c("clade_s" = "blue", "clade_t" = "orange", "phylogeny" = "grey")
-
-## Plotting the model
-covar.plot(first_model_results, col = clade_cols, ellipses = mean, legend = TRUE)
-```
-We can then extract the variance of the model:
-
 ```{r, echo = FALSE}
 #@ name plot.decompose.var
 #@ description plotting the variance of a model in different ways
@@ -93,14 +33,13 @@ We can then extract the variance of the model:
 # "corrected var by n" = logged variance per logged sample size divided by logged sample size;
 # "standard error" = variance per group divided by sqrt(n);
 # "log standard error" = logged standard error;
-
 plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", relative = FALSE, plot = c("var boxplot", "var by n", "log var boxplot", "log var by n", "corrected var boxplot", "corrected var by n", "standard error", "log standard error"), ...) {
     ## Get the model variance
     model_variance <- MCMCglmm.variance(posteriors, scale = relative)
     colnames(model_variance) <- c(name.subsets(data), "residuals")
     ## Get the data variance
     if(!relative) {
-        obs_var <- sd(unlist(data$matrix[[1]][, c(data$call$dimensions)]))^2
+        obs_var <- sum(apply(data$matrix[[1]][, c(data$call$dimensions)], 2, var))
     }
     var_name <- ifelse(relative, "relative variance", "variance")
     if(missing(group.cols)) {
@@ -192,14 +131,153 @@ plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", re
 }
 ```
 
+# Variance explained in a 1D model
+
+For this first very simple model, I will just simulate two trees of 20 taxa each with the two same independent Brownian Motion (BM) traits and combine them together to get a dataset with one variable (2 independent BMs) and two monophyletic clades (`"s"` and `"t"` because why not).
+
 ```{r, echo = FALSE}
-## Plotting all the variance elements
-plot.decompose.var(first_model_results, first_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = 1:8, relative = FALSE)
+## Setting the data
+set.seed(0)
+data_1 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
+data_2 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
+
+## Renaming the tips and data in data_2
+rownames(data_2$data)[match(data_2$tree$tip.label, rownames(data_2$data))] <- gsub("t", "s", data_2$tree$tip.label)
+data_2$tree$tip.label <- gsub("t", "s", data_2$tree$tip.label)
+data_1$tree$node.label <- data_2$tree$node.label <- NULL
+
+## Combine the trees
+ultrametric_tree <- chronos(multi2di(bind.tree(data_1$tree, data_2$tree)))
+class(ultrametric_tree) <- "phylo"
+tree <- slide.nodes(ultrametric_tree, node = 42, slide = 0.2)
+
+## Combine the data
+data <- c(data_1$data[match(data_1$tree$tip.label, rownames(data_1$data)), ], data_2$data[match(data_2$tree$tip.label, rownames(data_2$data)), ])
+data <- as.data.frame(matrix(data, ncol = 1, dimnames = list(c(names(data)), c("variable"))))
+data <- cbind(data, "var2" = rnorm(40), "clade" = as.factor(c(rep("t", 20), rep("s", 20))), "animal" = rownames(data))
 ```
 
-# More complex model with equal sample size
+I will run the simplest model which is the data (the 2 BMs) as a response variables, clades as explanatory ones and then two error terms: the data residuals and the phylogenetic randoms terms:
 
-For this model we can use the charadriiformes example data from `dispRity` where the groups are slightly different sizes (but equal-ish) but based on biological data.
+```
+data ~ clade + residuals + random(phylogeny)
+```
+
+```{r, echo = FALSE, message = FALSE}
+test <- MCMCglmm(fixed  = variable ~ clade,
+                 random = ~ animal,
+                 pedigree = tree,
+                 data = data, 
+                 nitt = 10000,
+                 burnin = 10,
+                 thin = 10)
+```
+
+I can then extract the variance for the error terms and plot the observed variance in the data (i.e. the variance from the trait)@
+
+```{r, echo = FALSE}
+par(mar = c(5, 6, 4, 2) + 0.1)
+var_table <- MCMCglmm.variance(test, scale = FALSE)
+colnames(var_table) <- c("phylogeny", "residuals")
+boxplot(var_table, horizontal = TRUE, las = 1, xlab = "Variance")
+abline(v = var(data$variable), col = "red", lwd = 2)
+legend("topright", col = "red", lwd = 2, lty = 1, legend = "Observed variance")
+```
+
+One first striking thing (to me) is that the residuals are below the observed variance, which is expected: the residuals cannot explain more than the variance in the datasets but this is not the case for the random terms (phylogeny)!
+
+# Variance explained in a 2D model with covariance
+
+We can then spice things up a bit more by looking at what does that variance extracted from the models mean in multi dimensions.
+Using the same data as before but adding a random variable (a normal distribution - not related to the phylogeny) we can then do the same model but in a multidimensional way:
+
+The model is now:
+
+```
+data(1D, 2D)~ clade + residuals + random(phylogeny)
+```
+
+```{r, echo = FALSE, message = FALSE}
+## Setting up the model
+first_model <- make.mini.chains(data, dimensions = c(1:2), tree = tree, trait.family = "gaussian", residuals = "global", randoms = c("global"), verbose = TRUE, parameters =  list(nitt = 20000))
+
+## running the first model
+first_model_run <- run.mini.chains(first_model, replicates = 1)[[1]]
+```
+
+```{r, echo = FALSE}
+par(mar = c(5, 6, 4, 2) + 0.1)
+var_table <- MCMCglmm.variance(first_model_run, scale = FALSE)
+colnames(var_table) <- c("phylogeny", "residuals")
+boxplot(var_table, horizontal = TRUE, las = 1, xlab = "Variance")
+abline(v = var(data$variable)+var(data$var2), col = "red", lwd = 2)
+legend("topright", col = "red", lwd = 2, lty = 1, legend = "Observed variance")
+```
+
+We now see something more funky with the variance of the residuals being sometimes higher than the variance available in the model.
+I suspect this is due to the multidimensionality but not sure.
+
+# Variance explained in a 2D model with covariance and nested terms
+
+We can then use the actual model type we used in our paper with a multidimensional variable and a random term for the phylogeny AND each clade:
+
+
+```
+data(1D, 2D) ~ residuals + random(phylogeny) + random(clade_s) + random(clade_t)
+```
+
+```{r, echo = FALSE, message = FALSE}
+## Setting up the model
+second_model <- make.mini.chains(data, dimensions = c(1:2), tree = tree, trait.family = "gaussian", residuals = "global", randoms = c("global", "clade"), verbose = TRUE, parameters =  list(nitt = 20000))
+
+## running the first model
+second_model_run <- run.mini.chains(second_model, replicates = 1)[[1]]
+```
+
+And this is what it looks like graphically:
+
+```{r, echo = FALSE}
+## Model object
+second_model_results <- MCMCglmm.subsets(
+      data          = data,
+      posteriors    = second_model_run,
+      group         = MCMCglmm.levels(second_model_run)[c(1:3)],
+      rename.groups = c("clade_s", "clade_t", "phylogeny"))
+
+## Set the clade colours
+clade_cols <- c("clade_s" = "blue", "clade_t" = "orange", "phylogeny" = "grey")
+
+## Plotting the model
+covar.plot(second_model_results, col = clade_cols, ellipses = mean, legend = TRUE)
+```
+
+We can then extract the variance of the model:
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 4}
+## Plotting all the variance elements
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(second_model_results, second_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE, plot = "var boxplot")
+```
+
+We can see now that the data consistently spreads over the total amount of variance (although the median values remain lower).
+To avoid this spread we can log the variance to see what it does:
+
+```{r, echo = FALSE, fig.height = 16, fig.width = 4}
+## Plotting all the variance elements
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(second_model_results, second_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE, plot = "log var boxplot")
+```
+
+Bit clearer but still enigmatic to me (i.e. how can we have more variance explained than variance available).
+
+# Multidimensional nested model with different sample sizes.
+
+Another thing with our models is that they deal with different sample sizes.
+We can explore that using a mild example (a tree with three groups of roughly equal size) and a more contrasting example (with orders of magnitudes in differences in sample sizes).
+
+## Similar sample sizes
+
+For this model we can use the charadriiformes example data from `dispRity` where the groups are slightly different sizes (159, 98 and 102 species in each clade).
 
 ```{r, echo = FALSE}
 data(charadriiformes)
@@ -223,17 +301,35 @@ covar.plot(chara_data, col = clade_cols, ellipses = mean, legend = TRUE, lwd = 2
 And this is what the variances look like:
 
 ```{r, echo = FALSE}
-plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"))
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = "var boxplot")
 ```
 
-# Model with different sample sizes
-
-This is the big model run just on 2D and only with the super orders levels.
-The differences with the true results are due to it:
- * not being the same dataset!
- * not having converged...
+It's interesting to see that the variance for the phylogeny is greater than for two of the groups (expected?) but not for the gulls group!
+Also, in these datasets, the residuals start to become very small (probably due to most variance being explained by the random terms).
+Here's a logged illustration of these variance differences:
 
 ```{r, echo = FALSE}
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = "log var boxplot")
+```
+
+We can then also plot these differences in variances relative to sample sizes (ignore the lm fit):
+
+```{r, echo = FALSE, fig.height = 4, fig.width = 8}
+plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("var by n", "log var by n"))
+```
+
+The red circle is the total variance (probably OK to ignore in these plots).
+
+## Different sample sizes
+
+We can then look at the effect of more wildly different sample sizes.
+For this test, I'm going to run the BIG whole shapespace dataset in 2D with all the super orders as nested levels.
+The sample sizes for the nest random terms then varies from 24 (Mirandortnithes) species to >6k (Telluraves) so we have three orders for magnitude here.
+
+
+```{r, echo = FALSE, fig.height = 6, fig.width = 6}
 ## Load the models from the local files
 load(file = "../Data/Cluster/shapespace_allbirds_lvl_superorder_order/chains_2D_testing/params_shapespace_2D_9levels_20k_chain1_20.rda")
 model_1_20 <- shapespace_allbirds_lvl_superorder_order_2D
@@ -267,12 +363,42 @@ clade_cols <- c(tip_colours_super_orders, "phylogeny" = "grey")
 covar.plot(birds_data, col = clade_cols, ellipses = mean, legend = TRUE, lwd = 2, points.cex = 0.5)
 ```
 
-```{r, echo = FALSE}
+Note that the results (ellipses) look kind of different than the ones from the real model.
+This is interesting in highlighting the effect of using 8 rather than 2 dimensions and using the interactions of all nested terms (including the orders) rather than just the super orders.
+Also the calculations here are rough and the model hasn't converged.
+
+And then we can plot the variance and the logged variance per terms and by sample sizes:
+
+```{r, echo = FALSE, fig.height = 10, fig.width = 10}
 ## Plotting the variance with different data
-plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"))
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("var boxplot", "log var boxplot", "var by n", "log var by n"))
 ```
 
-# Model used in this paper (8D + 32 terms)
+Here there seems to be a clear relation between sample size and variance: big clades have on average lower variance than smaller ones (nicely illustrated on a log log scale).
+
+We can thus try to "correct" for these sample size issues by using the standard error (or log standard error):
+
+```{r, echo = FALSE, fig.height = 4, fig.width = 8}
+## Plotting the variance with different data
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("standard error", "log standard error"))
+```
+
+This shows maybe easier to interpret variations.
+
+Or, maybe more interpretable, we can just "correct" variance by dividing it by the log sample size (instead of the square root of the sample size in the standard error) assuming a log normal relation between variance and sample size (kind of clearer in the big model at the end).
+
+```{r, echo = FALSE, fig.height = 4, fig.width = 8}
+## Plotting the variance with different data
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("corrected var boxplot", "corrected var by n"))
+```
+
+# Variance on BIG models
+
+We can then apply these thingies to the big model (with 8 dimensions and 32 nested random terms.
+This is what it looks like:
 
 ```{r, echo = FALSE}
 ## Load the data
@@ -295,15 +421,16 @@ full_model <- MCMCglmm.subsets(data       = shapespace,
                                posteriors = model,
                                group      = MCMCglmm.levels(model)[-37],
                                rename.groups = c(levels(shapespace$level1)[-1], levels(shapespace$level2)[-1], "phylogeny"))
-
-
 covar.plot(full_model, col = clade_cols, ellipses = mean, legend = TRUE, lines.lty = c(rep(1, length(levels(shapespace$level1)[-1])), rep(2, length(levels(shapespace$level2)[-1])), 1), points = FALSE)
 ```
 
+And these are all the different ways to illustrate this variance:
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height = 32, fig.width = 8}
 ## Plotting the variance with different data
-plot.decompose.var(full_model, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = 4)
+par(mar = c(5, 6, 4, 2) + 0.1)
+plot.decompose.var(full_model, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("var boxplot", "log var boxplot", "var by n", "log var by n", "corrected var boxplot", "corrected var by n", "standard error", "log standard error"))
 ```
 
+Not sure what we get out of all of this but hopefully it gives us some insights on how to talk about the variance partition in the intro.
 
