@@ -9,7 +9,23 @@ output:
     fig_height: 8
 ---
 
+This script explores the meaning of the variance explained in big multidimensional MCMCglmm with variable sample sizes.
+
+
+# Variance explained in a simple model
+
+# More complex model with equal sample size
+
+# Model with different sample sizes
+
+# Model used in this paper (8D + 32 terms)
+
+Here the model is highly dimensional and the terms sample sizes vary by two orders of magnitude.
+
+
+
 This script is a working script to run the chains on the SHARC Sheffield cluster.
+
 
 ```{r load_packages, eval = TRUE, message = FALSE}
 set.seed(42)
