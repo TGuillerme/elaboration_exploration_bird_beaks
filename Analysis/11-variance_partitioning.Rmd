@@ -11,18 +11,173 @@ output:
 
 This script explores the meaning of the variance explained in big multidimensional MCMCglmm with variable sample sizes.
 
+```{r}
+library(dispRity)
+library(mcmcmcglmmm)
+library(dads)
+```
 
 # Variance explained in a simple model
 
+Here I'm just doing a one dimensional model of a one dimensional trait (BM) and two clades (`"s"` and `"t"`).
+
+```{r}
+## Setting the data
+set.seed(0)
+data_1 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
+data_2 <- drop.fossil.dads(dads(stop.rule = list(max.living = 20), traits = make.traits()))
+
+## Renaming the tips and data in data_2
+rownames(data_2$data)[match(data_2$tree$tip.label, rownames(data_2$data))] <- gsub("t", "s", data_2$tree$tip.label)
+data_2$tree$tip.label <- gsub("t", "s", data_2$tree$tip.label)
+data_1$tree$node.label <- data_2$tree$node.label <- NULL
+
+## Combine the trees
+ultrametric_tree <- chronos(multi2di(bind.tree(data_1$tree, data_2$tree)))
+class(ultrametric_tree) <- "phylo"
+tree <- slide.nodes(ultrametric_tree, node = 42, slide = 0.2)
+
+## Combine the data
+data <- c(data_1$data[match(data_1$tree$tip.label, rownames(data_1$data)), ], data_2$data[match(data_2$tree$tip.label, rownames(data_2$data)), ])
+data <- as.data.frame(matrix(data, ncol = 1, dimnames = list(c(names(data)), c("variable"))))
+data <- cbind(data, "var2" = rnorm(40), "clade" = as.factor(c(rep("t", 20), rep("s", 20))), "animal" = rownames(data))
+```
+
+
+We will now run it as the following model:
+
+```
+data ~ residuals + random.phylo + random.clade_s + random.clade_t
+```
+
+```{r}
+## Setting up the model
+first_model <- make.mini.chains(data, dimensions = c(1:2), tree = tree, trait.family = "gaussian", residuals = "global", randoms = c("global", "clade"), verbose = TRUE, parameters =  list(nitt = 20000))
+
+## running the first model
+first_model_run <- run.mini.chains(first_model, replicates = 1)[[1]]
+```
+
+And this is what it looks like graphically
+
+```{r, echo = FALSE}
+## Model object
+first_model_results <- MCMCglmm.subsets(
+      data          = data,
+      posteriors    = first_model_run,
+      group         = MCMCglmm.levels(first_model_run)[c(1:3)],
+      rename.groups = c("clade_s", "clade_t", "phylogeny"))
+
+## Set the clade colours
+clade_cols <- c("clade_s" = "blue", "clade_t" = "orange", "phylogeny" = "grey")
+
+## Plotting the model
+covar.plot(first_model_results, col = clade_cols, ellipses = mean, legend = TRUE)
+```
+We can then extract the variance of the model:
+
+```{r}
+plot.decompose.var <- function(data, posteriors, group.cols, obs.col = "red", relative = FALSE, ...) {
+    ## Get the model variance
+    model_variance <- MCMCglmm.variance(posteriors, scale = relative)
+    colnames(model_variance) <- c(name.subsets(data), "residuals")
+    ## Get the data variance
+    if(!relative) {
+        obs_var <- sd(unlist(data$matrix[[1]][, c(data$call$dimensions)]))^2
+    }
+    var_name <- ifelse(relative, "relative variance", "variance")
+    if(missing(group.cols)) {
+        group_cols <- rep("grey", ncol(model_variance))
+    }
+
+    ## Plotting all these with logs
+    par(mfrow = c(2,2))
+
+    ## Overall results
+    boxplot(model_variance, main = paste0(var_name, " per terms"), xlab = var_name, col = group.cols, horizontal = TRUE, las = 1)
+    if(!relative) {
+        abline(v = obs_var, col = obs.col, lwd = 2)
+    }
+    legend("topright", legend = "data variance", col = obs.col, lty = 1, lwd = 2)
+
+    ## Logged results
+    boxplot(apply(model_variance, 2, log), main = paste0(var_name, " per terms (logged)"), xlab = paste0(var_name, "(logged)"), col = group.cols, horizontal = TRUE, las = 1)
+    if(!relative) {
+        abline(v = log(obs_var), col = obs.col, lwd = 2)
+    }
+
+    ## Results by sample size
+    sample_sizes <- c(size.subsets(data), "residuals" = nrow(data$matrix[[1]]))
+    median_variances <- apply(model_variance, 2, median)    
+    plot(y = median_variances, x = sample_sizes, ylab = paste0("median ", var_name), xlab = "sample size", pch = 19, col =  group.cols)
+    if(!relative) {
+        points(y = obs_var, x = sample_sizes[length(sample_sizes)], col = "red", pch = 19)
+    }
+    model <- lm(median_variances ~ sample_sizes)
+    abline(model$coefficients)
+    fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
+    legend("topright", legend = fit, lty = 1)
+
+    ## Results log logged
+    sample_sizes <- c(size.subsets(data), "residuals" = nrow(data$matrix[[1]]))
+    median_variances <- apply(model_variance, 2, median)    
+    plot(y = log(median_variances), x = log(sample_sizes), ylab = paste0("median ", var_name, " (log)"), xlab = "sample size (log)", pch = 19, col =  group.cols)
+    if(!relative) {
+        points(y = log(obs_var), x = log(sample_sizes[length(sample_sizes)]), col = "red", pch = 19)
+    }
+    model <- lm(log(median_variances) ~ log(sample_sizes))
+    abline(model$coefficients)
+    fit <- paste0("lm fit (adj.R^2) = ", round(summary(model)$adj.r.squared, 3))
+    legend("topright", legend = fit, lty = 1)
+}
+
+plot.decompose.var(first_model_results, first_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE)
+```
+
 # More complex model with equal sample size
+
+For this model we can use the charadriiformes example data from `dispRity` where the groups are slightly different sizes (but equal-ish) but based on biological data.
+
+```{r}
+data(charadriiformes)
+## Same but selecting only the three first random terms
+chara_data <- MCMCglmm.subsets(data       = charadriiformes$data,
+                               posteriors = charadriiformes$posteriors,
+                               tree       = charadriiformes$tree,
+                               group      = MCMCglmm.levels(charadriiformes$posteriors)[1:4],
+                               rename.groups = c("gulls", "plovers", "sandpipers", "phylogeny"))
+```
+
+This is what it looks like:
+
+```{r}
+## Set up the clade colours
+clade_cols <- c("gulls" = "blue", "plovers" = "orange", "sandpipers" = "darkgreen", "phylogeny" = "grey")
+## Plot the model
+covar.plot(chara_data, col = clade_cols, ellipses = mean, legend = TRUE, lwd = 2, points.cex = 0.5)
+```
+
+And this is what the variances look like:
+
+```{r}
+plot.decompose.var(chara_data, charadriiformes$posteriors, group.cols = c(clade_cols, "residuals" = "darkgrey"))
+```
 
 # Model with different sample sizes
 
+
+
+
 # Model used in this paper (8D + 32 terms)
 
+
+
+
+
+
+
+
 Here the model is highly dimensional and the terms sample sizes vary by two orders of magnitude.
-
-
 
 This script is a working script to run the chains on the SHARC Sheffield cluster.
 
