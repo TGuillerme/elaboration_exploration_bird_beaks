@@ -20,6 +20,7 @@
 % \usepackage[osf]{mathpazo}
 % \usepackage{dcolumn}
 
+\usepackage{lscape}
 \usepackage{hyperref}
 \usepackage{lineno}
 \usepackage{pdflscape}
@@ -79,44 +80,32 @@ $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 
 
 
+
+\begin{landscape}
 \section{Supplementary material 1: glossary}
 
 \begin{table}[ht]
 \centering
 \scriptsize
-\begin{tabular}{p{0.2\textwidth}p{0.4\textwidth}p{0.4\textwidth}}
+\begin{tabular}{p{0.2\textwidth}p{0.3\textwidth}p{0.3\textwidth}p{0.1\textwidth}p{0.1\textwidth}}
   \hline
-Term in this paper          & evolutionary biology definition & mathematics definition \\
+Term in this paper         & definition in this paper & mathematical definition & in macroevolution & in microevoltion\\
   \hline
-clade                       & a monophyletic group of species & a distance matrix associated with a subset of the \textbf{shapespace} \\ 
-clade's major axis          & the \textbf{line of least resistance} specific to a clade & the first \textbf{eigenvector} of a \textbf{clade}'s \textbf{variance-covariance} matrix \\ 
-eigenvector                 & one evolutionary \textbf{line of least resistance} for a clade & one of the vectors (direction) defining a \textbf{variance-covariance} matrix \\
-elaboration                 & morphological score of a \textbf{species} or a \textbf{clade} in relation to a \textbf{line of least resistance} of reference & the \textbf{projection} of a \textbf{species} or a \textbf{clade} onto the first \textbf{eigenvector} of a \textbf{variance-covariance} matrix \\
-family                      & a specific \textbf{clade} level (nested within \textbf{sub-orders}) & a distance matrix \\
-higher taxa                 & a higher \textbf{clade} level & a distance matrix associated with a subset of the \textbf{shapespace} \\
-innovation                  & morphological score of a \textbf{species} or a \textbf{clade} in relation to a \textbf{line of least resistance} of reference & the \textbf{rejection} of a \textbf{species} or a \textbf{clade} away from the first \textbf{eigenvector} of a \textbf{variance-covariance} matrix \\
-lines of least resistance   & the major evolutionary ``direction'' of traits co-evolution & the first \textbf{eigenvector} or a \textbf{variance-covariance} matrix \\
-macroevolution              & evolution above the species level & analyses using a portion of the entire shapespace \\
-major axis                  & one of the ``directions'' of traits co-evolution & an \textbf{eigenvector} or a \textbf{variance-covariance} matrix; this can be represented as the longest orthogonal lines of an ellipse \\
-megaevolution               & evolution above the \textbf{clade} level - here arbitrarily defined at the whole \textbf{phylogeny} level (i.e. all the birds) & analyses using the entire shapespace \\
-order                       & a specific \textbf{clade} level (nested within \textbf{super-orders}) & a distance matrix associated with a subset of the \textbf{shapespace} \\
-phylogenetic major axis     & the \textbf{line of least resistance} for the whole \textbf{phylogeny} & the first \textbf{eigenvector} of the whole \textbf{phylogeny}'s \textbf{variance-covariance} matrix \\
-phylogeny                   & the relationships between all the \textbf{species} and their respective \textbf{clades} used in this analysis & a distance matrix associated with the whole \textbf{shapespace} \\
-projection                  & the \textbf{elaboration} score of \textbf{species} or a \textbf{clade} & the position of a \textbf{species} or a \textbf{clade} onto an \textbf{eigenvector}\\
-rejection                   & the \textbf{innovation} score of \textbf{species} or a \textbf{clade} & the distance of a \textbf{species} or a \textbf{clade} away from an \textbf{eigenvector} \\
-residual                    & the variation in the \textbf{shapespace} not explained by the \textbf{phylogeny} or a \textbf{clade} & the error term in the pGLMM not explained by the random error terms (\textbf{phylogeny} and \textbf{clade}) \\
-shapespace                  & all the observed morphological combination of the 8748 \textbf{species} of birds & a matrix where each columns are traits (or a transformation thereof, here they are principal components) and each rows are observations (here \textbf{species}). \\
-species                     & the lowest evolutionary units in our analysis & rows in the \textbf{shapespace} matrix \\
-sub-orders                  & a specific \textbf{clade} level (nested within \textbf{orders}) & a distance matrix associated with a subset of the \textbf{shapespace} \\
-super-order                 & a specific \textbf{clade} level (the first nested level within the whole \textbf{phylogeny}) & a distance matrix associated with a subset of the \textbf{shapespace} \\
-variance-covariance         & the traits co variation in the \textbf{shapespace} & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) \\
+major axis of variation    & the major evolutionary ``direction'' of traits co-evolution & first eigenvector of the variance-covariance matrix  & allometry & line of genetic least resistance \\
+clade                      & a monophyletic group of \textbf{species} & a subset of \textbf{shapespace} & Birds & a group of species or a population\\
+species                    & the lowest evolutionary units in our analysis & a row in the \textbf{shapespace} & \textit{} & an individual\\
+shapespace                 & all the possible morphological combination (observed or not) & an ordinate and orthonormal matrix & the beak shapespace & a gene space \\
+novelty                    & morphological variation (either \textbf{innovation} or \textbf{elaboration}) & position of a \textbf{species} or a \textbf{clade} relative to the \textbf{major axis of variation} & & \\
+elaboration                & morphological variation along the \textbf{major axis of variation} & the algebraic projection on the eigenvector & & \\
+innovation                 & morphological variation away from the \textbf{major axis of variation} & the algebraic rejection from the eigenvector & & \\
+variance-covariance matrix & the multidimensional relation between traits & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) & & \\
+nested phylogenetic level  & the different \textbf{clades} used in this study (the whole phylogeny > super-orders > orders) & different nested \textbf{variance-covariance matrices} & & \\
 
 \end{tabular}
 \caption{Glossary of some specific terms in this manuscript}
 \label{tab_glossary}
 \end{table}
-
-
+\end{landscape}
 
 
 \section{Supplementary material 2: additional results}
@@ -296,6 +285,12 @@ We can then calculate $\vec{a_{1}}$, the orthogonal projection of $\vec{a}$ onto
 \begin{equation}
     \vec{a_{1}} = \frac{\vec{a} \cdot \vec{b}}{\|\vec{b}\|}
 \end{equation}
+
+
+\begin{equation}
+    \vec{a_{1}} = \frac{\vec{a} \cdot \vec{b}}{\|\sqrt{\vec{b} \cdot \vec{b}}\|}
+\end{equation}
+
 
 With $\|\vec{b}\| = \sqrt{\vec{b} \cdot \vec{b}}$ being the norm of $\vec{b}$.
 And $\vec{a_{2}}$, the rejection of $\vec{a}$ onto $\vec{b}$:
