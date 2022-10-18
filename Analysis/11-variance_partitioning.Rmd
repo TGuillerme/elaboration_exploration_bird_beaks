@@ -253,7 +253,7 @@ covar.plot(second_model_results, col = clade_cols, ellipses = mean, legend = TRU
 
 We can then extract the variance of the model:
 
-```{r, echo = FALSE, fig.height = 16, fig.width = 4}
+```{r, echo = FALSE}
 ## Plotting all the variance elements
 par(mar = c(5, 6, 4, 2) + 0.1)
 plot.decompose.var(second_model_results, second_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE, plot = "var boxplot")
@@ -262,7 +262,7 @@ plot.decompose.var(second_model_results, second_model_run, group.cols = c(clade_
 We can see now that the data consistently spreads over the total amount of variance (although the median values remain lower).
 To avoid this spread we can log the variance to see what it does:
 
-```{r, echo = FALSE, fig.height = 16, fig.width = 4}
+```{r, echo = FALSE}
 ## Plotting all the variance elements
 par(mar = c(5, 6, 4, 2) + 0.1)
 plot.decompose.var(second_model_results, second_model_run, group.cols = c(clade_cols, "residuals" = "darkgrey"), relative = FALSE, plot = "log var boxplot")
@@ -379,7 +379,7 @@ Here there seems to be a clear relation between sample size and variance: big cl
 
 We can thus try to "correct" for these sample size issues by using the standard error (or log standard error):
 
-```{r, echo = FALSE, fig.height = 4, fig.width = 8}
+```{r, echo = FALSE, fig.height = 6, fig.width = 12}
 ## Plotting the variance with different data
 par(mar = c(5, 6, 4, 2) + 0.1)
 plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("standard error", "log standard error"))
@@ -389,10 +389,12 @@ This shows maybe easier to interpret variations.
 
 Or, maybe more interpretable, we can just "correct" variance by dividing it by the log sample size (instead of the square root of the sample size in the standard error) assuming a log normal relation between variance and sample size (kind of clearer in the big model at the end).
 
-```{r, echo = FALSE, fig.height = 4, fig.width = 8}
+```{r, echo = FALSE, fig.height = 6, fig.width = 12}
 ## Plotting the variance with different data
 par(mar = c(5, 6, 4, 2) + 0.1)
 plot.decompose.var(birds_data, model, group.cols = c(clade_cols, "residuals" = "darkgrey"), plot = c("corrected var boxplot", "corrected var by n"))
+rm(birds_data)
+rm(model)
 ```
 
 # Variance on BIG models
