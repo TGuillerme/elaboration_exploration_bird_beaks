@@ -377,7 +377,7 @@ boxplot(cbind("Whole tree level"  = c(elaborations_tree, innovations_tree),
 boxplot(cbind("Elaboration" = c(elaborations_tree, elaborations_super, elaborations_order),
               "Innovation"  = c(innovations_tree, innovations_super, innovations_order)),
         xlab = "Novelty per type", ylab = "Novelty", col = colour.palette(5)[4:5])
-dev.off() 
+dev.off()
 ```
 
 
