@@ -182,6 +182,11 @@ colnames(var_table) <- c("phylogeny", "residuals")
 boxplot(var_table, horizontal = TRUE, las = 1, xlab = "Variance")
 abline(v = var(data$variable), col = "red", lwd = 2)
 legend("topright", col = "red", lwd = 2, lty = 1, legend = "Observed variance")
+
+## Adding the cophenetic variance line?
+coph <- cophenetic(tree)
+coph_var <- sd(coph)^2
+scaled_var <- sd(coph * data$variable)^2
 ```
 
 One first striking thing (to me) is that the residuals are below the observed variance, which is expected: the residuals cannot explain more than the variance in the datasets but this is not the case for the random terms (phylogeny)!
