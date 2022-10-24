@@ -58,6 +58,7 @@ Maybe change "line of least resistance" to something else.
  - [x] Write a detailed explanation for that figure (cheat sheet)
  - [x] Figure 4: change "group" to "clade"
  - [x] Figure 4: remove the bottom row (and just write down the test results in the figure)
+ - [ ] Update figure orthogonality (missing a couple of orders)
 
 ## Supplementaries
 
