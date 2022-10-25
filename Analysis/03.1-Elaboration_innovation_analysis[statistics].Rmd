@@ -201,6 +201,19 @@ sub_orders <- orthogonality[c(61:66), ]
 families <- orthogonality[c(90:110), ]
 families_n2 <- orthogonality[c(67:89), ]
 
+## Adding orders and families that don't have a higher level covered
+if(any(no_match <- is.na(match(orders_n2$Group, orders$Group)))) {
+    fill_in <- orders_n2[which(no_match), ]
+    fill_in[,c(3:8)] <- NA
+    orders <- rbind(orders, fill_in)
+}
+## Adding orders and families that don't have a higher level covered
+if(any(no_match <- is.na(match(families_n2$Group, families$Group)))) {
+    fill_in <- families_n2[which(no_match), ]
+    fill_in[,c(3:8)] <- NA
+    families <- rbind(families, fill_in)
+}
+
 ## Sort each level by orthogonality score
 ortho.sort <- function(data) {
     return(data[order(data$orthogonality, decreasing = TRUE), , drop = FALSE])
@@ -215,7 +228,7 @@ colours <- c(rep(gg.color.hue(4)[1], nrow(super_orders)),
              # rep(gg.color.hue(4)[3], nrow(sub_orders)),
              # rep(gg.color.hue(4)[4], nrow(families)))
 
-## Adding starts here and there
+## Adding stars and thingies here and there
 get.signif <- function(prob) {
     if(prob >= 0.99) {
         return("***")
@@ -236,16 +249,16 @@ get.signif <- function(prob) {
     }
 }
 add.stars <- function(data, counter, shift = 0, total, ...) {
+
     text(data[3] + 0.03, (total+1)-counter + shift + 0.2, labels = get.signif(data[6]), cex = 1, ...)   
 }
 add.line <- function(data, counter, shift = 0, total, pch = 19, lty = 1, ...) {
+
     lines(matrix(c(data[4:5], rep((total+1)-counter + shift, 2)), 2, 2), lty = lty, ...)
     points(data[3], (total+1)-counter + shift, pch = pch,  ...)
 }
-
-
-## Add the number of species and sd to the group names
 convert.spaces <- function(x, max) {
+
     # shifts <- max-nchar(as.character(x))
     # if(shifts > 0) {
     #     return(paste(c(x, rep(" ", shifts)), collapse = ""))
@@ -254,6 +267,8 @@ convert.spaces <- function(x, max) {
     # }
     return(x)
 }
+
+## Set up the group names
 group_names <- paste0(plot_table$Group, " (n = ", sapply(plot_table$n, convert.spaces, max = 4), " ; sd = ", sapply(round(plot_table$`ellipse sd`, 2), convert.spaces, max = 5), ")")
 
 plot_order <- 1:length(group_names)
@@ -267,8 +282,10 @@ axis(2, at = nrow(plot_table):1, labels = group_names[plot_order], las = 2)
 axis(1, at = c(0, 0.5, 1), labels = c(0, 0.5, 1))
 ## Adding the results
 for(i in 1:nrow(plot_table)) {
-    add.line (plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
-    add.stars(plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+    if(!all(is.na(plot_table[plot_order[i], c(3:8)]))) {
+        add.line (plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+        add.stars(plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+    }
 }
 
 ## Adding the n2 results
@@ -323,8 +340,10 @@ for(i in 1:nrow(plot_table)) {
 ## Adding the n2 results
 families_n2_plot <- families_n2[match(families[order(families$orthogonality, decreasing = TRUE), ]$Group, families_n2$Group), ]
 for(i in 1:nrow(families_n2_plot)) {
-    add.line(families_n2_plot[i, ], shift = -1/3, counter = i+nrow(sub_orders), col = adjustcolor(colours[i+nrow(sub_orders)], alpha.f = 2/3), total = nrow(plot_table), lty = 2, pch = 21)
-    add.stars(families_n2_plot[i, ], shift = -1/3, counter = i+nrow(sub_orders), col = adjustcolor(colours[i+nrow(sub_orders)], alpha.f = 2/3), total = nrow(plot_table))
+    if(!all(is.na(plot_table[plot_order[i], c(3:8)]))) {
+        add.line(families_n2_plot[i, ], shift = -1/3, counter = i+nrow(sub_orders), col = adjustcolor(colours[i+nrow(sub_orders)], alpha.f = 2/3), total = nrow(plot_table), lty = 2, pch = 21)
+        add.stars(families_n2_plot[i, ], shift = -1/3, counter = i+nrow(sub_orders), col = adjustcolor(colours[i+nrow(sub_orders)], alpha.f = 2/3), total = nrow(plot_table))
+    }
 }
 
 
