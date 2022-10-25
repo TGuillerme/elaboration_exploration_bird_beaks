@@ -240,6 +240,8 @@ dev.off()
 
 ```{r, echo = FALSE, eval = TRUE}
 ## Quick load
+source("../Functions/stats.utilities.R")
+library(dispRity)
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
@@ -248,16 +250,19 @@ rm(shapespace_allbirds_lvl_superorder_order_results_list)
 elaboration_species      <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]]
 innovation_species       <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]]
 
-## Distribution of elaboration and innovation at the group level
+## Distribution of elaboration and innovation at the clade level
 scale.group <- function(X) return(X/max(X))
 elaboration_super_orders <- lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), scale.group)
 innovation_super_orders  <- lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), scale.group)
 elaboration_orders       <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
-innovation_orders        <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
+innovation_orders        <- lapply(get.disparity(results$order_results_between$distance, concatenate = FALSE), scale.group)
+## The objects above are the ones that contain all the elaboration and innovation values by clade level
+
+## These bits are for the Bhatt coeff
 elaboration_group <- rbind(do.call(rbind, elaboration_super_orders), do.call(rbind, elaboration_orders))
 innovation_group <- rbind(do.call(rbind, innovation_super_orders), do.call(rbind, innovation_orders))
 
-## Measuring the area under the curves
+## Measuring the area under the curves (for the Bhatt coeff)
 elaboration_species_auc <- apply(elaboration_species, 2, area.density)
 innovation_species_auc <- apply(innovation_species, 2, area.density)
 elaboration_group_auc <- apply(elaboration_group, 2, area.density)
@@ -280,6 +285,10 @@ plot.density(species = c(innovation_species),
 text(x = 0.7, y = 0.5, paste0("Posterior area under the curve overlap\n(Bhattacharyya coefficient): ", round(bhatt.coeff(innovation_species_auc, innovation_group_auc), 3)))
 dev.off()
 ```
+
+
+
+
 
 ## Testing whether the passeriformes ellipses are similar
 
