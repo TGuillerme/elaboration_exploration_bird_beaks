@@ -536,3 +536,92 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
 
     return(invisible())
 }
+
+
+
+
+
+
+
+
+## Sort each level by orthogonality score
+ortho.sort <- function(data) {
+
+    return(data[order(data$orthogonality, decreasing = TRUE), , drop = FALSE])
+}
+## Adding stars and thingies here and there
+get.signif <- function(prob) {
+    if(prob >= 0.99) {
+        return("***")
+    } else {
+        if(prob >= 0.95) {
+            return("**")
+        } else {
+            if(prob >= 0.90) {
+                return("*")
+            } else {
+                if(prob >= 0.80) {
+                    return(".")
+                } else {
+                    return("")
+                }
+            }
+        }
+    }
+}
+add.stars <- function(data, counter, shift = 0, total, ...) {
+
+    text(data[3] + 0.03, (total+1)-counter + shift + 0.2, labels = get.signif(data[6]), cex = 1, ...)   
+}
+add.line <- function(data, counter, shift = 0, total, pch = 19, lty = 1, ...) {
+
+    lines(matrix(c(data[4:5], rep((total+1)-counter + shift, 2)), 2, 2), lty = lty, ...)
+    points(data[3], (total+1)-counter + shift, pch = pch,  ...)
+}
+convert.spaces <- function(x, max) {
+
+    # shifts <- max-nchar(as.character(x))
+    # if(shifts > 0) {
+    #     return(paste(c(x, rep(" ", shifts)), collapse = ""))
+    # } else {
+    #     return(x)
+    # }
+    return(x)
+}
+## Plotting orthogonality
+plot.orthogonality <- function(level1, level2.1, level2.2, col) {
+    ## Plotting table (with the sorted orthogonality)
+    plot_table <- rbind(ortho.sort(level1),
+                        ortho.sort(level2.1))
+    colours <- c(rep(col[1], nrow(level1)),
+                 rep(col[2], nrow(level2.1)))
+
+    ## Set up the group names
+    group_names <- paste0(plot_table$Group, " (n = ", sapply(plot_table$n, convert.spaces, max = 4), " ; sd = ", sapply(round(plot_table$`ellipse sd`, 2), convert.spaces, max = 5), ")")
+    plot_order <- 1:length(group_names)
+
+    ## Plot frame
+    par(mar = c(5, 17, 4, 2))
+    plot(NULL, yaxt = "n", xaxt = "n", ylab = "", xlab = "orthogonality", ylim = c(1,nrow(plot_table)), xlim = c(0,1))
+    abline(v = 0.5, lwd = 0.5, col = "grey")
+    abline(v = 0.75, lty = 2, col = "grey", lwd = 0.5)
+    axis(2, at = nrow(plot_table):1, labels = group_names[plot_order], las = 2)
+    axis(1, at = c(0, 0.5, 1), labels = c(0, 0.5, 1))
+    ## Adding the results
+    for(i in 1:nrow(plot_table)) {
+        if(!all(is.na(plot_table[plot_order[i], c(3:8)]))) {
+            add.line (plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+            add.stars(plot_table[plot_order[i], ], counter = i, col = colours[plot_order[i]], total = nrow(plot_table))
+        }
+    }
+
+    ## Adding the n2 results
+    level2_plot <- level2.2[match(plot_table$Group[-c(1:nrow(level1))], level2.2$Group), ]
+    # families_n2_plot <- families_n2[match(families[order(families$orthogonality, decreasing = TRUE), ]$Group, families_n2$Group), ]
+    for(i in 1:nrow(level2_plot)) {
+        if(!all(is.na(level2_plot[plot_order[i], c(3:8)]))) {
+            add.line(level2_plot[i, ], shift = -1/3, counter = i+nrow(level1), col = adjustcolor(colours[i+nrow(level1)], alpha.f = 2/3), total = nrow(plot_table), lty = 2, pch = 21)
+            add.stars(level2_plot[i, ], shift = -1/3, counter = i+nrow(level1), col = adjustcolor(colours[i+nrow(level1)], alpha.f = 2/3), total = nrow(plot_table))
+        }
+    }
+}
