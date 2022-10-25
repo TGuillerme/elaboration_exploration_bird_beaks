@@ -138,8 +138,8 @@ innovelab_plot <- innovelab_plot +
     )
 
 ## Save as png and pdf
-ggsave("../Manuscript/Figures/InnovElabTree_main_text.png", innovelab_plot_final, width=12, height=12)
-ggsave("../Manuscript/Figures/InnovElabTree_main_text.pdf", innovelab_plot_final, width=12, height=12)
+ggsave("../Manuscript/Figures/InnovElabTree_main_text.png", innovelab_plot, width=12, height=12)
+ggsave("../Manuscript/Figures/InnovElabTree_main_text.pdf", innovelab_plot, width=12, height=12)
 
 #####################################################################
 #####################################################################
