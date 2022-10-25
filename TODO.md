@@ -58,7 +58,7 @@ Maybe change "line of least resistance" to something else.
  - [x] Write a detailed explanation for that figure (cheat sheet)
  - [x] Figure 4: change "group" to "clade"
  - [x] Figure 4: remove the bottom row (and just write down the test results in the figure)
- - [ ] Update figure orthogonality (missing a couple of orders)
+ - [x] Update figure orthogonality (missing a couple of orders)
  - [ ] ggplotise figure 4 (plus integrate comments from overleaf):
           natalie.cooper: this figure needs the headers removing and slightly large axes labels. Looks a bit scrappy compared to the rest of the figures at the moment
           natalie.cooper: Also get rid of the bhattacharya bit on the plots, just put into the legend
