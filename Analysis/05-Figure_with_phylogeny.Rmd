@@ -155,7 +155,7 @@ load("../Data/Processed/ploting_data_passeriformes_family.rda")
 load("../Data/Processed/clade_info_passeriformes.rda")
 load("../Data/Processed/tip_colours_passeriformes_family.rda")
 
-clades <- read.csv("../Data/Processed/BirdClades.csv")
+clades <- read.csv("../Data/Raw/BirdClades.csv")
 passerines <- clades$TipLabel[which(clades$level2_order=="Passeriformes")]
 
 tree_pass <- ploting_data_passeriformes$consensus_tree
