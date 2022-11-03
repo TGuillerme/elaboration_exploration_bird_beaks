@@ -49,7 +49,7 @@
  - [x] Figure 4: change "group" to "clade"
  - [x] Figure 4: remove the bottom row (and just write down the test results in the figure)
  - [x] Update figure orthogonality (missing a couple of orders)
- - [ ] ggplotise figure 4 (plus integrate comments from overleaf):
+ - [x] ggplotise figure 4 (plus integrate comments from overleaf):
           natalie.cooper: this figure needs the headers removing and slightly large axes labels. Looks a bit scrappy compared to the rest of the figures at the moment
           natalie.cooper: Also get rid of the bhattacharya bit on the plots, just put into the legend
           gavin.thomas: Yeah, I agree. I hate to say it but it looks like it needs a ggplot overhaul, or at least filling the areas under the curves along with the smartening up that Natalie suggests.
