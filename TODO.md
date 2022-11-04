@@ -77,6 +77,8 @@
  - [x] make sure the data is there and available (tidied and packaged!)
  - [x] Natalie to check the vignettes
  - [ ] check the vignettes and re-upload the data
+ - [x] do the data
+ - [ ] rewrite the `0-overview` script
 
 ## Poster
 
