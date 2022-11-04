@@ -52,6 +52,9 @@ params_shapespace_8D_32levels_20k <- run.mini.chains(param_MCMCglmm, replicates 
 save(param_chains, file = "../Data/Processed/MCMCglmm/params_shapespace_8D_32levels_20k_chain1.rda")
 ```
 
+Repeat this snippet three times (by changing the name of the file in the last line to `chain2` and `chain3`) to get the three parametrisation chains
+
+
 From these three chains, we first extracted the three burnin periods (defined as the generation when the chain reaches the median likelihood value times 1.25).
 We then extracted the posterior estimates of the R-Structure, G-Structure and fixed effects (mean and covariance) (ignoring the runs from the previously estimated burnin periods) to serve as our priors for our mini-chains. 
 For those values, we took the highest burnin as the overall burnin and the median of the three posteriors as the overall priors.
@@ -102,7 +105,7 @@ run.mini.chains(shapespace_allbirds_lvl_superorder_order, replicates = 400)
 
 Note that the previous line is running the 400 replicates in a serial way, it is much more efficient to run each one separately in parallel across 400 CPUs.
 Each individual replicate runs for around 50 hours on a 2.4Ghz CPU and requires around 9GB of RAM.
-The whole process was completed in around 2 CPU years.
+The whole process was completed in around 2-3 CPU years.
 
 ### Combining the model data
 
@@ -161,9 +164,6 @@ shapespace_allbirds_lvl_superorder_order <- model_list
 
 ## Saving the results
 save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
-
-
-
 ```
 
 ## Checking the mini chains' ESSs
@@ -216,6 +216,7 @@ param_chains <- make.mini.chains(data         = shapespace,
 # Running the three MCMCglmm models
 save(param_chains, file = "../Data/Processed/params_passerines_shapespace_8D_28levels_50k.rda")
 ```
+
 
 ```{r, get_model_parameters, eval = FALSE}
 ## Load the computed models

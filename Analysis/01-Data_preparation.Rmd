@@ -13,6 +13,16 @@ output:
 
 All the custom code and custom functions called in this document can be downloaded and installed in `R`.
 
+```{r packages_install, eval = FALSE}
+## Optional - this snippet installs all the packages required to run the analyses
+install.packages(c("devtools", "dispRity", "MCMCglmm", "xtable", "knitr", "ggplot2"))
+devtools::install_github("TGuillerme/mcmcmcglmmm")
+
+## The following packages are for ploting the phylogeny figure
+install.packages(c("phytools", "motmot", "viridis", "RColorBrewer", "colorspace", "ggnewscale", "treeplyr", "BiocManager"))
+BiocManager::install(c("ggtree", "ggtreeExtra", "treeio"))
+```
+
 ```{r packages, eval = TRUE}
 ## Loading packages
 library(dispRity) #v>=1.7
@@ -84,7 +94,7 @@ kable(removed_table, caption = "List of removed clades by level and number of sp
 
 ### Selecting the number of axes
 
-How many dimensions do we need to represent at least 95% of the variance in each group
+How many dimensions do we need to represent at least 95% of the variance in each group:
 
 ```{r}
 ## Temporary change the empty levels to noclade
@@ -93,7 +103,6 @@ levels(clades)[1] <- "no clade"
 
 ## Make a dispRity object and get axes data
 shape_axes <- select.axes(custom.subsets(shapespace, group = clades))
-form_axes  <- select.axes(custom.subsets(formspace, group = clades))
 
 pdf(file = "../Manuscript/Figures/axis_selection.pdf", height = 8, width = 12)
 plot(shape_axes)
@@ -108,29 +117,19 @@ silent <- make.xtable(to_export, caption = "Variance per axis and per group in t
 ```
 
 
-```{r, echo = FALSE}
-kable(summary(form_axes)[, c(1:((length(form_axes$dimensions)+1)*2))], caption = "variance per axes for the Form space", label = "Table X3")
-```
-
 ```{r, echo = FALSE, fig.height = 18, fig.width = 18}
 plot(shape_axes)
 ```
 Fig X1: variance per axes per superorder and order in the shapespace
 
-```{r, echo = FALSE, fig.height = 18, fig.width = 18}
-plot(form_axes)
-```
-Fig X1: variance per axes per superorder and order in the formspace
-
-
-By analysing the distribution of the variance within each group, we will need `r length(shape_axes$dimensions)` dimensions for the shape space and `r length(form_axes$dimensions)` for the form space.
+By analysing the distribution of the variance within each group, we will need `r length(shape_axes$dimensions)` dimensions for the shape space.
 
 
 ### Saving the data
 
 Here we are going to group the spaces, trees and levels for subsequent levels (nested).
-There are 5 levels: Super order (1), Order (2), Sub-order (3), Super families (4) and families (5).
-The script above creates the model for the two first levels, the subsequent models create the mini-chains for the following overlapping pairs of models (order + sub-order; sub-order + super families; super families + families).
+There are 2 levels: Super-order (1) and order (2).
+The script above creates the model for the two first levels.
 
 ```{r}
 source("../Functions/prep.data.R")
@@ -145,74 +144,22 @@ shapespace_allbirds_lvl_superorder_order <- prep.data(
                                           verbose   = TRUE)
 save(shapespace_allbirds_lvl_superorder_order, file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 
-## Getting the data ready for each bird super order
-shapespace_superorder_lvl_order_suborder <- prep.data(
-                                          level = 1, lvl.inc = c(2,3),
-                                          clades    = clades_list,
-                                          space     = shapespace,
-                                          dim       = shape_axes$dimensions,
-                                          consensus = consensus_tree,
-                                          trees     = trees_list,
-                                          verbose   = TRUE)
-save(shapespace_superorder_lvl_order_suborder, file = "../Data/Processed/shapespace_superorder_lvl_order_suborder.rda")
-
-## Getting the data ready for each bird order
-shapespace_order_lvl_suborder_superfam <- prep.data(
-                                          level = 2, lvl.inc = c(3,4),
-                                          clades    = clades_list,
-                                          space     = shapespace,
-                                          dim       = shape_axes$dimensions,
-                                          consensus = consensus_tree,
-                                          trees     = trees_list,
-                                          verbose   = TRUE)
-save(shapespace_order_lvl_suborder_superfam, file = "../Data/Processed/shapespace_order_lvl_suborder_superfam.rda")
-
-## Getting the data ready for each bird sub order
-shapespace_suborder_lvl_superfam_fam <- prep.data(
-                                          level = 3, lvl.inc = c(4,5),
-                                          clades    = clades_list,
-                                          space     = shapespace,
-                                          dim       = shape_axes$dimensions,
-                                          consensus = consensus_tree,
-                                          trees     = trees_list,
-                                          verbose   = TRUE)
-save(shapespace_suborder_lvl_superfam_fam, file = "../Data/Processed/shapespace_suborder_lvl_superfam_fam.rda")
-
-## Getting the data ready for each bird super family
-shapespace_superfam_lvl_fam <- prep.data(
-                                          level = 4, lvl.inc = 5,
-                                          clades    = clades_list,
-                                          space     = shapespace,
-                                          dim       = shape_axes$dimensions,
-                                          consensus = consensus_tree,
-                                          trees     = trees_list,
-                                          verbose   = TRUE)
-save(shapespace_superfam_lvl_fam, file = "../Data/Processed/shapespace_superfam_lvl_fam.rda")
 
 ## Get a list of all selected levels for the record (and number of elements per levels)
 super_orders     <- shapespace_allbirds_lvl_superorder_order[[1]]$levels[[1]]
 orders           <- shapespace_allbirds_lvl_superorder_order[[1]]$levels[[2]]
-sub_orders       <- lapply(shapespace_order_lvl_suborder_superfam, function(x) x$levels[[1]])
-names(sub_orders) <- NULL
-sub_orders       <- unlist(sub_orders, recursive = FALSE)
-super_families   <- lapply(shapespace_order_lvl_suborder_superfam, function(x) x$levels[[2]])
-names(super_families) <- NULL
-super_families   <- unlist(super_families, recursive = FALSE)
-families         <- lapply(shapespace_superfam_lvl_fam, function(x) x$levels[[1]])
-names(families) <- NULL
-families         <- unlist(families, recursive = FALSE)
 
 ## Get the list of levels
 levels_list <- list("super_orders"   = unlist(lapply(super_orders, length)),
-                    "orders"         = unlist(lapply(orders, length)),
-                    "sub_orders"     = unlist(lapply(sub_orders, length)),
-                    "super_families" = unlist(lapply(super_families, length)),
-                    "families"       = unlist(lapply(families, length)))
+                    "orders"         = unlist(lapply(orders, length)))
+
 save(levels_list, file = "../Data/Processed/levels_list.rda")
 ```
 
 
 ## Passeriformes focus
+
+The following section repeats the procedure but focusing on Passeriformes only with two levels: the sub-orders and the families within Passeriformes.
 
 ```{r}
 source("../Functions/prep.data.R")
@@ -222,7 +169,7 @@ clades_list <- as.data.frame(read.csv("../Data/Raw/BirdClades.csv", row.names = 
 shapespace_passeriformes <- shapespace_allbirds_lvl_superorder_order[[1]]$space[shapespace_allbirds_lvl_superorder_order[[1]]$space$level2 == "Passeriformes", ]
 
 ## Loading the Passeriformes clades
-load("../Data/Processed/clade.info_passerines.rda")
+load("../Data/Raw/clade_info_passerines.rda")
 ## Clean the levels
 shapespace_passeriformes$level1 <- rep("", nrow(shapespace_passeriformes))
 shapespace_passeriformes$level2 <- rep("", nrow(shapespace_passeriformes))
