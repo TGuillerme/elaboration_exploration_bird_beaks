@@ -215,7 +215,7 @@ if(any(no_match <- is.na(match(families_n2$Group, families$Group)))) {
 
 pdf("../Manuscript/Figures/orthogonality_results.pdf", width = 9, height = 9)
 plot.orthogonality(super_orders, orders_n2, orders, col = gg.color.hue(4)[1:2])
-legend("topleft", legend = c("Super orders (vs. phylogeny)", "Orders (vs. phylogeny)", "Orders (vs. super orders)"), col = c(gg.color.hue(4)[1], gg.color.hue(4)[2], adjustcolor(gg.color.hue(4)[2], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8)
+legend("topleft", legend = c("Super-orders (vs. phylogeny)", "Orders (vs. phylogeny)", "Orders (vs. super-orders)"), col = c(gg.color.hue(4)[1], gg.color.hue(4)[2], adjustcolor(gg.color.hue(4)[2], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
 dev.off()
 ```
 
@@ -228,7 +228,7 @@ For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
 ## Same but for the passeriformes
 pdf("../Manuscript/Figures/orthogonality_results_passeriformes.pdf", width = 9, height = 9)
 plot.orthogonality(sub_orders, families_n2, families, col = gg.color.hue(4)[3:4])
-legend("topleft", legend = c("Sub-orders (vs. passeriformes)", "Families (vs. sub-orders)", "Families (vs. passeriformes)"), col = c(gg.color.hue(4)[3], gg.color.hue(4)[4], adjustcolor(gg.color.hue(4)[4], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8)
+legend("topleft", legend = c("Sub-orders (vs. passeriformes)", "Families (vs. sub-orders)", "Families (vs. passeriformes)"), col = c(gg.color.hue(4)[3], gg.color.hue(4)[4], adjustcolor(gg.color.hue(4)[4], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
 dev.off()
 ```
 
