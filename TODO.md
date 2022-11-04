@@ -53,8 +53,8 @@
           natalie.cooper: this figure needs the headers removing and slightly large axes labels. Looks a bit scrappy compared to the rest of the figures at the moment
           natalie.cooper: Also get rid of the bhattacharya bit on the plots, just put into the legend
           gavin.thomas: Yeah, I agree. I hate to say it but it looks like it needs a ggplot overhaul, or at least filling the areas under the curves along with the smartening up that Natalie suggests.
- - [ ] Figure anus: change "novelty" to elaboration/innovation in the right boxplot and remove it from the left one.
- - [ ] fig 3, remove box + add hyphen to superorder
+ - [x] Figure anus: change "novelty" to elaboration/innovation in the right boxplot and remove it from the left one.
+ - [x] fig orthogonality, remove box + add hyphen to superorder
 
 ## Supplementaries
 
