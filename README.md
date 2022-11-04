@@ -29,15 +29,27 @@ However, note that due to the large amount of data and computational time and re
  <!-- * **06-Figure_with_correlations**  contains the script to reproduce the elements in figure 2 in the main text. -->
  * **07-Supplementary_figures_tables** contains the script to reproduce the supplementary tables and figures].
 
-## Reproducible examples
+## Short reproducible examples
+
  * To reproduce the mcmcmcglmmm method, please refer to the [detailed vignette in the `mcmcmcglmmm` package](https://github.com/TGuillerme/mcmcmcglmmm/blob/main/inst/MCMCglmm_mini_chains.Rmd).
  * To reproduce the elaboration and innovation analysis, please refer to the [detailed vignette in the `dispRity` package](https://github.com/TGuillerme/dispRity/blob/MCMCglmm/inst/vignettes/Projection_analysis.Rmd).
+
+## Reproducing the data and figures from the paper
+
+To reproduce the entire paper, you can follow these steps:
+
+ 1. **Data download**: you can get the raw (and processed `mcmcmcglmmm` data) from [here](). <!-- TODO: set the repo for data -->
+ 2. **Data preparation**: run the following scripts <!-- TODO: script name --> to generate the base data for the anlysis (the shapespace and the cleaned tree distribution). This script takes approximatively 5 minutes to run.
+ 3. **mcmcmcglmmm analysis** OPTIONAL: this script calculates the pGLMM model. It takes 3 CPU years to run and requires some manipulations on a cluster so can be skipped by directly using the data provided in `Data/Processed`. If you have difficulties reruning this analyses or a modification thereof please contact [Thomas](mailto:guillert@tcd.ie). 
+ 4. **Measuring elaboration and innovation**: run the following scripts <!-- TODO: script name --> to calculate all the elaboration and innovation data and data subsections for plotting.
+ 5. 
+
 
 
 ## Citing this work
 
 To cite the paper, please use:
- * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin Huw Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188)
+ * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin H Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188)
 
 To cite this repository, please use:
  * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/elaboration_exploration_bird_beaks: v0.1-preprint (v0.1). Zenodo. [https://doi.org/10.5281/zenodo.6984934](https://doi.org/10.5281/zenodo.6984934)
