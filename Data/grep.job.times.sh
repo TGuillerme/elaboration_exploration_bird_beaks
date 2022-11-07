@@ -6,7 +6,7 @@ echo "" > report.txt
 for f in *.eml
 do
 	## Job number
-	JOB_ID=$(grep 'Subject: Job' $f | sed 's/.job) Complete//g' | sed 's/Subject: Job [0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789] (shapespace_passeriformes_//g')
+	JOB_ID=$(grep 'Subject: Job' $f | sed 's/.job) Complete//g' | sed 's/Subject: Job [0123456789][0123456789][0123456789][0123456789][0123456789][0123456789] (shapespace_allbirds_lvl_superorder_order_//g')
 	## Job time
 	WALL_TIME=$(grep 'Wallclock Time   =' $f | sed 's/ Wallclock Time   = //g')
 	## Convert the job time in CPU.hours
