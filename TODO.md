@@ -70,8 +70,8 @@
  - [x] start adding them at the bottom of the google doc [TG]
       - [x] missing the math thingy
       - [x] missing the projection/rejection illustration
- - [ ] check through all the supplementaries
- - [ ] update cheat sheet figure
+ - [x] check through all the supplementaries
+ - [x] update cheat sheet figure
 
 ## README and reproducibility
 
