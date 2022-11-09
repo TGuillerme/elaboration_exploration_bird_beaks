@@ -10,7 +10,11 @@ output:
 ---
 
 This section contains the code for reproducing the analyses. To get the details, refer to [`dispRity` vignette](link_to_projection_vignette).
-This script take around 6 minutes to compile.
+This script take around 4-5 hours to compile.
+Note that the bulk of the calculation time is spent on the snippets `projections_whole_tree` (lines 212-256) and `projections_passeriformes` (lines 444-489).
+This can be reduced by reducing the number of samples `n`.
+For the publication we used the full sample size (`n = 4000`) but lower numbers such as `n = 100` give correct estimates as well and reduce the calculation time to around 6 minutes! 
+For the detailed procedure on how the projection/rejection analysis works, see [this `dispRity` vignette](https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html).
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
@@ -38,13 +42,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(n = 4000,
+superorder_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(n = 4000,
+order_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
@@ -169,7 +173,7 @@ A couple of things have to be taken into account:
 
 Note that both problems are only visual though since: 1) we don't use averages anywhere (but the full distributions all the time) and 2) the linear algebra bit with the projections and stuff works in any number of dimensions and transforms the results into 1D results (i.e. the projection/rejection of groups/species on the major axes in 8D space).
 
-Here's a visualisation of how the variance in VCVs affects the averaging artefact:
+Here's a visualisation of how the variance in VCVs affects the averaging artifact:
 
 ```{r, eval = TRUE, echo = FALSE}
 visualisation.group(superorder_shapespace, "Mirandornithes")
@@ -179,13 +183,13 @@ visualisation.group(superorder_shapespace, "Mirandornithes")
 visualisation.group(superorder_shapespace, "Strisores")
 ```
 
-Or even more obvious (with an direction that does not really exist (due to averaging)):
+Or even more obvious (with an direction that does not really exist - due to averaging):
 
 ```{r, echo = FALSE, eval = TRUE}
 visualisation.group(superorder_shapespace, "Paleognathae")
 ```
 
-For the 2Dness, the effect is a bit less obvious (because the two first dimensions already have so much variance). Here is an example for the Columbimorphae. (to check different groups, you can easily modify the source code of the Rmd. TODO: this would be good in some shiny app innovation thingy).
+For the 2Dness, the effect is a bit less obvious (because the two first dimensions already have so much variance). Here is an example for the Columbimorphae:
 
 
 ```{r, echo = FALSE, eval = TRUE, fig.height = 6, fig.width = 12}
@@ -199,7 +203,7 @@ Back to the main story.
 
 ## Calculate the elaborations/innovations
 
-We then calculate the projections/rejections as explained in more details in the [03-elaboration_exploration_analyses.Rmd]() script.
+We then calculate the projections/rejections as the elaboration/innovation scores/
 Really briefly we calculate three types of projections/rejections abbreviated as follows below:
 
  * `group on phylogeny`: the projection of each group's VCV (major axis) on the phylogenetic's VCV (major axis)
@@ -207,7 +211,7 @@ Really briefly we calculate three types of projections/rejections abbreviated as
  * `species on group`: the projection of each element within a group (species) onto its own VCV (major axis)
 
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+```{r projections_whole_tree, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
 ## Run the analyses between groups
 super_results_between <- dispRity.covar.projections(superorder_shapespace,
                                              type = "groups",
@@ -262,10 +266,67 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
-
 ## Saving plotting data (median values)
 
-These sections are used for generated specific data for subsequent plots.
+These sections are used for generated median data for subsequent plots and figures.
+
+### Tip colours and informations
+
+```{r, echo = FALSE, eval = TRUE}
+## Getting the tip order for the ladderised super order tree
+tip_order <- c(
+    "Paleognathae" = 1,
+    "Galloanserae" = 2,
+    "Otidimorphae" = 5,
+    "Aequornithes" = 6,
+    "Mirandornithes" = 3,
+    "Columbimorphae" = 4,
+    "Telluraves" = 8,
+    "Strisores" = 7)
+
+## Plotting the tree and getting the tip orders
+tip_colours_super_orders <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_super_orders, file = "../Data/Processed/tip_colours_super_orders.rda")
+```
+
+```{r, echo = FALSE, eval = TRUE}
+## Matching the order and the colours to the ladderised tree
+tip_order <- c(
+    "Tinamiformes"= 1,
+    "Galliformes"= 3,
+    "Anseriformes"= 2,
+    "Otidiformes"= 7,
+    "Cuculiformes" = 8,
+    "Gruiformes" = 9, 
+    "Musophagiformes" = 10,
+    "Procellariiformes" = 12,
+    "Sphenisciformes" = 11,
+    "Ciconiiformes" = 13,
+    "Pelecaniformes"= 15,
+    "Suliformes" = 14,
+    "Podicipediformes" = 4,
+    "Columbiformes" = 6,
+    "Pterocliformes" = 5,
+    "Charadriiformes" = 18,
+    "Trogoniformes" = 21,
+    "Bucerotiformes" = 22,
+    "Coraciiformes" = 23,
+    "Piciformes" = 24,
+    "Strigiformes" = 20,
+    "Accipitriformes" = 19, 
+    "Falconiformes" = 25,
+    "Psittaciformes" = 26,
+    "Passeriformes" = 27,
+    "Caprimulgiformes" = 16, 
+    "Apodiformes" = 17)
+
+## Plotting the tree and getting the tip orders
+tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
+```
+### Median values
+
+This section computes the median elaboration and innovation scores and the distances from the centre of the shapespace for each species at the three different levels (whole tree, super orders, orders).
 
 ```{r, echo = FALSE, eval = TRUE}
 ## Getting the plotting data
@@ -315,6 +376,8 @@ save(ploting_data_order, file = "../Data/Processed/ploting_data_order.rda")
 ## Group info
 super_orders <- lapply(results$super_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$super_results_phylo$position$matrix[[1]])
 orders <- lapply(results$order_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$order_results_phylo$position$matrix[[1]])
+
+
 ## Adding the colours
 load("../Data/Processed/tip_colours_super_orders.rda")
 load("../Data/Processed/tip_colours_orders.rda")
@@ -331,16 +394,6 @@ clade_info <- list(super_orders = super_orders,
 ## Save all that data
 save(clade_info, file = "../Data/Processed/clade_info.rda")
 
-## Get the names
-names(clade_info$orders)
-
-## Get the colours
-unlist(lapply(clade_info$orders, `[[`, "col"))
-
-## Get the species in one specific group
-clade_info$orders$Cuculiformes$species
-
-
 ## Get the median elaboration/innovation for the groups
 groups_median_EI <- list(
     "super_orders" = list("elaboration" = unlist(lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), function(X) median(c(X)))),
@@ -349,33 +402,6 @@ groups_median_EI <- list(
                           "innovation"  = unlist(lapply(get.disparity(results$order_results_between$distance, concatenate = FALSE), function(X) median(c(X)))))
 )
 save(groups_median_EI, file = "../Data/Processed/groups_median_EI.rda")
-```
-
-```{r}
-## Plotting the novelty for the phylo picture:
-load("../Data/Processed/ploting_data.rda")
-load("../Data/Processed/ploting_data_superorder.rda")
-load("../Data/Processed/ploting_data_order.rda")
-
-## Get the values
-elaborations_tree  <- ploting_data$median_elaborations
-innovations_tree   <- ploting_data$median_innovations
-elaborations_super <- ploting_data_superorder$median_elaborations
-innovations_super  <- ploting_data_superorder$median_innovations
-elaborations_order <- ploting_data_order$median_elaborations
-innovations_order  <- ploting_data_order$median_innovations
-
-pdf("../Manuscript/Figures/median_novelty_distributions.pdf", height = 4, width = 8)
-par(mfrow = c(1,2), bty = "n")
-## Same but boxplot version
-boxplot(cbind("Whole tree level"  = c(elaborations_tree, innovations_tree),
-              "Super-order level" = c(elaborations_super, innovations_super),
-              "Order level"       = c(elaborations_order, innovations_order)),
-        xlab = "", ylab = "Elaboration/Innovation", col = colour.palette(5)[1:3])
-boxplot(cbind("Elaboration" = c(elaborations_tree, elaborations_super, elaborations_order),
-              "Innovation"  = c(innovations_tree, innovations_super, innovations_order)),
-        xlab = "", ylab = "Elaboration/Innovation", col = colour.palette(5)[4:5])
-dev.off()
 ```
 
 # Passeriformes shapespace analyses
@@ -401,13 +427,13 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
 
 ## Creating the subsets
-suborder_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
+suborder_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-family_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
+family_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
@@ -418,7 +444,7 @@ rm(shapespace_passeriformes)
 
 ## Calculate the elaborations/innovations
 
-```{r, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+```{r projections_passeriformes, fig.height = 20, fig.width = 10, echo = FALSE, eval = TRUE, results = 'hide', message = FALSE, warning = FALSE}
 ## Run the analyses between groups
 suborder_results_between <- dispRity.covar.projections(suborder_shapespace,
                                              type = "groups",
@@ -522,6 +548,50 @@ save(ploting_data_passeriformes_family, file = "../Data/Processed/ploting_data_p
 ## Group info
 suborders <- lapply(results$suborder_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$suborder_results_phylo$position$matrix[[1]])
 families <- lapply(results$family_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$family_results_phylo$position$matrix[[1]])
+
+## Getting the tip order for the ladderised super order tree
+tip_order <- c(
+    "Suboscines" = 1,
+    "Meliphagoidea" = 2,
+    "Corvides" = 3,
+    "Sylviida" = 4,
+    "Muscicapida" = 5,
+    "Passerida" = 6)
+
+## Plotting the tree and getting the tip orders
+tip_colours_passeriformes_suborder <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_passeriformes_suborder, file = "../Data/Processed/tip_colours_passeriformes_suborder.rda")
+
+## Matching the order and the colours to the ladderised tree
+tip_order <- c(
+    "Aegithaloidea"= 12,
+    "Bombycilloidea"= 17,
+    "Cisticolidae"= 14,
+    "Corvoidea"= 7,
+    "Emberizoidea"= 23,
+    "Eurylaimides"= 1,
+    "Fringillidae"= 10,
+    "Furnariida"= 3,
+    "Hirundinidae"= 11,
+    "Locustelloidea"= 15,
+    "Malaconotoidea"= 5,
+    "Meliphagoidea"= 4,
+    "Motacillidae"= 22,
+    "Muscicapoidea"= 18,
+    "Nectariniidae"= 19,
+    "Orioloidea"= 6,
+    "Paridae"= 9,
+    "Passeridae"= 21,
+    "Petroicidae"= 8,
+    "PloceidaeEstrildidae"= 20,
+    "Pycnonotidae"= 13,
+    "Sylvioidea"= 16,
+    "Tyrannida" = 2)
+
+## Plotting the tree and getting the tip orders
+tip_colours_passeriformes_family <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_passeriformes_family, file = "../Data/Processed/tip_colours_passeriformes_family.rda")
+
 ## Adding the colours
 load("../Data/Processed/tip_colours_passeriformes_suborder.rda")
 load("../Data/Processed/tip_colours_passeriformes_family.rda")
