@@ -13,7 +13,7 @@ The following script takes around 5-10 minutes to compile. All the custom code a
 
 ```{r packages_install, eval = FALSE}
 ## Optional - this snippet installs all the packages required to run the analyses
-install.packages(c("devtools", "dispRity", "MCMCglmm", "xtable", "knitr", "ggplot2"))
+install.packages(c("devtools", "dispRity", "MCMCglmm", "xtable", "knitr", "ggplot2", "patchwork", "tidyverse"))
 devtools::install_github("TGuillerme/mcmcmcglmmm")
 
 ## The following packages are for ploting the phylogeny figure
