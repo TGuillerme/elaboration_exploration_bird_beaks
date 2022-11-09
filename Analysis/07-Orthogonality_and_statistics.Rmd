@@ -1,6 +1,6 @@
 ---
 title: "Bird beak's elaboration and innovation"
-author: "Thomas Guillerme"
+author: "Thomas Guillerme and Gavin Thomas"
 date: "`r Sys.Date()`"
 bibliography: references.bib
 output:
@@ -10,7 +10,7 @@ output:
 ---
 
 This section contains the code for reproducing the analyses. To get the details, refer to [`dispRity` vignette](link_to_projection_vignette).
-This script take around 6 minutes to compile.
+This script take around 35 minutes to compile.
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
@@ -26,10 +26,9 @@ For each group, we can calculate:
  * It's orientation (angle) relative to the whole phylogeny
  * Whether that orientation is significant
 
-
 # Loading the data
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = TRUE, echo = FALSE}
 ## Load the data for all birds
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
 ## Select the data
@@ -84,7 +83,7 @@ rm(shapespace_passeriformes_posteriors)
 ```
 
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = TRUE, echo = FALSE}
 ## Creating the nested levels subgroups
 make.nested.subset <- function(group, data, group.data) {
     ## Get the subsets within the group
@@ -109,7 +108,7 @@ names(passeriformes_shapespace_subgroups) <- levels(shapespace_passeriformes$lev
 
 ### Groups compared to the phylogeny
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = TRUE, echo = FALSE}
 source("../Functions/stats.utilities.R")
 
 ## General measurement
@@ -222,8 +221,6 @@ dev.off()
 Distribution of the VCV ellipses' orthogonality for all the groups compared to the ellipse of their parent clade (or n-2). 
 For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
 
-
-
 ```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
 ## Same but for the passeriformes
 pdf("../Manuscript/Figures/orthogonality_results_passeriformes.pdf", width = 9, height = 9)
@@ -232,23 +229,22 @@ legend("topleft", legend = c("Sub-orders (vs. passeriformes)", "Families (vs. su
 dev.off()
 ```
 
-
-
 ## Testing whether clades innovate more than species
 
-
-
 ```{r, echo = FALSE, eval = TRUE}
-## Quick load
 source("../Functions/stats.utilities.R")
 library(dispRity)
+library(ggplot2)
 load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 
 ## Distribution of elaboration and innovation at the species level
-elaboration_species      <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]]
-innovation_species       <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]]
+elaboration_species <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]]
+innovation_species  <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]]
+elaboration_species <- elaboration_species/max(elaboration_species)
+innovation_species  <- innovation_species/max(innovation_species)
+
 
 ## Distribution of elaboration and innovation at the clade level
 scale.group <- function(X) return(X/max(X))
@@ -256,39 +252,53 @@ elaboration_super_orders <- lapply(get.disparity(results$super_results_between$p
 innovation_super_orders  <- lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), scale.group)
 elaboration_orders       <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
 innovation_orders        <- lapply(get.disparity(results$order_results_between$distance, concatenate = FALSE), scale.group)
-## The objects above are the ones that contain all the elaboration and innovation values by clade level
 
+## The objects above are the ones that contain all the elaboration and innovation values by clade level
 ## These bits are for the Bhatt coeff
 elaboration_group <- rbind(do.call(rbind, elaboration_super_orders), do.call(rbind, elaboration_orders))
 innovation_group <- rbind(do.call(rbind, innovation_super_orders), do.call(rbind, innovation_orders))
 
 ## Measuring the area under the curves (for the Bhatt coeff)
 elaboration_species_auc <- apply(elaboration_species, 2, area.density)
-innovation_species_auc <- apply(innovation_species, 2, area.density)
-elaboration_group_auc <- apply(elaboration_group, 2, area.density)
-innovation_group_auc <- apply(innovation_group, 2, area.density)
+innovation_species_auc  <- apply(innovation_species, 2, area.density)
+elaboration_group_auc   <- apply(elaboration_group, 2, area.density)
+innovation_group_auc    <- apply(innovation_group, 2, area.density)
 
-pdf("../Manuscript/Figures/relative_EI.pdf", height = 6, width = 12)
-par(mfrow = c(1,2))
-plot.density(species = c(elaboration_species),
-             group   = c(unlist(elaboration_super_orders), unlist(elaboration_orders)),
-             xlab    = "relative elaboration", scale.x = TRUE,
-             ylab    = "density",
-             main    = "A - Total posterior elaboration per clade\n(scaled) and per species")
-legend("topright", lty = 1, legend = c("species", "clades"), col = c("blue", "orange"))
-text(x = 0.7, y = 0.5, paste0("Posterior area under the curve overlap\n(Bhattacharyya coefficient): ", round(bhatt.coeff(elaboration_species_auc, elaboration_group_auc), 3)))
-plot.density(species = c(innovation_species),
-             group   = c(unlist(innovation_super_orders), unlist(innovation_orders)),
-             xlab    = "relative innovation", scale.x = TRUE,
-             ylab    = "density",
-             main    = "B - Total posterior innovation per clade\n(scaled) and per species")
-text(x = 0.7, y = 0.5, paste0("Posterior area under the curve overlap\n(Bhattacharyya coefficient): ", round(bhatt.coeff(innovation_species_auc, innovation_group_auc), 3)))
-dev.off()
+library(tidyverse)
+library(patchwork)
+                 
+fake <- data.frame(elaboration = c(elaboration_species, c(unlist(elaboration_super_orders), unlist(elaboration_orders))), innovation = c(innovation_species, c(unlist(innovation_super_orders), unlist(innovation_orders))), Level = c(rep("Species", 34992000), rep("Clades", 140000)))
+                   
+elab <- 
+  ggplot(fake, aes(x = elaboration, colour=Level, fill = Level, ..scaled..)) +
+  geom_density(alpha = 0.5) +
+  theme_classic(base_size = 14) +
+  scale_colour_manual(values = c(rgb(0,0,0,0), rgb(0,0,0,0))) +
+  scale_fill_manual(values = c("goldenrod", "#1E65A7")) +
+  xlab("Relative elaboration") +
+  ylab("Density") +
+  theme(legend.position = "none") +
+  labs(tags="a")
+  
+innov <-
+  ggplot(fake, aes(x = innovation, colour = Level, fill = Level, ..scaled..)) +
+  geom_density(alpha = 0.5) +
+  theme_classic(base_size = 14) +
+  scale_colour_manual(values = c(rgb(0,0,0,0), rgb(0,0,0,0))) +
+  scale_fill_manual(values = c("goldenrod", "#1E65A7")) +
+  xlab("Relative innovation") + 
+  theme(legend.position = c(0.8, 0.8)) +
+  labs(tags="b")
+
+remove_y <- 
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())
+            
+p <- elab + innov + remove_y
+
+ggsave("relative_EI_gg_style.pdf", plot=p, height=6, width=12)
 ```
-
-
-
-
 
 ## Testing whether the passeriformes ellipses are similar
 
