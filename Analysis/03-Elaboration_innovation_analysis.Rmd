@@ -42,13 +42,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
+superorder_shapespace <- MCMCglmm.subsets(n = 4000, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
+order_shapespace <- MCMCglmm.subsets(n = 4000, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
@@ -427,13 +427,13 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
 
 ## Creating the subsets
-suborder_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
+suborder_shapespace <- MCMCglmm.subsets(n = 4000, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-family_shapespace <- MCMCglmm.subsets(n = 100, #TG: Toggle this to 100 for a faster calculation
+family_shapespace <- MCMCglmm.subsets(n = 4000, #TG: Toggle this to 100 for a faster calculation
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
