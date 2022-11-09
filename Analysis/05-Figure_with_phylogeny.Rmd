@@ -9,8 +9,10 @@ output:
     fig_height: 8
 ---
 
+This script reproduces the figure 1 in the main manuscript (the phylogeny) and takes around 15 minutes to compile.
+Note that the published figure is slightly modified in Inkscape (boxplot added manually and changed the label position for passeriformes).
 
-## Plot the median elaboration/innovation on the phylogeny
+# Plot the median elaboration/innovation on the phylogeny
 
 ```{r, echo = FALSE}
 library(ggtree)
@@ -268,7 +270,35 @@ innovelab_pass_plot <- innovelab_pass_plot +
 ## Save as png and pdf
 ggsave("../Manuscript/Figures/InnovElabTree_passerine_supplement.png", innovelab_pass_plot, width=12, height=12)
 ggsave("../Manuscript/Figures/InnovElabTree_passerine_supplement.pdf", innovelab_pass_plot, width=12, height=12)
+```
 
+## Adding a panel showing the differences in elaboration and innovation across the tree
 
+```{r}
+source("../Functions/ploting.utilities.R")
+colour.palette <- gg.color.hue
+## Plotting the novelty for the phylo plot:
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/ploting_data_superorder.rda")
+load("../Data/Processed/ploting_data_order.rda")
 
+## Get the values
+elaborations_tree  <- ploting_data$median_elaborations
+innovations_tree   <- ploting_data$median_innovations
+elaborations_super <- ploting_data_superorder$median_elaborations
+innovations_super  <- ploting_data_superorder$median_innovations
+elaborations_order <- ploting_data_order$median_elaborations
+innovations_order  <- ploting_data_order$median_innovations
+
+pdf("../Manuscript/Figures/median_novelty_distributions.pdf", height = 4, width = 8)
+par(mfrow = c(1,2), bty = "n")
+## Same but boxplot version
+boxplot(cbind("Whole tree level"  = c(elaborations_tree, innovations_tree),
+              "Super-order level" = c(elaborations_super, innovations_super),
+              "Order level"       = c(elaborations_order, innovations_order)),
+        xlab = "", ylab = "Elaboration/Innovation", col = colour.palette(5)[1:3])
+boxplot(cbind("Elaboration" = c(elaborations_tree, elaborations_super, elaborations_order),
+              "Innovation"  = c(innovations_tree, innovations_super, innovations_order)),
+        xlab = "", ylab = "Elaboration/Innovation", col = colour.palette(5)[4:5])
+dev.off()
 ```
