@@ -9,7 +9,8 @@ output:
     fig_height: 8
 ---
 
-This section contains the code for reproducing the analyses. To get the details, refer to 03-elaboration_innovation_analyses.Rmd.
+This script reproduces the figure 2 in the main manuscript (the one with the ellipses) and takes around 5 minutes to compile.
+Note that the published figure is slightly modified in Inkscape (added headers and separation lines).
 
 ```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
 library(dispRity)
@@ -17,7 +18,7 @@ source("../Functions/ploting.utilities.R")
 source("../Functions/covar.utilities.R")
 ```
 
-# All birds shapespace analyses
+# All birds clade level projections plot
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
@@ -38,13 +39,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 1k matrices for now
+superorder_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 1k matrices for now
+order_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
@@ -53,13 +54,13 @@ order_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 1k matrices for 
 rm(shapespace_allbirds_lvl_superorder_order)
 
 ## Loading the results
-load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list_4k.rda")
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
 results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
 ```{r, eval = TRUE, echo = FALSE}
-## Get the bar plots for the loadings of the phylogeny component
+## Get the bar plots for the loadings of the phylogeny component (to be added separately in Inkscape to the main plot)
 # pdf(file = "../Manuscript/Figures/phylo_loadings.pdf", height = 4, width = 4)
 # plot(NULL, xlim = range(superorder_shapespace$matrix), ylim = range(superorder_shapespace$matrix))
 # add.dims(superorder_shapespace, name.col = c(phylogeny = "grey"), n = 1000)
@@ -73,8 +74,7 @@ pdf(file = "../Manuscript/Figures/ellipses.pdf", height = box_size*10, width = b
 lay_mat_super <- rbind(
         matrix(c(1,1, rep(73, 3), 0, 2:5), ncol = 10, nrow = 1), # line 7
         matrix(c(1,1, rep(73, 3), 0, 6:9), ncol = 10, nrow = 1), # line 8
-        matrix(c(78,78, 10:17), ncol = 10, nrow = 1) # line 8
-    )
+        matrix(c(78,78, 10:17), ncol = 10, nrow = 1)) # line 8)
 lay_mat_order <- rbind(
         matrix(c(1,1, rep(57, 3), 60, 2:5), ncol = 10, nrow = 1), 
         matrix(c(1,1, rep(57, 3), 60, 6:9), ncol = 10, nrow = 1), 
@@ -82,10 +82,7 @@ lay_mat_order <- rbind(
         matrix(c(18:27), ncol = 10, nrow = 1),
         matrix(c(28:37), ncol = 10, nrow = 1), 
         matrix(c(38:47), ncol = 10, nrow = 1),
-        matrix(c(48:55, 58:59), ncol = 10, nrow = 1)
-    )
-
-
+        matrix(c(48:55, 58:59), ncol = 10, nrow = 1))
 heights_vals <- rep(1, 9)
 widths_vals <- rep(c(1, 1/3), 5)
 layout_matrix <- layout(rbind(lay_mat_super, (lay_mat_order+17)), widths = widths_vals, heights = heights_vals, respect = TRUE)
@@ -172,7 +169,6 @@ covar.plot(superorder_shapespace, ellipses = mean,
            add = TRUE, n = 100)
 
 ## PLOTTING THE ORDERS
-
 par(bty = "n")
 lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
 plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
@@ -183,14 +179,12 @@ covar.plot(order_shapespace, ellipses = mean,
            legend = FALSE, points = FALSE, scale = "phylogeny",
            lines.lwd = c(rep(0.5, length(tip_colours_orders)), 3),
            add = TRUE, n = 100)
-
 dev.off()
-
 ```
 
 
 
-# Passeriformes shapespace analyses
+# Passeriformes clade level projections plot
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Load the data
@@ -211,13 +205,13 @@ suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
 family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
 
 ## Creating the subsets
-suborder_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
+suborder_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-family_shapespace <- MCMCglmm.subsets(#n = 1000, # Just run it on 1k matrices for now
+family_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_passeriformes,
       group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
@@ -234,7 +228,7 @@ rm(shapespace_passeriformes_suborder_family_results_list)
 ## Phylogeny window (detailed)
 
 ```{r}
-## Adding the bar plot for the phylogeny component
+## Adding the bar plot for the phylogeny component (to be added separately in Inkscape)
 # pdf(file = "../Manuscript/Figures/phylo_loadings.pdf", height = 4, width = 4)
 # plot(NULL, xlim = range(suborder_shapespace$matrix), ylim = range(suborder_shapespace$matrix))
 # add.dims(suborder_shapespace, name.col = c(phylogeny = "grey"), n = 1000)
@@ -248,8 +242,7 @@ x <- 61
 lay_mat_sub <- rbind(
         matrix(c(1,1, rep(x, 3), 0, 2:5), ncol = 10, nrow = 1), # line 7
         matrix(c(1,1, rep(x, 3), 0, 6:9), ncol = 10, nrow = 1), # line 8
-        matrix(c(x+2,x+2, 10:13, rep(x+3, 4)), ncol = 10, nrow = 1) # line 8
-    )
+        matrix(c(x+2,x+2, 10:13, rep(x+3, 4)), ncol = 10, nrow = 1)) # line 8)
 y <- x - 13
 lay_mat_family <- rbind(
         matrix(c(1,1, rep(y+1, 3), y+4, 2:5), ncol = 10, nrow = 1), 
@@ -257,15 +250,13 @@ lay_mat_family <- rbind(
         matrix(c(1,1, 10:17), ncol = 10, nrow = 1),
         matrix(c(18:27), ncol = 10, nrow = 1),
         matrix(c(28:37), ncol = 10, nrow = 1), 
-        matrix(c(38:47), ncol = 10, nrow = 1)
-    )
+        matrix(c(38:47), ncol = 10, nrow = 1))
 heights_vals <- rep(1, 8)
 widths_vals <- rep(c(1, 1/3), 5)
 layout_matrix <- layout(rbind(lay_mat_sub, (lay_mat_family+13)), widths = widths_vals, heights = heights_vals, respect = TRUE)
 # layout.show(layout_matrix)
 
 ## PLOTTING THE SUBORDERS
-
 ## Getting the tip order for the ladderised super order tree
 tip_order <- c(
     "Suboscines" = 1,
@@ -286,7 +277,6 @@ for(i in 1:length(tip_order)) {
 }
 
 ## PLOTTING THE FAMILIES
-
 ## Matching the order and the colours to the ladderised tree
 tip_order <- c(
     "Aegithaloidea"= 12,
@@ -323,7 +313,6 @@ for(i in 1:length(tip_order)) {
     wrap.plot.ellipses(i, tip_colours_passeriformes_family, family_shapespace, results$family_results_between)
 }
 
-
 ## Plotting the aligned and scale ellipses for the superorders
 par(bty = "n")
 lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
@@ -348,5 +337,4 @@ covar.plot(family_shapespace, ellipses = mean,
            lines.lwd = c(rep(0.5, length(tip_colours_passeriformes_family)), 3),
            add = TRUE, n = 100)
 dev.off()
-
 ```
