@@ -68,13 +68,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+superorder_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
+order_shapespace <- MCMCglmm.subsets(
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
