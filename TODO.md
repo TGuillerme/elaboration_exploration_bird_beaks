@@ -36,8 +36,8 @@
  - [x] do a completion checkkist: abstract + acknowledgments + funding grant codes 
  - [x] make a glossary 
  - [x] rewrite the narrative start
- - [ ] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
- - [ ] cite Masahito
+ - [x] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
+ - [x] cite Masahito
  - [ ] write cover letter
  - [ ] find reviewers
 

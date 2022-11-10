@@ -118,13 +118,12 @@ This suggests that both innovation and elaboration are ubiquitous routes for phe
 \section{Main}
 
 % paragraph 1:  introducing the major axis of variation + novelty and innovation
-Evolutionary theory predicts that over short, microevolutionary, timescales phenotypic evolution will tend to follow evolutionary lines of genetic least resistance \cite{schluter1996adaptive}.
+Evolutionary theory predicts that over short, microevolutionary, timescales phenotypic evolution will tend to follow evolutionary lines of genetic least resistance \cite{schluter1996adaptive,Rhoda2022}.
 Over longer timescales, the evolutionary line of least resistance is analogous to the major axis of phenotypic variation \cite{marroig2005size,fasanelli2022allometry}.
-Numerous studies show that phenotypic divergence is biased along the genetic line of least resistance, and therefore reflects the major axis of phenotypic variation, over 1-2 million year timescales.
-%TG: cite some of these numerous studies.
+Numerous studies show that phenotypic divergence is biased along the genetic line of least resistance, and therefore reflects the major axis of phenotypic variation, over 1-2 million year timescales \cite{marroig2005size, mcglothlin2018adaptive, tsuboi2018}.
 Recent evidence suggests that this stability can even extend over macroevolutionary timescales spanning tens of millions of years \cite{mcglothlin2018adaptive}.
 However, while the line of least genetic resistance explicitly reflects genetic constraints, the macroevolutionary major axis of phenotypic variation is an emergent property of genomic and developmental constraints interacting with selection on a moving adaptive landscape \cite{jones2004evolution}.
-The widespread evidence of major shifts in phenotypes across the tree of life \cite{pagel2022general,cooney2017mega,venditti2011multiple,khabbazian2016fast,smaers2021evolution} suggests a confict in the direction of phenotypic evolution across scales where macroevolutionary divergence away from the major axis of phenotypic variation results in megaevolutionary divergence leading to distinct phenotypes and/or directions of evolution.
+The widespread evidence of major shifts in phenotypes across the tree of life \cite{venditti2011multiple,khabbazian2016fast,cooney2017mega,smaers2021evolution,pagel2022general} suggests a confict in the direction of phenotypic evolution across scales where macroevolutionary divergence away from the major axis of phenotypic variation results in megaevolutionary divergence leading to distinct phenotypes and/or directions of evolution.
 Resolving this confict requires an understanding of the balance between deep-time reorientation of phenotypic major axes of evolution among clades and the directions of evolution of species within clades.
 
 % paragraph 2:  introducing the Endler view.
@@ -331,7 +330,7 @@ For innovation the overlap BC = 0.039, which indicates a clear difference in the
 Our results show that although at the species-level most bird beaks are elaborating along a mega-evolutionary major axis of phenotypic variation, at the macroevolutionary level innovation away from the global phylogenetic major axis of phenotypic variation is much more common. 
 This nested structure of elaboration at a lower (species) taxonomic level and innovation at a higher (clade) taxonomic levels could thus explain the diversity of bird beaks we observe today.
 However, individual species-level variation in the past could also have led to a shift in a clade's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape. 
-Taken together, our results suggest that the signature of evolutionary reorientations in deep-time (innovation), coupled with elaboration at the species-level, is a robust explanation of the massive diversity of bird beaks we observe today and is consistent with recent suggestions that apparently abrupt phenotypic shifts observed in univariate analyses can be explained by gradual Darwinian processes \cite{pagel2022general}.
+Taken together, our results suggest that the signature of evolutionary reorientations in deep-time (innovation), coupled with elaboration at the species-level, is a robust explanation of the massive diversity of bird beaks we observe today and is consistent with recent suggestions that apparently abrupt phenotypic shifts observed in univariate analyses can be explained by gradual Darwinian processes \cite{pagel2022general, BurinWhales}.
 Indeed, the global phylogenetic major axis of phenotypic variation is an emergent property of reorientation of trait space among clades that requires no special evolutionary process: megaevolutionary patterns appear to be an inevitable outcome of evolution on a shifting adaptive landscape. 
 
 
@@ -353,6 +352,7 @@ This procedure resulted in an $8748 \times 8$ matrix that contains at least 95\%
 \textbf{Phylogenetic data.}
 We used a random subsample of 1000 trees from the avian tree distribution of \cite{jetz2012global} for the analyses and the one randomly selected tree for the figures (Fig. \ref{Fig:phylogeny}).
 We pruned these trees to contain only the 8748 species present in our beak shapespace.
+Phylogenetic related data was used in R using the \texttt{ape} package \cite{ape}.
 
 \textbf{Phylogenetic GLMM analysis.}
 We ran a Bayesian phylogenetic generalised linear mixed model (pGLMM) using the \texttt{MCMCglmm} R package \cite{MCMCglmm} with the shapespace data as a multidimensional response variable, the error in the dataset as residuals, and each clade's phylogeny as a nested random term, i.e., a model of:
@@ -414,9 +414,10 @@ The code used to reproduce the figures and tables is available from \href{https:
 \textbf{Funding.}
 This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
 
+\textbf{Author contributions.}
+A.P.B., N.C., T.G. and G.H.T designed the study. J.A.B., C.R.C., E.C.H., G.H.T. and Z.K.V. handled the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
 
 \bibliographystyle{naturemag}
 \bibliography{references}
-%TODO: add ref to ape.
 
 \end{document}
