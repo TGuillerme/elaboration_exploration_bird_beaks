@@ -95,7 +95,7 @@ $^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 
 
 
-\noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, major axis of phenotypic variation, GLMM)\\
+\noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, line of least resistance, GLMM)\\
 
 \section{Abstract}
 
@@ -104,13 +104,13 @@ A long-standing proposal is that most morphological diversity at a macroevolutio
 However, we frequently observe major shifts in phenotypes among lineages \cite{venditti2011multiple, pagel2022general, BurinWhales}, suggesting that species or clades may also evolve away from the line of least resistance \cite{renaud2006conserved}.
 At the macroevolutionary scale, evolution along a common major axis has been termed elaboration whereas evolution away from the major axis is termed innovation \cite{endler2005animal}. 
 The extent to which species and clades elaborate or innovate is poorly understood.
-Of particular importance is the potential contribution of reorientations of the phenotypic trait space (innovation) among clades to contribute to the origins and maintenance of biodiversity across scales from the macro- to megaevolutionary scale.
-Here we apply new multi-trait methods that model the reorientations of the trait space via the nested covariance structure of traits to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
+Of particular importance is the potential contribution of reorientations of phenotypic trait space (innovation) among clades to contribute to the origins and maintenance of biodiversity across scales from the macro- to megaevolutionary scale.
+Here we apply new multi-trait methods that model the nested covariance structure of traits to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
 Our analyses show that elaboration dominates species-level phenotypic divergence, consistent with micro-evolutionary theory.
 However, we also find that innovation is relatively common at the clade-level suggesting multiple routes to phenotypic innovation throughout avian evolutionary history.
 These results show that although phenotypic elaboration and innovation occur across evolutionary scales, elaboration seems to dominate at macroevolutionary scales (i.e. species diverging within clades) and innovation is more prevalent at the megaevolutionary scale (nested patterns of clades diverging within clades).
 This suggests that both innovation and elaboration are ubiquitous routes for phenotypic change at any scale and that macroevolutionary axes of multivariate evolution are frequently reoriented throughout the history of life, opening up new avenues for evolution to explore.
-
+%TG: bleuargh...
 
 % TODO in abstract, add the "paradox" bit: However, if most organisms evolve incrementally along stable lines of least resistance then how can we explain the staggering diversity of species morphologies across the tree of life?
 
@@ -123,8 +123,8 @@ Over longer timescales, the evolutionary line of least resistance is analogous t
 Numerous studies show that phenotypic divergence is biased along the genetic line of least resistance, and therefore reflects the major axis of phenotypic variation, over 1-2 million year timescales \cite{marroig2005size, mcglothlin2018adaptive, tsuboi2018}.
 Recent evidence suggests that this stability can even extend over macroevolutionary timescales spanning tens of millions of years \cite{mcglothlin2018adaptive}.
 However, while the line of least genetic resistance explicitly reflects genetic constraints, the macroevolutionary major axis of phenotypic variation is an emergent property of genomic and developmental constraints interacting with selection on a moving adaptive landscape \cite{jones2004evolution}.
-The widespread evidence of major shifts in phenotypes across the tree of life \cite{venditti2011multiple,khabbazian2016fast,cooney2017mega,smaers2021evolution,pagel2022general} suggests a confict in the direction of phenotypic evolution across scales where macroevolutionary divergence away from the major axis of phenotypic variation results in megaevolutionary divergence leading to distinct phenotypes and/or directions of evolution.
-Resolving this confict requires an understanding of the balance between deep-time reorientation of phenotypic major axes of evolution among clades and the directions of evolution of species within clades.
+The widespread evidence of major shifts in phenotypes across the tree of life \cite{venditti2011multiple,khabbazian2016fast,cooney2017mega,smaers2021evolution,pagel2022general} suggests a tension in the direction of phenotypic evolution across scales where macroevolutionary divergence away from the major axis of phenotypic variation results in megaevolutionary divergence leading to distinct phenotypes and/or directions of evolution.
+Resolving this tension requires an understanding of the balance between deep-time reorientation of phenotypic major axes of evolution among clades and the directions of evolution of species within clades.
 
 % paragraph 2:  introducing the Endler view.
 Endler \textit{et al}. \cite{endler2005animal}, writing in the specific context of signal evolution, describe two routes to phenotypic novelty that we suggest can help to illuminate this challenge.
@@ -208,7 +208,7 @@ A companion plot showing further nested structure within the Passeriformes is sh
 
 \subsection{Multiple routes to innovation throughout avian evolutionary history}
 
-To investigate the conflict implied by our observations of species-level elaboration and previously reported deep time jumps in phenotype, we measured the elaboration and innovation of different clades.
+To investigate the tension implied by our observations of species-level elaboration and previously reported deep time jumps in phenotype, we measured the elaboration and innovation of different clades.
 To do this we translated the major axes of phenotypic variation of each clade's (i.e. super-orders and orders) phylogenetic variance-covariance matrix onto the global phylogenetic major axis of phenotypic variation so that they shared the same origin in the shapespace.
 We then used multilinear algebra to project a focal clade's major axis of phenotypic variation onto the global phylogenetic major axis of phenotypic variation (Fig.S\ref{Fig:cheat_sheet}).
 We interpret the measured projection (distance onto the phylogenetic major axis of phenotypic variation) as the clade's elaboration score and the measured rejection (distance from the major axis of phenotypic variation) as the clade's innovation score.
@@ -235,9 +235,6 @@ This suggests that there is no deep-time analogue of the genetic line of least r
 
 \noindent \textbf{Figure \ref{Fig:ellipses}:}
 Panel A) shows ellipses representing the scaled average posterior variance-covariance response from the pGLMM models for each super-order (coloured ellipses) compared to the global (all birds) phylogenetic component of the models (grey ellipses).
-Each ellipses represents a two dimensional projection of the average traits variance co-variance in the global bird beak shapespace.
-The ellipses are centred on the centroid of each clade they represent.
-Their direction represents the major direction of the traits covariance in two dimensions.
 We scaled the ellipses so the length of the major axis of phenotypic variation of the clade ellipse is the same length as that of the global phylogenetic major axis ellipse (in eight dimensions).
 The first inset ellipse plot shows the positions of all super-order ellipses relative to the global phylogenetic ellipse.
 Subsequent inset plots show the results for each super-order. 
@@ -330,7 +327,7 @@ For innovation the overlap BC = 0.039, which indicates a clear difference in the
 Our results show that although at the species-level most bird beaks are elaborating along a mega-evolutionary major axis of phenotypic variation, at the macroevolutionary level innovation away from the global phylogenetic major axis of phenotypic variation is much more common. 
 This nested structure of elaboration at a lower (species) taxonomic level and innovation at a higher (clade) taxonomic levels could thus explain the diversity of bird beaks we observe today.
 However, individual species-level variation in the past could also have led to a shift in a clade's line of least evolutionary resistance through different evolutionary routes on a dynamic adaptive landscape. 
-Taken together, our results suggest that the signature of evolutionary reorientations in deep-time (innovation), coupled with elaboration at the species-level, is a robust explanation of the massive diversity of bird beaks we observe today and is consistent with recent suggestions that apparently abrupt phenotypic shifts observed in univariate analyses can be explained by gradual Darwinian processes \cite{pagel2022general, BurinWhales}.
+Taken together, our results suggest that the signature of evolutionary reorientations in deep-time (innovation), coupled with elaboration at the species-level, is a robust explanation of the massive diversity of bird beaks we observe today and is consistent with recent suggestions that apparently abrupt phenotypic shifts observed in univariate analyses can be explained by gradual Darwinian processes \cite{pagel2022general, BurinWhales}\cite{pagel2022general}.
 Indeed, the global phylogenetic major axis of phenotypic variation is an emergent property of reorientation of trait space among clades that requires no special evolutionary process: megaevolutionary patterns appear to be an inevitable outcome of evolution on a shifting adaptive landscape. 
 
 
@@ -384,6 +381,7 @@ We then ran 400 mini chains in parallel with the estimated burnin time and prior
 This resulted in 10 exploitable posterior samples for each tree.
 We used 400 trees because that was the number of models required to reach an effective sample size (ESS) of at least 200 for all the estimated parameters (see Fig. S\ref{Fig:model_ess_all_birds} and S\ref{Fig:model_ess_passeriformes}).
 Using this approach, we reduced the computational time to around 45 CPU hours and 9GB of RAM per mini-chain - a 400 fold improvement.
+The total analysis took around three CPU years using the shARC cluster from the University of Sheffield.
 Code to reproduce the procedure is available in the \href{https://raw.rawgit.net/TGuillerme/mcmcmcglmmm/main/inst/MCMCglmm_mini_chains.html}{\texttt{mcmcmcglmmm} vignette} \cite{mcmcmcglmmm}.
 
 \textbf{Elaboration/innovation scores using projection/rejection analyses.}
@@ -411,11 +409,14 @@ These results are available in Fig. \ref{Fig:orthogonality}.
 The raw and processed data used in this analysis is available from \href{https://figshare.shef.ac.uk/account/articles/21526146}{figshare} \cite{fighsaredata}.
 The code used to reproduce the figures and tables is available from \href{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}{GitHub} \cite{githubrepo}.
 
+\textbf{Acknowledgements.}
+We acknowledge IT Services at The University of Sheffield for the provision of the High Performance Computing Service.
+
 \textbf{Funding.}
 This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
 
 \textbf{Author contributions.}
-A.P.B., N.C., T.G. and G.H.T designed the study. J.A.B., C.R.C., E.C.H., G.H.T. and Z.K.V. handled the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
+G.H.T., A.P.B., N.C., and T.G. designed the study. J.A.B., C.R.C., E.C.H., G.H.T. and Z.K.V. curated the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
 
 \bibliographystyle{naturemag}
 \bibliography{references}
