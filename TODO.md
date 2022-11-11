@@ -22,7 +22,6 @@
  - [x] measure the variance explained in the model for the random terms and the residuals
  - [x] check variance partitioning with just 1D and then check the variance partition. Try running a 100 iterations on brms with the super-order model
 
-
 ## Manuscript
 
  - [x] clean the google doc [TG]
@@ -39,7 +38,9 @@
  - [x] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
  - [x] cite Masahito
  - [ ] write cover letter
- - [ ] find reviewers
+ - [x] find reviewers
+ - [ ] cite Anjali's paper
+
 
 
 ## Figures
