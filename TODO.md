@@ -37,10 +37,9 @@
  - [x] rewrite the narrative start
  - [x] cite (Stebbins 1974, Futuyma et al 1993, Schluter 1996) for LOLR (https://www.biorxiv.org/content/10.1101/2022.09.13.507810v1.full) (in general first intro paragraph)
  - [x] cite Masahito
- - [ ] write cover letter
+ - [x] write cover letter
  - [x] find reviewers
- - [ ] cite Anjali's paper
-
+ - [x] cite Anjali's paper
 
 
 ## Figures
@@ -59,6 +58,7 @@
           gavin.thomas: Yeah, I agree. I hate to say it but it looks like it needs a ggplot overhaul, or at least filling the areas under the curves along with the smartening up that Natalie suggests.
  - [x] Figure anus: change "novelty" to elaboration/innovation in the right boxplot and remove it from the left one.
  - [x] fig orthogonality, remove box + add hyphen to superorder
+ - [ ] cheat sheet figure: update to add link to fig 3 and fig 4
 
 ## Supplementaries
 
