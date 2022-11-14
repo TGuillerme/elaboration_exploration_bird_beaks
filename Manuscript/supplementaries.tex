@@ -51,22 +51,31 @@ Version dated: \today
 \noindent{\Large \bf Innovation and elaboration on the avian tree of life - supplementary materials}
 \bigskip
 
-\noindent {\normalsize \sc Thomas Guillerme$^{1,*}$, Natalie Cooper$^{2}$, Andrew P. Beckerman$^{1}$, and Gavin H. Thomas$^{1,3}$}\\
+\noindent {\normalsize \sc
+Thomas Guillerme$^{1,*}$, 
+Jen A. Bright$^{2}$,
+Christopher R. Cooney${^1}$,
+Emma C. Hughes${^1}$,
+Zoe K. Varley${^3}$,
+Natalie Cooper$^{3,+}$,
+Andrew P. Beckerman$^{1,+}$,
+and Gavin H. Thomas$^{1,4,+}$}\\
 \noindent {\small \it 
 $^1$School of Biosciences, University of Sheffield, Sheffield, S10 2TN, United Kingdom.\\
-$^2$Natural History Museum, Cromwell Road, London, SW7 5BD, United Kingdom.\\
-$^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring, Tring, United Kingdom.\\}
+$^2$School of Natural Science, University of Hull, Hull, HU6 7RX, United Kingdom.\\
+$^3$Natural History Museum, Cromwell Road, London, SW7 5BD, United Kingdom.\\
+$^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring, Tring, United Kingdom.\\}
 
 \end{center}
-\medskip
-\noindent{*\bf Corresponding author.} \textit{guillert@tcd.ie}\\ 
+\bigskip
+\noindent{*\bf Corresponding author:} \textit{guillert@tcd.ie}; \noindent{+\bf contributed equally.}\\
 \vspace{1in}
 
 %Line numbering
 \modulolinenumbers[1]
 \linenumbers
 
-\noindent (Keywords: )\\
+\noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, line of least resistance, GLMM)\\
 
 \vspace{1.5in}
 
@@ -79,7 +88,8 @@ $^3$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 %---------------------------------------------
 
 
-
+\renewcommand{\thefigure}{S\arabic{figure}} 
+ \renewcommand{\thetable}{S\arabic{table}}
 
 \begin{landscape}
 \section{Supplementary material 1: glossary}
@@ -119,41 +129,38 @@ The grey ellipse represents the average posterior variance covariance matrix (VC
 Species aligned with this axis tend to be elaborators at the mega-evolutionary level and species going away from that line are innovators at the mega-evolutionary level.
 The red ellipse and axis represents the average posterior VCV for the Palaeognathes only.
 Species position on this axis elaborate and innovate at the macro-evolutionary level.
-On the top right panel (Figure 1 in the main text), we measured the elaboration and innovation at the entire clade level (cf. at the species level below).
+On the top right panel (Figure 1 in the main text), we measured the position of each species in terms of elaboration and innovation.
+A species elaboration score is their projection onto the phylogenetics' VCV major axis (i.e. their position on that axis) whereas their innovation score is their rejection from it (i.e. their distance away from that axis).
+On the bottom right panel (Figure 2 in the main text), we measured the elaboration and innovation at the entire clade level (cf. at the species level below).
 The ellipses are a scaled and centered in space representation of the group’s VCV ellipse relative to the overall phylogenetic one with a the relative length of the ellipse on each dimension represented on the barplots.
 The clade's innovation and elaboration scores are measured by projecting the clade's major axis onto the phylogenetic one and measuring the projection (elaboration) and rejection (innovation) as mentioned above.
-The distribution of innovation and elaboration scores comes from the projection of the 4000 pairs of posterior VCVs.
-On the bottom right panel (Figure 3 in the main text), we measured the position of each species in terms of elaboration and innovation.
-A species elaboration score is their projection onto the phylogenetics' VCV major axis (i.e. their position on that axis) whereas their innovation score is their rejection from it (i.e. their distance away from that axis).}
+The distribution of innovation and elaboration scores comes from the projection of the 4000 pairs of posterior VCVs.}
+
 \label{Fig:cheat_sheet}
 \end{figure}
 
-
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/mini-chains_diagram.pdf}
 \caption{mcmcmcglmmm: mini-chains MCMCglmm method diagram}
 \label{Fig:mcmcmcglmm}
 \end{figure}
 
-
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/axis_selection.pdf}
 \caption{variance and cumulative variance for each 8 axis per super-order.}
 \label{Fig:axes_variance}
 \end{figure}
 
-
-
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_all_birds.pdf}
 \caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for all birds for the 4000 posteriors. \textbf{solution} is the solution of the model; \textbf{Gcovariance} are the covariances for the random terms (the phylogeny and the clades); \textbf{Rcovariance} are the residuals error term.}
 \label{Fig:model_ess_all_birds}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_passeriformes.pdf}
 \caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 1870 posteriors. \textbf{solution} is the solution of the model; \textbf{Gcovariance} are the covariances for the random terms (the phylogeny and the clades); \textbf{Rcovariance} are the residuals error term.}
@@ -161,37 +168,31 @@ A species elaboration score is their projection onto the phylogenetics' VCV majo
 \end{figure}
 
 
-\begin{landscape}
-\input{Tables/tab_variance_per_axis.tex}
-\end{landscape}
-
-
-\input{Tables/tab_ortho_results.tex}
-
-
+\clearpage
 \section{Supplementary material 3: Passeriformes results}
 
 \begin{figure}[!htbp]
 \centering
+    \includegraphics[width=0.9\textwidth]{Figures/InnovElabTree_passerine_supplement.pdf}
+\caption{Passeriformes phylogeny coloured by beak shape innovation and elaboration level. See the caption of figure 1 in the main text for details.}
+\label{fig_phylogeny_passeriformes}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+\centering
    \includegraphics[width=1\textwidth]{Figures/ellipses_passeriformes.pdf}
-\caption{Elaboration and innovation at the group level for each passeriformes sub-orders and families. See the caption of figure 1 in the main text for details.}
+\caption{Elaboration and innovation at the group level for each passeriformes sub-orders and families. See the caption of figure 2 in the main text for details.}
 \label{fig_ellipses_passeriformes}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/orthogonality_results_passeriformes.pdf}
-\caption{Posterior results showing the orientation of phenotypic evolution (orthogonality) for each passeriformes sub-orders and families. See the caption of figure 2 in the main text for details.}
+\caption{Posterior results showing the orientation of phenotypic evolution (orthogonality) for each passeriformes sub-orders and families. See the caption of figure 3 in the main text for details.}
 \label{fig_orthogonality_passeriformes}
 \end{figure}
 
-
-\begin{figure}[!htbp]
-\centering
-    \includegraphics[width=0.9\textwidth]{Figures/InnovElabTree_passerine_supplement.pdf}
-\caption{Passeriformes phylogeny coloured by beak shape innovation and elaboration level. See the caption of figure 3 in the main text for details.}
-\label{fig_phylogeny_passeriformes}
-\end{figure}
 
 \newpage
 
