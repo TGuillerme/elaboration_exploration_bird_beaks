@@ -51,6 +51,9 @@ Version dated: \today
 
 \noindent{\Large \bf Innovation and elaboration on the avian tree of life}
 \bigskip
+Short title: Innovation and elaboration in birds
+One sentence summary: Species elaborate; clades innovate, reconciling evolutionary theory from micro- to megaevolutionary scales.
+
 
 \noindent {\normalsize \sc
 Thomas Guillerme$^{1,*}$, 
@@ -88,21 +91,23 @@ $^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 
 \section{Abstract}
 
-Patterns of biological diversity across the tree of life are the result of millions of years of evolutionary history and are shaped by natural selection.
-A long-standing proposal is that most morphological diversity at a macroevolutionary scale (among species) arises along a microevolutionary ``line of least resistance''.
-However, we frequently observe major shifts in phenotypes among lineages \cite{venditti2011multiple, pagel2022general, BurinWhales}, suggesting that species or clades may also evolve away from the line of least resistance \cite{renaud2006conserved}.
-At the macroevolutionary scale, evolution along a common major axis has been termed elaboration whereas evolution away from that major axis is termed innovation \cite{endler2005animal}. 
-The extent to which species and clades elaborate or innovate is poorly understood.
-Of particular importance is the potential contribution of reorientations of phenotypic trait space (innovation) among clades to contribute to the origins and maintenance of biodiversity across scales from the macro- to mega-evolutionary scale.
-Here we apply new multi-trait methods that model the nested covariance structure of traits to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
-Our analyses show that elaboration dominates species-level phenotypic divergence, consistent with microevolutionary theory.
-However, innovation is surprisingly common at the clade level suggesting multiple routes to phenotypic innovation throughout avian evolutionary history.
-Our results highlight the importance of scale in our understanding of deep time evolution.
-While we find that elaboration dominates at macroevolutionary scales (i.e. species diverging within clades), the major axis of phenotypic change at  megaevolutionary scales is an emergent property of innovation across clades.
-Taken together we suggest that innovation and elaboration are ubiquitous routes for phenotypic change but that their contribution to diversity is dependent on scale.
-The macroevolutionary axes of multivariate evolution are frequently reoriented throughout the history of life, opening up new avenues for evolution to explore.
+Reconciling major changes in phenotypic diversity at macroevolutionary scales with gradual microevolutionary changes continues to perplex scientists.
+A major question is whether widely documented megaevolutionary jumps can emerge from gradual phenotypic elaboration and innovation.
+Here we apply new multi-trait models to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
+We find that elaboration dominates at macroevolutionary scales whereas innovation becomes more prominent at megaevolutionary scales.
+The major axis of phenotypic change among species at megaevolutionary scales is an emergent property of innovation across clades.
+We suggest that the reorientation of phenotypes via innovation is a ubiquitous route for divergence that can arise through gradual change alone, opening up new avenues for evolution to explore.
 
-\section{Main}
+
+
+% change Gustavo's paper to /in press in current biology/
+% Check if the ruminant paper is somewhere
+
+\section{Introduction}
+
+% TG: add these citations down there
+% However, we frequently observe major shifts in phenotypes among lineages \cite{venditti2011multiple, pagel2022general, BurinWhales}, suggesting that species or clades may also evolve away from the line of least resistance \cite{renaud2006conserved}.
+% At the macroevolutionary scale, evolution along a common major axis has been termed elaboration whereas evolution away from that major axis is termed innovation \cite{endler2005animal}. 
 
 Evolutionary theory predicts that over short, microevolutionary, timescales phenotypic evolution will tend to follow evolutionary lines of genetic least resistance \cite{schluter1996adaptive,Rhoda2022}.
 Over longer timescales, the evolutionary line of least resistance is analogous to the major axis of phenotypic variation \cite{marroig2005size,fasanelli2022allometry}.
@@ -375,20 +380,29 @@ We converted each angle measurement into an orthogonality metric where 0 corresp
 We then measured the posterior probability of the angles within a clade being different to the angles among clades.
 These results are available in Fig. \ref{Fig:orthogonality}.
 
-\textbf{Reproducibility and repeatability.}
-The raw and processed data used in this analysis is available from \href{https://figshare.shef.ac.uk/account/articles/21526146}{figshare} \cite{fighsaredata}.
-The code used to reproduce the figures and tables is available from \href{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}{GitHub} \cite{githubrepo}.
-
-\textbf{Acknowledgements.}
-We acknowledge IT Services at The University of Sheffield for the provision of the High Performance Computing Service.
-
-\textbf{Funding.}
-This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
-
-\textbf{Author contributions.}
-G.H.T., A.P.B., N.C., and T.G. designed the study. J.A.B., C.R.C., E.C.H., G.H.T. and Z.K.V. curated the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
 
 \bibliographystyle{naturemag}
 \bibliography{references}
+
+
+
+\textbf{Acknowledgements.}
+We acknowledge IT Services at The University of Sheffield for the provision of the High Performance Computing Service.
+We thank the museum in Tring.
+% TG: TODO: just take Chris' paper acknowledgments
+\textbf{Funding.}
+This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
+% TG: TODO: add ERC grant (ask Gavin)
+\textbf{Author contributions.}
+G.H.T., A.P.B., N.C., and T.G. designed the study. J.A.B., C.R.C., E.C.H., G.H.T. and Z.K.V. curated the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
+\textbf{Competing interests.}
+We declare no competing interests.
+\textbf{Data an materials availability.}
+The raw and processed data used in this analysis is available from \href{https://figshare.shef.ac.uk/account/articles/21526146}{figshare} \cite{fighsaredata}.
+The code used to reproduce the figures and tables is available from \href{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}{GitHub} \cite{githubrepo}.
+
+% TODO: Add list of supplementary materials
+% All this comes after the references
+% Figures and captions after this
 
 \end{document}
