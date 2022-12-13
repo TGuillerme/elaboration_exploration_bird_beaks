@@ -58,7 +58,7 @@
           gavin.thomas: Yeah, I agree. I hate to say it but it looks like it needs a ggplot overhaul, or at least filling the areas under the curves along with the smartening up that Natalie suggests.
  - [x] Figure anus: change "novelty" to elaboration/innovation in the right boxplot and remove it from the left one.
  - [x] fig orthogonality, remove box + add hyphen to superorder
- - [ ] cheat sheet figure: update to add link to fig 3 and fig 4
+ - [x] cheat sheet figure: update to add link to fig 3 and fig 4
 
 ## Supplementaries
 
