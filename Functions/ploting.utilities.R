@@ -146,9 +146,10 @@ add.dims <- function(data, name.col, n = 1000) {
 #' @param x logical, whether to plot the x axis
 #' @param y logical, whether to plot the y axis
 #' @param main the plot title
+#' @param ei.col optional, the colour for elaboration and innovation (overrides name.col)
 #' 
 ## Plot the projection/rejection
-plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
+plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "", ei.col) {
 
     ## Get the proj/rej
     elaboration <- get.disparity(data$position, concatenate = FALSE)
@@ -163,6 +164,12 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "") {
 
     ## Change the colours
     col <- c(name.col, adjustcolor(name.col, alpha.f = 0.5))
+
+    ## Overiding colours
+    if(!missing(ei.col)) {
+        col <- ei.col
+    }
+
     
     ## Set the limits
     quant_95 <- quantile(c(elaboration, exploration), prob = 0.975)
@@ -254,9 +261,10 @@ plot.short.tree <- function(tree, shapespace, level, colour.palette = gg.color.h
 #' @param tip.colours the named vector with colours and group names
 #' @param shapespace the shapespace as a dispRity object
 #' @param results the list of dispRity objects containing the results (typically output from dispRity.covar.projections)
+#' @param ei.col optional, the colour for elaboration and innovation (overriding tip.colours)
 #
 ## Plotting the ellipses, the dimensions and the projection/rejection
-wrap.plot.ellipses <- function(i, tip.colours, shapespace, results) {
+wrap.plot.ellipses <- function(i, tip.colours, shapespace, results, ei.col) {
     ## Select the colour and name
     name.col <- tip.colours[i]
 
@@ -274,7 +282,7 @@ wrap.plot.ellipses <- function(i, tip.colours, shapespace, results) {
 
     ## Plot the elaboration/exploration
     par(mar = c(2, 1, 1, 1)+0.1)
-    plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE)
+    plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE, ei.col = ei.col)
 }
 
 #' @name scale rgb color
@@ -538,10 +546,64 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
 }
 
 
+#' @name plot.cor.scores
+#'
+#' @description plots the correlation scores fable
+#'
+#' @param cor.scores the correlation scores
+#' @param main the title of the plot
+#' @param col the colour vector
+#' @param y.axis whether to plot the y.axis or not
+#' @param plot.phylo whether to plot the phylo term or not (left empty)
+plot.cor.scores <- function(cor.scores, main, col, y.axis, plot.phylo) {
+    ## Empty plot
+    plot(NULL, yaxt = "n", xlim = c(-1, 1), ylim = c(1, length(cor.scores)), ylab = "", xlab = "Posterior\ncorrelations", main = main)
+    ## Adding the 0 line
+    abline(v = 0, lty = 2, col = "grey", lwd = 0.5)
+    ## Adding the y labels
+    if(y.axis) {
+        axis(2, at = 1:length(cor.scores), labels = names(cor.scores), las = 2)
+    }
+    ## Adding the lines
+    for(i in 1:length(cor.scores)) {
+        do_plot <- TRUE
+        if(!plot.phylo) {
+            if(names(cor.scores)[i] == "phylogeny") {
+                do_plot <- FALSE
+            }
+        }
 
+        if(do_plot) {
 
-
-
+            ## Get the selected colour
+            select_col <- col[names(cor.scores)[i]]
+            ## Get the quantile
+            quants <- quantile(cor.scores[[i]]$correlations, prob = c(0.025, 0.25, 0.75, 0.975))
+            ## Add the lines
+            lines(y = rep(i, 2), x = c(quants[c(1, length(quants))]), lty = 2, col = select_col)
+            lines(y = rep(i, 2), x = c(quants[c(2, (length(quants)-1))]), lty = 1, col = select_col, lwd = 2)
+            ## Add the median
+            points(y = i, x = median(cor.scores[[i]]$correlations), pch = 19, col = select_col)
+            ## Add the stars
+            if(cor.scores[[i]]$p.value < 0.1) {
+                stars <- "."
+                stars <- if(cor.scores[[i]]$p.value < 0.001) {
+                        "***"
+                        } else {
+                            if(cor.scores[[i]]$p.value < 0.01) {
+                                "**"
+                            } else {
+                                if(cor.scores[[i]]$p.value < 0.05) {
+                                    "*"
+                                }
+                            }
+                        }
+                ## Add the stars
+                text(y = i + 0.1, x = median(cor.scores[[i]]$correlations) + 0.1, labels = stars, col = select_col)
+            }
+        }
+    }
+}
 
 
 ## Sort each level by orthogonality score
