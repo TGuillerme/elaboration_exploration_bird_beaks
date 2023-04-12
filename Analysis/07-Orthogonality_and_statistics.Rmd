@@ -264,7 +264,7 @@ innovation_species_auc  <- apply(innovation_species, 2, area.density)
 elaboration_group_auc   <- apply(elaboration_group, 2, area.density)
 innovation_group_auc    <- apply(innovation_group, 2, area.density)
 
-library(tidyverse)
+# library(tidyverse)
 library(patchwork)
                  
 fake <- data.frame(elaboration = c(elaboration_species, c(unlist(elaboration_super_orders), unlist(elaboration_orders))), innovation = c(innovation_species, c(unlist(innovation_super_orders), unlist(innovation_orders))), Level = c(rep("Species", 34992000), rep("Clades", 140000)))
@@ -297,7 +297,7 @@ remove_y <-
             
 p <- elab + innov + remove_y
 
-ggsave("relative_EI_gg_style.pdf", plot=p, height=6, width=12)
+ggsave("../Manuscript/Figures/relative_EI_gg_style_unscaled.pdf", plot=p, height=6, width=12)
 ```
 
 ## Testing whether the passeriformes ellipses are similar
