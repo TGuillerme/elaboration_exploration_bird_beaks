@@ -1,0 +1,106 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+source("../Functions/ploting.utilities.R")
+source("../Functions/correlations.utilities.R")
+```
+
+## Loading the data
+
+```{r, eval = TRUE, echo = TRUE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+order_shapespace <- MCMCglmm.subsets(, # Just run it on 1k matrices for now
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Loading the projection/rejections results
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
+```
+
+# Checking elaboration and innovation values through time (clades)
+
+```{r, eval = TRUE, echo = TRUE}
+## Get all the statistics
+super_orders_elaboration <- summary(results$super_results_between$position)
+super_orders_innovation <- summary(results$super_results_between$distance)
+orders_elaboration <- summary(results$order_results_between$position)
+orders_innovation <- summary(results$order_results_between$distance)
+
+## Get all the tree ages
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/clade_info.rda")
+
+get.clade.age <- function(name, info, tree) {
+  return(list(age = max(dispRity::tree.age(keep.tip(tree, info[[name]]$species))$ages), col = info[[name]]$col))
+}
+
+super_age_info <- t(sapply(unlist(strsplit(super_orders_elaboration$subsets, split = ":phylogeny")), get.clade.age, info = clade_info$super_orders, tree = ploting_data$consensus_tree))
+order_age_info <- t(sapply(unlist(strsplit(orders_elaboration$subsets, split = ":phylogeny")), get.clade.age, info = clade_info$orders, tree = ploting_data$consensus_tree))
+
+## Table that for easy plotting
+super_orders_elaboration <- cbind(super_orders_elaboration, super_age_info, cex = 2)
+super_orders_innovation <- cbind(super_orders_innovation, super_age_info, cex = 2)
+orders_elaboration <- cbind(orders_elaboration, order_age_info, cex = 1)
+orders_innovation <- cbind(orders_innovation, order_age_info, cex = 1)
+elaboration_plot_data <- rbind(super_orders_elaboration, orders_elaboration)
+innovation_plot_data <- rbind(super_orders_innovation, orders_innovation)
+
+## Empty plot
+plot.age.data <- function(data, ylab, xlab) {
+  plot(NULL, xlab = xlab, ylab = ylab,
+       xlim = rev(range(pretty(range(data$age)))),
+       ylim = range(pretty(range(data[,c(4, 8)]))))
+  ## Adding the lines for each clade
+  for(i in 1:nrow(data)) {
+    lines(x = rep(data[i, "age"][[1]], 2), y = data[i, c("2.5%", "97.5%")], lty = 2, col = data[i, "col"][[1]])
+    lines(x = rep(data[i, "age"][[1]], 2), y = data[i, c("25%", "75%")], lty = 1, lwd = 2, col = data[i, "col"][[1]])
+    points(x = data[i, "age"][[1]], y = data[i, "obs.median"], cex = data[i, "cex"], col = data[i, "col"][[1]], pch = 19)
+  }
+}
+pdf(height = 14, width = 7, file = "../Manuscript/Figures/Elaboration_and_innovation_through_time.pdf")
+par(mfrow = c(2,1))
+plot.age.data(elaboration_plot_data, ylab = "Elaboration", xlab = "")
+legend("topleft", pch = 19, col = "grey", legend = c("super orders", "orders"), pt.cex = c(2, 1))
+plot.age.data(innovation_plot_data, ylab = "Innovation", xlab = "Time (Mya)")
+dev.off()
+```
