@@ -346,3 +346,76 @@ for(line in 1:6) {
 }
 dev.off()
 ```
+
+## PGLS
+
+```{r}
+## Combining the model data as:
+    ## centroid
+    ## elaboration
+    ## innovation
+    ## elaboration order
+    ## innovation order
+    ## order_tree_elab/innov (from groups_median_EI$orders)
+        # model_data[match(spp, model_data$species), "order_tree_elab"] <- groups_median_EI$orders[[1]][i]
+    ## species names as row names
+load("../Data/Processed/ploting_data.rda")
+#load("../Data/Processed/ploting_data_superorder.rda")
+load("../Data/Processed/ploting_data_order.rda")
+load("../Data/Processed/groups_median_EI.rda")
+load("../Data/Processed/shapespace.rda")
+
+
+## Initialise the data
+model_data <- data.frame("species" = rownames(shapespace), "orders" = shapespace$level2)
+rownames(model_data) <- rownames(shapespace) 
+model_data <- cbind(model_data,
+                    centroid    = ploting_data$distances_to_centre[rownames(shapespace)],
+                    elaboration_order = ploting_data_order$median_elaborations[rownames(shapespace)],
+                    innovation_order  = ploting_data_order$median_innovations[rownames(shapespace)],
+                    order_tree_elab = NA, order_tree_inno = NA)
+## Attributing the median innov/elab value for each order
+for(order in unique(model_data$orders)) {
+    if(order != "") { # This is because a couple of species have no order
+        group_num <- grep(order, names(groups_median_EI$orders$innovation)) ## FIX THAT!
+        model_data[which(model_data$orders == order), "order_tree_elab"] <- groups_median_EI$orders$elaboration[group_num]
+        model_data[which(model_data$orders == order), "order_tree_inno"] <- groups_median_EI$orders$innovation[group_num]
+    }
+}
+
+consensus_tree <- ploting_data$consensus_tree
+trees <- list(consensus_tree, consensus_tree)
+
+clean_data <- model_data[!(apply(data, 1, function(x) any(is.na(x)))), ] ## NOT WORKING
+
+
+run.models <- function(tree, data) {
+    ## all predictors
+    all_preds <- phylolm::phylolm(species ~ elaboration_order + innovation_order + order_tree_elab + order_tree_inno,
+                         data = data, phy = tree, model = "lambda")
+    ## macro predictors
+    macro_preds <- phylolm::phylolm(species ~ elaboration_order + innovation_order,
+                           data = data, phy = tree, model = "lambda")
+    ## mega predictors
+    mega_preds <- phylolm::phylolm(species ~ order_tree_elab + order_tree_inno,
+                          data = data, phy = tree, model = "lambda")
+    return(list(all = all_preds, macro = macro_preds, mega = mega_preds))
+}
+
+## Run 100 models
+models_out <- lapply(trees, run.models, data = clean_data)
+
+## Summarise them
+summary_out <- lapply(models_out, lapply, summary)
+
+
+
+## Tree is: phy <- read.tree("Prum_merge_hackett_stage2_1K_mcc.tree") (consensus - but get from distribution)
+## Models are:
+
+# # Model for all predictors
+# mod1 <- phylolm(phylogeny ~ elaboration_order + innovation_order + order_tree_elab + order_tree_inno, data=model_data, phy=phy, model="lambda")
+# summary(mod1)
+
+
+```
