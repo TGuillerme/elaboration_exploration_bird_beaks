@@ -58,9 +58,11 @@ visualisation.group <- function(data, subset, dimensions, n = 100) {
 #' @param main the plot title
 #' @param legend logical, whether to add the legend
 #' @param with.phylo logical, whether to plot the phylo ellipse
+#' @param lwd line thickness for the ellipses
+#' @param lims either a set of limits (default is c(-1/3, 1/3)) or "dynamic" to try to get the best limits
 #' 
 ## Plotting the ellipses
-plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", legend = FALSE, with.phylo = FALSE) {
+plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", legend = FALSE, with.phylo = FALSE, lwd = 4, lims = c(-1/3, 1/3)) {
 
     ## Get the PC %ages
     if(x || y) {
@@ -68,14 +70,7 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
         pc_var <- round((vars/sum(vars)*100), 2)
     }
 
-    ## Do the empty plot
-    lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
-    plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = ifelse(x, paste0("PC1 (", pc_var[1], "%)"), ""), ylab = ifelse(y, paste0("PC2 (", pc_var[2], "%)"), ""), main = main)
-    if(x) axis(1)
-    if(y) axis(2)
-    abline(v = 0, col = "grey", lwd = 0.5)
-    abline(h = 0, col = "grey", lwd = 0.5)
-
+    ## Select the subsets
     if(!with.phylo) {
         subsets <- names(name.col)
         cols <- name.col
@@ -83,6 +78,39 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
         subsets <- c("phylogeny", names(name.col))
         cols <- c("grey", name.col)
     }
+
+    ## Do the empty plot
+    if(lims[1] == "dynamic") {
+        ## detect the limits
+        ellipse_data <- get.subsets(data, subsets = subsets)
+        covars <- sample.n(ellipse_data$covar, n = 100)
+        ellipses <- mean
+
+        ## Scaling the ellipses
+        covars <- lapply(covars, function(one_covar, scale) mapply(scale.VCV, one_covar, scale, SIMPLIFY = FALSE), scale = covars[[subsets[1]]])
+        
+        ## Get the VCV central tendencies
+        covars_cent_tend <- lapply(covars, VCV.cent.tend, ellipses)
+
+        ## Get the centres of the ellipses
+        centres <- lapply(unlist(ellipse_data$subsets, recursive = FALSE) ,function(group, data, fun) fun(data[c(group), ]), data = ellipse_data$matrix[[1]], fun = colMeans)
+        ## Get the ellipses
+        all_ellipses <- lapply(level.ellipses(covars_cent_tend, dimensions = c(1,2), npoints = 50, centres, level = 0.95), list)
+
+        ## Get the scaled ranges       
+        xlims <- range(c(all_ellipses[[1]][[1]][, 1], all_ellipses[[2]][[1]][, 1]))
+        ylims <- range(c(all_ellipses[[1]][[1]][, 2], all_ellipses[[2]][[1]][, 2]))
+    } else {
+        xlims <- ylims <- lims
+    }
+
+    plot(NULL, xlim = xlims, ylim = ylims, xaxt = "n", yaxt = "n", xlab = ifelse(x, paste0("PC1 (", pc_var[1], "%)"), ""), ylab = ifelse(y, paste0("PC2 (", pc_var[2], "%)"), ""), main = main, asp = 1)
+    if(x) axis(1)
+    if(y) axis(2)
+    abline(v = 0, col = "grey", lwd = 0.5)
+    abline(h = 0, col = "grey", lwd = 0.5)
+
+
     if(!with.phylo) {
         covar.plot(get.subsets(data, subsets = subsets),
                col = cols,
@@ -90,7 +118,7 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
                legend = FALSE,
                points = FALSE,
                cex = 0.5, apply.to.VCV = TRUE,
-               lwd = 4,
+               lwd = lwd,
                add = TRUE,
                legend = legend)
     } else {
@@ -100,7 +128,7 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
                legend = FALSE,
                points = FALSE,
                cex = 0.5, apply.to.VCV = TRUE,
-               lwd = 4,
+               lwd = lwd,
                add = TRUE,
                legend = legend,
                scale = "phylogeny")
@@ -114,26 +142,44 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
 #' @param data the dispRity object with the covar components
 #' @param name.col the colour name
 #' @param n the number of covar matrices to use
+#' @param new whether to smart add (FALSE; default) to a previous plot or not
+#' @param lwd lwd, default = 3 
 #' 
 ## Plot the variation per dimension
-add.dims <- function(data, name.col, n = 1000) {
+add.dims <- function(data, name.col, n = 1000, new = FALSE, xlims, lwd = 3) {
     covars_cent_tend <- lapply(sample.n(get.subsets(data, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
     dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
     dim_var <- dim_var/max(dim_var)/10
 
     ## Select the quadrant
-    if(colMeans(data$matrix[[1]][c(data$subsets[[names(name.col)]]$elements), c(1,2)])[1] > 0.1) {
-        x_start <- -0.2
+    if(!new) {
+        if(colMeans(data$matrix[[1]][c(data$subsets[[names(name.col)]]$elements), c(1,2)])[1] > 0.1) {
+            x_start <- -0.2
+        } else {
+            x_start <- 0.2
+        }
+        y_start <- -0.1
+        ## Plot the dimensions
+        buffer <- 0
     } else {
-        x_start <- 0.2
+        ## Default xlimits
+        if(missing(xlims)) {
+            xlims <- c(0, max(dim_var))
+        }
+        plot(NULL, xlab = "", ylab = "", xaxt = "n", yaxt = "n", ylim = rev(c(1, length(dim_var))), xlim = xlims)
+        #plot(NULL, ylim = rev(c(1, length(dim_var))), xlim = xlims)
+        x_start <- 0
+        y_start <- 1
+        buffer <- 0
     }
-    y_start <- -0.1
 
-    ## Plot the dimensions
-    buffer <- 0
     for(one_dim in 1:length(dim_var)) {
-        lines(x = c(x_start, x_start+dim_var[one_dim]), y = rep(y_start+buffer, 2), lwd = 3, col = name.col)
-        buffer <- buffer - 0.02
+        lines(x = c(x_start, x_start+dim_var[one_dim]), y = rep(y_start+buffer, 2), lwd = lwd, col = name.col)
+        if(!new) {
+            buffer <- buffer - 0.02
+        } else {
+            buffer <- buffer + 1
+        }
     }
 }
 
@@ -262,26 +308,44 @@ plot.short.tree <- function(tree, shapespace, level, colour.palette = gg.color.h
 #' @param shapespace the shapespace as a dispRity object
 #' @param results the list of dispRity objects containing the results (typically output from dispRity.covar.projections)
 #' @param ei.col optional, the colour for elaboration and innovation (overriding tip.colours)
+#' @param phylo.plot optional, change the margins and plot options to match the big phylo plot (FALSE; default)
 #
 ## Plotting the ellipses, the dimensions and the projection/rejection
-wrap.plot.ellipses <- function(i, tip.colours, shapespace, results, ei.col) {
+wrap.plot.ellipses <- function(i, tip.colours, shapespace, results, ei.col, phylo.plot = FALSE) {
     ## Select the colour and name
     name.col <- tip.colours[i]
 
     ## Plot the ellipse
-    par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
-    plot.one.ellipse(shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE)
+    if(!phylo.plot) {
+        par(bty = "n", mar = c(1, 1, 1, 1)+0.1)
+        lwd <- 4
+        lims <- c(-1/3, 1/3)
+    } else {
+        par(bty = "n", mar = c(0, 0, 0, 0))
+        lwd <- 1.8
+        lims <- "dynamic"
+    }
+    plot.one.ellipse(shapespace, name.col, x = FALSE, y = FALSE, with.phylo = TRUE, lwd = lwd, lims = lims)
 
     ## Calculate which dimension contains the most variance
-    add.dims(shapespace, name.col)
-    n <- 1000
-    covars_cent_tend <- lapply(sample.n(get.subsets(shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
-    dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
-    text_main <- paste0(names(name.col))
-    text(0,0.3, text_main, cex = 1.2, col = name.col)
+    if(!phylo.plot) {
+        add.dims(shapespace, name.col)
+        n <- 1000
+        covars_cent_tend <- lapply(sample.n(get.subsets(shapespace, subset = names(name.col))$covar, n), VCV.cent.tend, mean)
+        dim_var <- apply((get.one.axis(covars_cent_tend[[1]], axis = 1, level = 0.95)), 2, dist)
+        text_main <- paste0(names(name.col))
+        text(0,0.3, text_main, cex = 1.2, col = name.col)
+    } else {
+        par(bty = "n", mar = c(1, 1, 1, 1))
+        add.dims(shapespace, name.col, new = TRUE)
+    }
 
     ## Plot the elaboration/exploration
-    par(mar = c(2, 1, 1, 1)+0.1)
+    if(!phylo.plot) {
+        par(mar = c(2, 1, 1, 1)+0.1)
+    } else {
+        par(mar = c(0, 1, 0, 0))
+    }
     plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE, ei.col = ei.col)
 }
 
@@ -686,4 +750,48 @@ plot.orthogonality <- function(level1, level2.1, level2.2, col) {
             add.stars(level2_plot[i, ], shift = -1/3, counter = i+nrow(level1), col = adjustcolor(colours[i+nrow(level1)], alpha.f = 2/3), total = nrow(plot_table))
         }
     }
+}
+
+
+
+
+## Internals from dispRity
+scale.VCV <- function(VCV1, VCV2) {
+    ## Getting the scaling ratio based on the major axis length
+    ratio <- dist(get.one.axis(VCV1))[1]/dist(get.one.axis(VCV2))[1]
+
+    ## Scaling VCV1
+    VCV1$VCV <- VCV1$VCV/ratio^2
+    return(VCV1)
+}
+## Get the major axis
+level.ellipses <- function(level_sample, dimensions, npoints, centre, level) {
+    ## Recentreing the levels
+    level_sample <- recentre.levels(level_sample, centre, dimensions)
+
+    ## Get the ellipses for the level
+    return(lapply(level_sample, make.ellipse, dimensions, npoints, level))
+}
+recentre.levels <- function(level_sample, centre, dimensions) {
+    ## Centre the ellipse
+    if(is(centre, "function")) {
+        ## Get the central tendency (as a function)
+        centre_values <- apply(do.call(rbind, lapply(level_sample, `[[`, "loc")), 2, centre)
+        ## Recentre the intercepts
+        level_sample <- replace.intercept(level_sample, value = centre_values, dimensions)
+    }
+    if(is(centre, "numeric") || is(centre, "integer")) {
+        if((diff <- length(level_sample[[1]]$loc) - length(centre)) > 0) {
+            centre <- c(centre, rep(centre, diff))
+        }
+        ## Manually recentre the intercepts
+        level_sample <- replace.intercept(level_sample, value = centre, dimensions)
+    }
+    return(level_sample)
+}
+make.ellipse <- function(one_sample, dimensions, npoints, level){
+    return(ellipse::ellipse(x       = one_sample$VCV[dimensions, dimensions],
+                            centre  = one_sample$loc[dimensions],
+                            npoints = npoints,
+                            level   = level))
 }
