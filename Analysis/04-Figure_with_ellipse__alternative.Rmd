@@ -1,0 +1,462 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+This script reproduces the figure 2 in the main manuscript (the one with the ellipses) and takes around 5 minutes to compile.
+Note that the published figure is slightly modified in Inkscape (added headers and separation lines).
+
+```{r, eval = TRUE, echo = FALSE, results = 'hide', message = FALSE, warning = FALSE, print = FALSE}
+library(dispRity)
+source("../Functions/ploting.utilities.R")
+source("../Functions/covar.utilities.R")
+```
+
+# All birds clade level projections plot
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.rda")
+## Select the data
+shapespace <- shapespace_allbirds_lvl_superorder_order[[1]]$space
+tree <- shapespace_allbirds_lvl_superorder_order[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order.MCMCglmm")
+shapespace_allbirds_lvl_superorder_order <- shapespace_allbirds_lvl_superorder_order[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == "animal")
+super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
+
+## Creating the subsets
+superorder_shapespace <- MCMCglmm.subsets(
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+order_shapespace <- MCMCglmm.subsets(
+      data          = shapespace,
+      posteriors    = shapespace_allbirds_lvl_superorder_order,
+      group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_allbirds_lvl_superorder_order)
+
+## Loading the results
+load(file = "../Data/Processed/shapespace_allbirds_lvl_superorder_order_results_list.rda")
+results <- shapespace_allbirds_lvl_superorder_order_results_list
+rm(shapespace_allbirds_lvl_superorder_order_results_list)
+```
+
+```{r, eval = TRUE, echo = FALSE}
+## Matching colours (fast utility)
+match.col <- function(data, col) {
+    return(c(col[match(names(size.subsets(data)), names(col))[-length(size.subsets(data))]], "grey"))
+}
+```
+
+```{r}
+pdf(file = "test.pdf", height = 11.693, width = 8.268)
+## Plot splitting
+x <- 82
+super_orders <- rbind(
+      #"Paleognathae" = "Tinamiformes",  
+      matrix(c(rep(1+x,  1), rep(2+x,  1), rep(3+x,  1)), 1, 3),
+      #"Galloanserae" = c("Galliformes", "Anseriformes"),
+      matrix(c(rep(4+x,  2), rep(5+x,  2), rep(6+x,  2)), 2, 3),
+      #"Mirandornithes" = c("Podicipediformes"),
+      matrix(c(rep(7+x,  1), rep(8+x,  1), rep(9+x,  1)), 1, 3),
+      #"Columbimorphae" = c("Columbiformes", "Pterocliformes"),
+      matrix(c(rep(10+x, 2), rep(11+x, 2), rep(12+x, 2)), 2, 3),
+      #"Otidimorphae" = c("Otidiformes", "Cuculiformes", "Musophagiformes"),
+      matrix(c(rep(13+x, 3), rep(14+x, 3), rep(15+x, 3)), 3, 3),
+      #"Gruiformes" (NOT A SUPER ORDER)
+      matrix(0, 1, 3),
+      #"Aequornithes" = c("Procellariiformes", "Sphenisciformes", "Ciconiiformes", "Pelecaniformes", "Suliformes"),
+      matrix(c(rep(16+x, 5), rep(17+x, 5), rep(18+x, 5)), 5, 3),
+      #"Strisores" = c("Caprimulgiformes", "Apodiformes"),
+      matrix(c(rep(19+x, 2), rep(20+x, 2), rep(21+x, 2)), 2, 3),
+      #"Charadriiformes" (NOT A SUPER ORDER)
+      matrix(0, 1, 3),
+      #"Telluraves" = c("Trogoniformes", "Bucerotiformes", "Coraciiformes", "Piciformes", "Strigiformes", "Accipitriformes", "Falconiformes", "Psittaciformes", "Passeriformes")
+      matrix(c(rep(22+x, 9), rep(23+x, 9), rep(24+x, 9)), 9, 3))
+
+layout_matrix <- cbind( 
+                matrix(1, 27, 1), # first column
+                matrix(seq(1:(27*3))+1, 27, 3, byrow = TRUE), # second/third column
+                super_orders)
+
+widths_vals <- c(5, 1, 1, 1, 1, 1, 1)
+height_vals <- rep(1, 27)
+layout_spiro <- layout(layout_matrix, widths = widths_vals, heights = height_vals, respect = TRUE)
+# layout.show(layout_spiro)
+
+## Plotting the tree
+tip_order <- c(
+    "Tinamiformes"= 1,
+    "Galliformes"= 3,
+    "Anseriformes"= 2,
+    "Otidiformes"= 7,
+    "Cuculiformes" = 8,
+    "Gruiformes" = 9, 
+    "Musophagiformes" = 10,
+    "Procellariiformes" = 12,
+    "Sphenisciformes" = 11,
+    "Ciconiiformes" = 13,
+    "Pelecaniformes"= 15,
+    "Suliformes" = 14,
+    "Podicipediformes" = 4,
+    "Columbiformes" = 6,
+    "Pterocliformes" = 5,
+    "Charadriiformes" = 18,
+    "Trogoniformes" = 21,
+    "Bucerotiformes" = 22,
+    "Coraciiformes" = 23,
+    "Piciformes" = 24,
+    "Strigiformes" = 20,
+    "Accipitriformes" = 19, 
+    "Falconiformes" = 25,
+    "Psittaciformes" = 26,
+    "Passeriformes" = 27,
+    "Caprimulgiformes" = 16, 
+    "Apodiformes" = 17)
+
+## Plotting the tree and getting the tip orders
+tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
+
+## Plotting each ellipse
+for(i in 1:27) {
+    wrap.plot.ellipses(i, tip_colours_orders, order_shapespace, results$order_results_between, ei.col = c("orange", "blue"), phylo.plot = TRUE)
+}
+load(file = "../Data/Processed/tip_colours_super_orders.rda")
+for(i in 1:8) {
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_super_orders, superorder_shapespace, results$super_results_between, ei.col = c("orange", "blue"), phylo.plot = TRUE)
+}
+dev.off()
+
+
+
+# ## Plotting the ellipses for each order
+# for(i in 1:length(tip_order)) {
+#     ## Plot each pannel
+#     wrap.plot.ellipses(i, tip_colours_super_orders, superorder_shapespace, results$super_results_between, ei.col = c("orange", "blue"))
+# }
+
+
+```
+
+
+
+
+### Ellipses plot super orders
+
+
+```{r, eval = TRUE, echo = FALSE}
+## Plot dimensions and name
+box_size <- 1.5
+pdf(file = "../Manuscript/Figures/ellipses_super_order.pdf", height = box_size*4, width = box_size*8)
+
+## New layout for super_order panel (separately)
+lay_mat_super_2 <- rbind(
+    matrix(c(1,1, rep(18, 3), 0, 2:3), ncol = 8, nrow = 1),
+    matrix(c(1,1, rep(18, 3), 0, 4:5), ncol = 8, nrow = 1),
+    matrix(c(6:13), ncol = 8, nrow = 1),
+    matrix(c(14:17, rep(0, 4)), ncol = 8, nrow = 1))
+widths_vals <- rep(c(1, 1/2), 4)
+heights_vals <- rep(1, 4)
+layout_super <- layout(lay_mat_super_2, widths = widths_vals, heights = heights_vals, respect = TRUE)
+# layout.show(layout_super)
+
+## PLOTTING THE SUPERORDERS
+
+## Getting the tip order for the ladderised super order tree
+tip_order <- c(
+    "Paleognathae" = 1,
+    "Galloanserae" = 2,
+    "Otidimorphae" = 5,
+    "Aequornithes" = 6,
+    "Mirandornithes" = 3,
+    "Columbimorphae" = 4,
+    "Telluraves" = 8,
+    "Strisores" = 7)
+
+## Plotting the tree and getting the tip orders
+tip_colours_super_orders <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_super_orders, file = "../Data/Processed/tip_colours_super_orders.rda")
+
+## Plotting the ellipses for each order
+for(i in 1:length(tip_order)) {
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_super_orders, superorder_shapespace, results$super_results_between, ei.col = c("orange", "blue"))
+}
+
+## Adding the ellipses
+par(bty = "n")
+lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
+plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+covar.plot(superorder_shapespace, ellipses = mean,
+           col = match.col(superorder_shapespace, tip_colours_super_orders),
+           legend = FALSE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(1, length(tip_colours_super_orders)), 3),
+           add = TRUE, n = 100)
+dev.off()
+```
+
+
+
+
+### Ellipses plot orders
+
+
+```{r, eval = TRUE, echo = FALSE}
+## Plot dimensions and name
+box_size <- 1.5
+pdf(file = "../Manuscript/Figures/ellipses_order.pdf", height = box_size*7, width = box_size*10)
+
+## New layout for order panel (separately)
+lay_mat_order_2 <- rbind(
+        matrix(c(1,1, rep(56, 3), 0, 2:5), ncol = 10, nrow = 1), 
+        matrix(c(1,1, rep(56, 3), 0, 6:9), ncol = 10, nrow = 1), 
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1),
+        matrix(c(18:27), ncol = 10, nrow = 1),
+        matrix(c(28:37), ncol = 10, nrow = 1), 
+        matrix(c(38:47), ncol = 10, nrow = 1),
+        matrix(c(48:55, rep(0, 2)), ncol = 10, nrow = 1))
+widths_vals <- rep(c(1, 1/2), 5)
+heights_vals <- rep(1, 7)
+layout_order <- layout(lay_mat_order_2, widths = widths_vals, heights = heights_vals, respect = TRUE)
+# layout.show(layout_order)
+
+## PLOTTING THE SUPERORDERS
+
+## Getting the tip order for the ladderised super order tree
+
+## Getting the tip order for the ladderised super order tree
+tip_order <- c(
+    "Tinamiformes"= 1,
+    "Galliformes"= 3,
+    "Anseriformes"= 2,
+    "Otidiformes"= 7,
+    "Cuculiformes" = 8,
+    "Gruiformes" = 9, 
+    "Musophagiformes" = 10,
+    "Procellariiformes" = 12,
+    "Sphenisciformes" = 11,
+    "Ciconiiformes" = 13,
+    "Pelecaniformes"= 15,
+    "Suliformes" = 14,
+    "Podicipediformes" = 4,
+    "Columbiformes" = 6,
+    "Pterocliformes" = 5,
+    "Charadriiformes" = 18,
+    "Trogoniformes" = 21,
+    "Bucerotiformes" = 22,
+    "Coraciiformes" = 23,
+    "Piciformes" = 24,
+    "Strigiformes" = 20,
+    "Accipitriformes" = 19, 
+    "Falconiformes" = 25,
+    "Psittaciformes" = 26,
+    "Passeriformes" = 27,
+    "Caprimulgiformes" = 16, 
+    "Apodiformes" = 17)
+
+## Plotting the tree and getting the tip orders
+tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
+
+## Plotting the ellipses
+for(i in 1:length(tip_order)) {
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_orders, order_shapespace, results$order_results_between, ei.col = c("orange", "blue"))
+}
+
+## Adding the ellipses
+par(bty = "n")
+lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
+plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+covar.plot(order_shapespace, ellipses = mean,
+           col = match.col(order_shapespace, tip_colours_orders),
+           legend = FALSE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(0.5, length(tip_colours_orders)), 3),
+           add = TRUE, n = 100)
+dev.off()
+
+```
+
+
+
+
+
+
+# Passeriformes clade level projections plot
+
+```{r, eval = TRUE, echo = FALSE}
+## Load the data
+load(file = "../Data/Processed/shapespace_passeriformes_two_levels.rda")
+## Select the data
+shapespace <- shapespace_passeriformes_two_levels[[1]]$space
+tree <- shapespace_passeriformes_two_levels[[1]]$consensus_tree
+## Clean garbage
+rm(shapespace_passeriformes_two_levels)
+
+## Load the covar
+load(file = "../Data/Processed/shapespace_passeriformes.MCMCglmm")
+shapespace_passeriformes <- shapespace_passeriformes[[1]]
+
+## Get the levels
+phylo_lvl <- which(MCMCglmm.levels(shapespace_passeriformes) == "animal")
+suborder_lvl <- grep("level1_", MCMCglmm.levels(shapespace_passeriformes))
+family_lvl <- grep("level2_", MCMCglmm.levels(shapespace_passeriformes))
+
+## Creating the subsets
+suborder_shapespace <- MCMCglmm.subsets(
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(suborder_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
+
+family_shapespace <- MCMCglmm.subsets(
+      data          = shapespace,
+      posteriors    = shapespace_passeriformes,
+      group         = MCMCglmm.levels(shapespace_passeriformes)[c(family_lvl, phylo_lvl)],
+      rename.groups = c(levels(shapespace$level2)[-1], "phylogeny")) #[-1] is because the first level is ""
+## Clean garbage
+rm(shapespace_passeriformes)
+
+## Loading the results
+load(file = "../Data/Processed/shapespace_passeriformes_suborder_family_results_list.rda")
+results <- shapespace_passeriformes_suborder_family_results_list
+rm(shapespace_passeriformes_suborder_family_results_list)
+```
+
+## Phylogeny window (detailed)
+
+```{r}
+## Adding the bar plot for the phylogeny component (to be added separately in Inkscape)
+# pdf(file = "../Manuscript/Figures/phylo_loadings.pdf", height = 4, width = 4)
+# plot(NULL, xlim = range(suborder_shapespace$matrix), ylim = range(suborder_shapespace$matrix))
+# add.dims(suborder_shapespace, name.col = c(phylogeny = "grey"), n = 1000)
+# dev.off()
+
+box_size <- 1.5
+pdf(file = "../Manuscript/Figures/ellipses_passeriformes.pdf", height = box_size*9, width = box_size*10)
+
+## Global window
+x <- 61
+lay_mat_sub <- rbind(
+        matrix(c(1,1, rep(x, 3), 0, 2:5), ncol = 10, nrow = 1), # line 7
+        matrix(c(1,1, rep(x, 3), 0, 6:9), ncol = 10, nrow = 1), # line 8
+        matrix(c(x+2,x+2, 10:13, rep(x+3, 4)), ncol = 10, nrow = 1)) # line 8)
+y <- x - 13
+lay_mat_family <- rbind(
+        matrix(c(1,1, rep(y+1, 3), y+4, 2:5), ncol = 10, nrow = 1), 
+        matrix(c(1,1, rep(y+1, 3), y+4, 6:9), ncol = 10, nrow = 1), 
+        matrix(c(1,1, 10:17), ncol = 10, nrow = 1),
+        matrix(c(18:27), ncol = 10, nrow = 1),
+        matrix(c(28:37), ncol = 10, nrow = 1), 
+        matrix(c(38:47), ncol = 10, nrow = 1))
+heights_vals <- rep(1, 8)
+widths_vals <- rep(c(1, 1/3), 5)
+layout_matrix <- layout(rbind(lay_mat_sub, (lay_mat_family+13)), widths = widths_vals, heights = heights_vals, respect = TRUE)
+# layout.show(layout_matrix)
+
+## PLOTTING THE SUBORDERS
+## Getting the tip order for the ladderised super order tree
+tip_order <- c(
+    "Suboscines" = 1,
+    "Meliphagoidea" = 2,
+    "Corvides" = 3,
+    "Sylviida" = 4,
+    "Muscicapida" = 5,
+    "Passerida" = 6)
+
+## Plotting the tree and getting the tip orders
+tip_colours_passeriformes_suborder <- plot.short.tree(tree, shapespace, "level1", tip.order = tip_order)
+save(tip_colours_passeriformes_suborder, file = "../Data/Processed/tip_colours_passeriformes_suborder.rda")
+
+## Plotting the ellipses
+for(i in 1:length(tip_order)) {
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_passeriformes_suborder, suborder_shapespace, results$suborder_results_between)
+}
+
+## PLOTTING THE FAMILIES
+## Matching the order and the colours to the ladderised tree
+tip_order <- c(
+    "Aegithaloidea"= 12,
+    "Bombycilloidea"= 17,
+    "Cisticolidae"= 14,
+    "Corvoidea"= 7,
+    "Emberizoidea"= 23,
+    "Eurylaimides"= 1,
+    "Fringillidae"= 10,
+    "Furnariida"= 3,
+    "Hirundinidae"= 11,
+    "Locustelloidea"= 15,
+    "Malaconotoidea"= 5,
+    "Meliphagoidea"= 4,
+    "Motacillidae"= 22,
+    "Muscicapoidea"= 18,
+    "Nectariniidae"= 19,
+    "Orioloidea"= 6,
+    "Paridae"= 9,
+    "Passeridae"= 21,
+    "Petroicidae"= 8,
+    "PloceidaeEstrildidae"= 20,
+    "Pycnonotidae"= 13,
+    "Sylvioidea"= 16,
+    "Tyrannida" = 2)
+
+## Plotting the tree and getting the tip orders
+tip_colours_passeriformes_family <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+save(tip_colours_passeriformes_family, file = "../Data/Processed/tip_colours_passeriformes_family.rda")
+
+## Plotting the ellipses
+for(i in 1:length(tip_order)) {
+    ## Plot each pannel
+    wrap.plot.ellipses(i, tip_colours_passeriformes_family, family_shapespace, results$family_results_between)
+}
+
+## Plotting the aligned and scale ellipses for the superorders
+par(bty = "n")
+lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
+plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+covar.plot(suborder_shapespace, ellipses = mean,
+           col = match.col(suborder_shapespace, tip_colours_passeriformes_suborder),
+           legend = FALSE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(1, length(tip_colours_passeriformes_suborder)), 3),
+           add = TRUE, n = 100)
+
+## PLOTTING THE ORDERS
+par(bty = "n")
+lims <- c(-1/3, 1/3) # c(-1.25, 1.25)
+plot(NULL, xlim = lims, ylim = lims, xaxt = "n", yaxt = "n", xlab = "n", ylab = "n")
+abline(v = 0, col = "grey", lwd = 0.5)
+abline(h = 0, col = "grey", lwd = 0.5)
+covar.plot(family_shapespace, ellipses = mean,
+           col = match.col(family_shapespace, tip_colours_passeriformes_family),
+           legend = FALSE, points = FALSE, scale = "phylogeny",
+           lines.lwd = c(rep(0.5, length(tip_colours_passeriformes_family)), 3),
+           add = TRUE, n = 100)
+dev.off()
+```
