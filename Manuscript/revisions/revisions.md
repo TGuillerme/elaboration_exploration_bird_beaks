@@ -3,30 +3,31 @@ OK, I've gone through the comments in details and it's actually pretty good! The
 1. More words throughout (references and explanation)
 2. Re-integrate the correlation figure
 3. Mathematically link innov/elab to other metrics
-<!-- 4. * Look at innov/elab through time -->
-<!-- 5. * Calculate rates of innov/elab? -->
-<!-- 6. * Link innov/elab in figure 4 using the same VCVs -->
-<!-- 7. * redo the PGLS centroid_distance ~ innovation + elaboration -->
-
-
-The points with * will need us to rerun some calculations but only based on the VCVs, basically we don't need to rerun the mcmcmcmcmcmgllmmmmmm!
-
-Do a cartoon for defining meso/micro/mega/macro in a tree.
-
-Split figure 2. Make the e/i barplots wider
 
 Shapespace comment: don't do it.
 
 
+TODO: reading
+ - [ ] Houle 2017
+ - [ ] Wannatabe 2021
+
+ - [ ] Redo figure spirograph in bird island style.
+    - [x] Centred on the orders (for orders, also add the ellipse for the super order).
+    - [ ] Colour the ellipses in a orange blue gradient scaling with the amount of elaboration and innovation. 
+    - [ ] Make the ellipses the same size
+ - [ ] Redo the cheat sheet figure with the macro and mega definitions
+ - [x] pgls bit on a tree subsample
 
 TODO:
 
 ## Adding to the supplementaries
  - [ ] Correlation figure
- - [ ] Correlation fable
+ - [ ] Correlation fable -> TODO: just add the macro-level panel (for the clarity of the narrative)
  - [ ] Elaboration and innovation through time
 
 ## Adding to the main text
  - [ ] Figure cheat sheet
  - [ ] Updated anus
  - [ ] Split ellipses figures
+
+
