@@ -81,6 +81,8 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
 
     ## Do the empty plot
     if(lims[1] == "dynamic") {
+
+
         ## detect the limits
         ellipse_data <- get.subsets(data, subsets = subsets)
         covars <- sample.n(ellipse_data$covar, n = 100)
@@ -100,6 +102,27 @@ plot.one.ellipse <- function(data, name.col, x = TRUE, y = TRUE, main = "", lege
         ## Get the scaled ranges       
         xlims <- range(c(all_ellipses[[1]][[1]][, 1], all_ellipses[[2]][[1]][, 1]))
         ylims <- range(c(all_ellipses[[1]][[1]][, 2], all_ellipses[[2]][[1]][, 2]))
+        # cat(paste0(names(name.col), "\n"))
+        # cat(paste0("xlims = c(", paste0(xlims, collapse = ", "), ")\ndiff = ", diff(xlims), "\n"))
+        # cat(paste0("ylims = c(", paste0(ylims, collapse = ", "), ")\ndiff = ", diff(ylims), "\n"))
+
+        ## hard coded range
+        hard_range <- 0.45
+        if(hard_range > 0) {
+            ## Spread the x range
+            x_range_diff <- hard_range - diff(xlims)
+            if(x_range_diff > 0) {
+                xlims[1] <- xlims[1] - (x_range_diff/2)
+                xlims[2] <- xlims[2] + (x_range_diff/2)
+            }
+            ## Spread the y range
+            y_range_diff <- hard_range - diff(ylims)
+            if(x_range_diff > 0) {
+                ylims[1] <- ylims[1] - (y_range_diff/2)
+                ylims[2] <- ylims[2] + (y_range_diff/2)
+            }
+        }
+
     } else {
         xlims <- ylims <- lims
     }
