@@ -39,13 +39,13 @@ super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_
 order_lvl <- grep("level2_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(
+superorder_shapespace <- MCMCglmm.subsets(n = 100,
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
       rename.groups = c(levels(shapespace$level1)[-1], "phylogeny")) #[-1] is because the first level is ""
 
-order_shapespace <- MCMCglmm.subsets(
+order_shapespace <- MCMCglmm.subsets(n = 100,
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(order_lvl, phylo_lvl)],
@@ -67,7 +67,7 @@ match.col <- function(data, col) {
 ```
 
 ```{r}
-pdf(file = "test.pdf", height = 11.693, width = 8.268)
+pdf(file = "../Manuscript/Figures/figure_phylo_spiro.pdf", height = 11.693, width = 8.268)
 ## Plot splitting
 x <- 82
 super_orders <- rbind(
@@ -140,6 +140,12 @@ save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
 for(i in 1:27) {
     wrap.plot.ellipses(i, tip_colours_orders, order_shapespace, results$order_results_between, ei.col = c("orange", "blue"), phylo.plot = TRUE)
 }
+
+#TODO:
+ # - change the E/I thermos to scale with the amount of E/I <- maybe?
+ # - change the E/I thermos to look less clutered (remove the box and labels), one tick = 5 units
+
+
 load(file = "../Data/Processed/tip_colours_super_orders.rda")
 for(i in 1:8) {
     ## Plot each pannel
