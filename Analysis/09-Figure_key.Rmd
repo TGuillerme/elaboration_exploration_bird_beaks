@@ -37,7 +37,7 @@ phylo_lvl <- which(MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order) == 
 super_lvl <- grep("level1_", MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order))
 
 ## Creating the subsets
-superorder_shapespace <- MCMCglmm.subsets(n = 4000, # Just run it on 1k matrices for now
+superorder_shapespace <- MCMCglmm.subsets(n = 1000, # Just run it on 1k matrices for now
       data          = shapespace,
       posteriors    = shapespace_allbirds_lvl_superorder_order,
       group         = MCMCglmm.levels(shapespace_allbirds_lvl_superorder_order)[c(super_lvl, phylo_lvl)],
@@ -85,22 +85,54 @@ covars_cent_tend <- lapply(covars, VCV.cent.tend, mean)
 base_vectors <- lapply(lapply(covars_cent_tend, get.one.axis, axis = 1, level = 0.95, dimensions = c(1,2)), list)
 
 ## Get projection lines
-get.proj.line <- function(point, base) {
+get.proj.line <- function(point, base, just.proj = FALSE) {
   point <- t(point)
   base <- t(base)
   proj_x <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[1];
   proj_y <- ( (point[1]*base[1] + point[2]*base[2]) / (base[1]*base[1] + base[2]*base[2]) ) * base[2];
-  return(rbind(cbind(proj_x, proj_y), point))
+  if(just.proj) {
+      return(cbind(proj_x, proj_y))
+  } else {
+      return(rbind(cbind(proj_x, proj_y), point))
+  }
+}
+get.any.proj.lines <- function(points, base) {
+      ## 1 - Get the coordinates of the points
+      points_coords <- points[, ]
+            # points(points_coords, col = "grey")
+      ## 2 - Get the coordinates of the base
+      base_coords <- base
+            # lines(base_coords, col = "grey")
+
+      ## 3 - translate the points and base onto the origin of the base
+      translation_vector <- c(0, 0) - base_coords[2,]
+      points_coords_translated <- t(t(points_coords) + translation_vector)
+      base_coords_translated <- t(t(base_coords) + translation_vector)
+            # lines(base_coords_translated)
+            # points(points_coords_translated) 
+
+      ## 4 - project all the translated points onto the translated base
+      lines_out_translated <- t(apply(points_coords_translated, 1, get.proj.line, base = base_coords_translated, just.proj = TRUE))
+            # lines(rbind(lines_out_translated[1, ], points_coords_translated[1, ]))
+
+      ## 5 - untranslate the points
+      lines_out <- t(t(lines_out_translated) - translation_vector)
+            # lines(rbind(lines_out[1, ], points_coords[1, ]), col = "red")
+      return(lines_out)
 }
 
 ## Projection onto the phylo line
 pdf("../Manuscript/Figures/figure_key_projection_on_phylo.pdf")
 plot(NULL, xlab = "PC1", ylab = "PC2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.5))
-# lines(base_vector)
+## Project all the points on the base line
+proj_points <- get.any.proj.lines(matrix, base = base_vectors$phylogeny[[1]])
+## Plot all these lines
 for(i in 1:nrow(matrix)) {
-      lines(get.proj.line(matrix[i, ], base_vectors$phylogeny[[1]]))
+    lines(rbind(matrix[i, ], proj_points[i, ]), col = "grey")
 }
+## Add the points
 points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+## Add the ellipses
 covar.plot(space_paleo,
       col = c("grey", gg.color.hue(1)),
       ellipses = mean,
@@ -116,15 +148,15 @@ dev.off()
 ## Projection onto the group line
 pdf("../Manuscript/Figures/figure_key_projection_on_group.pdf")
 plot(NULL, xlab = "PC1", ylab = "PC2", xlim = c(-0.5, 0.5), ylim = c(-0.5, 0.5))
-points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
-
-base <- base_vectors$Paleognathae[[1]]
-# base <- matrix(c(base)[c(1, 1, 4, 4)], 2, 2, byrow = FALSE) # or c(1, 4, 3, 2)
+## Project all the points on the base line
+proj_points <- get.any.proj.lines(matrix, base = base_vectors$Paleognathae[[1]])
+## Plot all these lines
 for(i in 1:nrow(matrix)) {
-      lines(get.proj.line(matrix[i, ], base))
+    lines(rbind(matrix[i, ], proj_points[i, ]), col = gg.color.hue(1))
 }
-
+## Add the points
 points(shapespace[which(shapespace$level1 == "Paleognathae"), c(1,2)], col = gg.color.hue(1), pch = 19)
+## Add the ellipses
 covar.plot(space_paleo,
       col = c("grey", gg.color.hue(1)),
       ellipses = mean,
@@ -145,9 +177,9 @@ tree_paleo <- drop.tip(tree, tip = rownames(shapespace)[which(shapespace$level1 
 tree_paleo <- ladderize(tree_paleo)
 
 ## Get the data (in the right order)
-load("../Data/Processed/ploting_data.rda")
-elaborations <- ploting_data$median_elaborations[tree_paleo$tip.label]
-innovations <- ploting_data$median_innovations[tree_paleo$tip.label]
+load("../Data/Processed/ploting_data_order.rda")
+elaborations <- ploting_data_order$median_elaborations[tree_paleo$tip.label]
+innovations <- ploting_data_order$median_innovations[tree_paleo$tip.label]
 
 ## Transform them into a colour gradient
 ## Change colours to grey -> blue innov. grey -> orange elab
@@ -164,9 +196,5 @@ tiplabels("", frame = "none", pch = 19, cex = 2, col = rgb(cols_elab, maxColorVa
 tiplabels("", frame = "none", pch = 19, cex = 2, col = rgb(cols_inno, maxColorValue = 256), offset = 4)
 dev.off()
 
-
-pdf("../Manuscript/Figures/figure_key_tree_example2.pdf")
-plot(ladderize(tree_paleo), show.tip.label = FALSE)
-dev.off()
-
+# Focal species is Dromaius
 ```
