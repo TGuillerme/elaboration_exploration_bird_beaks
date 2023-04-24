@@ -17,6 +17,12 @@ TODO: reading
     - [ ] Make the ellipses the same size
  - [ ] Redo the cheat sheet figure with the macro and mega definitions
  - [x] pgls bit on a tree subsample
+ - [ ] link orthogonality to random skewers
+ - [ ] link E/I to relative eigenvector dispersion (Pavlicev et al., 2009, Watanabe, 2022) 
+ - [ ] link E/I to conditional evolvability (Hansen & Houle, 2008) 
+ - [ ] link E/I to integration (Hansen & Houle, 2008) 
+
+
 
 TODO:
 
