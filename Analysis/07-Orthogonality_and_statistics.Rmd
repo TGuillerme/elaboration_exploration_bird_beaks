@@ -108,7 +108,7 @@ names(passeriformes_shapespace_subgroups) <- levels(shapespace_passeriformes$lev
 
 ### Groups compared to the phylogeny
 
-```{r, eval = TRUE, echo = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 source("../Functions/stats.utilities.R")
 
 ## General measurement
@@ -421,5 +421,108 @@ summary_table$model <- c(rep("all", 4), rep("macro", 2), rep("mega", 2))
 summary_table$predictor <- rep(c("species elaboration", "species innovation", "orders elaboration", "orders innovation"), 2)
 summary_table[, 3:5] <- t(apply(all_estimates[, c(4:7,12,13,16,17)], 2, quantile, probs = c(0.5, 0.05, 0.95)))
 summary_table[, 6:8] <- t(apply(all_estimates[, -c(1:3,4:7,12,13,16,17)], 2, quantile, probs = c(0.5, 0.05, 0.95)))
+
+```
+
+
+## Random skewers
+
+
+```{r}
+## Random skewers function wrapper for dispRity
+skewers.fun <- function(matrix, matrix2) {
+    return(phytools::skewers(matrix, matrix2)$r)
+}
+skewers.fun.p <- function(matrix, matrix2) {
+    return(phytools::skewers(matrix, matrix2)$p)
+}
+p.star <- function(x) {
+    if(x > 0.1) {
+        return("")
+    } else {
+        if(x > 0.05) {
+            return(".")
+        } else {
+            if(x > 0.01) {
+                return("*")
+            } else {
+                if(x > 0.001) {
+                    return("**")
+                } else {
+                    return("***")
+                }
+            }
+        }
+    }
+}
+
+## Getting the same order as the orthogonality data
+ortho_order <- c(
+    "Columbimorphae",
+    "Galloanserae",
+    "Mirandornithes",
+    "Telluraves",
+    "Strisores",
+    "Paleognathae",
+    "Aequornithes",
+    "Otidimorphae",
+    "Galliformes",
+    "Accipitriformes",
+    "Strigiformes",
+    "Musophagiformes",
+    "Trogoniformes",
+    "Columbimorphae",
+    "Caprimulgiformes",
+    "Bucerotiformes",
+    "Falconiformes",
+    "Pterocliformes",
+    "Sphenisciformes",
+    "Podicipediformes",
+    "Ciconiiformes",
+    "Tinamiformes",
+    "Suliformes",
+    "Anseriformes",
+    "Apodiformes",
+    "Otidiformes",
+    "Cuculiformes",
+    "Psittaciformes",
+    "Gruiformes",
+    "Pelecaniformes",
+    "Procellariiformes",
+    "Piciformes",
+    "Passeriformes",
+    "Coraciiformes",
+    "Charadriiformes")
+
+
+## Getting the group pairs
+group_pairs <- sapply(name.subsets(all_birds_shapespace)[-36], function(x) c(x, "phylogeny"), simplify = FALSE)
+
+## Calculating the random skewers for each group
+skewers_r <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun), between.groups = group_pairs, verbose = TRUE)
+skewers_p <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun.p), between.groups = group_pairs, verbose = TRUE)
+
+## Extract disparity for fancy plotting
+skewers_distrib <- lapply(get.disparity(skewers_r, concatenate = FALSE), quantile, probs = c(0.5, 0.025, 0.25, 0.75, 0.975))
+skewers_median_p <- lapply(get.disparity(skewers_p, concatenate = FALSE), median)
+plot_names <- unlist(strsplit(names(skewers_distrib), split = ":phylogeny"))
+names(skewers_distrib) <- names(skewers_median_p) <- plot_names
+skewers_distrib <- skewers_distrib[ortho_order]
+skewers_median_p <- skewers_median_p[ortho_order]
+plot_names <- names(skewers_median_p)
+
+col <- rev(c(rep(gg.color.hue(4)[1], 8), rep(gg.color.hue(4)[2], 27)))
+
+par(mar = c(5, 17, 4, 2))
+plot(NULL, xlim = c(0, 1), ylim = c(1,length(skewers_distrib)), xlab = "Skewers correlation", ylab = "", yaxt = "n")
+abline(v = 0.5, lty = 2, col = "grey", lwd = 0.5)
+axis(2, at = length(skewers_distrib):1, labels = plot_names, las = 2)
+## Skewers
+for(i in length(skewers_distrib):1) {
+    lines(x = skewers_distrib[i][[1]][c(2, 5)], y = rep(i, 2), lty = 2, lwd = 1, col = col[i])
+    lines(x = skewers_distrib[i][[1]][c(3, 4)], y = rep(i, 2), lty = 1, lwd = 2, col = col[i])
+    points(x = skewers_distrib[i][[1]][1], y = i, pch = 19, col = col[i])
+    text(x = skewers_distrib[i][[1]][1]+0.03, y = i+0.2, label = p.star(skewers_median_p[[i]]), col = col[i])
+}
 
 ```
