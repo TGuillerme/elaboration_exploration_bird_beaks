@@ -1,0 +1,32 @@
+---
+title: "Bird beak's elaboration and innovation"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+bibliography: references.bib
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+# Comparing results of `mcmcmcglmmm` to phylo-pca results
+
+## Comparing phylo pca to just pca
+
+```{r}
+library(phytools)
+data(anoletree)
+data(anole.data)
+
+## Phylo PCA
+phyl_pca <- phyl.pca(anoletree, anole.data)
+
+## Normal PCA
+norm_pca <- prcomp(anole.data)
+
+## Comparing the loadings
+scree_phyl <- apply(phyl_pca$S, 2, var)/sum(apply(phyl_pca$S, 2, var))
+scree_norm <- apply(norm_pca$x, 2, var)/sum(apply(norm_pca$x, 2, var))
+
+## Anolis example
+
