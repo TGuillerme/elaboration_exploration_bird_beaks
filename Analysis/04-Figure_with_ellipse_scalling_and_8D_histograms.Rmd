@@ -59,11 +59,6 @@ results <- shapespace_allbirds_lvl_superorder_order_results_list
 rm(shapespace_allbirds_lvl_superorder_order_results_list)
 ```
 
-TODO:
- - [ ] split in two figures
- - [ ] make E/I boxes larger
- - [ ] make E/I colours always orange/blue
-
 ```{r, eval = TRUE, echo = FALSE}
 ## Matching colours (fast utility)
 match.col <- function(data, col) {
@@ -73,7 +68,6 @@ match.col <- function(data, col) {
 
 
 ### Ellipses plot super orders
-
 
 ```{r, eval = TRUE, echo = FALSE}
 ## Plot dimensions and name
