@@ -18,7 +18,9 @@ Note that the published figure is slightly modified in Inkscape (boxplot added m
 library(ggtree)
 library(ggtreeExtra)
 library(treeio)
+# install_github("uyedaj/treeplyr")
 library(treeplyr)
+library(dplyr)
 library(ggplot2)
 library(phytools)
 library(motmot)
@@ -79,6 +81,9 @@ heatmapdat <- beak[,c(1:3,5:8)]
 colnames(heatmapdat) <- c("species", "Elaboration (all)", "Innovation (all)", 
                       "Elab (superorder)", "Innov (superorder)",
                       "Elab (order)", "Innov (order)")
+## Just orders
+heatmapdat <- beak[,c(1,7,8)]
+colnames(heatmapdat) <- c("species", "Elaboration", "Innovation")
 
 heatmapdat <- reshape2::melt(heatmapdat, id.vars="species", variable.name = "type", value.name="score", factorsAsStrings=FALSE)
 
