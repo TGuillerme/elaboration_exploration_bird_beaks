@@ -72,10 +72,6 @@ super_group_cor <- get.correlations.plot(results$super_results_within, exclude.p
 
 ## Get the correlation fable
 
-y axis = levels
-column 1 = correlation of e/i projected on the mega level
-column 2 = correlation of e/i projected on the macro level
-stars for significant correlation between means.
 
 ```{r, echo = TRUE, eval = TRUE}
 ## Get all the correlations for all the clades
@@ -92,11 +88,11 @@ par(mfrow = c(1,2))
 par(mar = c(5, 8, 4, 0) + 0.1, bty = "n") # c(bottom, left, top, right)
 plot.cor.scores(cor_mega_level, col = super_orders_col,
                 y.axis = TRUE, plot.phylo = TRUE,
-                main = "Elaboration and innovation\nat the mega level") 
+                main = "Species projected onto\nthe whole phylogeny VCV") 
 par(mar = c(5, 2, 4, 6) + 0.1, bty = "n") # c(bottom, left, top, right)
 plot.cor.scores(cor_macro_level, col = super_orders_col,
                 y.axis = FALSE, plot.phylo = FALSE,
-                main = "Elaboration and innovation\nat the macro level")
+                main = "Species projected onto\ntheir superorders' VCV")
 dev.off()
 ```
 
