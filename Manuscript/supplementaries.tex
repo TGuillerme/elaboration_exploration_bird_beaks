@@ -120,25 +120,6 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 \section{Supplementary material 2: additional results}
 
-\begin{figure}[!htbp]
-\centering
-   \includegraphics[width=0.9\textwidth]{Figures/cheat_sheet.pdf}
-\caption{\scriptsize Relation between the figures in the main text.
-The top left panel represents the two first dimensions of the 8 dimensional trait space with all bird beaks represented as grey circles and the Palaeognathes as red ones.
-The grey ellipse represents the average posterior variance covariance matrix (VCV) from the general phylogenetic random term of the MCMCglmm model (i.e. the overall phylogenetic axis of main variation).
-Species aligned with this axis tend to be elaborators at the mega-evolutionary level and species going away from that line are innovators at the mega-evolutionary level.
-The red ellipse and axis represents the average posterior VCV for the Palaeognathes only.
-Species position on this axis elaborate and innovate at the macro-evolutionary level.
-On the top right panel (Figure 1 in the main text), we measured the position of each species in terms of elaboration and innovation.
-A species elaboration score is their projection onto the phylogenetics' VCV major axis (i.e. their position on that axis) whereas their innovation score is their rejection from it (i.e. their distance away from that axis).
-On the bottom right panel (Figure 2 in the main text), we measured the elaboration and innovation at the entire clade level (cf. at the species level below).
-The ellipses are a scaled and centered in space representation of the group’s VCV ellipse relative to the overall phylogenetic one with a the relative length of the ellipse on each dimension represented on the barplots.
-The clade's innovation and elaboration scores are measured by projecting the clade's major axis onto the phylogenetic one and measuring the projection (elaboration) and rejection (innovation) as mentioned above.
-The distribution of innovation and elaboration scores comes from the projection of the 4000 pairs of posterior VCVs.}
-
-\label{Fig:cheat_sheet}
-\end{figure}
-
 \begin{figure}[htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/mini-chains_diagram.pdf}
@@ -165,6 +146,46 @@ The distribution of innovation and elaboration scores comes from the projection 
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_passeriformes.pdf}
 \caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 1870 posteriors. \textbf{solution} is the solution of the model; \textbf{Gcovariance} are the covariances for the random terms (the phylogeny and the clades); \textbf{Rcovariance} are the residuals error term.}
 \label{Fig:model_ess_passeriformes}
+\end{figure}
+
+
+\begin{figure}[htpb]
+\centering
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/correlations.pdf}
+\caption{Correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different focal levels. \textbf{A}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. The colours of the dots correspond to their density in the plot. Blue and yellow colours corresponds to respectively low and high density of species. The coloured quadrant in the back corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. The blue and yellow quadrants shows species with noticeable high $elaboration_{species}$ and $innovation_{species}$ respectively. The species in the green quadrant have noticeable high levels of both $elaboration_{species}$ and $innovation_{species}$. \textbf{B}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below). \textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). The colours correspond to each order. For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. The orders numbers are:
+1 - others (orders with $<$ 15 species)
+2 - Corvoidea;
+3 - Malaconotoidea;
+4 - Orioloidea;
+5 - Meliphagoidea;
+6 - Bombycilloidea;
+7 - Muscicapoidea;
+8 - Emberizoidea;
+9 - Motacillidae;
+10 - Nectariniidae ;
+11 - Passeridae;
+12 - PloceidaeEstrildidae;
+13 - Eurylaimides;
+14 - Furnariida;
+15 - Tyrannida;
+16 - Aegithaloidea;
+17 - Cisticolidae;
+18 - Fringillidae;
+19 - Hirundinidae;
+20 - Locustelloidea;
+21 - Paridae;
+22 - Pycnonotidae;
+23 - Sylvioidea;}
+\label{Fig:figure_correlations}
+\end{figure}
+
+\begin{figure}[htpb]
+\centering
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/correlations_fable.pdf}
+\caption{Posterior distributions of the correlations scores between $elaboration_{species}$ and $innovation_{species}$ as displayed for each super-orders in Fig. \ref{Fig:figure_correlations}. Species' projection onto the whole phylogeny's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panels A and B in Fig. \ref{Fig:figure_correlations} and species' projections onto their own super-order's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panel C in Fig. \ref{Fig:figure_correlations}}
+\label{Fig:fable_correlations}
 \end{figure}
 
 
