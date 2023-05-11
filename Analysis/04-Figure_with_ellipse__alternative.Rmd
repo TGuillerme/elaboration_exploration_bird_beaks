@@ -74,23 +74,32 @@ super_orders <- rbind(
       #"Paleognathae" = "Tinamiformes",  
       matrix(c(rep(1+x,  1), rep(2+x,  1), rep(3+x,  1)), 1, 3),
       #"Galloanserae" = c("Galliformes", "Anseriformes"),
-      matrix(c(rep(4+x,  2), rep(5+x,  2), rep(6+x,  2)), 2, 3),
+      matrix(c(rep(4+x,  1), rep(5+x,  1), rep(6+x,  1)), 1, 3),
+      matrix(0, 1, 3),
       #"Mirandornithes" = c("Podicipediformes"),
       matrix(c(rep(7+x,  1), rep(8+x,  1), rep(9+x,  1)), 1, 3),
       #"Columbimorphae" = c("Columbiformes", "Pterocliformes"),
-      matrix(c(rep(10+x, 2), rep(11+x, 2), rep(12+x, 2)), 2, 3),
+      matrix(c(rep(10+x, 1), rep(11+x, 1), rep(12+x, 1)), 1, 3),
+      matrix(0, 1, 3),
       #"Otidimorphae" = c("Otidiformes", "Cuculiformes", "Musophagiformes"),
-      matrix(c(rep(13+x, 3), rep(14+x, 3), rep(15+x, 3)), 3, 3),
+      matrix(0, 1, 3),
+      matrix(c(rep(13+x, 1), rep(14+x, 1), rep(15+x, 1)), 1, 3),
+      matrix(0, 1, 3),
       #"Gruiformes" (NOT A SUPER ORDER)
       matrix(0, 1, 3),
       #"Aequornithes" = c("Procellariiformes", "Sphenisciformes", "Ciconiiformes", "Pelecaniformes", "Suliformes"),
-      matrix(c(rep(16+x, 5), rep(17+x, 5), rep(18+x, 5)), 5, 3),
+      matrix(0, 2, 3),
+      matrix(c(rep(16+x, 1), rep(17+x, 1), rep(18+x, 1)), 1, 3),
+      matrix(0, 2, 3),
       #"Strisores" = c("Caprimulgiformes", "Apodiformes"),
-      matrix(c(rep(19+x, 2), rep(20+x, 2), rep(21+x, 2)), 2, 3),
+      matrix(c(rep(19+x, 1), rep(20+x, 1), rep(21+x, 1)), 1, 3),
+      matrix(0, 1, 3),
       #"Charadriiformes" (NOT A SUPER ORDER)
       matrix(0, 1, 3),
+      matrix(0, 4, 3),
       #"Telluraves" = c("Trogoniformes", "Bucerotiformes", "Coraciiformes", "Piciformes", "Strigiformes", "Accipitriformes", "Falconiformes", "Psittaciformes", "Passeriformes")
-      matrix(c(rep(22+x, 9), rep(23+x, 9), rep(24+x, 9)), 9, 3))
+      matrix(c(rep(22+x, 1), rep(23+x, 1), rep(24+x, 1)), 1, 3),
+      matrix(0, 4, 3))
 
 layout_matrix <- cbind( 
                 matrix(1, 27, 1), # first column
@@ -134,7 +143,7 @@ tip_order <- c(
 
 ## Plotting the tree and getting the tip orders
 tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
-save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
+# save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
 
 ## Plotting each ellipse
 for(i in 1:27) {
