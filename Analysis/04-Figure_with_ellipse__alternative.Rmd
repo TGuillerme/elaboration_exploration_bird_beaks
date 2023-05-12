@@ -67,7 +67,7 @@ match.col <- function(data, col) {
 ```
 
 ```{r}
-pdf(file = "../Manuscript/Figures/figure_phylo_spiro.pdf", height = 11.693, width = 8.268)
+pdf(file = "../Manuscript/Figures/figure_phylo_spiro_grey.pdf", height = 11.693, width = 8.268)
 ## Plot splitting
 x <- 82
 super_orders <- rbind(
@@ -142,8 +142,13 @@ tip_order <- c(
     "Apodiformes" = 17)
 
 ## Plotting the tree and getting the tip orders
-tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+# tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
 # save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
+
+## Non coloured version
+grey.palette <- function(n) {return(rep("grey", n))}
+tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order, colour.palette = black.palette)
+tip_colours_orders[1:length(tip_colours_orders)] <- "black"
 
 ## Plotting each ellipse
 for(i in 1:27) {
@@ -156,6 +161,12 @@ for(i in 1:27) {
 
 
 load(file = "../Data/Processed/tip_colours_super_orders.rda")
+
+## Black version
+tip_colours_super_orders[1:length(tip_colours_super_orders)] <- "black"
+## Grey version
+# tip_colours_super_orders <- rep("darkgrey", length(tip_colours_super_orders))
+
 for(i in 1:8) {
     ## Plot each pannel
     wrap.plot.ellipses(i, tip_colours_super_orders, superorder_shapespace, results$super_results_between, ei.col = c("orange", "blue"), phylo.plot = TRUE)
