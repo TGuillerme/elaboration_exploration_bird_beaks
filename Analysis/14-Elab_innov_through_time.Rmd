@@ -78,29 +78,64 @@ super_age_info <- t(sapply(unlist(strsplit(super_orders_elaboration$subsets, spl
 order_age_info <- t(sapply(unlist(strsplit(orders_elaboration$subsets, split = ":phylogeny")), get.clade.age, info = clade_info$orders, tree = ploting_data$consensus_tree))
 
 ## Table that for easy plotting
-super_orders_elaboration <- cbind(super_orders_elaboration, super_age_info, cex = 2)
-super_orders_innovation <- cbind(super_orders_innovation, super_age_info, cex = 2)
-orders_elaboration <- cbind(orders_elaboration, order_age_info, cex = 1)
-orders_innovation <- cbind(orders_innovation, order_age_info, cex = 1)
+super_orders_elaboration <- cbind(super_orders_elaboration, super_age_info, pch = 19)
+super_orders_innovation <- cbind(super_orders_innovation, super_age_info, pch = 19)
+orders_elaboration <- cbind(orders_elaboration, order_age_info, pch = 21)
+orders_innovation <- cbind(orders_innovation, order_age_info, pch = 21)
 elaboration_plot_data <- rbind(super_orders_elaboration, orders_elaboration)
 innovation_plot_data <- rbind(super_orders_innovation, orders_innovation)
 
 ## Empty plot
-plot.age.data <- function(data, ylab, xlab) {
-  plot(NULL, xlab = xlab, ylab = ylab,
+plot.age.data <- function(data, ylab, xlab, main = "") {
+  plot(NULL, xlab = xlab, ylab = ylab, main = main,
        xlim = rev(range(pretty(range(data$age)))),
-       ylim = range(pretty(range(data[,c(4, 8)]))))
+       ylim = range(pretty(range(data[c("2.5%", "25%", "75%", "97.5%")]))))
   ## Adding the lines for each clade
   for(i in 1:nrow(data)) {
     lines(x = rep(data[i, "age"][[1]], 2), y = data[i, c("2.5%", "97.5%")], lty = 2, col = data[i, "col"][[1]])
     lines(x = rep(data[i, "age"][[1]], 2), y = data[i, c("25%", "75%")], lty = 1, lwd = 2, col = data[i, "col"][[1]])
-    points(x = data[i, "age"][[1]], y = data[i, "obs.median"], cex = data[i, "cex"], col = data[i, "col"][[1]], pch = 19)
+    points(x = data[i, "age"][[1]], y = data[i, "obs.median"], pch = data[i, "pch"], col = data[i, "col"][[1]])
   }
 }
-pdf(height = 14, width = 7, file = "../Manuscript/Figures/Elaboration_and_innovation_through_time.pdf")
+
+pdf(height = 14, width = 7, file = "../Manuscript/Figures/Elaboration_and_innovation_clade_through_time.pdf")
 par(mfrow = c(2,1))
-plot.age.data(elaboration_plot_data, ylab = "Elaboration", xlab = "")
-legend("topleft", pch = 19, col = "grey", legend = c("super orders", "orders"), pt.cex = c(2, 1))
+plot.age.data(elaboration_plot_data, ylab = "Elaboration", xlab = "", main = "Clade's elaboration/innovation\nthrough time")
+legend("topleft", pch = 21, col = unlist(orders_elaboration$col), legend = rownames(orders_elaboration), cex = 0.7)
+legend("top", pch = 19, col = unlist(super_orders_elaboration$col), legend = rownames(super_orders_elaboration), cex = 0.7)
+plot.age.data(innovation_plot_data, ylab = "Innovation", xlab = "Time (Mya)")
+dev.off()
+```
+
+# Checking elaboration and innovation values through time (species)
+
+```{r, eval = TRUE, echo = TRUE}
+## Get all the statistics
+super_orders_elaboration <- summary(results$super_results_within$position)[-9,]  #-9 is for removing the "phylogeny" element
+super_orders_innovation <- summary(results$super_results_within$distance)[-9,]
+orders_elaboration <- summary(results$order_results_within$position)[-28,] #-28 is for removing the "phylogeny" element
+orders_innovation <- summary(results$order_results_within$distance)[-28,]
+
+## Get all the tree ages
+load("../Data/Processed/ploting_data.rda")
+load("../Data/Processed/clade_info.rda")
+
+super_age_info <- t(sapply(unlist(strsplit(super_orders_elaboration$subsets, split = ":phylogeny"))[-9], get.clade.age, info = clade_info$super_orders, tree = ploting_data$consensus_tree)) #-9 is for removing the "phylogeny" element
+order_age_info <- t(sapply(unlist(strsplit(orders_elaboration$subsets, split = ":phylogeny"))[-28], get.clade.age, info = clade_info$orders, tree = ploting_data$consensus_tree)) #-28 is for removing the "phylogeny" element
+
+## Table that for easy plotting
+super_orders_elaboration <- cbind(super_orders_elaboration, super_age_info, pch = 19)
+super_orders_innovation <- cbind(super_orders_innovation, super_age_info, pch = 19)
+orders_elaboration <- cbind(orders_elaboration, order_age_info, pch = 21)
+orders_innovation <- cbind(orders_innovation, order_age_info, pch = 21)
+elaboration_plot_data <- rbind(super_orders_elaboration, orders_elaboration)
+innovation_plot_data <- rbind(super_orders_innovation, orders_innovation)
+
+pdf(height = 14, width = 7, file = "../Manuscript/Figures/Elaboration_and_innovation_species_through_time.pdf")
+par(mfrow = c(2,1))
+plot.age.data(elaboration_plot_data, ylab = "Elaboration", xlab = "", main = "Species's elaboration/innovation\nthrough time (per clade)")
+legend("topright", pch = 21, col = unlist(orders_elaboration$col), legend = unlist(orders_elaboration$subsets), cex = 0.7)
+legend("top", pch = 19, col = unlist(super_orders_elaboration$col), legend = unlist(super_orders_elaboration$subsets), cex = 0.7)
 plot.age.data(innovation_plot_data, ylab = "Innovation", xlab = "Time (Mya)")
 dev.off()
 ```
