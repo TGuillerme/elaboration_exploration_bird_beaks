@@ -132,7 +132,7 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 \begin{figure}[htbp]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/axis_selection.pdf}
-\caption{variance and cumulative variance for each 8 axis per super-order.}
+\caption{Variance and cumulative variance for each 8 axis per super-order. Note that not all super orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain at least 95\% of their variance within the shapespace whilst Aequornithes need 8 dimensions to achieve at least the same amount of variance.}
 \label{Fig:axes_variance}
 \end{figure}
 
@@ -152,7 +152,6 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 
 \begin{figure}[htpb]
-\centering
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/correlations.pdf}
 \caption{Correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different focal levels. \textbf{A}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. The colours of the dots correspond to their density in the plot. Blue and yellow colours corresponds to respectively low and high density of species. The coloured quadrant in the back corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. The blue and yellow quadrants shows species with noticeable high $elaboration_{species}$ and $innovation_{species}$ respectively. The species in the green quadrant have noticeable high levels of both $elaboration_{species}$ and $innovation_{species}$. \textbf{B}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below). \textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). The colours correspond to each order. For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. The orders numbers are:
@@ -184,7 +183,6 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 \begin{figure}[htpb]
 \centering
-\centering
    \includegraphics[width=0.5\textwidth]{Figures/correlations_fable.pdf}
 \caption{Posterior distributions of the correlations scores between $elaboration_{species}$ and $innovation_{species}$ as displayed for each super-orders in Fig. \ref{Fig:figure_correlations}. Species' projection onto the whole phylogeny's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panels A and B in Fig. \ref{Fig:figure_correlations} and species' projections onto their own super-order's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panel C in Fig. \ref{Fig:figure_correlations}.}
 \label{Fig:fable_correlations}
@@ -193,11 +191,33 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 \begin{figure}[htpb]
 \centering
-\centering
-   \includegraphics[width=0.5\textwidth]{Figures/Elaboration_and_innovation_through_time.pdf}
-\caption{Distribution of $elaboration_{clade}$ and $innovation_{clade}$ for each order and super-order through time. Refer to the colours in Fig. 3 in the main text for the names of each order and super-order plotted.}
+   \includegraphics[width=0.5\textwidth]{Figures/Elaboration_and_innovation_clade_through_time.pdf}
+\caption{Distribution of $elaboration_{clade}$ and $innovation_{clade}$ for each order and super-order through time.}
+\label{Fig:figure_ei_clade_through_time}
 \end{figure}
 
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/Elaboration_and_innovation_species_through_time.pdf}
+\caption{Distribution of $elaboration_{species}$ and $innovation_{species}$ for each order and super-order through time.}
+\label{Fig:figure_ei_species_through_time}
+\end{figure}
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/50_random_axes_superorders.pdf}
+\caption{Distribution of 50 random scaled major axes (scaled variance-covariance matrices eigen values) for each super order illustrating that individual major axes can span in many different directions with some clades have a higher spread of direction than others.}
+\label{Fig:mikado}
+\end{figure}
+
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/random_skewers.pdf}
+\caption{Random skewers test for the differences between the super orders (in purple) and the orders (in gold) variance-covariance matrices against the whole phylogeny ones. And, in light gold, between the orders and their super-orders variance covariance matrices. The different line types (dashed and full) represent respectively the 95\% and the 75\% CI distribution and the dots represent the median skewer correlation estimate. The stars denote the median p-value estimate (0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1).}
+\label{Fig:random_skewers}
+\end{figure}
 
 
 \clearpage
@@ -286,6 +306,10 @@ We can then define the first row of the matrix, $M_{1,n}$, as the major axis, th
 
 The detailed procedure was adapted from \href{https://stackoverflow.com/questions/40300217/obtain-vertices-of-the-ellipse-on-an-ellipse-covariance-plot-created-by-care/40316331#40316331}{Zheyuan Li's} post on Stack Overflow and implemented in \texttt{dispRity::axis.covar}.
 
+The use of the scaled 95\% confidence interval hyper-sphere matrix $O'_{n}$ allows both (1) to standardise the resulting $M_{n}$ (the scaled version of $VCV_{n}$) so that the unit vector of the resulting space corresponds to the 95\% CI on every dimension (for any dimension $i$ in the matrix $M_{i,n}$, any vector with a norm smaller or greater than 1 is respectively inside or outside the 95\% CI boundary).
+And (2) greatly speed up the calculations of projection and rejection in an algorithm (see below) since the hypersphere $O'_{n}$ can be calculated only once for any number of matrix and the projection of rejection values are directly columns in the output transformed matrix (after the projection procedure, see below).
+This greatly reduces RAM and CPU usage and scaling for very large number of matrices.
+
 \subsection{Measuring projection and rejection}
 
 Once we have defined a major axis, we can project any elements in the trait-space onto that axis.
@@ -358,6 +382,7 @@ And any major axis defined as a vector $\vec{B}$:
     \end{bmatrix}
 \end{equation}
 
+
 By using the linear transformation $f_{\vec{B}}$ of the trait-space $TS$ moving $\vec{B}$ onto $TS$'s first axis unit vector $\vec{\hat{\imath}}$:
 
 $$f_{\vec{B}}(TS) = \left( \frac{TS - [Bx_{1}, By_{1}, \cdots, Bn_{1}]^{\text{T}}}{\|\vec{B}\|} \right) \cdot R_{\vec{B}}$$
@@ -393,10 +418,95 @@ In practice we followed \href{https://math.stackexchange.com/questions/598750/fi
 \end{enumerate}
 
 
+\subsection{Definition of species and clade innovation and elaboration}
 
+From the definitions above, we can define $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$, the elaboration and innovation at the macroevolutionary (species level) and $\text{elaboration}_{\text{clade}}$ and $\text{innovation}_{\text{clade}}$, the elaboration and innovation at the megaevolutionary level (clade).
+
+For any species with coordinates $\vec{species}$ in a $n$ dimensional space, we can estimate $VCV_{clade}$, the variance-covariance matrices representing the clade that contains $\vec{species}$.
+We can then calculate the eigen vector and eigenvalues from these matrices as: 
+
+$\textbf{v}_{clade}$ defined as:
+
+\begin{equation}
+VCV_{clade} \textbf{v}_{clade} = \lambda_{clade} \textbf{v}_{clade}
+\end{equation}
+
+In practice, these are solved using a eigen decomposition in \texttt{R} \texttt{base::eigen}.
+
+We can then define the followings for any species $x$:
+
+\begin{equation}
+\text{elaboration}_{\text{species}_{x}} = \|\frac{\vec{species}_{x} \cdot \textbf{v}_{clade}} {\sqrt{\textbf{v}_{clade} \cdot \textbf{v}_{clade}}}\|
+\end{equation}
+
+With $$\vec{species}_{x}$$ being the vector in $n$ dimensional space for species $x$. And $$\textbf{v}_{clade}$$ being the eigen vector of a specific clade (e.g. $$\textbf{v}_{clade_{c}}$$)
+
+\begin{equation}
+\text{innovation}_{\text{species}_{x}} = \| \vec{species}_{x} - \text{elaboration}_{\text{species}_{x}} \|
+\end{equation}
+
+And the followings for any clade $c$ (withing a parent clade $c-1$):
+
+\begin{equation}
+\text{elaboration}_{\text{clade}_{c}} = \| \frac{\textbf{v}_{clade_{c}} \cdot \textbf{v}_{clade_{c-1}}} {\sqrt{\textbf{v}_{clade_{c-1}} \cdot \textbf{v}_{clade_{c-1}}}}\|
+\end{equation}
+
+\begin{equation}
+\text{innovation}_{\text{clade}_{c}} = \| \textbf{v}_{clade_{c}} - \text{elaboration}_{\text{clade}_{c}} \|
+\end{equation}
+
+
+\subsection{Relation between elaboration and innovation and metrics in micro/macro-evolution}
+
+\subsubsection{Relative eigenvalues dispersion}
+
+\cite{vanvalen1974,watanabe2022} propose to describe a variance-covariance matrix in terms of its eigen dispersion $V_{rel}$ as:
+
+\begin{equation}
+V_{rel} = \frac{\sum_{i}^{n}(\lambda_{i} - \sum{\frac{\lambda_{i}}{n}})^2}{n(n-1)\sum{\frac{\lambda_{i}}{n}}^2}
+\end{equation}
+
+Which is the dispersion of eigenvalues (squared difference between each eigen value and the average eigen value) where $\lambda_{i}$ are each individual eigen values and $n$ is the number of dimensions considered.
+
+Using this definition and the definitions above of $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ we can calculate the and plot the relation between elaboration and innovation and their relative eigen dispersion:
+
+\begin{figure}[htbp]
+\centering
+   \includegraphics[width=0.9\textwidth]{Figures/elaboration_innovation_dispersion.pdf}
+\caption{Relation between relative eigen dispersion \cite{vanvalen1974,watanabe2022} and $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
+\label{Fig:eigen_dispersion}
+\end{figure}
+
+\subsubsection{Evolvability and respondability}
+
+\cite{hansen2008measuring} propose to measure the evolvability and respondability of an individual as their ``response to selection in $n$ traits''.
+Here, some equivalent can be drawn (albeit cautiously) between the response of an individual or a group (population) to selection pressure and a species.
+Arguably, a species is the end product of this (and many other) selection pressures on a group of individuals.
+If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \cite{hansen2008measuring} for a $species_{x}$ to it's $\text{elaboration}_{\text{species}_{x}}$ and $\text{innovation}_{\text{species}_{x}}$ as follows:
+
+\begin{equation}
+\text{evolvability}_{\text{species}_{x}} = \text{elaboration}_{\text{species}_{x}}
+\end{equation}
+
+\noindent and, using Pythagorean theorem in a triangle rectangle:
+
+\begin{equation}
+\text{respondability}_{\text{species}_{x}}  = \sqrt{\text{elaboration}_{\text{species}_{x}}^2 + \text{innovation}_{\text{species}_{x}}^2}
+\end{equation}
+
+
+\begin{figure}[htbp]
+\centering
+   \includegraphics[width=0.9\textwidth]{Figures/respondability.pdf}
+\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
+\label{Fig:respondability}
+\end{figure}
+
+Conditional evolvability however will be more complex to determine since it is defined as the relation between evolvability and autonomy which is specific defined in \cite{hansen2008measuring} as the inverse of the \textbf{G} matrix.
+In \cite{hansen2008measuring}, the inverse of \textbf{G} is defined as ``the fraction of the genetic variation that is independent of potentially constraining characters'' which in our case will be harder to define.
+Although it would technically be possible to use the inverse of the \textbf{R} matrix used here ($VCV_{clade}$), it is unclear what it would represent biologically.
 
 \bibliographystyle{naturemag}
 \bibliography{references}
-
 
 \end{document}
