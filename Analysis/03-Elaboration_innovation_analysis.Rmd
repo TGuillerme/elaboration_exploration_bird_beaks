@@ -122,7 +122,6 @@ covar.plot(order_shapespace,
            points = FALSE,
            cex = 0.5, apply.to.VCV = TRUE)
 
-
 pdf(file = "../Manuscript/Figures/unscaled_ellipses.pdf", height = 8, width = 8)
 par(mfrow = c(2,2))
 ## Plotting mean axes
@@ -157,6 +156,23 @@ covar.plot(order_shapespace,
            points = FALSE,
            cex = 0.5, apply.to.VCV = TRUE)
 dev.off()
+
+
+pdf(file = "../Manuscript/Figures/50_random_axes_superorders.pdf", height = 8, width = 8)
+load("../Data/Processed/tip_colours_super_orders.rda")
+tip_colours_super_orders <- c(tip_colours_super_orders, "phylogeny" = "grey")
+covar.plot(superorder_shapespace,
+           transparent.scale = 1/3,
+           n = 50,
+           col = tip_colours_super_orders[name.subsets(superorder_shapespace)],
+           main = "50 random scaled major axes per super order",
+           major.axes = TRUE,
+           legend = TRUE,
+           points = FALSE,
+           scale = "phylogeny",
+           cex = 1)
+dev.off()
+
 ```
 
 Main axes and ellipses visualisation for each superorders and orders.
