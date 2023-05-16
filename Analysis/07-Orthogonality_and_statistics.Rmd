@@ -186,7 +186,6 @@ quantile(unlist(lapply(ellipses_stats[2:9], get.angles)), probs = c(0.025, 0.975
 
 
 ```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
-#TODO: make the groups nested in the fable
 source("../Functions/ploting.utilities.R")
 ## Plot the orthogonality into context
 orthogonality <- all_results[, c(1:2, 9:14, 3, 5)]
@@ -213,8 +212,8 @@ if(any(no_match <- is.na(match(families_n2$Group, families$Group)))) {
 }
 
 pdf("../Manuscript/Figures/orthogonality_results.pdf", width = 9, height = 9)
-plot.orthogonality(super_orders, orders_n2, orders, col = gg.color.hue(4)[1:2])
-legend("topleft", legend = c("Super-orders (vs. phylogeny)", "Orders (vs. phylogeny)", "Orders (vs. super-orders)"), col = c(gg.color.hue(4)[1], gg.color.hue(4)[2], adjustcolor(gg.color.hue(4)[2], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
+plot.orthogonality(super_orders, orders_n2, orders, col = c("purple", "#FBB117"))
+legend("topleft", legend = c("Super-orders (vs. phylogeny)", "Orders (vs. phylogeny)", "Orders (vs. super-orders)"), col = c("purple", "#FBB117", adjustcolor("#FBB117", alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
 dev.off()
 ```
 
@@ -224,8 +223,8 @@ For the posterior probabilities: . >= 0.8; * >= 0.9; ** >= 0.95; *** >= 0.99.
 ```{r, eval = TRUE, echo = FALSE, fig.height = 20, fig.width = 8}
 ## Same but for the passeriformes
 pdf("../Manuscript/Figures/orthogonality_results_passeriformes.pdf", width = 9, height = 9)
-plot.orthogonality(sub_orders, families_n2, families, col = gg.color.hue(4)[3:4])
-legend("topleft", legend = c("Sub-orders (vs. passeriformes)", "Families (vs. sub-orders)", "Families (vs. passeriformes)"), col = c(gg.color.hue(4)[3], gg.color.hue(4)[4], adjustcolor(gg.color.hue(4)[4], alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
+plot.orthogonality(sub_orders, families_n2, families, col =c("purple", "#FBB117"))
+legend("topleft", legend = c("Sub-orders (vs. passeriformes)", "Families (vs. sub-orders)", "Families (vs. passeriformes)"), col = c("purple", "#FBB117", adjustcolor("#FBB117", alpha.f = 2/3)), pch = c(19, 19, 21), lty = c(1,1,2), cex = 0.8, bty = "n")
 dev.off()
 ```
 
@@ -247,22 +246,25 @@ innovation_species  <- innovation_species/max(innovation_species)
 
 
 ## Distribution of elaboration and innovation at the clade level
-scale.group <- function(X) return(X/max(X))
+scale.group <- function(X) return(X/quantile(X, prob = 0.975)[1])
 elaboration_super_orders <- lapply(get.disparity(results$super_results_between$position, concatenate = FALSE), scale.group)
 innovation_super_orders  <- lapply(get.disparity(results$super_results_between$distance, concatenate = FALSE), scale.group)
 elaboration_orders       <- lapply(get.disparity(results$order_results_between$position, concatenate = FALSE), scale.group)
 innovation_orders        <- lapply(get.disparity(results$order_results_between$distance, concatenate = FALSE), scale.group)
 
+## RAM cleaning
+rm(results)
+
 ## The objects above are the ones that contain all the elaboration and innovation values by clade level
 ## These bits are for the Bhatt coeff
-elaboration_group <- rbind(do.call(rbind, elaboration_super_orders), do.call(rbind, elaboration_orders))
-innovation_group <- rbind(do.call(rbind, innovation_super_orders), do.call(rbind, innovation_orders))
+# elaboration_group <- rbind(do.call(rbind, elaboration_super_orders), do.call(rbind, elaboration_orders))
+# innovation_group <- rbind(do.call(rbind, innovation_super_orders), do.call(rbind, innovation_orders))
 
 ## Measuring the area under the curves (for the Bhatt coeff)
-elaboration_species_auc <- apply(elaboration_species, 2, area.density)
-innovation_species_auc  <- apply(innovation_species, 2, area.density)
-elaboration_group_auc   <- apply(elaboration_group, 2, area.density)
-innovation_group_auc    <- apply(innovation_group, 2, area.density)
+# elaboration_species_auc <- apply(elaboration_species, 2, area.density)
+# innovation_species_auc  <- apply(innovation_species, 2, area.density)
+# elaboration_group_auc   <- apply(elaboration_group, 2, area.density)
+# innovation_group_auc    <- apply(innovation_group, 2, area.density)
 
 # library(tidyverse)
 library(patchwork)
@@ -274,7 +276,7 @@ elab <-
   geom_density(alpha = 0.5) +
   theme_classic(base_size = 14) +
   scale_colour_manual(values = c(rgb(0,0,0,0), rgb(0,0,0,0))) +
-  scale_fill_manual(values = c("yellow", "purple")) +
+  scale_fill_manual(values = c("#FBB117", "purple")) +
   xlab("Relative elaboration") +
   ylab("Density") +
   theme(legend.position = "none") +
@@ -285,7 +287,7 @@ innov <-
   geom_density(alpha = 0.5) +
   theme_classic(base_size = 14) +
   scale_colour_manual(values = c(rgb(0,0,0,0), rgb(0,0,0,0))) +
-  scale_fill_manual(values = c("yellow", "purple")) +
+  scale_fill_manual(values = c("#FBB117", "purple")) +
   xlab("Relative innovation") + 
   theme(legend.position = c(0.8, 0.8)) +
   labs(tags="b")
@@ -297,7 +299,7 @@ remove_y <-
             
 p <- elab + innov + remove_y
 
-ggsave("../Manuscript/Figures/relative_EI_gg_style_unscaled.pdf", plot=p, height=6, width=12)
+ggsave("../Manuscript/Figures/relative_EI_gg_style_95CIscaled.pdf", plot=p, height=6, width=12)
 ```
 
 ## Testing whether the passeriformes ellipses are similar
@@ -497,10 +499,40 @@ ortho_order <- c(
 
 ## Getting the group pairs
 group_pairs <- sapply(name.subsets(all_birds_shapespace)[-36], function(x) c(x, "phylogeny"), simplify = FALSE)
+group_pairs_orders <- list(
+    "Galliformes" = c("Galliformes", "Galloanserae"),
+    "Accipitriformes" = c("Accipitriformes", "Telluraves"),
+    "Strigiformes" = c("Strigiformes", "Telluraves"),
+    "Musophagiformes" = c("Musophagiformes", "Aequornithes"),
+    "Trogoniformes" = c("Trogoniformes", "Telluraves"),
+    "Columbiformes" = c("Columbiformes", "Columbimorphae"),
+    "Caprimulgiformes" = c("Caprimulgiformes", "Strisores"),
+    "Bucerotiformes" = c("Bucerotiformes", "Telluraves"),
+    "Falconiformes" = c("Falconiformes", "Telluraves"),
+    "Pterocliformes" = c("Pterocliformes", "Columbimorphae"),
+    "Sphenisciformes" = c("Sphenisciformes", "Aequornithes"),
+    "Podicipediformes" = c("Podicipediformes", "Mirandornithes"),
+    "Ciconiiformes" = c("Ciconiiformes", "Aequornithes"),
+    "Tinamiformes" = c("Tinamiformes", "Paleognathae"),
+    "Suliformes" = c("Suliformes", "Aequornithes"),
+    "Anseriformes" = c("Anseriformes", "Galloanserae"),
+    "Apodiformes" = c("Apodiformes", "Strisores"),
+    "Otidiformes" = c("Otidiformes", "Otidimorphae"),
+    "Cuculiformes" = c("Cuculiformes", "Otidimorphae"),
+    "Psittaciformes" = c("Psittaciformes", "Telluraves"),
+    "Pelecaniformes" = c("Pelecaniformes", "Aequornithes"),
+    "Procellariiformes" = c("Procellariiformes", "Aequornithes"),
+    "Piciformes" = c("Piciformes", "Telluraves"),
+    "Passeriformes" = c("Passeriformes", "Telluraves"),
+    "Coraciiformes" = c("Coraciiformes", "Telluraves"))
+
+
 
 ## Calculating the random skewers for each group
 skewers_r <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun), between.groups = group_pairs, verbose = TRUE)
 skewers_p <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun.p), between.groups = group_pairs, verbose = TRUE)
+skewers_r_order <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun), between.groups = group_pairs_orders, verbose = TRUE)
+skewers_p_order <- dispRity(all_birds_shapespace, metric = as.covar(skewers.fun.p), between.groups = group_pairs_orders, verbose = TRUE)
 
 ## Extract disparity for fancy plotting
 skewers_distrib <- lapply(get.disparity(skewers_r, concatenate = FALSE), quantile, probs = c(0.5, 0.025, 0.25, 0.75, 0.975))
@@ -511,18 +543,36 @@ skewers_distrib <- skewers_distrib[ortho_order]
 skewers_median_p <- skewers_median_p[ortho_order]
 plot_names <- names(skewers_median_p)
 
-col <- rev(c(rep(gg.color.hue(4)[1], 8), rep(gg.color.hue(4)[2], 27)))
+## Same but for the orders
+skewers_distrib_order <- lapply(get.disparity(skewers_r_order, concatenate = FALSE), quantile, probs = c(0.5, 0.025, 0.25, 0.75, 0.975))
+skewers_median_p_order <- lapply(get.disparity(skewers_p_order, concatenate = FALSE), median)
+plot_names_order <- unlist(lapply(strsplit(names(skewers_distrib_order), split = ":"), `[[`, 1))
+names(skewers_distrib_order) <- names(skewers_median_p_order) <- plot_names_order
 
+## Set the colours to match the ones from the ortho figure
+col <- c(rep("purple", 8), rep("#FBB117", 27))
+
+pdf(height = 12, width = 7, file = "../Manuscript/Figures/random_skewers.pdf")
 par(mar = c(5, 17, 4, 2))
-plot(NULL, xlim = c(0, 1), ylim = c(1,length(skewers_distrib)), xlab = "Skewers correlation", ylab = "", yaxt = "n")
+plot(NULL, xlim = c(0, 1), ylim = c(length(skewers_distrib),1), xlab = "Skewers correlation", ylab = "", yaxt = "n")
 abline(v = 0.5, lty = 2, col = "grey", lwd = 0.5)
-axis(2, at = length(skewers_distrib):1, labels = plot_names, las = 2)
+axis(2, at = 1:length(skewers_distrib), labels = plot_names, las = 2)
 ## Skewers
 for(i in length(skewers_distrib):1) {
     lines(x = skewers_distrib[i][[1]][c(2, 5)], y = rep(i, 2), lty = 2, lwd = 1, col = col[i])
     lines(x = skewers_distrib[i][[1]][c(3, 4)], y = rep(i, 2), lty = 1, lwd = 2, col = col[i])
     points(x = skewers_distrib[i][[1]][1], y = i, pch = 19, col = col[i])
-    text(x = skewers_distrib[i][[1]][1]+0.03, y = i+0.2, label = p.star(skewers_median_p[[i]]), col = col[i])
+    text(x = skewers_distrib[i][[1]][1]+0.03, y = i-0.2, label = p.star(skewers_median_p[[i]]), col = col[i])
+    ## Add orders (if available)
+    if(names(skewers_distrib)[i] %in% plot_names_order) {
+        n <- which(names(skewers_distrib)[i] == plot_names_order)
+        col_n <- adjustcolor(col[i], alpha = 1/2)
+        ## Plotting the order-superorder level results
+        lines(x = skewers_distrib_order[n][[1]][c(2, 5)], y = rep(i, 2)+0.2, lty = 3, lwd = 1, col = col_n)
+        lines(x = skewers_distrib_order[n][[1]][c(3, 4)], y = rep(i, 2)+0.2, lty = 1, lwd = 2, col = col_n)
+        points(x = skewers_distrib_order[n][[1]][1], y = i+0.2, pch = 21, col = col_n)
+        text(x = skewers_distrib_order[n][[1]][1]+0.03, y = i, label = p.star(skewers_median_p_order[[n]]), col = col_n)
+    }
 }
-
+dev.off()
 ```
