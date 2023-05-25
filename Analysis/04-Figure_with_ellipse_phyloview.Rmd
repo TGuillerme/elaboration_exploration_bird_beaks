@@ -144,13 +144,13 @@ tip_order <- c(
     "Apodiformes" = 17)
 
 ## Plotting the tree and getting the tip orders
-# tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
+ # tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order)
 # save(tip_colours_orders, file = "../Data/Processed/tip_colours_orders.rda")
 
 ## Non coloured version
 grey.palette <- function(n) {return(rep("grey", n))}
-tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order, colour.palette = black.palette)
-tip_colours_orders[1:length(tip_colours_orders)] <- "black"
+tip_colours_orders <- plot.short.tree(tree, shapespace, "level2", tip.order = tip_order, colour.palette = grey.palette)
+tip_colours_orders[1:length(tip_colours_orders)] <- "#191919"
 
 ## Plotting each ellipse
 for(i in 1:27) {
@@ -165,9 +165,9 @@ for(i in 1:27) {
 load(file = "../Data/Processed/tip_colours_super_orders.rda")
 
 ## Black version
-tip_colours_super_orders[1:length(tip_colours_super_orders)] <- "black"
+tip_colours_super_orders[1:length(tip_colours_super_orders)] <- "#191919"
 ## Grey version
-# tip_colours_super_orders <- rep("darkgrey", length(tip_colours_super_orders))
+# tip_colours_super_orders <- rep("#191919", length(tip_colours_super_orders))
 
 for(i in 1:8) {
     ## Plot each pannel
