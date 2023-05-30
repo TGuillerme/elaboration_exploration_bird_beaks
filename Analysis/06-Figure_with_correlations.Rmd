@@ -68,6 +68,9 @@ super_phylo_cor <- get.correlations.plot(results$super_results_phylo)
 
 ## Calculate the correlations for the projections onto the group' axes
 super_group_cor <- get.correlations.plot(results$super_results_within, exclude.phylo = TRUE)
+
+## Check for order_results_within
+order_correlations <- get.correlations.plot(results$order_results_within, exclude.phylo = TRUE)
 ```
 
 ## Get the correlation fable
@@ -75,24 +78,38 @@ super_group_cor <- get.correlations.plot(results$super_results_within, exclude.p
 
 ```{r, echo = TRUE, eval = TRUE}
 ## Get all the correlations for all the clades
-cor_mega_level <- get.correlations.scores(results$super_results_phylo)
-cor_macro_level <- get.correlations.scores(results$super_results_within)
+cor_mega_super_orders <- get.correlations.scores(results$super_results_phylo)
+cor_macro_super_orders <- get.correlations.scores(results$super_results_within)
+cor_macro_orders <- get.correlations.scores(results$order_results_within)
 
 ## Get the colours
 load("../Data/Processed/tip_colours_super_orders.rda")
 super_orders_col <- c(tip_colours_super_orders, "phylogeny" = "grey")
 
 ## Plot the correlations
-pdf("../Manuscript/Figures/correlations_fable.pdf")
+pdf("../Manuscript/Figures/correlations_fable_super_orders.pdf")
 par(mfrow = c(1,2))
 par(mar = c(5, 8, 4, 0) + 0.1, bty = "n") # c(bottom, left, top, right)
-plot.cor.scores(cor_mega_level, col = super_orders_col,
+plot.cor.scores(cor_mega_super_orders, col = super_orders_col,
                 y.axis = TRUE, plot.phylo = TRUE,
-                main = "Species projected onto\nthe whole phylogeny VCV") 
+                main = "Species projected onto\nthe whole phylogeny major axes") 
 par(mar = c(5, 2, 4, 6) + 0.1, bty = "n") # c(bottom, left, top, right)
-plot.cor.scores(cor_macro_level, col = super_orders_col,
+plot.cor.scores(cor_macro_super_orders, col = super_orders_col,
                 y.axis = FALSE, plot.phylo = FALSE,
-                main = "Species projected onto\ntheir superorders' VCV")
+                main = "Species projected onto\ntheir superorders' major axes")
+dev.off()
+
+
+## Correlation fable
+pdf(width = 5, height = 9, file = "../Manuscript/Figures/correlations_fable_orders.pdf")
+load("../Data/Processed/tip_colours_orders.rda")
+orders_col <- c(tip_colours_orders, "phylogeny" = "grey")
+orders_col[] <- "black"
+par(mar = c(5, 8, 4, 0) + 0.1, bty = "n") # c(bottom, left, top, right)
+plot.cor.scores(cor_macro_orders, col = orders_col,
+                y.axis = TRUE, plot.phylo = FALSE,
+                show.phylo = FALSE, xlim = c(-0.5, 1),
+                main = "Species projected onto\ntheir orders' major axes") 
 dev.off()
 ```
 
@@ -105,7 +122,6 @@ The following snippets plots the entire figure minus the panel IDs:
  * Panel A: the overal density figure
  * Panel B: the correlation plots for the projection on the mega level
  * Panel C: the correlation plots for the projection on the macro level
-
 
 Density plot of the correlation of the median elaboration and median exploration for all species.
 
@@ -163,6 +179,16 @@ legend_counter <- 1
 for(i in 1:8) {
     par(mar = c(2,2.5,2,1.5))
     plot.correlations(super_group_cor[[i]], col.sub = col_subs[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = FALSE, contour = NULL)
+}
+dev.off()
+
+
+## Extra figure
+pdf("../Manuscript/Figures/correlations_2.pdf", height = 20/3*1.3, width = 8*1.3)
+par(mfrow = c(5,6))
+for(i in 1:26) {
+    par(mar = c(2,4,2.5,0)+0.1)
+    plot.correlations(order_correlations[[i]], legend.pos = legends_pos[i], ID = i, pt.cex = 0.5, legend.cex = 2/3, legend_counter = legend_counter, with.quadrant = FALSE, contour = NULL)
 }
 dev.off()
 ```
