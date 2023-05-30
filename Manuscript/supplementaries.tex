@@ -154,8 +154,8 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 \begin{figure}[htpb]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/correlations.pdf}
-\caption{Correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different focal levels. \textbf{A}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. The colours of the dots correspond to their density in the plot. Blue and yellow colours corresponds to respectively low and high density of species. The coloured quadrant in the back corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. The blue and yellow quadrants shows species with noticeable high $elaboration_{species}$ and $innovation_{species}$ respectively. The species in the green quadrant have noticeable high levels of both $elaboration_{species}$ and $innovation_{species}$. \textbf{B}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below). \textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). The colours correspond to each order. For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. The orders numbers are:
-1 - others (orders with $<$ 15 species)
+\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different focal levels. \textbf{A}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. The colours of the dots correspond to their density in the plot. Blue and yellow colours corresponds to respectively low and high density of species. The coloured quadrant in the back corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. The blue and yellow quadrants shows species with noticeable high $elaboration_{species}$ and $innovation_{species}$ respectively. The species in the green quadrant have noticeable high levels of both $elaboration_{species}$ and $innovation_{species}$. \textbf{B}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below). \textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). The colours correspond to each order. For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. The groups numbers are:
+1 - others (groups with $<$ 15 species)
 2 - Corvoidea;
 3 - Malaconotoidea;
 4 - Orioloidea;
@@ -177,8 +177,15 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 20 - Locustelloidea;
 21 - Paridae;
 22 - Pycnonotidae;
-23 - Sylvioidea;}
+23 - Sylvioidea.}
 \label{Fig:figure_correlations}
+\end{figure}
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/correlations_2.pdf}
+\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ for each species projected on their order's major axes. Each point is the median $elaboration_{species}$ and $innovation_{species}$ for one species from the distribution of 4000 posterior variance-covariance matrices. The full distribution of the correlation between $elaboration_{species}$ and $innovation_{species}$ is available in the main text in figure @@@.}
+\label{Fig:figure_correlations2}
 \end{figure}
 
 \begin{figure}[htpb]
@@ -488,7 +495,7 @@ If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \ci
 \text{evolvability}_{\text{species}_{x}} = \text{elaboration}_{\text{species}_{x}}
 \end{equation}
 
-\noindent and, using Pythagorean theorem in a triangle rectangle:
+\noindent and, using Pythagorean theorem in a right angled triangle:
 
 \begin{equation}
 \text{respondability}_{\text{species}_{x}}  = \sqrt{\text{elaboration}_{\text{species}_{x}}^2 + \text{innovation}_{\text{species}_{x}}^2}
