@@ -94,6 +94,13 @@ $^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
 \begin{landscape}
 \section{Supplementary material 1: glossary}
 
+We define three evolutionary scales based on the focal elements as follow:
+\begin{itemize}
+   \item \textbf{micro}evolutionary scale: the focal elements are \textbf{individual specimen};
+   \item \textbf{macro}evolutionary scale: the focal elements are \textbf{species} (i.e. groups of individuals);
+   \item \textbf{mega}evolutionary scale: the focal elements are \textbf{clades} (i.e. groups of species).
+\end{itemize} 
+
 \begin{table}[ht]
 \centering
 \scriptsize
@@ -101,8 +108,6 @@ $^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring
   \hline
 Term in this paper         & definition in this paper & mathematical definition & in macroevolution & in microevoltion\\
   \hline
-macroevolutionary scale    & analysis where the focal elements are the species & & \\
-megaevolutionary scale     & analysis where the focal elements are clades (i.e. groups of species) & & \\
 major axis of variation    & the major evolutionary ``direction'' of traits co-evolution & first eigenvector of the variance-covariance matrix  & allometry & line of genetic least resistance \\
 clade                      & a monophyletic group of \textbf{species} & a subset of \textbf{shapespace} & Birds & a group of species or a population\\
 species                    & the lowest evolutionary units in our analysis & a row in the \textbf{shapespace} & \textit{Pauxi pauxi} & an individual\\
@@ -111,7 +116,7 @@ novelty                    & morphological variation (either \textbf{innovation}
 elaboration                & morphological variation along the \textbf{major axis of variation} & the algebraic projection on the eigenvector & & \\
 innovation                 & morphological variation away from the \textbf{major axis of variation} & the algebraic rejection from the eigenvector & & \\
 variance-covariance matrix & the multidimensional relation between traits & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) & & \\
-nested phylogenetic level  & the different \textbf{clades} used in this study (the whole phylogeny $>$ super-orders $>$ orders) & different nested \textbf{variance-covariance matrices} & & \\
+nested phylogenetic level  & the different \textbf{clades} used in this study (the class-wide phylogeny $>$ super-orders $>$ orders) & different nested \textbf{variance-covariance matrices} & & \\
 
 \end{tabular}
 \caption{Glossary of some specific terms in this manuscript}
@@ -121,6 +126,8 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 
 \section{Supplementary material 2: additional results}
+
+\subsection{Data preparation}
 
 \begin{figure}[htbp]
 \centering
@@ -150,6 +157,9 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 \label{Fig:model_ess_passeriformes}
 \end{figure}
 
+\subsection{Additional results}
+
+\subsubsection{Correlations between $elaboration_{species}$ and $innovation_{species}$}
 
 \begin{figure}[htpb]
 \centering
@@ -183,22 +193,25 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 \begin{figure}[htpb]
 \centering
-   \includegraphics[width=0.5\textwidth]{Figures/correlations_2.pdf}
-\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ for each species projected on their order's major axes. Each point is the median $elaboration_{species}$ and $innovation_{species}$ for one species from the distribution of 4000 posterior variance-covariance matrices. The full distribution of the correlation between $elaboration_{species}$ and $innovation_{species}$ is available in the main text in figure @@@.}
+   \includegraphics[width=0.9\textwidth]{Figures/correlations_2.pdf}
+\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ for each species projected on their order's major axes. Each point is the median $elaboration_{species}$ and $innovation_{species}$ for one species from the distribution of 4000 posterior variance-covariance matrices. The full distribution of the correlation between $elaboration_{species}$ and $innovation_{species}$ is available in the main text in figure 3.}
 \label{Fig:figure_correlations2}
 \end{figure}
 
 \begin{figure}[htpb]
 \centering
-   \includegraphics[width=0.5\textwidth]{Figures/correlations_fable.pdf}
+   \includegraphics[width=0.9\textwidth]{Figures/correlations_fable.pdf}
 \caption{Posterior distributions of the correlations scores between $elaboration_{species}$ and $innovation_{species}$ as displayed for each super-orders in Fig. \ref{Fig:figure_correlations}. Species' projection onto the whole phylogeny's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panels A and B in Fig. \ref{Fig:figure_correlations} and species' projections onto their own super-order's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panel C in Fig. \ref{Fig:figure_correlations}.}
 \label{Fig:fable_correlations}
 \end{figure}
 
 
+\subsubsection{Elaboration and innovation through time}
+
+
 \begin{figure}[htpb]
 \centering
-   \includegraphics[width=0.5\textwidth]{Figures/Elaboration_and_innovation_clade_through_time.pdf}
+   \includegraphics[width=1\textwidth]{Figures/Elaboration_and_innovation_clade_through_time.pdf}
 \caption{Distribution of $elaboration_{clade}$ and $innovation_{clade}$ for each order and super-order through time.}
 \label{Fig:figure_ei_clade_through_time}
 \end{figure}
@@ -206,10 +219,38 @@ nested phylogenetic level  & the different \textbf{clades} used in this study (t
 
 \begin{figure}[htpb]
 \centering
-   \includegraphics[width=0.5\textwidth]{Figures/Elaboration_and_innovation_species_through_time.pdf}
+   \includegraphics[width=1\textwidth]{Figures/Elaboration_and_innovation_species_through_time.pdf}
 \caption{Distribution of $elaboration_{species}$ and $innovation_{species}$ for each order and super-order through time.}
 \label{Fig:figure_ei_species_through_time}
 \end{figure}
+
+\subsubsection{Orientations in $elaboration_{clade}$ and $innovation_{clade}$}
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.5\textwidth]{Figures/50_random_axes_superorders.pdf}
+\caption{Distribution of 50 random scaled major axes (scaled variance-covariance matrices eigen values) for each super order illustrating that individual major axes can span in many different directions with some clades have a higher spread of direction than others.}
+\label{Fig:mikado}
+\end{figure}
+
+
+\begin{figure}[htpb]
+\centering
+   \includegraphics[width=0.8\textwidth]{Figures/ellipses_supplementary.pdf}
+\caption{\scriptsize{Panel A) shows ellipses representing the scaled average posterior variance-covariance response from the pGLMM models for each super-order (coloured ellipses) compared to the global (all birds) phylogenetic component of the models (grey ellipses).
+We scaled the ellipses so the length of the major axis of phenotypic variation of the clade ellipse is the same length as that of the global phylogenetic major axis ellipse (in eight dimensions).
+The first inset ellipse plot shows the positions of all super-order ellipses relative to the global phylogenetic ellipse.
+Subsequent inset plots show the results for each super-order. 
+Inset barplots show the proportion of variance associated with each of the eight PC axes in shape morphospace.
+The inset boxplots correspond to the $elaboration_{clade}$ (E) and $innovation_{clade}$ (I) scores for all 4000 posterior samples.
+The dots represent the median $elaboration_{clade}$ and $innovation_{clade}$ values while the thick and dashed lines represent the 50\% and 95\% confidence intervals respectively.
+These scores were calculated on the unscaled ellipses resulting in different scales of $elaboration_{clade}$ and $innovation_{clade}$ for each plot.
+Panel B) shows the results for each order.}}
+\label{Fig:ellipses_rainbow}
+\end{figure}
+
+
+
 
 \begin{figure}[htpb]
 \centering
