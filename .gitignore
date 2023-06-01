@@ -29,3 +29,7 @@ Analysis/MCMCglmm_covar/*
 *.log
 *.out
 *.synctex.gz
+
+
+## Figures drafts and stuff
+Manuscript/Figures/others/*
