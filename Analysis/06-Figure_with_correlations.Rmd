@@ -109,7 +109,7 @@ par(mar = c(5, 8, 4, 0) + 0.1, bty = "n") # c(bottom, left, top, right)
 plot.cor.scores(cor_macro_orders, col = orders_col,
                 y.axis = TRUE, plot.phylo = FALSE,
                 show.phylo = FALSE, xlim = c(-0.5, 1),
-                main = "Species projected onto\ntheir orders' major axes") 
+                main = "") 
 dev.off()
 ```
 
