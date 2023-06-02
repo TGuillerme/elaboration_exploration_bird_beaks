@@ -238,7 +238,6 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "", ei.
     if(!missing(ei.col)) {
         col <- ei.col
     }
-
     
     ## Set the limits
     quant_95 <- quantile(c(elaboration, exploration), prob = 0.975)
@@ -249,7 +248,7 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "", ei.
     exploration_quantiles <- quantile(exploration, prob = c(0.025, 0.25, 0.50, 0.975))
 
     ## Empty plot
-    par(bty = "o")
+    # par(bty = "o")
     plot(NULL, xlim = c(-0.5,1.5), ylim = c(0,lim_up), xaxt = "n", yaxt = "n", xlab = "", ylab = "")
 
     ## Add the lines
@@ -261,7 +260,9 @@ plot.one.proj.rej <- function(data, name.col, x = TRUE, y = TRUE, main = "", ei.
     points(1, median(exploration), pch = 19, col = col[2])
 
     ## Add the y axis
-    axis(2, at = seq(from = 0, to = lim_up, by = 5), labels = seq(from = 0, to = lim_up, by = 5), las = 2)
+    if(y) {
+        axis(2, at = seq(from = 0, to = lim_up, by = 5), labels = seq(from = 0, to = lim_up, by = 5), las = 2)
+    }
 }
 
 #' @title plot.short.tree
@@ -332,7 +333,7 @@ plot.short.tree <- function(tree, shapespace, level, colour.palette = gg.color.h
 #' @param results the list of dispRity objects containing the results (typically output from dispRity.covar.projections)
 #' @param ei.col optional, the colour for elaboration and innovation (overriding tip.colours)
 #' @param phylo.plot optional, change the margins and plot options to match the big phylo plot (FALSE; default)
-#
+
 ## Plotting the ellipses, the dimensions and the projection/rejection
 wrap.plot.ellipses <- function(i, tip.colours, shapespace, results, ei.col, phylo.plot = FALSE) {
     ## Select the colour and name
@@ -367,9 +368,9 @@ wrap.plot.ellipses <- function(i, tip.colours, shapespace, results, ei.col, phyl
     if(!phylo.plot) {
         par(mar = c(2, 1, 1, 1)+0.1)
     } else {
-        par(mar = c(0, 1, 0, 0))
+        par(bty = "n", mar = c(0, 1, 0, 0)+0.1)
     }
-    plot.one.proj.rej(results, name.col, x = TRUE, y = FALSE, ei.col = ei.col)
+    plot.one.proj.rej(results, name.col, x = FALSE, y = TRUE, ei.col = ei.col)
 }
 
 #' @name scale rgb color
@@ -533,6 +534,7 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
         ## Create the colour vector
         col_vector <- col_avail[as.numeric(col_sub)]
     } else {
+        dots <- list()
         if(is.null(dots$col)) {
             col_vector <- "black"
         } else {
@@ -642,9 +644,18 @@ plot.correlations <- function(cor.results, col.sub, col.fun = colour.palette, le
 #' @param col the colour vector
 #' @param y.axis whether to plot the y.axis or not
 #' @param plot.phylo whether to plot the phylo term or not (left empty)
-plot.cor.scores <- function(cor.scores, main, col, y.axis, plot.phylo) {
+#' @param show.phylo whether to display the phylo term (even if not plotted)
+plot.cor.scores <- function(cor.scores, main, col, y.axis, plot.phylo, show.phylo = TRUE, xlim) {
+    
+    if(missing(xlim)) {
+        xlim <- c(-1,1)
+    }
+    if(!show.phylo) {
+        cor.scores <- cor.scores[-which(names(cor.scores) == "phylogeny")]
+    }
+
     ## Empty plot
-    plot(NULL, yaxt = "n", xlim = c(-1, 1), ylim = c(1, length(cor.scores)), ylab = "", xlab = "Posterior\ncorrelations", main = main)
+    plot(NULL, yaxt = "n", xlim = xlim, ylim = c(1, length(cor.scores)), ylab = "", xlab = "Innovation vs. elaboration\nposterior correlations", main = main)
     ## Adding the 0 line
     abline(v = 0, lty = 2, col = "grey", lwd = 0.5)
     ## Adding the y labels
@@ -672,22 +683,22 @@ plot.cor.scores <- function(cor.scores, main, col, y.axis, plot.phylo) {
             ## Add the median
             points(y = i, x = median(cor.scores[[i]]$correlations), pch = 19, col = select_col)
             ## Add the stars
-            if(cor.scores[[i]]$p.value < 0.1) {
-                stars <- "."
-                stars <- if(cor.scores[[i]]$p.value < 0.001) {
-                        "***"
-                        } else {
-                            if(cor.scores[[i]]$p.value < 0.01) {
-                                "**"
-                            } else {
-                                if(cor.scores[[i]]$p.value < 0.05) {
-                                    "*"
-                                }
-                            }
-                        }
-                ## Add the stars
-                text(y = i + 0.1, x = median(cor.scores[[i]]$correlations) + 0.1, labels = stars, col = select_col)
-            }
+            # if(cor.scores[[i]]$p.value < 0.1) {
+            #     stars <- "."
+            #     stars <- if(cor.scores[[i]]$p.value < 0.001) {
+            #             "***"
+            #             } else {
+            #                 if(cor.scores[[i]]$p.value < 0.01) {
+            #                     "**"
+            #                 } else {
+            #                     if(cor.scores[[i]]$p.value < 0.05) {
+            #                         "*"
+            #                     }
+            #                 }
+            #             }
+            #     ## Add the stars
+            #     text(y = i + 0.1, x = median(cor.scores[[i]]$correlations) + 0.1, labels = stars, col = select_col)
+            # }
         }
     }
 }

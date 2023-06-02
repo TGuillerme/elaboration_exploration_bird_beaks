@@ -51,7 +51,7 @@ covar.ellipse.test <- function(x, y, p.value.method = "Bayesian", measure = "ort
             if((angle > 90 && angle < 180) || (angle > 270 && angle < 360)) {
                 ortho <- 90 - angle %% 90
             } else {
-                ortho <- angle %% 90     
+                ortho <- angle %% 90
             }
 
             ## Convert the results
@@ -250,6 +250,7 @@ ellipse.stats <- function(data, verbose = TRUE) {
 
     if(verbose) cat("Measuring orthogonality:")
     results$angles     <- dispRity(data, metric = as.covar(projections.between), measure = "orthogonality", between.groups = groups_list, verbose = verbose)
+
     if(verbose) cat("Testing orthogonality:")
     results$tests      <- run.ellipse.test(data)
 
