@@ -98,7 +98,7 @@ Indeed, the major axis of phenotypic change among species beak shapes at megaevo
 Understanding patterns and constraints in the adaptive evolution of species traits is a major goal of evolutionary research. At macroevolutionary scales, renewed attention has been given to variation in the tempo and mode of trait evolution among lineages \cite{venditti2011multiple, khabbazian2016fast, castiglione2018, hansen2022, larouche2022mosaic, pagel2022general, navalon2022environmental, basu2023tempo}.
 This has led to growing recognition of the importance of major jumps or discontinuities in evolutionary rates as drivers of diversification of species traits \cite{cooney2017mega, smaers2021evolution, goswami2022}.
 For example, in both bird beaks and mammal skulls there are major jumps in the rate of trait evolution early in clade history as morphological diversity expands \cite{cooney2017mega, goswami2022} with lower magnitude jumps towards the present.
-Major jumps in species trait values are consistent with the concept of megaevolution, describing major discontinuities in phenotypes observed from the fossil record, first proposed by Simpson.
+Major jumps in species trait values are consistent with the concept of megaevolution, describing major discontinuities in phenotypes observed from the fossil record, first proposed by Simpson \cite{simpson1944tempo,simpson1953major}.
 
 Megaevolutionary dynamics appear to contrast with theory based on microevolutionary processes.
 Over microevolutionary timescales, phenotypic evolution is expected to follow lines of least resistance \cite{schluter1996adaptive}.
@@ -125,7 +125,7 @@ While there is no strict definition that separates macro- and mega-evolution, we
 The diversity of bird beaks has been well-studied at broad scales, particularly in relation to dietary ecology \cite{olsen2017feeding, felice2019, bright2016shapes, navalon2019, pigot2020macroevolutionary}.
 Previous studies have assessed how variation in rates of evolution of beak shape has generated this diversity \cite{cooney2017mega,chira2018correlates}, revealing a general pattern of phylogenetically clustered evolutionary rates interspersed with major shifts deep in avian evolutionary history and in isolated lineages.
 Major shifts indicate lineages that occupy distinct areas of beak shape space relative to their close relatives.
-For example, a major shift in beak shape arises in the early divergence of Strisores separating hummingbirds (Trochilidae) from swifts (Apodidae), perhaps marking changes in ontogenetic trajectories \cite{navalon2021} as hummingbirds diverged from broad billed ancestors (e.g. the Eocene stem Trochilidae fossils \textit{Parargornis messelensis} and \textit{Eocypselus rowei} \cite{mayr2003new, ksepka2013fossil}).
+For example, a major shift in beak shape arises in the early divergence of Strisores separating hummingbirds (Trochilidae) from swifts (Apodidae), perhaps marking changes in ontogenetic trajectories \cite{navalon2021} as hummingbirds diverged from broad billed ancestors (e.g. the Eocene stem Trochilidae fossils \textit{Parargornis messelensis} and \textit{Eocypselus rowei} \cite{mayr2003new, ksepka2013fossil}). %@L_strisores_example
 By assessing the multivariate directions of the evolution of beak shapes of species and clades we aim to deepen our understanding of how diversity in morphological form arises at macro- and mega-evolutionary scales in birds.
 To do this we use data on bird beaks derived from 3D scans of museum specimens for $>$8700 species ($\sim$85\% of all extant bird species) and generate evolutionary rate matrices describing the directions of multivariate beak shape evolution.
 The phylogenetic breadth of the data allows us to compare directions of beak evolution of subclades (e.g. orders) within the class Aves (the megaevolutionary scale) and of species within subclades (the macroevolutionary scale).%@L_macromega_definition2
@@ -149,13 +149,7 @@ Using these novel statistical tools, we estimate the relative contribution of el
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=1\textwidth]{Figures/cheat_sheet.pdf}
-\caption{.}
-\label{Fig:cheatsheet}
-\end{figure}
-\bigskip
-
-\noindent \textbf{Figure \ref{Fig:cheatsheet}}
-Relationships between key figures in the main text.
+\caption{\scriptsize{Relationships between key figures in the main text.
 A) represents the two first principal components (PCs) of the eight dimensional trait space with all bird beak shapes represented as gray circles and the Tinamiformes as red circles.
 The gray ellipse represents the overall phylogenetic major axis of beak variation in birds.
 Species aligned or away from this axis are respectively elaborators or innovators relative to the class Aves.
@@ -167,7 +161,12 @@ The colours on the tips of the phylogeny correspond to the median $elaboration_{
 C) Figure 4, we measured elaboration and innovation at the megaevolutionary scale, i.e. $elaboration_{clade}$ and $innovation_{clade}$.
 The ellipses are scaled and centered and represent the clade's phylogenetic major axis of beak variation relative to the overall phylogenetic major axis of beak variation with the relative length of the ellipse on each dimension represented on the barplots as variance on each dimension.
 A clade's $elaboration_{clade}$ and $innovation_{clade}$ scores are measured by projecting the clade's phylogenetic major axis of beak variation onto the overall phylogenetic major axis of beak variation and measuring the projection (elaboration) and rejection (innovation) from this axis as described above.
-The distribution elaboration and innovation scores are taken from the projection of the 4000 pairs of evolutionary rate matrices with each pair being the focal level, e.g. order,and the parent level, e.g. the whole bird phylogeny.
+The distribution elaboration and innovation scores are taken from the projection of the 4000 pairs of evolutionary rate matrices with each pair being the focal level, e.g. order,and the parent level, e.g. the whole bird phylogeny.}}
+\label{Fig:cheatsheet}
+\end{figure}
+\bigskip
+
+% \noindent \textbf{Figure \ref{Fig:cheatsheet}}
 
 
 \section{Results and Discussion}
@@ -201,15 +200,15 @@ and strong clustering of both $elaboration_{species}$ and $innovation_{species}$
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=1\textwidth]{Figures/InnovElabTree_main_text_revision.pdf}
-\caption{.}
+\caption{Avian phylogeny (n = 8748 species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale).
+Elaboration and innovation scores represent comparisons of species at the order level.
+Additional comparisons to super-orders and at the class-wide phylogenetic level are shown in Fig. \ref{Fig:phylogeny_supplement} and for family and super-family comparisons of the order Passeriformes in Fig. \ref{fig_phylogeny_passeriformes}.
+}
 \label{Fig:phylogeny}
 \end{figure}
 \bigskip
 
-\noindent \textbf{Figure \ref{Fig:phylogeny}}
-Avian phylogeny (n = 8748 species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale).
-Elaboration and innovation scores represent comparisons of species at the order level.
-Additional comparisons to super-orders and at the class-wide phylogenetic level are shown in Fig. \ref{Fig:phylogeny_supplement} and for family and super-family comparisons of the order Passeriformes in Fig. \ref{fig_phylogeny_passeriformes}.
+% \noindent \textbf{Figure \ref{Fig:phylogeny}}
 
 $Innovation_{species}$ is more apparent within non-passerine, rather than passerine, clades.
 Most notably we see higher levels of innovation in orders with hook-shaped beaks (Pstittaciformes, Falconiformes, Accipitriformes), and the Apodiformes (swifts and hummingbirds).
@@ -241,13 +240,13 @@ Indeed, if divergence can arise simultaneously along multiple axes then this may
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/correlations_fable_orders.pdf}
-\caption{.}
+\caption{Posterior correlations between $elaboration_{species}$ and $innovation_{species}$ for each super-order. The dots, thick lines and dashed lines represent respectively the median, 50\% confidence interval (CI) and 95\% CI scores. 14 out of 27 of the orders have a clear posterior correlation between $elaboration_{species}$ and $innovation_{species}$ (i.e. 95\% CI does not overlap with 0), nine have a somewhat positive posterior correlation (i.e. 50\% CI does not overlap with 0) and four have no clear posterior correlation. Note that no order has a clear negative posterior correlation. This trend suggests that there is no tradeoff between $elaboration_{species}$ and $innovation_{species}$ and that both can be common routes for beak shape evolution at the macroevolutionary scale.
+}
 \label{fable_correlations}
 \end{figure}
 \bigskip
 
-\noindent \textbf{Figure \ref{fable_correlations}}
-Posterior correlations between $elaboration_{species}$ and $innovation_{species}$ for each super-order. The dots, thick lines and dashed lines represent respectively the median, 50\% confidence interval (CI) and 95\% CI scores. 14 out of 27 of the orders have a clear posterior correlation between $elaboration_{species}$ and $innovation_{species}$ (i.e. 95\% CI does not overlap with 0), nine have a somewhat positive posterior correlation (i.e. 50\% CI does not overlap with 0) and four have no clear posterior correlation. Note that no order has a clear negative posterior correlation. This trend suggests that there is no tradeoff between $elaboration_{species}$ and $innovation_{species}$ and that both can be common routes for beak shape evolution at the macroevolutionary scale.
+% \noindent \textbf{Figure \ref{fable_correlations}}
 
 
 \subsection{Megaevolution: multiple routes to innovation throughout avian evolutionary history}
@@ -265,35 +264,29 @@ More than half of the assessed clades (4/8 super-orders and 15/27 orders) displa
 
 \begin{figure}[!htbp]
 \centering
-   \includegraphics[width=1\textwidth]{Figures/figure_phylo_spiro_dark.pdf}
-\caption{.}
-\label{Fig:ellipses}
-\end{figure}
-\bigskip
-
-\noindent \textbf{Figure \ref{Fig:ellipses}:}
-$Elaboration_{clade}$ and $innovation_{clade}$ at the megaevolutionary scale for each order and super-order in the bird phylogeny.
+   \includegraphics[width=0.8\textwidth]{Figures/figure_phylo_spiro_dark.pdf}
+\caption{\scriptsize{$Elaboration_{clade}$ and $innovation_{clade}$ at the megaevolutionary scale for each order and super-order in the bird phylogeny.
 The black and gray ellipses are the scaled average evolutionary rate matrices from the pGLMM models for respectively the clades (black) and the class-wide phylogeny (gray).
 The ellipses are centered on the position of the clade in the shapespace.
 The associated black bar plots represent the variance on each of the eight dimensions in the shapespace with the top gray bar plot representing the variance on each of the eight dimensions for the class-wide phylogeny.
 The orange and blue distributions represent respectively the distribution of the $elaboration_{clade}$ (orange) and the $innovation_{clade}$ (blue) scores for each clade and the dots are the median $elaboration_{clade}$ or $innovation_{clade}$ and the solid and the dashed lines representing the 50\% and the 95\% confidence intervales of the distribution of the scores across the 4000 posterior samples.
 The ticks on the y-axis always represent five arbitrary units of elaboration and innovation.
-An alternative visualization of the same information is available in the supplementary materials in Fig. \ref{Fig:ellipses_rainbow} along with a companion plot showing further nested structure within the Passeriformes in Fig. \ref{fig_ellipses_passeriformes}.
+An alternative visualization of the same information is available in the supplementary materials in Fig. \ref{Fig:ellipses_rainbow} along with a companion plot showing further nested structure within the Passeriformes in Fig. \ref{fig_ellipses_passeriformes}.}
+}
+\label{Fig:ellipses}
+\end{figure}
+\bigskip
+
+% \noindent \textbf{Figure \ref{Fig:ellipses}:}
 
 
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=1\textwidth]{Figures/orthogonality_results.pdf}
-\caption{.}
-\label{Fig:orthogonality}
-\end{figure}
-\bigskip
-
-\noindent \textbf{Figure \ref{Fig:orthogonality}:}
-Amount of orthogonality of each clade's phylogenetic major axis of beak variation compared to their parent or parent's parent clade.
+\caption{\scriptsize{Amount of orthogonality of each clade's phylogenetic major axis of beak variation compared to their parent or parent's parent clade.
 The amount of orthogonality is represented on the horizontal axis and scales from 0 (modulo of $0^\circ$) to 1 (modulo of $90^\circ$) with the background gray and dashed gray lines representing, respectively, an orthogonality of 0.5 (modulo of $45^\circ$) and 0.75 (modulo of $67.5^\circ$).
 Dots represent the median orthogonality of each clade and the lines their 95\% confidence intervals (CI).
-No super-order's phylogenetic major axis of beak variation is parallel to the class-wide phylogenetic major axis of beak variation (purple lines and circles) and 22/27 orders are on average (median) at least half orthogonal (>  $45^\circ$) to the class-wide phylogenetic major axis of beak variation.
+No super-order's phylogenetic major axis of beak variation is parallel to the class-wide phylogenetic major axis of beak variation (purple lines and circles) and 22/27 orders are on average (median) at least half orthogonal ($>$  $45^\circ$) to the class-wide phylogenetic major axis of beak variation.
 These results are to be contrasted with the orientation of each order relative to their super-order where on average (median) only 14/27 are at least half orthogonal to the orientation of their super-orders’s phylogenetic major axis of beak variation.
 We also indicate the number of species (n) and the standard deviation (sd) of the orientation of their phylogenetic major axis of beak variation over the 4000 variance-covariance posteriors (sd; expressed in degrees).
 Note that noclades are clearly parallel to their parent’s or parent’s parent’s ellipses (i.e.
@@ -302,7 +295,13 @@ For each clade we also measured the posterior probability of each clade's orient
 The stars represent the posterior probability of the clade's orientation being different from the comparison clade (*** = pp $> 0.99$; ** = pp $>0.95$; * = pp $> 0.9$; . = pp $> 0.8$).
 Only 1/6 super-orders, 8/27 orders relative to class-wide phylogeny and 6/27 relative to their super-orders have a pp $> 0.99$.
 This is the result of the variation in sample size (n) and standard variation (sd) among clades.
-A companion plot showing further nested structure within the Passeriformes is shown in Fig. \ref{fig_orthogonality_passeriformes}.
+A companion plot showing further nested structure within the Passeriformes is shown in Fig. \ref{fig_orthogonality_passeriformes}.}}
+\label{Fig:orthogonality}
+\end{figure}
+\bigskip
+
+% \noindent \textbf{Figure \ref{Fig:orthogonality}:}
+
 
 Substantial variation in $elaboration_{clade}$ and $innovation_{clade}$ arises among clades including clades with relatively low $elaboration_{clade}$ and $innovation_{clade}$(e.g. Cuculiformes; Fig. \ref{Fig:ellipses}), low $elaboration_{clade}$ and high $innovation_{clade}$ (e.g. Galliformes; Fig. \ref{Fig:ellipses}), high $elaboration_{clade}$ and low $innovation_{clade}$ (e.g. Coraciiformes; Fig. \ref{Fig:ellipses}), and both relatively high $elaboration_{clade}$ and $innovation_{clade}$ (e.g. Podicipediformes; Fig. \ref{Fig:ellipses}).
 These patterns hold across scales including within super-orders and at finer scales within the order Passeriformes (Fig.
@@ -339,20 +338,20 @@ So, although species often evolve preferentially along a shared phylogenetic maj
 \begin{figure}[!htbp]
 \centering
    \includegraphics[width=1\textwidth]{Figures/relative_EI_gg_style_unscaled.pdf}
-\caption{.}
-\label{Fig:relative_EI}
-\end{figure}
-\bigskip
-
-\noindent \textbf{Figure \ref{Fig:relative_EI}:}
-Comparisons of relative $elaboration_{species}$ and $innovation_{species}$ (Fig. \ref{Fig:phylogeny}) and $elaboration_{clade}$ and $innovation_{clade}$ (Fig. \ref{Fig:ellipses}).
+\caption{Comparisons of relative $elaboration_{species}$ and $innovation_{species}$ (Fig. \ref{Fig:phylogeny}) and $elaboration_{clade}$ and $innovation_{clade}$ (Fig. \ref{Fig:ellipses}).
 a) the $elaboration_{species}$ (purple) for each species in each 4000 posterior samples compared to the $elaboration_{clade}$ for each of the 35 clades (yellow).
 The $elaboration_{clade}$ scores are scaled by the maximum score within the clade (corresponding to the scaled ellipses in Fig. \ref{Fig:ellipses}) and the scores for species are scaled by the maximum $elaboration_{species}$ score.
 This allows us to compare $elaboration_{species}$ in and $elaboration_{clade}$ despite their different sample sizes.
 We use the Bhattacharryya Coefficient to quantify the overlap of the area under the curve for species and clades.
 For elaboration the overlap is Bhattacharryya Coefficient = 0.217, indicating no distinguishable dissimilarity in the amount of $elaboration_{species}$ and $elaboration_{clade}$ across the posterior samples.
 b) as a) but using $innovation_{species}$ and $innovation_{clade}$ scores.
-For innovation the overlap has Bhattacharryya Coefficient = 0.039, which indicates a clear difference in the amount of $innovation_{species}$ and $innovation_{clade}$ across the posterior samples.
+For innovation the overlap has Bhattacharryya Coefficient = 0.039, which indicates a clear difference in the amount of $innovation_{species}$ and $innovation_{clade}$ across the posterior samples.}
+\label{Fig:relative_EI}
+\end{figure}
+\bigskip
+
+% \noindent \textbf{Figure \ref{Fig:relative_EI}:}
+
 
 We further tested the contributions of elaboration and innovation at different scales by examining the consequences of elaboration and innovation for the observed divergence of bird beak shapes.
 Specifically, we calculated the distance to centroid of avian beak morphospace for each species (Fig. \ref{Fig:phylogeny}).
@@ -395,7 +394,7 @@ Indeed, the class-wide phylogenetic major axis of phenotypic variation is an eme
 The landmark data were aligned with Procrustes superimposition using the R package \texttt{Morpho} \cite{Rcore,Morpho} and we removed the size component and controlled for symmetry (see \cite{cooney2017mega,hughes2022global,chira2020signature} for detailed descriptions of data collection and processing).
 We ordinated the superimposed landmarks using a principal components analysis (PCA) and selected the eight first dimensions of the resulting PCA.
 These eight dimensions contained at least 95\% of variance in each super-order, and 98.7\% of the variance in the whole dataset.
-We used a threshold of $>95$\% of variance explained for each super-order because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e. $\sigma$ PC1 $<$ $\sigma$ PC2 $<$ $\sigma$ PC3), this is not always true for each super-order.
+We used a threshold of $>95$\% of variance explained for each super-order because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e. $\sigma$ PC1 $>$ $\sigma$ PC2 $>$ $\sigma$ PC3), this is not always true for each super-order.
 For example, in the Mirandornithes, PC2, then PC4, and then PC1 contained the most variance (Fig.
 \ref{Fig:ellipses} and S\ref{Fig:axes_variance}).
 This protocol for selecting the number of PC axes ensures that the resulting trait-space contains enough variance for each super-order (see Fig. \ref{Fig:axes_variance}).
