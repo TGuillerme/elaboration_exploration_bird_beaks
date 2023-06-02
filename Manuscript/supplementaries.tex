@@ -1,4 +1,4 @@
-\documentclass[12pt,letterpaper]{article}
+\documentclass[12pt,a4paper]{article}
 
 %Packages
 % \usepackage{textcomp}
@@ -20,6 +20,7 @@
 % \usepackage[osf]{mathpazo}
 % \usepackage{dcolumn}
 
+\usepackage[margin=2cm]{geometry}
 \usepackage{lscape}
 \usepackage{hyperref}
 \usepackage{lineno}
@@ -27,11 +28,29 @@
 \usepackage{mathtools}
 \usepackage[osf]{mathpazo}
 \usepackage{fullpage}
-% \usepackage{float}
+\usepackage{float}
 
 \pagenumbering{arabic}
 
+\renewcommand{\thefigure}{S\arabic{figure}} 
+ \renewcommand{\thetable}{S\arabic{table}}
 
+%-------------------------------------------------------------------------------
+% Title page information
+%-------------------------------------------------------------------------------
+
+\title{Supplementary Materials from: \textit{Innovation and elaboration on the avian tree of life}; Science Advances, in review}
+
+\author{Thomas Guillerme, 
+Jen A. Bright,
+Christopher R. Cooney\\
+Emma C. Hughes,
+Zoe K. Varley,
+Natalie Cooper,
+Andrew P. Beckerman,\\
+and Gavin H. Thomas}
+
+\date{}
 %---------------------------------------------
 %
 %       START
@@ -39,271 +58,300 @@
 %---------------------------------------------
 
 \begin{document}
-%Running head
-\begin{flushright}
-Version dated: \today
-\end{flushright}
 
-\bigskip
-\medskip
-\begin{center}
+\maketitle
 
-\noindent{\Large \bf Innovation and elaboration on the avian tree of life - supplementary materials}
-\bigskip
+\tableofcontents
 
-\noindent {\normalsize \sc
-Thomas Guillerme$^{1,*}$, 
-Jen A. Bright$^{2}$,
-Christopher R. Cooney${^1}$,
-Emma C. Hughes${^1}$,
-Zoe K. Varley${^3}$,
-Natalie Cooper$^{3,+}$,
-Andrew P. Beckerman$^{1,+}$,
-and Gavin H. Thomas$^{1,4,+}$}\\
-\noindent {\small \it 
-$^1$School of Biosciences, University of Sheffield, Sheffield, S10 2TN, United Kingdom.\\
-$^2$School of Natural Science, University of Hull, Hull, HU6 7RX, United Kingdom.\\
-$^3$Natural History Museum, Cromwell Road, London, SW7 5BD, United Kingdom.\\
-$^4$Bird Group, Department of Life Sciences, the Natural History Museum at Tring, Tring, United Kingdom.\\}
+\parindent = 1.5em
+\addtolength{\parskip}{.3em}
 
-\end{center}
-\bigskip
-\noindent{*\bf Corresponding author:} \textit{guillert@tcd.ie}; \noindent{+\bf contributed equally.}\\
-\vspace{1in}
-
-%Line numbering
-\modulolinenumbers[1]
-\linenumbers
-
-\noindent (Keywords: macroevolution, elaboration, innovation, variance-covariance matrices, line of least resistance, GLMM)\\
-
-\vspace{1.5in}
 
 \newpage 
 
 %---------------------------------------------
 %
-%       INTRODUCTION
+%   Glossary   % NC: I think this is not really needed now the text is clearer, also some of the definitions are not 100% correct...
 %
 %---------------------------------------------
 
+%\begin{landscape}
+%\section{Supplementary material 1: glossary}
 
-\renewcommand{\thefigure}{S\arabic{figure}} 
- \renewcommand{\thetable}{S\arabic{table}}
+%We define three evolutionary scales based on the focal elements as follow:
+%\begin{itemize}
+%   \item \textbf{micro}evolutionary scale: the focal elements are \textbf{individual specimen};
+ %  \item \textbf{macro}evolutionary scale: the focal elements are \textbf{species} (i.e. groups of individuals);
+  % \item \textbf{mega}evolutionary scale: the focal elements are \textbf{clades} (i.e. groups of species).
+%\end{itemize} 
 
-\begin{landscape}
-\section{Supplementary material 1: glossary}
+%\begin{table}[ht]
+%\scriptsize
+%\caption{Glossary of some specific terms in this manuscript}
+%\begin{tabular}{p{0.2\textwidth}p{0.3\textwidth}p{0.3\textwidth}p{0.2\textwidth}p{0.2\textwidth}}
+%  \hline
+% Term in this paper         & definition in this paper & mathematical definition & in macroevolution & in microevolution\\
+%   \hline
+% evolutionary rate matrix &  matrix of rates of among-species divergence in species traits that explicitly incorporates phylogeny  &  & (\textbf{R} matrix of \cite{Houle2017}; \textbf{B} matrix of \cite{Machado2020}) & \\
+% major axis of variation    & the major evolutionary ``direction'' of trait co-evolution & first eigenvector of the evolutionary rate matrix  & allometry & line of genetic least resistance \\
+% clade                      & a monophyletic group of \textbf{species} & a subset of \textbf{shapespace} & Birds & a group of species or a population\\
+% species                    & the lowest evolutionary units in our analysis & a row in the \textbf{shapespace} & \textit{Pauxi pauxi} & an individual\\
+% shapespace                 & all the possible morphological combination (observed or not) & an ordinate and orthonormal matrix & the beak shapespace & a gene space \\
+% novelty                    & morphological variation (either \textbf{innovation} or \textbf{elaboration}) & position of a \textbf{species} or a \textbf{clade} relative to the \textbf{major axis of variation} & & \\
+% elaboration                & morphological variation along the \textbf{major axis of variation} & the algebraic projection on the eigenvector & & \\
+% innovation                 & morphological variation away from the \textbf{major axis of variation} & the algebraic rejection from the eigenvector & & \\
+% variance-covariance matrix & the multidimensional relation between traits & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) & & \\
+% nested phylogenetic level  & the different \textbf{clades} used in this study (the class-wide phylogeny $>$ super-orders $>$ orders) & different nested \textbf{variance-covariance matrices} & & \\
 
-We define three evolutionary scales based on the focal elements as follow:
-\begin{itemize}
-   \item \textbf{micro}evolutionary scale: the focal elements are \textbf{individual specimen};
-   \item \textbf{macro}evolutionary scale: the focal elements are \textbf{species} (i.e. groups of individuals);
-   \item \textbf{mega}evolutionary scale: the focal elements are \textbf{clades} (i.e. groups of species).
-\end{itemize} 
+% \end{tabular}
+% \label{tab_glossary}
+% \end{table}
+% \end{landscape}
 
-\begin{table}[ht]
-\centering
-\scriptsize
-\begin{tabular}{p{0.2\textwidth}p{0.3\textwidth}p{0.3\textwidth}p{0.1\textwidth}p{0.1\textwidth}}
-  \hline
-Term in this paper         & definition in this paper & mathematical definition & in macroevolution & in microevoltion\\
-  \hline
-major axis of variation    & the major evolutionary ``direction'' of traits co-evolution & first eigenvector of the variance-covariance matrix  & allometry & line of genetic least resistance \\
-clade                      & a monophyletic group of \textbf{species} & a subset of \textbf{shapespace} & Birds & a group of species or a population\\
-species                    & the lowest evolutionary units in our analysis & a row in the \textbf{shapespace} & \textit{Pauxi pauxi} & an individual\\
-shapespace                 & all the possible morphological combination (observed or not) & an ordinate and orthonormal matrix & the beak shapespace & a gene space \\
-novelty                    & morphological variation (either \textbf{innovation} or \textbf{elaboration}) & position of a \textbf{species} or a \textbf{clade} relative to the \textbf{major axis of variation} & & \\
-elaboration                & morphological variation along the \textbf{major axis of variation} & the algebraic projection on the eigenvector & & \\
-innovation                 & morphological variation away from the \textbf{major axis of variation} & the algebraic rejection from the eigenvector & & \\
-variance-covariance matrix & the multidimensional relation between traits & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) & & \\
-nested phylogenetic level  & the different \textbf{clades} used in this study (the class-wide phylogeny $>$ super-orders $>$ orders) & different nested \textbf{variance-covariance matrices} & & \\
+%---------------------------------------------
+%
+%   additional methods 
+%
+%---------------------------------------------
 
-\end{tabular}
-\caption{Glossary of some specific terms in this manuscript}
-\label{tab_glossary}
-\end{table}
-\end{landscape}
+\section{Additional methods details}
 
-
-\section{Supplementary material 2: additional results}
-
-\subsection{Data preparation}
-
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/mini-chains_diagram.pdf}
-\caption{mcmcmcglmmm: mini-chains MCMCglmm method diagram}
+\caption{mcmcmcglmmm: mini-chains MCMCglmm method diagram. See Methods for more details.}
 \label{Fig:mcmcmcglmm}
 \end{figure}
 
-\begin{figure}[htbp]
+\newpage
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/axis_selection.pdf}
-\caption{Variance and cumulative variance for each 8 axis per super-order. Note that not all super orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain at least 95\% of their variance within the shapespace whilst Aequornithes need 8 dimensions to achieve at least the same amount of variance.}
+\caption{Variance and cumulative variance for each of the eight principal component (PC) axes for each super-order. Note that not all super-orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain at least 95\% of their variance within the shapespace whilst Aequornithes need all eight dimensions to achieve at least the same amount of variance explained.}
 \label{Fig:axes_variance}
 \end{figure}
 
-\begin{figure}[htbp]
+\newpage
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_all_birds.pdf}
-\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for all birds for the 4000 posteriors. \textbf{solution} is the solution of the model; \textbf{Gcovariance} are the covariances for the random terms (the phylogeny and the clades); \textbf{Rcovariance} are the residuals error term.}
+\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for all birds for the 4000 posteriors. \textbf{solutions} is the solution of the model; \textbf{Gcovariances} is the covariance for the random terms (the phylogeny and the clades); \textbf{Rcovariances} is the residual error term.}
 \label{Fig:model_ess_all_birds}
 \end{figure}
 
-\begin{figure}[htbp]
+\newpage
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_passeriformes.pdf}
-\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 1870 posteriors. \textbf{solution} is the solution of the model; \textbf{Gcovariance} are the covariances for the random terms (the phylogeny and the clades); \textbf{Rcovariance} are the residuals error term.}
+\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 1870 posteriors. \textbf{solutions} is the solution of the model; \textbf{Gcovariances} is the covariance for the random terms (the phylogeny and the clades); \textbf{Rcovariances} is the residual error term.}
 \label{Fig:model_ess_passeriformes}
 \end{figure}
 
-\subsection{Additional results}
+%---------------------------------------------
+%
+%   additional results
+%
+%---------------------------------------------
 
+\newpage
+\section{Additional results}
+\subsection{Elaboration and innovation at the super-order or clade-wide phylogenetic level}
 
-
-
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.7\textwidth]{Figures/InnovElabTree_supp_revision.pdf}
-\caption{Avian phylogeny (n = 8748 species) showing distributions of species beak shape $elaboration_{species}$ (inner circle, yellow scale), $innovation_{species}$ (outer circle, blue scale), and Euclidean distance of species to the centroid of beak space (branches, cividis scale).}
+\caption{Avian phylogeny (n = 8748 species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale). Elaboration and innovation scores represent comparisons of species at the order, super-order and class-wide phylogenetic level.}
 \label{Fig:phylogeny_supplement}
 \end{figure}
 
+%\newpage
 
 
-\subsubsection{Correlations between $elaboration_{species}$ and $innovation_{species}$}
+\subsection{Correlations between $elaboration_{species}$ and $innovation_{species}$}
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/correlations.pdf}
-\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different focal levels. \textbf{A}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. The colours of the dots correspond to their density in the plot. Blue and yellow colours corresponds to respectively low and high density of species. The coloured quadrant in the back corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. The blue and yellow quadrants shows species with noticeable high $elaboration_{species}$ and $innovation_{species}$ respectively. The species in the green quadrant have noticeable high levels of both $elaboration_{species}$ and $innovation_{species}$. \textbf{B}: correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below). \textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). The colours correspond to each order. For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. The groups numbers are:
-1 - others (groups with $<$ 15 species)
-2 - Corvoidea;
-3 - Malaconotoidea;
-4 - Orioloidea;
-5 - Meliphagoidea;
-6 - Bombycilloidea;
-7 - Muscicapoidea;
-8 - Emberizoidea;
-9 - Motacillidae;
-10 - Nectariniidae ;
-11 - Passeridae;
-12 - PloceidaeEstrildidae;
-13 - Eurylaimides;
-14 - Furnariida;
-15 - Tyrannida;
-16 - Aegithaloidea;
-17 - Cisticolidae;
-18 - Fringillidae;
-19 - Hirundinidae;
-20 - Locustelloidea;
-21 - Paridae;
-22 - Pycnonotidae;
-23 - Sylvioidea.}
+\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ at different scales. 
+\textbf{(A)} Correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny. 
+The colours of the dots correspond to their density in the plot. 
+Blue and yellow colours corresponds to respectively low and high density of species. 
+The coloured quadrant in the background corresponds to $elaboration_{species}$ and $innovation_{species}$ scores higher than 1. 
+The blue and yellow quadrants shows species with noticeably high $elaboration_{species}$ and $innovation_{species}$ respectively. 
+The species in the green quadrant have noticeably high levels of both $elaboration_{species}$ and $innovation_{species}$.
+\textbf{(B)} Correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on the whole phylogeny (mega-level projection) but plotted by super-order and coloured by order (see list below).
+\textbf{C} correlation between $elaboration_{species}$ and $innovation_{species}$ for each species when projected on their super-orders' major axis of variation (macro-level projection). 
+The colours correspond to each order. 
+For the distribution of correlation scores, see Fig. \ref{Fig:fable_correlations}. 
+The group numbers are:
+1) others (groups with $<$ 15 species)
+2) Corvoidea;
+3) Malaconotoidea;
+4) Orioloidea;
+5) Meliphagoidea;
+6) Bombycilloidea;
+7) Muscicapoidea;
+8) Emberizoidea;
+9) Motacillidae;
+10) Nectariniidae;
+11) Passeridae;
+12) PloceidaeEstrildidae;
+13) Eurylaimides;
+14) Furnariida;
+15) Tyrannida;
+16) Aegithaloidea;
+17) Cisticolidae;
+18) Fringillidae;
+19) Hirundinidae;
+20) Locustelloidea;
+21) Paridae;
+22) Pycnonotidae;
+23) Sylvioidea.}
 \label{Fig:figure_correlations}
 \end{figure}
 
-\begin{figure}[htpb]
+\newpage
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/correlations_2.pdf}
-\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ for each species projected on their order's major axes. Each point is the median $elaboration_{species}$ and $innovation_{species}$ for one species from the distribution of 4000 posterior variance-covariance matrices. The full distribution of the correlation between $elaboration_{species}$ and $innovation_{species}$ is available in the main text in figure 3.}
+\caption{Median correlation plots of $elaboration_{species}$ and $innovation_{species}$ for each species projected on their order's phylogenetic major axis of beak variation. Each point is the median $elaboration_{species}$ and $innovation_{species}$ for one species from the distribution of 4000 posterior evolutionary rate matrices. The full distribution of the correlations between $elaboration_{species}$ and $innovation_{species}$ is available in the main text in Figure 3.}
 \label{Fig:figure_correlations2}
 \end{figure}
 
-\begin{figure}[htpb]
+\newpage
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/correlations_fable.pdf}
-\caption{Posterior distributions of the correlations scores between $elaboration_{species}$ and $innovation_{species}$ as displayed for each super-orders in Fig. \ref{Fig:figure_correlations}. Species' projection onto the whole phylogeny's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panels A and B in Fig. \ref{Fig:figure_correlations} and species' projections onto their own super-order's major axis of phenotypic variance-covariance (VCV) corresponds to the correlation scores for the panel C in Fig. \ref{Fig:figure_correlations}.}
-\label{fable_correlations_supplementary}
+\caption{Posterior distributions of the correlation between $elaboration_{species}$ and $innovation_{species}$ for each super-orders in Fig. \ref{Fig:figure_correlations}. Species' projection onto the clade-wide phylogenetic major axis of beak variation corresponds to the correlation scores in Fig. \ref{Fig:figure_correlations}A-B and species' projections onto their own super-order's phylogenetic major axis of beak variation corresponds to the correlation scores in Fig. \ref{Fig:figure_correlations}C.}
+\label{Fig:fable_correlations}
 \end{figure}
 
 
-\subsubsection{Elaboration and innovation through time}
+\subsection{Elaboration and innovation through time}
 
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
    \includegraphics[width=1\textwidth]{Figures/Elaboration_and_innovation_clade_through_time.pdf}
-\caption{Distribution of $elaboration_{clade}$ and $innovation_{clade}$ for each order and super-order through time.}
+\caption{Distribution of $elaboration_{clade}$ and $innovation_{clade}$ for each order and super-order through time in millions of years (Mya).}
 \label{Fig:figure_ei_clade_through_time}
 \end{figure}
 
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
    \includegraphics[width=1\textwidth]{Figures/Elaboration_and_innovation_species_through_time.pdf}
-\caption{Distribution of $elaboration_{species}$ and $innovation_{species}$ for each order and super-order through time.}
+\caption{Distribution of $elaboration_{species}$ and $innovation_{species}$ for each order and super-order through time in millions of years (Mya).}
 \label{Fig:figure_ei_species_through_time}
 \end{figure}
 
-\subsubsection{Orientations in $elaboration_{clade}$ and $innovation_{clade}$}
+\newpage
 
-\begin{figure}[htpb]
+\subsection{Orientations in $elaboration_{clade}$ and $innovation_{clade}$}
+
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/50_random_axes_superorders.pdf}
-\caption{Distribution of 50 random scaled major axes (scaled variance-covariance matrices eigen values) for each super order illustrating that individual major axes can span in many different directions with some clades have a higher spread of direction than others.}
+\caption{Distribution of 50 random scaled major axes (scaled evolutionary rate matrices eigenvalues) for each super-order illustrating that individual phylogenetic major axes of beak variation can span many different directions and that some clades have a higher spread of directions than others.}
 \label{Fig:mikado}
 \end{figure}
 
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.8\textwidth]{Figures/ellipses_supplementary.pdf}
-\caption{\scriptsize{Panel A) shows ellipses representing the scaled average posterior variance-covariance response from the pGLMM models for each super-order (coloured ellipses) compared to the global (all birds) phylogenetic component of the models (grey ellipses).
-We scaled the ellipses so the length of the major axis of phenotypic variation of the clade ellipse is the same length as that of the global phylogenetic major axis ellipse (in eight dimensions).
-The first inset ellipse plot shows the positions of all super-order ellipses relative to the global phylogenetic ellipse.
+\caption{\scriptsize{\textbf{(A)} Ellipses representing the scaled average posterior evolutionary rate matrix from the pGLMM models for each super-order (coloured ellipses) compared to the clade-wide phylogenetic component of the models (grey ellipses).
+We scaled the ellipses so the length of the phylogenetic major axis of beak variation of the clade ellipse is the same length as that of the clade-wide phylogenetic major axis ellipse (in eight dimensions).
+The first inset ellipse plot shows the positions of all super-order ellipses relative to the clade-wide phylogenetic ellipse.
 Subsequent inset plots show the results for each super-order. 
-Inset barplots show the proportion of variance associated with each of the eight PC axes in shape morphospace.
+Inset bar plots show the proportion of variance associated with each of the eight principal component (PC) axes in shape morphospace.
 The inset boxplots correspond to the $elaboration_{clade}$ (E) and $innovation_{clade}$ (I) scores for all 4000 posterior samples.
 The dots represent the median $elaboration_{clade}$ and $innovation_{clade}$ values while the thick and dashed lines represent the 50\% and 95\% confidence intervals respectively.
 These scores were calculated on the unscaled ellipses resulting in different scales of $elaboration_{clade}$ and $innovation_{clade}$ for each plot.
-Panel B) shows the results for each order.}}
+\textbf{(B)} Results for each order.}}
 \label{Fig:ellipses_rainbow}
 \end{figure}
 
 
-\begin{figure}[htpb]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/random_skewers.pdf}
-\caption{Random skewers test for the differences between the super orders (in purple) and the orders (in gold) variance-covariance matrices against the whole phylogeny ones. And, in light gold, between the orders and their super-orders variance covariance matrices. The different line types (dashed and full) represent respectively the 95\% and the 75\% CI distribution and the dots represent the median skewer correlation estimate. The stars denote the median p-value estimate (0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1).}
+\caption{Random skewers test for the differences between the super-orders (in purple) and the orders (in gold) evolutionary rate matrices against the clade-wide matrices. And, in light gold, between the orders and their super-orders evolutionary rate matrices. The different line types (dashed and full) represent respectively the 95\% and the 75\% CI distribution and the dots represent the median skewer correlation estimate. The stars denote the median p-value estimate (0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1).}
 \label{/home/tguillerme/Projects/elaboration_exploration_bird_beaks/Manuscript/Figures/others/figure_phylo_spiro_dark.png
 /home/tguillerme/Projects/elaboration_exploration_bird_beaks/Manuscript/Figures/others/orthogonality_results.png
 /home/tguillerme/Projects/elaboration_exploration_bird_beaks/Manuscript/Figures/others/relative_EI_gg_style.png}
 \end{figure}
 
+%---------------------------------------------
+%
+%   passeriformes results
+%
+%---------------------------------------------
 
+
+\newpage
 \clearpage
-\section{Supplementary material 3: Passeriformes results}
+\section{Passeriformes results}
 
-\begin{figure}[!htbp]
+\subsection{Passeriformes $elaboration_{species}$ and $innovation_{species}$}
+
+\begin{figure}[H]
 \centering
     \includegraphics[width=0.9\textwidth]{Figures/InnovElabTree_passerine_supplement_revised.pdf}
-\caption{Passeriformes phylogeny coloured by beak shape innovation and elaboration level. See the caption of figure 2 in the main text for details.}
+\caption{Passeriformes phylogeny (n = ?? species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale). Elaboration and innovation scores represent comparisons of species at the order, sub-order and family level.}
 \label{fig_phylogeny_passeriformes}
-\end{figure}
-
-
-\begin{figure}[!htbp]
-\centering
-   \includegraphics[width=1\textwidth]{Figures/ellipses_passeriformes.pdf}
-\caption{Elaboration and innovation at the group level for each passeriformes sub-orders and families. See the caption of figure 2 in the main text for details.}
-\label{fig_ellipses_passeriformes}
-\end{figure}
-
-\begin{figure}[!htbp]
-\centering
-   \includegraphics[width=0.9\textwidth]{Figures/orthogonality_results_passeriformes.pdf}
-\caption{Posterior results showing the orientation of phenotypic evolution (orthogonality) for each passeriformes sub-orders and families. See the caption of figure 3 in the main text for details.}
-\label{fig_orthogonality_passeriformes}
 \end{figure}
 
 
 \newpage
 
-\section{Supplementary materials 4: detailed projection and rejection operations}
+\subsection{Passeriformes $elaboration_{clade}$ and $innovation_{clade}$ at the megaevolutionary scale}
+
+\begin{figure}[H]
+\centering
+   \includegraphics[width=1\textwidth]{Figures/ellipses_passeriformes.pdf}
+\caption{$Elaboration_{clade}$ and $innovation_{clade}$ at the megaevolutionary scale for each Passeriformes sub-order and family.
+The black and gray ellipses are the scaled average evolutionary rate matrices from the pGLMM models for respectively the clades (black) and the class-wide phylogeny (gray).
+The ellipses are centered on the position of the clade in the shapespace.
+The associated black bar plots represent the variance on each of the eight dimensions in the shapespace with the top gray bar plot representing the variance on each of the eight dimensions for the class-wide phylogeny.
+The orange and blue distributions represent respectively the distribution of the $elaboration_{clade}$ (orange) and the $innovation_{clade}$ (blue) scores for each clade and the dots are the median $elaboration_{clade}$ or $innovation_{clade}$ and the solid and the dashed lines representing the 50\% and the 95\% confidence intervales of the distribution of the scores across the 4000 posterior samples.
+The ticks on the y-axis always represent five arbitrary units of elaboration and innovation.}
+\label{fig_ellipses_passeriformes}
+\end{figure}
+
+\newpage
+
+\subsection{Passeriformes orthogonality}
+
+\begin{figure}[H]
+\centering
+   \includegraphics[width=0.9\textwidth]{Figures/orthogonality_results_passeriformes.pdf}
+\caption{Amount of orthogonality of each Passeriformes sub-order's and family's phylogenetic major axis of beak variation compared to their parent or parent's parent clade.
+The amount of orthogonality is represented on the horizontal axis and scales from 0 (modulo of $0^\circ$) to 1 (modulo of $90^\circ$) with the background gray and dashed gray lines representing, respectively, an orthogonality of 0.5 (modulo of $45^\circ$) and 0.75 (modulo of $67.5^\circ$).
+Dots represent the median orthogonality of each clade and the lines their 95\% confidence intervals (CI).
+We also indicate the number of species (n) and the standard deviation (sd) of the orientation of their phylogenetic major axis of beak variation over the 4000 variance-covariance posteriors (sd; expressed in degrees).
+For each clade we also measured the posterior probability of each clade's orientation being different from their parent's clade or the class-wide phylogenetic major axis of beak variation relative to their sample size and sd.
+The stars represent the posterior probability of the clade's orientation being different from the comparison clade (*** = pp $> 0.99$; ** = pp $>0.95$; * = pp $> 0.9$; . = pp $> 0.8$).}
+\label{fig_orthogonality_passeriformes}
+\end{figure}
+
+%---------------------------------------------
+%
+%   maths
+%
+%---------------------------------------------
+
+\newpage
+
+\section{Detailed projection and rejection operations for measuring elaboration and innovation}
 \label{supp_projection}
 
-The following section contains the detailed definition and procedure of how we measured elaboration and innovation
+The following section contains the detailed definition and procedure of how we measured elaboration and innovation.
 
 We can define the major axis from the variance-covariance matrices and then project and reject each element of interest in the space onto this axis.
 The following steps are generalised to $n$ dimensions and detailed below (as well as the algorithm used in \texttt{dispRity} \cite{dispRity} to perform the transformations):
@@ -522,7 +570,7 @@ Which is the dispersion of eigenvalues (squared difference between each eigen va
 
 Using this definition and the definitions above of $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ we can calculate the and plot the relation between elaboration and innovation and their relative eigen dispersion:
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/elaboration_innovation_dispersion.pdf}
 \caption{Relation between relative eigen dispersion \cite{vanvalen1974,watanabe2022} and $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
@@ -547,16 +595,22 @@ If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \ci
 \end{equation}
 
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/respondability.pdf}
-\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
+\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{Charadriiformes} example dataset from the \texttt{dispRity} package.}
 \label{Fig:respondability}
 \end{figure}
 
 Conditional evolvability however will be more complex to determine since it is defined as the relation between evolvability and autonomy which is specific defined in \cite{hansen2008measuring} as the inverse of the \textbf{G} matrix.
 In \cite{hansen2008measuring}, the inverse of \textbf{G} is defined as ``the fraction of the genetic variation that is independent of potentially constraining characters'' which in our case will be harder to define.
 Although it would technically be possible to use the inverse of the \textbf{R} matrix used here ($VCV_{clade}$), it is unclear what it would represent biologically.
+
+%---------------------------------------------
+%
+%   references
+%
+%---------------------------------------------
 
 \bibliographystyle{naturemag}
 \bibliography{references}
