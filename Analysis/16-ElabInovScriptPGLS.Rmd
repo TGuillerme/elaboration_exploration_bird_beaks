@@ -1,0 +1,475 @@
+---
+title: "Linking different metrics to Elaboration and Innovation"
+author: "Gavin Thomas"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_width: 8
+    fig_height: 8
+---
+
+
+```{r}
+library(dplyr)
+library(ape)
+library(phylolm)
+library(motmot)
+library(xtable)
+
+## Read data for elaboration and innovation scores for species and clades, and read in phylogeny ##
+model_data <- read.csv("../Data/Raw/ElabInovDataPGLS.csv", row.names=1)
+phy <- read.tree("../Data/Raw/Prum_merge_hackett_stage2_1K_mcc.tree")
+
+
+#############################################
+## Runs all models while estimating lambda ##
+#############################################
+mod1 <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  order_tree_inno:elaboration_order +
+                  order_tree_elab:elaboration_order +
+                  order_tree_inno:innovation_order +
+                  order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="lambda")
+
+mod2 <- phylolm(phylogeny ~ elaboration_order + 
+                   innovation_order +
+                   order_tree_elab +
+                   order_tree_inno +
+                   order_tree_inno:elaboration_order +
+                   # order_tree_elab:elaboration_order +
+                   order_tree_inno:innovation_order +
+                   order_tree_elab:innovation_order
+                 , data=model_data, phy=phy, model="lambda")
+
+mod3 <- phylolm(phylogeny ~ elaboration_order + 
+                   innovation_order +
+                   order_tree_elab +
+                   order_tree_inno +
+                   order_tree_inno:elaboration_order +
+                   order_tree_elab:elaboration_order +
+                   order_tree_inno:innovation_order
+                 # order_tree_elab:innovation_order
+                 , data=model_data, phy=phy, model="lambda")
+
+mod4 <- phylolm(phylogeny ~ elaboration_order + 
+                   innovation_order +
+                   order_tree_elab +
+                   order_tree_inno +
+                   # order_tree_inno:elaboration_order +
+                   order_tree_elab:elaboration_order +
+                   order_tree_inno:innovation_order +
+                   order_tree_elab:innovation_order
+                 , data=model_data, phy=phy, model="lambda")
+
+mod5 <- phylolm(phylogeny ~ elaboration_order + 
+                   innovation_order +
+                   order_tree_elab +
+                   order_tree_inno +
+                   order_tree_inno:elaboration_order +
+                   order_tree_elab:elaboration_order +
+                   # order_tree_inno:innovation_order +
+                   order_tree_elab:innovation_order
+                 , data=model_data, phy=phy, model="lambda")
+
+mod6 <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno
+                , data=model_data, phy=phy, model="lambda")
+
+mod7 <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order
+                , data=model_data, phy=phy, model="lambda")
+
+mod8 <- phylolm(phylogeny ~ order_tree_elab +
+                  order_tree_inno
+                , data=model_data, phy=phy, model="lambda")
+
+mod9 <- phylolm(phylogeny ~ elaboration_order
+                , data=model_data, phy=phy, model="lambda")
+
+mod10 <- phylolm(phylogeny ~ 
+                  innovation_order
+                , data=model_data, phy=phy, model="lambda")
+
+mod11 <- phylolm(phylogeny ~ 
+                  order_tree_elab 
+                , data=model_data, phy=phy, model="lambda")
+
+mod12 <- phylolm(phylogeny ~ 
+                  order_tree_inno
+                , data=model_data, phy=phy, model="lambda")
+
+
+#############################################
+## Runs all models under Brownian motion   ##
+#############################################
+bm_model_list <- vector(mode="list", length=12)
+
+names(bm_model_list) <- c("mod_bm1", "mod_bm2", "mod_bm3", "mod_bm4", "mod_bm5", "mod_bm6",
+                          "mod_bm7", "mod_bm8", "mod_bm9", "mod_bm10", "mod_bm11", "mod_bm12")
+
+
+bm_model_list[[1]] <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  order_tree_inno:elaboration_order +
+                  order_tree_elab:elaboration_order +
+                  order_tree_inno:innovation_order +
+                  order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[2]]  <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  order_tree_inno:elaboration_order +
+                  # order_tree_elab:elaboration_order +
+                  order_tree_inno:innovation_order +
+                  order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[3]]  <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  order_tree_inno:elaboration_order +
+                  order_tree_elab:elaboration_order +
+                  order_tree_inno:innovation_order
+                # order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[4]]  <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  # order_tree_inno:elaboration_order +
+                  order_tree_elab:elaboration_order +
+                  order_tree_inno:innovation_order +
+                  order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[5]]  <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno +
+                  order_tree_inno:elaboration_order +
+                  order_tree_elab:elaboration_order +
+                  # order_tree_inno:innovation_order +
+                  order_tree_elab:innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[6]] <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order +
+                  order_tree_elab +
+                  order_tree_inno
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[7]] <- phylolm(phylogeny ~ elaboration_order + 
+                  innovation_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[8]] <- phylolm(phylogeny ~ order_tree_elab +
+                  order_tree_inno
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[9]] <- phylolm(phylogeny ~ elaboration_order
+                , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[10]] <- phylolm(phylogeny ~ 
+                   innovation_order
+                 , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[11]] <- phylolm(phylogeny ~ 
+                   order_tree_elab 
+                 , data=model_data, phy=phy, model="BM")
+
+bm_model_list[[12]] <- phylolm(phylogeny ~ 
+                   order_tree_inno
+                 , data=model_data, phy=phy, model="BM")
+
+
+#### Collate Brownian motion model results ####
+bm_results <- matrix(NA, nrow=12, ncol=11)
+bm_results <- data.frame(bm_results)
+colnames(bm_results) <- c("Model", "Especies", "Ispecies", "Eclade", "Iclade",
+                          "Especies x Iclade", "Especies x Eclade",
+                          "Ispecies x Iclade", "Ispecies x Eclade",
+                          "delta AIC", "Adj. R2")
+
+## Assign model number
+bm_results[,1] <- 1:12
+
+## Collate AIC scores
+aic_scores <- rep(NA, 12)
+for (i in 1:12) { aic_scores[i] <- bm_model_list[[i]]$aic}
+
+
+for (i in 1:12){
+  curr_model <- bm_model_list[[i]]
+  params <- summary(curr_model)$coefficients
+  
+  if ("elaboration_order" %in% rownames(params)) {
+    if (params["elaboration_order",4] <0.001) {try(bm_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "***", sep=""))}  
+    if (params["elaboration_order",4] >0.001 & params["elaboration_order",4] <0.01) {try(bm_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "**", sep=""))}  
+    if (params["elaboration_order",4] >0.01 & params["elaboration_order",4] <0.05) {try(bm_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "*", sep=""))}  
+    if (params["elaboration_order",4] >0.05) {try(bm_results[i,"Especies"] <- round(params["elaboration_order",1], 3))}  
+    }
+  
+  if ("innovation_order" %in% rownames(params)) {
+    if (params["innovation_order",4] <0.001) {try(bm_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "***", sep=""))}  
+    if (params["innovation_order",4] >0.001 & params["innovation_order",4] <0.01) {try(bm_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "**", sep=""))}  
+    if (params["innovation_order",4] >0.01 & params["innovation_order",4] <0.05) {try(bm_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "*", sep=""))}  
+    if (params["innovation_order",4] >0.05) {try(bm_results[i,"Ispecies"] <- round(params["innovation_order",1], 3))} 
+    }
+
+  if ("order_tree_elab" %in% rownames(params)) {
+    if (params["order_tree_elab",4] <0.001) {try(bm_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["order_tree_elab",4] >0.001 & params["order_tree_elab",4] <0.01) {try(bm_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["order_tree_elab",4] >0.01 & params["order_tree_elab",4] <0.05) {try(bm_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["order_tree_elab",4] >0.05) {try(bm_results[i,"Eclade"] <- round(params["order_tree_elab",1], 3))} 
+    }
+  
+  if ("order_tree_inno" %in% rownames(params)) {
+    if (params["order_tree_inno",4] <0.001) {try(bm_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["order_tree_inno",4] >0.001 & params["order_tree_inno",4] <0.01) {try(bm_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["order_tree_inno",4] >0.01 & params["order_tree_inno",4] <0.05) {try(bm_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["order_tree_inno",4] >0.05) {try(bm_results[i,"Iclade"] <- round(params["order_tree_inno",1], 3))} 
+    }
+  
+  if ("elaboration_order:order_tree_inno" %in% rownames(params)) {
+    if (params["elaboration_order:order_tree_inno",4] <0.001) {try(bm_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.001 & params["elaboration_order:order_tree_inno",4] <0.01) {try(bm_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.01 & params["elaboration_order:order_tree_inno",4] <0.05) {try(bm_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.05) {try(bm_results[i,"Especies x Iclade"] <- round(params["elaboration_order:order_tree_inno",1], 3))} 
+    }
+  
+  if ("elaboration_order:order_tree_elab" %in% rownames(params)) {
+    if (params["elaboration_order:order_tree_elab",4] <0.001) {try(bm_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.001 & params["elaboration_order:order_tree_elab",4] <0.01) {try(bm_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.01 & params["elaboration_order:order_tree_elab",4] <0.05) {try(bm_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.05) {try(bm_results[i,"Especies x Eclade"] <- round(params["elaboration_order:order_tree_elab",1], 3))} 
+    }
+  
+  if ("innovation_order:order_tree_inno" %in% rownames(params)) {
+    if (params["innovation_order:order_tree_inno",4] <0.001) {try(bm_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.001 & params["innovation_order:order_tree_inno",4] <0.01) {try(bm_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.01 & params["innovation_order:order_tree_inno",4] <0.05) {try(bm_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.05) {try(bm_results[i,"Ispecies x Iclade"] <- round(params["innovation_order:order_tree_inno",1], 3))} 
+    }
+  
+  if ("innovation_order:order_tree_elab" %in% rownames(params)) {
+    if (params["innovation_order:order_tree_elab",4] <0.001) {try(bm_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.001 & params["innovation_order:order_tree_elab",4] <0.01) {try(bm_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.01 & params["innovation_order:order_tree_elab",4] <0.05) {try(bm_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.05) {try(bm_results[i,"Ispecies x Eclade"] <- round(params["innovation_order:order_tree_elab",1], 3))} 
+  }
+  
+  bm_results[i,"delta AIC"] <- round(min(aic_scores)-curr_model$aic, 3)
+  bm_results[i,"Adj. R2"] <- round(summary(curr_model)$adj.r.squared, 3)
+  
+}
+
+
+
+
+
+
+
+
+
+####################################################
+## Runs all models under lowest lambda estimate   ##
+####################################################
+
+## Find minimum lambda value
+all_lambda <- c(mod1$optpar, mod2$optpar, mod3$optpar, mod4$optpar, mod5$optpar,
+                mod6$optpar, mod7$optpar, mod8$optpar, mod9$optpar, mod10$optpar,
+                mod11$optpar, mod12$optpar)
+
+fix_lambda <- min(all_lambda)
+
+## Transform phylogeny with lowest lambda value
+phy_lambda <- transformPhylo(phy, model="lambda", lambda=fix_lambda)
+
+
+min_lambda_model_list <- vector(mode="list", length=12)
+names(min_lambda_model_list) <- c("mod_min_lambda1", "mod_min_lambda2", "mod_min_lambda3", "mod_min_lambda4", "mod_min_lambda5", "mod_min_lambda6",
+  "mod_min_lambda7", "mod_min_lambda8", "mod_min_lambda9", "mod_min_lambda10", "mod_min_lambda11", "mod_min_lambda12")
+
+## Run the models
+min_lambda_model_list[[1]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno +
+                     order_tree_inno:elaboration_order +
+                     order_tree_elab:elaboration_order +
+                     order_tree_inno:innovation_order +
+                     order_tree_elab:innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[2]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno +
+                     order_tree_inno:elaboration_order +
+                     # order_tree_elab:elaboration_order +
+                     order_tree_inno:innovation_order +
+                     order_tree_elab:innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[3]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno +
+                     order_tree_inno:elaboration_order +
+                     order_tree_elab:elaboration_order +
+                     order_tree_inno:innovation_order
+                   # order_tree_elab:innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[4]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno +
+                     # order_tree_inno:elaboration_order +
+                     order_tree_elab:elaboration_order +
+                     order_tree_inno:innovation_order +
+                     order_tree_elab:innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[5]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno +
+                     order_tree_inno:elaboration_order +
+                     order_tree_elab:elaboration_order +
+                     # order_tree_inno:innovation_order +
+                     order_tree_elab:innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[6]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order +
+                     order_tree_elab +
+                     order_tree_inno
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[7]] <- phylolm(phylogeny ~ elaboration_order + 
+                     innovation_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[8]] <- phylolm(phylogeny ~ order_tree_elab +
+                     order_tree_inno
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[9]] <- phylolm(phylogeny ~ elaboration_order
+                   , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[10]] <- phylolm(phylogeny ~ 
+                      innovation_order
+                    , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[11]] <- phylolm(phylogeny ~ 
+                      order_tree_elab 
+                    , data=model_data, phy=phy_lambda, model="BM")
+
+min_lambda_model_list[[12]] <- phylolm(phylogeny ~ 
+                      order_tree_inno
+                    , data=model_data, phy=phy_lambda, model="BM")
+
+
+
+
+
+#### Collate Brownian motion model results ####
+min_lambda_results <- matrix(NA, nrow=12, ncol=11)
+min_lambda_results <- data.frame(min_lambda_results)
+colnames(min_lambda_results) <- c("Model", "Especies", "Ispecies", "Eclade", "Iclade",
+                          "Especies x Iclade", "Especies x Eclade",
+                          "Ispecies x Iclade", "Ispecies x Eclade",
+                          "delta AIC", "Adj. R2")
+
+## Assign model number
+min_lambda_results[,1] <- 1:12
+
+## Collate AIC scores
+aic_scores <- rep(NA, 12)
+for (i in 1:12) { aic_scores[i] <- min_lambda_model_list[[i]]$aic}
+
+
+for (i in 1:12){
+  curr_model <- min_lambda_model_list[[i]]
+  params <- summary(curr_model)$coefficients
+  
+  if ("elaboration_order" %in% rownames(params)) {
+    if (params["elaboration_order",4] <0.001) {try(min_lambda_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "***", sep=""))}  
+    if (params["elaboration_order",4] >0.001 & params["elaboration_order",4] <0.01) {try(min_lambda_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "**", sep=""))}  
+    if (params["elaboration_order",4] >0.01 & params["elaboration_order",4] <0.05) {try(min_lambda_results[i,"Especies"] <- paste(round(params["elaboration_order",1], 3), "*", sep=""))}  
+    if (params["elaboration_order",4] >0.05) {try(min_lambda_results[i,"Especies"] <- round(params["elaboration_order",1], 3))}  
+  }
+  
+  if ("innovation_order" %in% rownames(params)) {
+    if (params["innovation_order",4] <0.001) {try(min_lambda_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "***", sep=""))}  
+    if (params["innovation_order",4] >0.001 & params["innovation_order",4] <0.01) {try(min_lambda_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "**", sep=""))}  
+    if (params["innovation_order",4] >0.01 & params["innovation_order",4] <0.05) {try(min_lambda_results[i,"Ispecies"] <- paste(round(params["innovation_order",1], 3), "*", sep=""))}  
+    if (params["innovation_order",4] >0.05) {try(min_lambda_results[i,"Ispecies"] <- round(params["innovation_order",1], 3))} 
+  }
+  
+  if ("order_tree_elab" %in% rownames(params)) {
+    if (params["order_tree_elab",4] <0.001) {try(min_lambda_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["order_tree_elab",4] >0.001 & params["order_tree_elab",4] <0.01) {try(min_lambda_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["order_tree_elab",4] >0.01 & params["order_tree_elab",4] <0.05) {try(min_lambda_results[i,"Eclade"] <- paste(round(params["order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["order_tree_elab",4] >0.05) {try(min_lambda_results[i,"Eclade"] <- round(params["order_tree_elab",1], 3))} 
+  }
+  
+  if ("order_tree_inno" %in% rownames(params)) {
+    if (params["order_tree_inno",4] <0.001) {try(min_lambda_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["order_tree_inno",4] >0.001 & params["order_tree_inno",4] <0.01) {try(min_lambda_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["order_tree_inno",4] >0.01 & params["order_tree_inno",4] <0.05) {try(min_lambda_results[i,"Iclade"] <- paste(round(params["order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["order_tree_inno",4] >0.05) {try(min_lambda_results[i,"Iclade"] <- round(params["order_tree_inno",1], 3))} 
+  }
+  
+  if ("elaboration_order:order_tree_inno" %in% rownames(params)) {
+    if (params["elaboration_order:order_tree_inno",4] <0.001) {try(min_lambda_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.001 & params["elaboration_order:order_tree_inno",4] <0.01) {try(min_lambda_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.01 & params["elaboration_order:order_tree_inno",4] <0.05) {try(min_lambda_results[i,"Especies x Iclade"] <- paste(round(params["elaboration_order:order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["elaboration_order:order_tree_inno",4] >0.05) {try(min_lambda_results[i,"Especies x Iclade"] <- round(params["elaboration_order:order_tree_inno",1], 3))} 
+  }
+  
+  if ("elaboration_order:order_tree_elab" %in% rownames(params)) {
+    if (params["elaboration_order:order_tree_elab",4] <0.001) {try(min_lambda_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.001 & params["elaboration_order:order_tree_elab",4] <0.01) {try(min_lambda_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.01 & params["elaboration_order:order_tree_elab",4] <0.05) {try(min_lambda_results[i,"Especies x Eclade"] <- paste(round(params["elaboration_order:order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["elaboration_order:order_tree_elab",4] >0.05) {try(min_lambda_results[i,"Especies x Eclade"] <- round(params["elaboration_order:order_tree_elab",1], 3))} 
+  }
+  
+  if ("innovation_order:order_tree_inno" %in% rownames(params)) {
+    if (params["innovation_order:order_tree_inno",4] <0.001) {try(min_lambda_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "***", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.001 & params["innovation_order:order_tree_inno",4] <0.01) {try(min_lambda_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "**", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.01 & params["innovation_order:order_tree_inno",4] <0.05) {try(min_lambda_results[i,"Ispecies x Iclade"] <- paste(round(params["innovation_order:order_tree_inno",1], 3), "*", sep=""))}  
+    if (params["innovation_order:order_tree_inno",4] >0.05) {try(min_lambda_results[i,"Ispecies x Iclade"] <- round(params["innovation_order:order_tree_inno",1], 3))} 
+  }
+  
+  if ("innovation_order:order_tree_elab" %in% rownames(params)) {
+    if (params["innovation_order:order_tree_elab",4] <0.001) {try(min_lambda_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "***", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.001 & params["innovation_order:order_tree_elab",4] <0.01) {try(min_lambda_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "**", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.01 & params["innovation_order:order_tree_elab",4] <0.05) {try(min_lambda_results[i,"Ispecies x Eclade"] <- paste(round(params["innovation_order:order_tree_elab",1], 3), "*", sep=""))}  
+    if (params["innovation_order:order_tree_elab",4] >0.05) {try(min_lambda_results[i,"Ispecies x Eclade"] <- round(params["innovation_order:order_tree_elab",1], 3))} 
+  }
+  
+  min_lambda_results[i,"delta AIC"] <- round(min(aic_scores)-curr_model$aic, 3)
+  min_lambda_results[i,"Adj. R2"] <- round(summary(curr_model)$adj.r.squared, 3)
+  
+}
+
+
+
+##### Latexify tables
+
+min_lambda_results_latex <- xtable(min_lambda_results)
+bm_results_latex <- xtable(bm_results)
+```
