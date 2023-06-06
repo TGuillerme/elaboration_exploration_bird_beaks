@@ -29,6 +29,7 @@
 \usepackage[osf]{mathpazo}
 \usepackage{fullpage}
 \usepackage{float}
+\usepackage{ltablex}
 
 \pagenumbering{arabic}
 
@@ -146,7 +147,7 @@ and Gavin H. Thomas}
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/parameters_ESS_passeriformes.pdf}
-\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 1870 posteriors. \textbf{solutions} is the solution of the model; \textbf{Gcovariances} is the covariance for the random terms (the phylogeny and the clades); \textbf{Rcovariances} is the residual error term.}
+\caption{Histogram of the effective sample sizes (ESS) for each class of parameters in the MCMCglmm model for the passeriformes for the 4000 posteriors. \textbf{solutions} is the solution of the model; \textbf{Gcovariances} is the covariance for the random terms (the phylogeny and the clades); \textbf{Rcovariances} is the residual error term.}
 \label{Fig:model_ess_passeriformes}
 \end{figure}
 
@@ -231,6 +232,12 @@ The group numbers are:
 \label{Fig:fable_correlations}
 \end{figure}
 
+\newpage
+
+
+\input{Tables/tab_ortho_results.tex}
+
+
 
 \subsection{Elaboration and innovation through time}
 
@@ -257,7 +264,7 @@ The group numbers are:
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.5\textwidth]{Figures/50_random_axes_superorders.pdf}
-\caption{Distribution of 50 random scaled major axes (scaled evolutionary rate matrices eigenvalues) for each super-order illustrating that individual phylogenetic major axes of beak variation can span many different directions and that some clades have a higher spread of directions than others.}
+\caption{Distribution of 50 random scaled major axes (scaled evolutionary rate matrices eigenvectors) for each super-order illustrating that individual phylogenetic major axes of beak variation can span many different directions and that some clades have a higher spread of directions than others.}
 \label{Fig:mikado}
 \end{figure}
 
@@ -269,7 +276,7 @@ The group numbers are:
 We scaled the ellipses so the length of the phylogenetic major axis of beak variation of the clade ellipse is the same length as that of the clade-wide phylogenetic major axis ellipse (in eight dimensions).
 The first inset ellipse plot shows the positions of all super-order ellipses relative to the clade-wide phylogenetic ellipse.
 Subsequent inset plots show the results for each super-order. 
-Inset bar plots show the proportion of variance associated with each of the eight principal component (PC) axes in shape morphospace.
+Inset bar plots show the proportion of variance associated with each of the eight principal component (PC) axes in shapespace.
 The inset boxplots correspond to the $elaboration_{clade}$ (E) and $innovation_{clade}$ (I) scores for all 4000 posterior samples.
 The dots represent the median $elaboration_{clade}$ and $innovation_{clade}$ values while the thick and dashed lines represent the 50\% and 95\% confidence intervals respectively.
 These scores were calculated on the unscaled ellipses resulting in different scales of $elaboration_{clade}$ and $innovation_{clade}$ for each plot.
@@ -303,7 +310,7 @@ These scores were calculated on the unscaled ellipses resulting in different sca
 \begin{figure}[H]
 \centering
     \includegraphics[width=0.9\textwidth]{Figures/InnovElabTree_passerine_supplement_revised.pdf}
-\caption{Passeriformes phylogeny (n = ?? species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale). Elaboration and innovation scores represent comparisons of species at the order, sub-order and family level.}
+\caption{Passeriformes phylogeny (n = 5229 species) showing Euclidean distance of species to the centroid of beak space (branches, cividis scale), and distributions of species beak shape $elaboration_{species}$ (inner circle, orange scale), and $innovation_{species}$ (outer circle, blue scale). Elaboration and innovation scores represent comparisons of species at the order, sub-order and family level.}
 \label{fig_phylogeny_passeriformes}
 \end{figure}
 
@@ -315,12 +322,15 @@ These scores were calculated on the unscaled ellipses resulting in different sca
 \begin{figure}[H]
 \centering
    \includegraphics[width=1\textwidth]{Figures/ellipses_passeriformes.pdf}
-\caption{$Elaboration_{clade}$ and $innovation_{clade}$ at the megaevolutionary scale for each Passeriformes sub-order and family.
-The black and gray ellipses are the scaled average evolutionary rate matrices from the pGLMM models for respectively the clades (black) and the class-wide phylogeny (gray).
-The ellipses are centered on the position of the clade in the shapespace.
-The associated black bar plots represent the variance on each of the eight dimensions in the shapespace with the top gray bar plot representing the variance on each of the eight dimensions for the class-wide phylogeny.
-The orange and blue distributions represent respectively the distribution of the $elaboration_{clade}$ (orange) and the $innovation_{clade}$ (blue) scores for each clade and the dots are the median $elaboration_{clade}$ or $innovation_{clade}$ and the solid and the dashed lines representing the 50\% and the 95\% confidence intervales of the distribution of the scores across the 4000 posterior samples.
-The ticks on the y-axis always represent five arbitrary units of elaboration and innovation.}
+\caption{\textbf{(A)} Ellipses representing the scaled average posterior evolutionary rate matrix from the pGLMM models for each passeriformes sub-orders and families (coloured ellipses) compared to the passeriformes phylogenetic component of the models (grey ellipses).
+We scaled the ellipses so the length of the phylogenetic major axis of beak variation of the clade ellipse is the same length as that of the passeriformes phylogenetic major axis ellipse (in eight dimensions).
+The first inset ellipse plot shows the positions of all sub-order ellipses relative to the passeriformes phylogenetic ellipse.
+Subsequent inset plots show the results for each sub-order. 
+Inset bar plots show the proportion of variance associated with each of the eight principal component (PC) axes in shapespace.
+The inset boxplots correspond to the $elaboration_{clade}$ (left) and $innovation_{clade}$ (right) scores for all 4000 posterior samples.
+The dots represent the median $elaboration_{clade}$ and $innovation_{clade}$ values while the thick and dashed lines represent the 50\% and 95\% confidence intervals respectively.
+These scores were calculated on the unscaled ellipses resulting in different scales of $elaboration_{clade}$ and $innovation_{clade}$ for each plot.
+\textbf{(B)} Results for each families.}
 \label{fig_ellipses_passeriformes}
 \end{figure}
 
@@ -598,7 +608,7 @@ If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \ci
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/respondability.pdf}
-\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{Charadriiformes} example dataset from the \texttt{dispRity} package.}
+\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
 \label{Fig:respondability}
 \end{figure}
 
