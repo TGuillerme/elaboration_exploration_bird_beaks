@@ -175,7 +175,7 @@ The distribution elaboration and innovation scores are taken from the projection
 \subsection{Modeling nested trait covariance}
 Addressing the relative contributions of elaboration and innovation to the origins of biodiversity in deep-time requires: 1) large, multivariate datasets to allow exploration of trait covariances at different scales, 2) reliable and efficient computational methods to estimate the major axes of beak shape variation, and 3) a set of mathematical tools that can estimate degrees of elaboration and innovation at any scale.
 To meet the first challenge we use an eight-dimensional beak shape morphospace based on a geometric morphometric dataset of 8748 species of birds (described in \cite{hughes2022global}).
-To meet the other two challenges we introduce a novel analytical pipeline for measuring elaboration and innovation at the macroevolutionary scale (species within orders) and megaevolutionary scale (orders within the class Aves) (Fig.
+To meet the other two challenges we introduce a novel analytical pipeline for measuring elaboration and innovation at the macroevolutionary scale (species within orders) and megaevolutionary scale (orders within the class Aves; Fig.
  \ref{Fig:cheatsheet} and \ref{Fig:mcmcmcglmm}).
 To estimate the major axis of beak shape variation we estimate the evolutionary rate matrix \cite{Houle2017,Machado2020} by fitting Bayesian phylogenetic generalised linear mixed model (pGLMM) models with beak shape as an eight-dimensional response variable \cite{MCMCglmm}.
 The major axis can be identified from the leading eigenvector of the posterior distribution of evolutionary rate matrices.
@@ -221,7 +221,7 @@ The major axes of beak divergence within the order follow a trend from swifts (s
 % GT: Maybe needs a bit more here, possibly linking from integration to expectations of evolvability. Also, need to work on the end of the paragraph to articulate why the family split might lead to odd E and I (something along the lines of major axis is not elaboration within the families but instead is a mega level innovation).
 This phylogenetic major axis of beak variation is likely to be representative of innovation between clades, rather than a line of least resistance within a clade.
 
-Phylogenetic distributions of $elaboration_{species}$ and $innovation_{species}$ broadly hold whether comparisons are made at the order, super-order ($elaboration_{species}$ Pagel's $\lambda$ = 0.853; $innovation_{species}$ Pagel's $\lambda$ = 0.914), or class-wide phylogenetic level ($elaboration_{species}$ Pagel's $\lambda$ = 0.935; $innovation_{species}$ Pagel’s $\lambda$ = 0.837; Fig. \ref{Fig:phylogeny_supplement}); \ref{Fig:figure_correlations} %@L_correlation_figure_link)
+Phylogenetic distributions of $elaboration_{species}$ and $innovation_{species}$ broadly hold whether comparisons are made at the order, super-order ($elaboration_{species}$ Pagel's $\lambda$ = 0.853; $innovation_{species}$ Pagel's $\lambda$ = 0.914), or class-wide phylogenetic level ($elaboration_{species}$ Pagel's $\lambda$ = 0.935; $innovation_{species}$ Pagel’s $\lambda$ = 0.837; Fig. \ref{Fig:phylogeny_supplement} and \ref{Fig:figure_correlations}) %@L_correlation_figure_link)
 and in further nested analysis of the order Passeriformes (Fig. \ref{fig_ellipses_passeriformes} and \ref{fig_phylogeny_passeriformes}).
 The extent of both elaboration and innovation tends to reduce as we move from class-wide phylogenetic to within-order comparisons.
 We regard within-order comparisons as the most informative level of comparison at the macroevolutionary scale
@@ -232,7 +232,7 @@ Our results point to the possibility that within clades the phylogenetic major a
 
 Collectively, our results suggest that elaboration is the most common route by which species beak shape evolves.
 While $elaboration_{species}$ is the main mode of beak shape divergence at the macroevolutionary scale %@L_dominant
-(Fig. \ref{Fig:phylogeny}), it is also commonly positively correlated with $innovation_{species}$ (Fig. \ref{fable_correlations} \ref{fable_correlations_supplementary}. %@L_correlation_figure_link).
+(Fig. \ref{Fig:phylogeny}), it is also commonly positively correlated with $innovation_{species}$ (Fig. \ref{fable_correlations} and S8). %@L_correlation_figure_link).
 In 14/27 clades we find significant positive correlations with non-significant but positive trends in a further 11 clades.
 Only two clades (Falconiformes and Columbiformes) hint at a negative correlation but are clearly non-significant.
 The apparent predominance of $elaboration_{species}$ when measured at the macroevolutionary scale is consistent with the idea of evolution along lines of least resistance % @L_genetic_lol
@@ -255,7 +255,7 @@ Indeed, if divergence can arise simultaneously along multiple axes then this may
 If deep-time jumps in beak shape \cite{cooney2017mega} are the result of innovation we would expect to see changes in the orientation of trait space of clades (i.e. orders or super-orders) relative to the phylogenetic major axis of beak variation of the whole class Aves.
 To test this, we measured the $elaboration_{clade}$ and $innovation_{clade}$ by translating the phylogenetic major axis of beak variation of each clade's (i.e. super-orders and orders) evolutionary rate matrix onto the class-wide phylogenetic major axis of beak variation so that they shared the same origin in the shapespace.
 We then used linear algebra to project %@L_linear_algebra_stuff
-a focal clade's phylogenetic major axis of beak variation onto the class-wide phylogenetic major axis of beak variation (Fig.S\ref{Fig:cheatsheet}).
+a focal clade's phylogenetic major axis of beak variation onto the class-wide phylogenetic major axis of beak variation (Fig. S\ref{Fig:cheatsheet}).
 We interpret the measured linear algebraic projection (Euclidean distance along the phylogenetic major axis of beak variation) as the clade's $elaboration_{clade}$ score and the measured linear algebraic rejection (Euclidean distance from the phylogenetic major axis of beak variation) as the clade's $innovation_{clade}$ scor. % @L_euclidean.
 A high $innovation_{clade}$ score indicates that the direction of evolution of a clade differs from the direction of its parent clade (e.g. the direction of evolution of an order differs from its parent super-order).
 These scores were calculated for each of 4000 posterior pairs of clade vs.
@@ -313,9 +313,9 @@ We find that the extent of both $innovation_{clade}$ and $elaboration_{clade}$ i
 Similarly, when measured at the macroevolutionary scale, $innovation_{species}$ and $elaboration_{species}$ increase with species age (see supplementary Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}). %@L_ei_through_time_plots
 These results are consistent with both divergence in phenotype that is proportional to time (e.g. as expected under a Brownian motion model) and with the idea that changes in phenotypic correlations are expected to change over longer periods of time, potentially in response to moving adaptive landscapes \cite{BurinWhales}.
 
-Our observations of heterogeneity in the orientation of the phylogenetic major axis of beak variation among clades is further supported by consistent evidence for high amounts of orthogonality of clades relative to the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:ellipses} - Fig. \ref{Fig:orthogonality}; note that these comparisons are based on the evolutionary rate matrix). %@L_orientation_phylo
-The median angle of the phylogenetic major axis of beak variation for subclades approaches orthogonality, differing from the class-wide phylogenetic major axis of beak variation by $68.14^\circ$ ($95$\% CI: $22.83^\circ$-$89.09^\circ$ - Fig. \ref{Fig:orthogonality}).
-Comparisons of orientation among subclades (i.e. orders within super-orders) show similar differences (median = $47.14^\circ$; $95$\% CI: $13.64^\circ$-$87.62^\circ$ - Fig. \ref{Fig:orthogonality}), suggesting that reorientations in trait space are largely unconstrained at the megaevolutionary scale and are no more likely to occur along any one axis than another. 
+Our observations of heterogeneity in the orientation of the phylogenetic major axis of beak variation among clades is further supported by consistent evidence for high amounts of orthogonality of clades relative to the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:ellipses}; Fig. \ref{Fig:orthogonality}; note that these comparisons are based on the evolutionary rate matrix). %@L_orientation_phylo
+The median angle of the phylogenetic major axis of beak variation for subclades approaches orthogonality, differing from the class-wide phylogenetic major axis of beak variation by $68.14^\circ$ ($95$\% CI: $22.83^\circ$-$89.09^\circ$; Fig. \ref{Fig:orthogonality}).
+Comparisons of orientation among subclades (i.e. orders within super-orders) show similar differences (median = $47.14^\circ$; $95$\% CI: $13.64^\circ$-$87.62^\circ$; Fig. \ref{Fig:orthogonality}), suggesting that reorientations in trait space are largely unconstrained at the megaevolutionary scale and are no more likely to occur along any one axis than another. 
 This differs from previous inference from a subset of our data analysed  without incorporating phylogeny, that implied generally consistent and low dimensionality within clades \cite{cooney2017mega}.
 This suggests that there is no megaevolutionary analogue of the genetic line of least resistance and instead that megaevolutionary shifts more likely reflect changes in the adaptive landscape.
 Across scales there is remarkable flexibility in the routes to innovation, consistent with the idea that morphological divergence may be less constrained in deep-time than is sometimes assumed \cite{venditti2011multiple}. % @L_occasionaly 
@@ -359,12 +359,12 @@ We further tested the contributions of elaboration and innovation at different s
 Specifically, we calculated the distance to centroid of avian beak morphospace for each species (Fig. \ref{Fig:phylogeny}).
 We then used phylogenetic generalised least squares (PGLS; \cite{phylom}) to model distance to centroid as a function of $elaboration_{species}$, $innovation_{species}$ and $elaboration_{clade}$ and $innovation_{clade}$.
 We ran the PGLS analysis using both single and multiple predictors.
-Our analyses indicate that the majority of variation (r2 = 0.888; Table \ref{Tab:pgls}) in beak shape centroid distance can be explained by a combination of $elaboration_{species}$ and $innovation_{species}$.
-When modeled as single predictor models, variation explained is lower for $elaboration_{species}$ than $innovation_{species}$ and $innovation_{species}$ has a steeper slope indicating that although elaboration is overall the dominant model of divergence, innovation leads to greater exploration of morphospace (Table 1).
-In contrast, the combination of $elaboration_{clade}$ and $innovation_{clade}$ alone explains only $>$0.01\% of the total variation in beak shape divergence (Table 1).
+Our analyses indicate that the majority of variation (r$^2$ = 0.888; Table \ref{Tab:pgls}) in beak shape centroid distance can be explained by a combination of $elaboration_{species}$ and $innovation_{species}$.
+When modeled as single predictor models, variation explained is lower for $elaboration_{species}$ than $innovation_{species}$ and $innovation_{species}$ has a steeper slope indicating that although elaboration is overall the dominant model of divergence, innovation leads to greater exploration of morphospace (Table \ref{Tab:pgls}).
+In contrast, the combination of $elaboration_{clade}$ and $innovation_{clade}$ alone explains only $>$0.01\% of the total variation in beak shape divergence (Table \ref{Tab:pgls}).
 However, $innovation_{clade}$ is nonetheless an important contributor to total beak shape space.
 We reach this conclusion because models with interactions between species and clade metrics provide by far the best model fit overall and removal of terms indicate that the most important interactions are between $innovation_{clade}$  and $innovation_{species}$ followed by $innovation_{clade}$ and $elaboration_{species}$.
-The interaction terms show that the relationship between species metrics ($elaboration_{species}$, $innovation_{clade}$) and distance to centroid becomes steeper as $innovation_{clade}$ increases (Table 1 \ref{Tab:pgls})
+The interaction terms show that the relationship between species metrics ($elaboration_{species}$, $innovation_{clade}$) and distance to centroid becomes steeper as $innovation_{clade}$ increases (Table \ref{Tab:pgls}).
 Overall, the models suggest that although most species evolve via elaboration at the macroevolutionary scale, expansions of beak morphospace are also driven by megaevolutionary scale reorientations of trait space. %@L_PGLS_results
 
 \begin{landscape}
@@ -390,7 +390,7 @@ Overall, the models suggest that although most species evolve via elaboration at
       \hline
    \end{tabular}
 \caption{Elaboration and innovation as predictors of beak shape distance from centroid.
-The table shows parameter estimates of predictors from  12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms; models 6-8 are are multiple regressions including two or more variables and no interaction terms; models 9-12 are single predictor models. Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$lambda from any individual model) and relative model fit and interpretation of parameters was unaffected. E = elaboration; I = innovation; AIC = Akaike Information Criterion; NS = not significant; - indicates that the term was not included within that model.}
+The table shows parameter estimates of predictors from 12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms; models 6-8 are are multiple regressions including two or more variables and no interaction terms; models 9-12 are single predictor models. Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$ from any individual model) and relative model fit and interpretation of parameters was unaffected. E = elaboration; I = innovation; AIC = Akaike Information Criterion; NS = not significant; - indicates that the term was not included within that model.}
 \label{Tab:pgls}
 \end{table}
 \end{landscape}
@@ -413,9 +413,9 @@ Indeed, the class-wide phylogenetic major axis of phenotypic variation is an eme
 The landmark data were aligned with Procrustes superimposition using the R package \texttt{Morpho} \cite{Rcore,Morpho} and we removed the size component and controlled for symmetry (see \cite{cooney2017mega,hughes2022global,chira2020signature} for detailed descriptions of data collection and processing).
 We ordinated the superimposed landmarks using a principal components analysis (PCA) and selected the eight first dimensions of the resulting PCA.
 These eight dimensions contained at least 95\% of variance in each super-order, and 98.7\% of the variance in the whole dataset.
-We used a threshold of $>95$\% of variance explained for each super-order because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e. $\sigma$ PC1 $>$ $\sigma$ PC2 $>$ $\sigma$ PC3), this is not always true for each super-order.
+We used a threshold of at least 95\% of variance explained for each super-order because although the overall distribution of the variance on each PC axis in the whole trait-space is decreasing (i.e. $\sigma$ PC1 $>$ $\sigma$ PC2 $>$ $\sigma$ PC3), this is not always true for each super-order.
 For example, in the Mirandornithes, PC2, then PC4, and then PC1 contained the most variance (Fig.
-\ref{Fig:ellipses} and S\ref{Fig:axes_variance}).
+\ref{Fig:ellipses} and \ref{Fig:axes_variance}).
 This protocol for selecting the number of PC axes ensures that the resulting trait-space contains enough variance for each super-order (see Fig. \ref{Fig:axes_variance}).
 This procedure resulted in an $8748 \times 8$ matrix that contains at least 95\% of the variance in all observed living bird beaks (hereafter, the shapespace). %@L_shapespace_description
 
@@ -461,8 +461,8 @@ to measure the $elaboration_{clade}$/$innovation_{clade}$ at the megaevolutionar
 to measure the $elaboration_{species}$/$innovation_{species}$ at the macroevolutionary scale) where we calculated the projections of each species onto a) the class-wide phylogenetic major axis of beak variation and b) the phylogenetic major axis of beak variation of their parent clade (Fig. \ref{Fig:phylogeny}).
 To make the results easier to interpret, we centered and scaled elaboration and innovation scores onto the center of the phylogenetic major axis of beak variation of interest and made the elaboration values absolute.
 In this way, we can interpret an elaboration or innovation score within the 0-1 range to be non exceptional, i.e within the 95\% confidence interval of the evolutionary rate matrix.
-The full mathematical procedure is described in detail in the supplementary materials (section \ref{supp_projection} - note that the procedure described in the section \ref{supp_projection} is applied to each individual evolutionary rate matrix for each term in the model, e.g. for each 4000 posterior variance matrices individually for each $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$ or $innovation_{clade}$ score. %@L_individual_matrices).
-Code to reproduce the analyses is available at \href{https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html}{this \texttt{dispRity} vignette}.
+The full mathematical procedure is described in detail in the supplementary materials (section \ref{supp_projection};  note that the procedure described is applied to each individual evolutionary rate matrix for each term in the model, e.g. for each 4000 posterior variance matrices individually for each $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$ or $innovation_{clade}$ score). %@L_individual_matrices).
+Code to reproduce the analyses is available in \href{https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html}{this \texttt{dispRity} vignette}.
 
 \textbf{Clade orthogonality.} We measured the amount of orthogonality of each random term (i.e.
 clade) in our models compared to their parent clade and their parent's parent clade.
@@ -471,7 +471,7 @@ To measure the amount of orthogonality we calculated the angles between the phyl
 We converted each angle measurement into a degree of orthogonality metric where 0 corresponds to flat angles ($0^\circ$ or  $180^\circ$) and 1 to right angles ($90^\circ$ or $270^\circ$).
 We then measured the posterior probability of the angles within a clade being different to the angles among clades.
 These results are available in Fig. \ref{Fig:orthogonality}.
-Note that we did not use the random skewers method here \cite{cheverud2007research} because we were interested in measuring the amount of orthogonality between pairs of evolutionary rate matrices rather than simply measuring whether they were different (but see supplementary materials for random skewers correlation results \ref{Fig:random_skewers}). %@L_noskewers
+Note that we did not use the random skewers method here \cite{cheverud2007research} because we were interested in measuring the amount of orthogonality between pairs of evolutionary rate matrices rather than simply measuring whether they were different (but see supplementary materials Fig. S13 for random skewers correlation results). %@L_noskewers
 
 \textbf{Phylogenetic generalised least squares analysis.} %@L_pgls_methods
 We ran phylogenetic generalised least squares models (PGLS) to test the effects of elaboration and innovation on beak shape divergence.
@@ -491,20 +491,21 @@ The results were qualitatively similar regardless of $\lambda$ and we report onl
 In addition, we estimated Pagel’s $\lambda$ for $elaboration_{species}$ and $innovation_{species}$ as univariate traits.
 All models were fitted using the phylolm library using a single phylogeny \cite{phylom}.
 
-\textbf{Reproducibility and repeatability.}
+
+\section*{Reproducibility and repeatability}
 The raw and processed data used in this analysis is available from \href{https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355}{figshare} \cite{fighsaredata}.
 The code used to reproduce the figures and tables is available from \href{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}{github} \cite{githubrepo}.
 
-\textbf{Acknowledgements.}
+\section*{Acknowledgements}
 We thank M. Adams, H. van Grouw and R. Prys-Jones from the Bird Group at the NHM, Tring and H. McGhie at the Manchester Museum for providing access to and expertise in the collections.
 We are indebted to the volunteer citizen scientists at \url{http://www.markmybird.org} for helping to build the database of bird bill shape and contribute to our understanding of avian evolution. 
 We thank Masahito Tusboi and three other anonymous reviewers for their suggestions that greatly helped improving the manuscript.
 
-\textbf{Author contributions.} G.H.T., A.P.B., N.C., and T. G. designed the study. J.A.B., C.R.C., E.C.H., Z.K.V., and G.H.T. curated the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
+\section*{Author contributions} G.H.T., A.P.B., N.C., and T. G. designed the study. J.A.B., C.R.C., E.C.H., Z.K.V., and G.H.T. curated the data. T.G. analysed the data. All authors contributed to the writing of the manuscript.
 
-\textbf{Competing interests.} We declare no competing interests.
+\section*{Competing interests} We declare no competing interests.
 
-\textbf{Funding.}
+\section*{Funding}
 This work was funded by UKRI-NERC Grant NE/T000139/1 and a Royal Society University Research Fellowship (URF R 180006 to GHT).
 
 
