@@ -91,7 +91,8 @@ Widely documented, megaevolutionary jumps in phenotypic diversity continue to pe
 Here we tackle this question using new approaches for modeling multivariate traits %@L_multi_traits
  to evaluate the magnitude and distribution of elaboration and innovation in the evolution of bird beaks.
 We find that elaboration, evolution along the major axis of phenotypic change, is common at both macro- and megaevolutionary scales whereas innovation, evolution away from the major axis of phenotypic change, is more prominent at megaevolutionary scales.
-Indeed, the major axis of phenotypic change among species beak shapes at megaevolutionary scales is an emergent property of innovation across clades. Our analyses suggest that the reorientation of phenotypes via innovation is a ubiquitous route for divergence that can arise through gradual change alone, opening up new avenues for evolution to explore. %@L_reworded_abstract
+Indeed, the major axis of phenotypic change among species beak shapes at megaevolutionary scales is an emergent property of innovation across clades.
+Our analyses suggest that the reorientation of phenotypes via innovation is a ubiquitous route for divergence that can arise through gradual change alone, opening up new avenues for evolution to explore. %@L_reworded_abstract
 
 \section{Introduction}
 
@@ -121,7 +122,7 @@ We hereafter refer to this \textbf{R} matrix as the \textit{evolutionary rate ma
 The major axis of the evolutionary rate matrix is a phylogenetic line of least resistance applicable at macro- and mega-evolutionary scales that is analogous to the genetic line of least resistance at microevolutionary scales. %@L_Rmatrix_full
 
 By studying the phylogenetic line of least resistance and related properties of the evolutionary rate matrix \cite{caetano2017ratematrix, caetano2018estimating, slater2019hierarchy} at different scales we aim to gain new insights into the macro- and mega-evolutionary trajectories that lead to the diversity of beak shapes among extant bird species and clades.
-While there is no strict definition that separates macro- and mega-evolution, we define the macroevolutionary scale as species divergence within clades and the megaevolutionary scale as divergence of clades within larger clades.
+While there is no strict definition that separates macro- and mega-evolution, we define the macroevolutionary scale as species divergence within clades and the megaevolutionary scale as divergence of clades within larger clades. %@L_mega_macro_def
 The diversity of bird beaks has been well-studied at broad scales, particularly in relation to dietary ecology \cite{olsen2017feeding, felice2019, bright2016shapes, navalon2019, pigot2020macroevolutionary}.
 Previous studies have assessed how variation in rates of evolution of beak shape has generated this diversity \cite{cooney2017mega,chira2018correlates}, revealing a general pattern of phylogenetically clustered evolutionary rates interspersed with major shifts deep in avian evolutionary history and in isolated lineages.
 Major shifts indicate lineages that occupy distinct areas of beak shape space relative to their close relatives.
@@ -178,7 +179,7 @@ To meet the other two challenges we introduce a novel analytical pipeline for me
  \ref{Fig:cheatsheet} and \ref{Fig:mcmcmcglmm}).
 To estimate the major axis of beak shape variation we estimate the evolutionary rate matrix \cite{Houle2017,Machado2020} by fitting Bayesian phylogenetic generalised linear mixed model (pGLMM) models with beak shape as an eight-dimensional response variable \cite{MCMCglmm}.
 The major axis can be identified from the leading eigenvector of the posterior distribution of evolutionary rate matrices.
-We regard the major axis of the evolutionary rate matrix as a deep-time analogue of the microevolutionary \textbf{G} matrix \cite{robinson2013quantifying} and posit that it represents the among species line of least evolutionary resistance, capturing the effects of historical contingency on multivariate evolution.
+We regard the major axis of the evolutionary rate matrix as a deep-time analogue of the microevolutionary \textbf{G} matrix \cite{steppan2002comparative, robinson2013quantifying} and posit that it represents the among species line of least evolutionary resistance, capturing the effects of historical contingency on multivariate evolution.
 This major axis of beak variation can be defined at any phylogenetic scale (i.e. for all species in the phylogeny, or for all species within any clade).
 We can then estimate elaboration and innovation based on that major axis: elaboration is defined as the position on the phylogenetic major axis of beak variation and innovation is defined as the distance from the phylogenetic major axis of beak variation (see Methods). %@L_ei_meth_precision.
 To assess the roles of elaboration and innovation in beak shape evolution across scales we fit our pGLMMs as nested models in which we define evolutionary rate matrices, and therefore major axes of beak shape variation, for
@@ -312,9 +313,9 @@ We find that the extent of both $innovation_{clade}$ and $elaboration_{clade}$ i
 Similarly, when measured at the macroevolutionary scale, $innovation_{species}$ and $elaboration_{species}$ increase with species age (see supplementary Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}). %@L_ei_through_time_plots
 These results are consistent with both divergence in phenotype that is proportional to time (e.g. as expected under a Brownian motion model) and with the idea that changes in phenotypic correlations are expected to change over longer periods of time, potentially in response to moving adaptive landscapes \cite{BurinWhales}.
 
-Our observations of heterogeneity in the orientation of the phylogenetic major axis of beak variation among clades is further supported by consistent evidence for high amounts of orthogonality of clades relative to the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:ellipses} - Fig. \ref{Fig:orthogonality}).
+Our observations of heterogeneity in the orientation of the phylogenetic major axis of beak variation among clades is further supported by consistent evidence for high amounts of orthogonality of clades relative to the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:ellipses} - Fig. \ref{Fig:orthogonality}; note that these comparisons are based on the evolutionary rate matrix). %@L_orientation_phylo
 The median angle of the phylogenetic major axis of beak variation for subclades approaches orthogonality, differing from the class-wide phylogenetic major axis of beak variation by $68.14^\circ$ ($95$\% CI: $22.83^\circ$-$89.09^\circ$ - Fig. \ref{Fig:orthogonality}).
-Comparisons of orientation am%@L_ei_through_time_plotsong subclades (i.e. orders within super-orders) show similar differences (median = $47.14^\circ$; $95$\% CI: $13.64^\circ$-$87.62^\circ$ - Fig. \ref{Fig:orthogonality}), suggesting that reorientations in trait space are largely unconstrained at the megaevolutionary scale and are no more likely to occur along any one axis than another.
+Comparisons of orientation among subclades (i.e. orders within super-orders) show similar differences (median = $47.14^\circ$; $95$\% CI: $13.64^\circ$-$87.62^\circ$ - Fig. \ref{Fig:orthogonality}), suggesting that reorientations in trait space are largely unconstrained at the megaevolutionary scale and are no more likely to occur along any one axis than another. 
 This differs from previous inference from a subset of our data analysed  without incorporating phylogeny, that implied generally consistent and low dimensionality within clades \cite{cooney2017mega}.
 This suggests that there is no megaevolutionary analogue of the genetic line of least resistance and instead that megaevolutionary shifts more likely reflect changes in the adaptive landscape.
 Across scales there is remarkable flexibility in the routes to innovation, consistent with the idea that morphological divergence may be less constrained in deep-time than is sometimes assumed \cite{venditti2011multiple}. % @L_occasionaly 
@@ -335,6 +336,7 @@ We compared the area under the curve of the scaled density of $elaboration_{spec
 We then measured the difference between both areas and found that there was a significant difference in $innovation_{species}$ and $innovation_{clade}$ but no clear difference in $elaboration_{species}$ and $elaboration_{clade}$ (Fig. \ref{Fig:relative_EI}).
 This difference confirms our observation that innovation is indeed common and dominant at the megaevolutionary scale, however, the contributions of elaboration and innovation are shown to be indistinguishable at the macroevolutionary scale.
 So, although species often evolve preferentially along a shared phylogenetic major axes of beak variation within clades, there is frequent deviation from these major axes, and the phylogenetic major axes of beak variation change among clades.
+This could be explained in part because the evolutionary rate matrix (\textbf{R}) is more influenced by shifts in the adaptive landscape through time and thus reflecting natural selection in deeper nodes more than in younger nodes (Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}). %@L_R_selection
 
 \begin{figure}[!htbp]
 \centering
@@ -352,7 +354,6 @@ For innovation the overlap has Bhattacharryya Coefficient = 0.039, which indicat
 \bigskip
 
 % \noindent \textbf{Figure \ref{Fig:relative_EI}:}
-
 
 We further tested the contributions of elaboration and innovation at different scales by examining the consequences of elaboration and innovation for the observed divergence of bird beak shapes.
 Specifically, we calculated the distance to centroid of avian beak morphospace for each species (Fig. \ref{Fig:phylogeny}).
@@ -472,7 +473,8 @@ We then measured the posterior probability of the angles within a clade being di
 These results are available in Fig. \ref{Fig:orthogonality}.
 Note that we did not use the random skewers method here \cite{cheverud2007research} because we were interested in measuring the amount of orthogonality between pairs of evolutionary rate matrices rather than simply measuring whether they were different (but see supplementary materials for random skewers correlation results \ref{Fig:random_skewers}). %@L_noskewers
 
-\textbf{Phylogenetic generalised least squares analysis.} We ran phylogenetic generalised least squares models (PGLS) to test the effects of elaboration and innovation on beak shape divergence.
+\textbf{Phylogenetic generalised least squares analysis.} %@L_pgls_methods
+We ran phylogenetic generalised least squares models (PGLS) to test the effects of elaboration and innovation on beak shape divergence.
 Beak shape divergence was calculated as the Euclidean distance of each species beak shape from the centroid of beak shape of all birds.
 We then fitted a series of nested models with distance as the response and $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$, and $innovation_{clade}$ as predictors.
 The most complex model included all two-way interaction terms:
