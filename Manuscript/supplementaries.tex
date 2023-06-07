@@ -30,6 +30,8 @@
 \usepackage{fullpage}
 \usepackage{float}
 \usepackage{ltablex}
+\usepackage{longtable}
+\usepackage[tablewithin=none,figurewithin=none,singlelinecheck=false]{caption}
 
 \pagenumbering{arabic}
 
@@ -234,10 +236,11 @@ The group numbers are:
 
 \newpage
 
-
+\begin{landscape}
 \input{Tables/tab_ortho_results.tex}
+\end{landscape}
 
-
+\newpage
 
 \subsection{Elaboration and innovation through time}
 
