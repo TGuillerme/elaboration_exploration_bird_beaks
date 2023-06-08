@@ -552,6 +552,199 @@ We have now added the suggested reference.
 
 Figure S5 has now been moved as figure one in the main manuscript and we have now anglicized the clade name in the caption.
 
+\subsection*{\textcolor{blue}{Reviewer 4}}
+
+\textcolor{blue}{Dear authors,}
+
+\textcolor{blue}{Here I summarize my review of a manuscript entitled “Innovation and elaboration on the avian tree of life”. In this article, authors present a suite of results obtained through herculean effort to estimate multi-level variance-covariance matrix that represents rates of phenotypic evolution in beak morphology using deep and massive (> 8,000 species) avian phylogeny. Authors devised an interesting method to quantify phenotypic evolution in directions of elaboration and innovation to provide multiple lines of evidence showing that species elaborate and clade innovate.}
+
+\textcolor{blue}{I am very excited about this study, both in terms of its findings and its method being devised and used. Reflecting my interests, there are many comments, as you see below. Should you have any questions for my comments, please do not hesitate to contact me. I hope my comments are helpful for further development of this research.}
+
+\textcolor{blue}{Best wishes, Masahito Tsuboi}
+
+Thanks for these positive comments!
+
+\subsection*{\textcolor{blue}{Major comments}}
+
+\textcolor{blue}{1. Framing
+The framing of this research using Endler’s “elaboration and innovation” (here I referred to as e/i framework) should be critically reconsidered. I find this framing interesting and useful in some ways, but I also find some problems too. I am not suggesting changing this, but I do suggest authors to think again based on what I think is problematic.
+First e/i framework has nothing to do with macroevolution. This mismatch will make it difficult for readers to anticipate what this paper is about when reading the introduction. Second, e/i framework has little, if not at all, connection to evolutionary quantitively genetics. This makes it hard for readers to link this study to its conceptual basis, which is the adaptive landscape framework of Simpson-Lande-Arnold. Third, e/i framework has rarely been discussed in evolutionary quantitively genetics literature. I am not really a fun of populism, but it is generally a good idea to stick to typical framing of the field. This is particularly so when a manuscript is written in a short format. Fourth, e/i framework does not seem to help the discussion. There are some passing sentences referring to this framework (lines 188-191) but the same sentences will work fine pretty much without referring to it. Overall, my suggestion, which is related to my thoughts that I expressed in comment 5, is to devote the second paragraph of introduction to place this research in the context ofshifting adaptive landscape. This will help readers to associate this study with conceptually related studies, which will make it easier for introducing methods to readers as well.
+}
+
+We have now completely rewritten the introduction following several reviewer’s comments. We now start by introducing concepts from quantitative genetics and macroevolution and introduce the e/i framework only at the end of the introduction as a tool to answer our hypotheses.
+
+\textcolor{blue}{2. Clade orthogonality
+When angles of high dimensional matrices are compared, observed angles should be compared to expected angles from random matrices of the same dimensionality and not to 0 and 90 degrees. A method that provides you with null distribution of angles is called “random-skewer”, which is described in Marroig and Cheverud (2001) and implemented in several R-packages (evolvability and evolqg, to my knowledge). I suggest authors to test statistical significance of angles between matrices obtained at different levels (Figure 3) using random skewers.}
+
+
+The random skewers methods has been used and designed to compare covariance matrices and to provide a parametric test whether their orientations are different. They are routinely used to compare phenotypic and genotypic matrices (\textbf{P} and \textbf{G}) for example. However, here our objective was not to use a parametric test to compare the matrices \textit{per se} but just to see their differences in orientation. This is because:
+\begin{itemize}
+\item Using our Bayesian approach, we do use the whole posterior distribution which is approximating to the whole statistical population rather than a sample of it (no need to use a parametric test).
+\item Here we are interested in understanding the change in orientation between pairs of matrices (e.g. super-order vs. phylogeny) to approximate the potential of innovation of a matrix. For two VCV matrices with their own covariance scores equal to 1, the amount of orthogonality is a proxy for their $innovation_{clade}$ score: if they are completely orthogonal, then they will have an $elaboration_{clade}$ score of 0 and a positive $innovation_{clade}$ score (of 1 if they share the same variance). 
+\end{itemize}
+We have now specified this in the main text and in the methods sections. We have however also added the random skewers methods results in the supplementary materials Figure S13 to have an idea of how different the pairs of matrices are: (lines 469-473)
+
+\noindent\textit{Note that we did not use the random skewers method here \cite{cheverud2007research} because we were interested in measuring the amount of orthogonality between pairs of evolutionary rate matrices rather than simply measuring whether they were different (but see supplementary materials Fig. S13 for random skewers correlation results).} %@L_noskewers
+
+
+\textcolor{blue}{3. Innovation/elaboration analysis
+Study of high dimensional matrices needs to hit a fine balance to explain abstract methods to general readers without compromising conceptual and methodological details. I commend authors’ effort in directing this manuscript towards general readers using the innovation/elaboration metaphor, which I think is an excellent idea. I however see some rooms to improve descriptions of technical details of this approach.}
+
+\textcolor{blue}{First, I suggest authors to add some descriptions of how innovation/elaboration metric is related to existing approaches in the field. Relative eigenvector dispersion (Pavlicev et al., 2009, Watanabe, 2022), conditional evolvability and integration (Hansen \& Houle, 2008) are three metric comes on top of my head that are likely relevant. For instance, high elaboration relative to innovation means that the matrix forms a cigar shape than a circle, and that can also be represented by high relative eigenvector dispersion, high integration, and low conditional evolvability. Statements of this kind will allow connecting this method to a more standard methods available in the field. Descriptions of those metrics are also found in Haber (2016), which might be a useful reference for this article.}
+
+We have made an attempt to link our elaboration and innovation metrics (for clade and species) to the metrics suggested by this reviewer and put our attempts in the supplementary materials (supplementary materials section 4). Although some are relatively straightforward (e.g. relative eigen value, evolvability which is directly equal to $elaboration_{species}$ or respondability which can be easily calculated using Pythagorean theorems) we are left wondering whether the exercise is actually not beyond the scope of this paper. If we can interpret our approach as using the \textbf{R} matrix (see new intro lines 44-60), then relating elaboration and innovation (for clade or species) depending on the \textbf{R} matrix to metrics based on the \textbf{G} matrix is not straightforward. In fact, even though it seems feasible mathematically, linking these concepts applied at the macro level (focal = species) and mega level (focal = clades) to ones at the individual or population level (micro) is by no means easy in terms of what these concepts represent biologically (as we know this reviewer is well aware!).
+
+Basically, we believe that even though it would be possible to link these metrics, we are not sure what would be the interpretation of it. We illustrate that in the supplementary materials section 4 where we show how linking $elaboration_{species}$ to evolvability (Hanse \& Houle 2008) is trivial ($elaboration_{species}$ = evolvability), linking it to conditional evolvability is going to be very complicated since the concept of autonomy involved in conditional evolvability is directly linked to individuals genetic variation which is hard to mathematically relate to species phenotypic variation (let alone clade’s phenotypic variation). We believe however that digging more into this in the future would be a great potential future direction of research.
+
+\textcolor{blue}{Second, I suggest authors to use one term for innovation/elaboration across the entire phylogeny and another term for those at the clade-specific levels. For instance, consider using something like Innovation(global as subscript), elaboration(global), Innovation(clade), elaboration(clade). This way, readers will always be informed which levels of innovation or elaboration are referred to throughput this study. This is related to my next point regarding the comparability of i/e scores. That is, Innovation(global) and elaboration(global) should always be comparable because they are defined in the same phenotype space, but Innovation(clade) and elaboration(clade) may not be comparable among clades because they are basically different traits.}
+
+As mentioned in the responses to reviewers above, we have now standardised the distinctions between the different types of elaboration and innovation as $elaboration_{species}$/$innovation_{species}$ for the macroevolutionary scale and $elaboration_{clade}$/$innovation_{clade}$ for the megaevolutionary scale. For the main manuscript we have also now standardised the baseline comparisons that are always based on the parent clade (e.g. species on orders, orders on super orders and super orders on the whole phylogeny) rather than the parent’s parent clade.
+
+\textcolor{blue}{4. Is Innovation(global) and Innovation(clade) comparable?
+To my understanding, Figure 4 compares i/e scores evaluated at the clade level (not the global level). This raises the question of how comparable they are because i/e scores defined by different evolutionary rate matrices are different traits. Arguably, Figure 2 and 3 show considerable variation in the first two leading eigenvectors of clade-specific covariance matrices, meaning that i/e scores defined at clade levels are variable across clades. Thus, it is an open question whether i/e scores defined by a variety of clades are comparable, calling into some validations for results presented in Figure 4. For instance, how Figure 4 look if it plots innovation(global) and elaboration(global) instead of innovation(clade) and elaboration(clade)?}
+
+We have now clarified throughout the manuscript the different comparisons by naming them differently (see response just above). Hopefully this does remove potential confusion about figure 4 (now figure 5). And regarding the potential problems between comparing $elaboration$/$innovation_{clade}$ to $elaboration$/$innovation_{species}$ we have added the direct link between both metrics in the supplementary materials (section 4). We would argue that although they represent quite distinctive biological things, they are both solely based on the same variance-covariance matrices and represent nuances in the different focal levels of these matrices (macro vs. mega). Since our manuscript now more clearly compares the beak shape variation at the macro and mega level, we feel that the direct comparison between both is still justified.
+
+
+\textcolor{blue}{5. Shifting adaptive landscape
+I am in principle in favor of authors’ conclusion (lines 213-228). However, based on the current presentation, readers need to parse pieces of information spread across the manuscript and re-interpret them in light of some uncited references to reach this conclusion. So, I encourage authors to make additional efforts to help readers to find relevant information and arguments that may lead to conclusion that authors allude to. What I consider particularly relevant are the following:}
+
+\textcolor{blue}{- citing original formulation of the adaptive zone by G. G. Simpson, either 1944 (Tempo and Mode) or 1953 (Major Features), will tremendously help framing this manuscript in the context of sifting adaptive landscape. Authors could additionally consider referring to Arnold et al. (2001), Hansen (2012), Estes and Arnold (2007) and Uyeda et al. (2011) as more recent effort in rejuvenating the adaptive zone metaphor in evolutionary quantitate genetics and phylogenetic comparative study}
+
+We have now added the references to Simpson in the relevant places as well as more recent papers discussing the adaptive zone metaphors.
+
+\textcolor{blue}{- rates of evolution matrices (R-matrix) are the sum of effects of underlying variational property (genetic co/variance, developmental bias, line 26) and selection (or the dynamics of adaptive landscape, line 27). Because feeding ecology likely exhibit phylogenetic signal, and because adaptive landscape of beak shape should reflect this, and assuming that R is influenced by the shifted adaptive landscape through adaptation to different feeding niche, R of higher taxa likely reflects selection more than R of lower taxa. This may explain Figure 4b.}
+
+We have added a sentence along this reviewer’s reflection on lines 307-310: %@L_R_selection
+
+\noindent\textit{This could be explained in part because the evolutionary rate matrix (\textbf{R}) is more influenced by shifts in the adaptive landscape through time and thus reflecting natural selection in deeper nodes more than in younger nodes (Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}).} %@L_R_selection
+
+\textcolor{blue}{- innovation is by definition lower than elaboration, but there is no evidence for a complete lack of evolution along the direction of innovation, regardless of how this direction is defined (I suppose, and authors could show that explicitly). This means that populations could always traverse innovative directions in the morphospace, even though these directions were traveled less often than elaborative directions. This helps arguments in line 209-211.}
+
+We have now added the following line to the paragraph (lines 341-343):
+
+\noindent\textit{In other words, populations can always change morphologically within the shapespace with minimal amounts of innovation over long periods of time.} %@L_shapespacetravel
+
+\subsection*{\textcolor{blue}{Technical comments}}
+
+\textcolor{blue}{Lines 63-74: Variance covariance matrices estimated from hierarchical phylogenetic mixed models are better termed as “rates of evolution matrix” based on multivariate Brownian motion model of evolution. This is the same as R-matrix in Houle et al. (2017). R-matrix is a better estimate of rates of phenotypic evolution than phenotypic divergence matrix (D-matrix, used in (McGlothlin et al., 2018) for instance). I suggest authors to make it explicit that estimates from pMCMC are rates of macroevolution and not a simple divergence matrix. This is one of the core methodological strengths of this method and should be highlighted more.}
+
+We have now added a direct reference to this point in the introduction (lines 52-60):
+
+\noindent\textit{At this scale the major axis of phenotypic variation among species \cite{marroig2005size, fasanelli2022allometry} can be estimated from a matrix of divergences in species mean phenotypic traits (e.g. the \textbf{D} matrix of \cite{BlowsHiggie2003, mcglothlin2018adaptive}.
+These matrices do not take into account phylogenetic relationships among species.
+In contrast, the \textbf{R} matrix of \cite{Houle2017} describes the rate of among-species divergence in species traits and explicitly incorporates phylogeny (also see the \textbf{B} matrix of \cite{Machado2020}) %@L_Rmatrix.
+We hereafter refer to this \textbf{R} matrix as the \textit{evolutionary rate matrix}. %TG: TODO: change throughout (that's the VCV matrix now)
+The major axis of the evolutionary rate matrix is a phylogenetic line of least resistance applicable at macro- and mega-evolutionary scales that is analogous to the genetic line of least resistance at microevolutionary scales.
+}
+
+\textcolor{blue}{Lines 98-99, 108: Following my previous point, this is the direction in beak morphospace in which the rate of evolution is the fastest (again assuming multivariate BM). Perhaps this could better be stated here as such in the first instance, instead of “global phylogenetic major axis”. I would then call it in the rest of the manuscript “the major axis in rates of beak shape evolution”.
+Lines 127-137: this part motivate me even more strongly to suggest using “rates of evolution matrix”. Here, using the term “phylogenetic” co/variance matrices should be avoided, because this term is normally used to represent the matrix that express shared branch lengths among taxa. I suggest authors to explain this part using the term “rates of evolution matrix”.}
+
+We have now standardised the mentions to the eigenvectors of the VCV matrices as the “phylogenetic major axis of beak variation” throughout the manuscript. We also now specify that it is based on the “evolutionary rates matrix” (aka the \textbf{R} matrix). Hopefully this will clarify it for the readers.
+
+\textcolor{blue}{Lines 287-289: This description seems like authors took summed-distance of each species from the global centroid, which must not have been the case because they should all be close to 1 as a result of Generalized Procrustes analysis (lines 354-356). My guess is that they are Euclidian distances from the global mean beak shape. In any cases, description here must have some errors and this needs to be corrected.}
+
+We have now clarified this sentence by specifying it was the Euclidean distance.
+
+\textcolor{blue}{Lines 341-343: I do not recommend scaling scores by maximum values because maximum/minimum are highly influenced by sample size. An alternative scaling method is variance standardization (i.e. divide traits by its own variance). It could also be argued that you do not need to scale these values because they are all scaled to a unit centroid size as part of Generalized Procrustes analyses, which is equivalent to mean-standardization of ratio-scale traits. It would be good to eliminate the possibility that results shown in Figure 4 are artifact of scaling procedure by comparing presented results with those based on non-scaled traits and variance-scaled traits.}
+
+We agree with this reviewer that it would be better to scale these distributions using a variance-standardisation but unfortunately this is the standard procedure for data that are a sample of a statistical population and are normally distributed. This is not the case for us: they are not normally distributed with homoscedasticity of variance and represent the full statistical population. We thus kept the figure displaying the maximum scaled $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$, $innovation_{clade}$ scores.
+
+
+\textcolor{blue}{Projection and rejection: I have a couple of suggestions and questions.}
+
+\textcolor{blue}{1 – according to section 4.1, it seems that authors essentially did an eigen analysis of a shrunken variance covariance matrix. What is the purpose of shrinking a matrix using O’n? I guess this is something to do with descriptions in line 433-435. An explanation relating this part and section 4.1 would be very helpful.}
+
+We have now added the following specific explanation in the supplementary materials (last paragraph of section 4.1):
+
+\noindent\textit{The use of the scaled 95\% confidence interval hyper-sphere matrix $O'_{n}$ allows both (1) to standardise the resulting $M_{n}$ (the scaled version of $VCV_{n}$) so that the unit vector of the resulting space corresponds to the 95\% CI on every dimension (for any dimension $i$ in the matrix $M_{i,n}$, any vector with a norm smaller or greater than 1 is respectively inside or outside the 95\% CI boundary). And (2) greatly speed up the calculations of projection and rejection in an algorithm (see below) since the hypersphere $O'_{n}$ can be calculated only once for any number of matrix and the projection of rejection values are directly columns in the output transformed matrix (after the projection procedure, see below). This greatly reduces RAM and CPU usage and scaling for very large number of matrices.}
+
+\textcolor{blue}{2 – based on line 476, the best estimate was used to perform this analysis but in line 136 (and in some other places), there are indications that 4000 posterior samples are used instead. When does models\$Sol used and when does posterior samples used?}
+
+This procedure is applied for each VCV matrix individually (i.e. 4000 times per random term in our model). We have now specified this in the methods section (lines 450-454):
+
+\noindent\textit{The full mathematical procedure is described in detail in the supplementary materials (section \ref{supp_projection};  note that the procedure described is applied to each individual evolutionary rate matrix for each term in the model, e.g. for each 4000 posterior variance matrices individually for each $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$ or $innovation_{clade}$ score).}
+
+\textcolor{blue}{3 – I do not recommend mentioning Stack Overflow as a reference (line 481) because (a) this will not credit original references to this solution and (b) solutions in are Stack Overflow not critically examined as peer-reviewed journal articles did.}
+
+We didn’t find any specific reference for the linear algebra solution provided in the Stack Overflow post but (1) we still want to give credit to the author of the solution (although, yes, unfortunately it will not credit them directly on a classic citation counter); (2) we want to highlight that we did not come up with this solution on our own but that we are standing on the shoulders of a helpful and knowledgeable community. And regarding the critical examination of Stack Overflow solutions, in a sense, we feel that they are much more critically and openly examined than many papers published in peer reviewed journals. We are actually very grateful for this reviewer to have spent time critically reviewing the supplementary materials of this paper which is very rarely done!
+
+\textcolor{blue}{4 - although it eventually is a matter of taste, I do not think the word “rejection” is appropriate. The “rejected” values are simply another projection (hence a use of another term can be misleading) of high-dimensional trait onto the second major axis (hence a use of a term that could be associated with insignificance can be misleading) that is orthogonal to the first major axis.}
+
+We are not sure about how to deal with this comment, here we used what we believe is the standard terminology to refer to vector projection (e.g. \url{https://en.wikipedia.org/wiki/Vector_projection}) were for any vector $a$ and $b$ with $a'$ the projection of a onto b, we call $a'' = a - a'$ the rejection of $a$ onto $b$. If c is $a$ vector orthogonal to $b$, then, indeed, $a''$ is just the projection of $a$ onto $c$ and $a'$ is the rejection of $a$ onto $c$.
+
+\subsection*{\textcolor{blue}{Minor comments and suggestions}}
+
+\textcolor{blue}{First paragraph: The first few sentences of this paragraph include quite a few technical terms without definitions. Brief definition statement and a usage of a more common term would help readers from outside of the field. For instance
+- instead of using “evolutionary lines of genetic least resistance” right at the first sentence, it could be said as “a direction in the phenotype space that exhibit the highest amount of additive genetic variance, which sometimes is referred to as the genetic line of least resistance”}
+
+We have now entirely rewritten the introduction.
+
+\textcolor{blue}{- in line 21 and line 24 “evolutionary line” could be replaced by “genetic line” simply because the latter is more well-defined in the literature.}
+
+We have now entirely rewritten the introduction.
+
+\textcolor{blue}{Line 24: Houle et al. (2017) should be cited here.}
+
+We have now entirely rewritten the introduction (and cite Houle et al. 2017 on line 55).
+
+\textcolor{blue}{Line 26: Perhaps replacing “genomic” to “genetic” will make it easier for readers to associate the framing of this work to quantitative genetics.}
+
+Done.
+
+\textcolor{blue}{Line 116: Based on similar reason as I stated above, replacing “lines of least evolutionary resistance” with “genetic lines of least resistance” would be more consistent with popular usage of this term in the literature}
+
+We have changed this as suggested on line 200.
+
+\textcolor{blue}{Line 167: I’d say that it is often assumed that such constraints are relaxed in deep time. So, either using “occasionally” instead of “often”, or replacing “than” with “as” would flow more naturally (to me).}
+
+We changed the sentence to (lines 262-264):
+
+\noindent\textit{Across scales there is remarkable flexibility in the routes to innovation, consistent with the idea that morphological divergence may be less constrained in deep-time than is sometimes assumed \cite{venditti2011multiple}. % @L_occasionaly 
+}
+
+\textcolor{blue}{Line 168: I think “any” is too strong. “many” should be more appropriate.}
+
+We have changed this and added a link to an illustration in the supplementary materials. (lines 265-269)
+
+\textcolor{blue}{Line 193: I love this header!}
+
+Thanks!
+
+\textcolor{blue}{Figure 1: I suggest authors to increase the font size of bottom-left and bottom-right panels.}
+
+We have now removed these panels from what is now figure 2.
+
+\textcolor{blue}{Also, if I understand correctly, the bottom-right panel shows median of pooled elaboration and innovation scores (lines 295-296). If I am correct, pooling does not make sense because innovation and elaboration are two different traits . Instead of pooling these, why not show 6 box plots, showing innovation and elaboration at 3 levels?}
+
+We have now removed the boxes from this figure since we now only focus on the $elaboration_{species}$ and $innovation_{species}$ at the order level in the main manuscript.
+
+\textcolor{blue}{Figure S7: Why does proportion of variance sometimes does not follow the PC rank? Are these proportion of variance in PCs defined by the global R-matrix projected on each clade’s D-matrix?}
+
+This because in dark grey we are displaying the amount of variance for different parts of the shapespace for different groups. The point here is that not all groups are distributed as a random subsample of the shapespace (if it would be the case, each group would have the same pattern of variance as suspected by the reviewer), it’s the opposite and thus our justification for using 8 dimensions.
+
+\noindent\textit{Note that not all super orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain 95\% of their variance within the shapespace whilst Aequornithes need 8 dimensions to achieve the same amount of variance.}
+
+\textcolor{blue}{A suggestion: One question that remains to be addressed, and that can readily be addressed by results presented in this study is how much elaboration/innovation matters for the actual evolution in beak shape. Authors can simply test this by regressing “distance” shown in Figure 1 (which I believe is the Euclidian distances from global mean shape. If not, this analysis should use this) against any of elaboration/innovation scores. The most interesting is perhaps the global innovation/elaboration scores because they will show how much extreme shapes are generated by innovation/elaboration. By the look of Figure 1, there is a clear relationship between distance and elaboration (all). Another interesting index to correlate with Euclidian distance is the angle between clade-specific variance covariance matrix and the global variance covariance matrix. One could even run a multiple regression model of something like:}
+
+\textcolor{blue}{(distance $\sim$ elaboration score + innovation score + angle, random = phylogeny)}
+
+\textcolor{blue}{In MCMCglmm or PGLS to partial out the effect of different matrix features to the evolution of beak shape. Those analyses might be useful to show some of presented results in a more succinct manner.}
+
+We have now added an entire along this reviewer’s comment in the main text. We now analyse and show the PGLS results which interestingly give results similar to our Bhattacharyya approach showing that elaboration and innovation is common at the macroevolutionary scale and that innovation is more common at the megaevolutionary scale (lines 311-324 and dedicated methods section):
+
+\noindent\textit{We further tested the contributions of elaboration and innovation at different scales by examining the consequences of elaboration and innovation for the observed divergence of bird beak shapes. Specifically, we calculated the distance to centroid of avian beak morphospace for each species (Fig. \ref{Fig:phylogeny}).
+We then used phylogenetic generalised least squares (PGLS; \cite{phylom}) to model distance to centroid as a function of $elaboration_{species}$, $innovation_{species}$ and $elaboration_{clade}$ and $innovation_{clade}$.
+We ran the PGLS analysis using both single and multiple predictors.
+Our analyses indicate that the majority of variation (r2 = 0.888; Table 1) in beak shape centroid distance can be explained by a combination of $elaboration_{species}$ and $innovation_{species}$.
+When modeled as single predictor models, variation explained is lower for $elaboration_{species}$ than $innovation_{species}$ and $innovation_{species}$ has a steeper slope indicating that although elaboration is overall the dominant model of divergence, innovation leads to greater exploration of morphospace (Table 1).
+In contrast, the combination of $elaboration_{clade}$ and $innovation_{clade}$ alone explains only $>$0.01\% of the total variation in beak shape divergence (Table 1).
+However, $innovation_{clade}$ is nonetheless an important contributor to total beak shape space.
+We reach this conclusion because models with interactions between species and clade metrics provide by far the best model fit overall and removal of terms indicate that the most important interactions are between $innovation_{clade}$  and $innovation_{species}$ followed by $innovation_{clade}$ and $elaboration_{species}$.
+The interaction terms show that the relationship between species metrics ($elaboration_{species}$, $innovation_{clade}$) and distance to centroid becomes steeper as $innovation_{clade}$ increases (Table 1)
+Overall, the models suggest that although most species evolve via elaboration at the macroevolutionary scale, expansions of beak morphospace are also driven by megaevolutionary scale reorientations of trait space.
+}
 
 \bibliographystyle{naturemag}
 \bibliography{references}
