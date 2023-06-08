@@ -2,23 +2,10 @@
 
 ## Response
 
- - [ ] finish the response
  - [ ] line numbering
-
-## Figures
-
- - [ ] Fig s8 (correlations_fable.pdf) either needs the titles changing to evolutionary rate matrix, not VCV, or removing and A and B adding to the figure and caption
-
-
-## Table
-
- - [ ] add the table!
-
-## Text
-
-## Supplementaries
-
-FYI Thomas the supplementaries will need a bit of reordering I think as they should match the order of stuff in the text. Also I think the glossary introduces more confusion than it solves so I'd suggest we cut it as I'm not sure we actually refer to it at any point?
+ - [ ] I found one comment in the letter you haven't dealt with - i highlighted it in yellow
+ - [ ] And there's a comment from Gavin on p31 that needs the final text pasting in
+ - [ ] p36 - did you use gavin's suggestion? If so change the text here, if not delete gavin's comment
 
 
 
