@@ -92,11 +92,11 @@ par(mfrow = c(1,2))
 par(mar = c(5, 8, 4, 0) + 0.1, bty = "n") # c(bottom, left, top, right)
 plot.cor.scores(cor_mega_super_orders, col = super_orders_col,
                 y.axis = TRUE, plot.phylo = TRUE,
-                main = "Species projected onto\nthe whole phylogeny major axes") 
+                main = "A") 
 par(mar = c(5, 2, 4, 6) + 0.1, bty = "n") # c(bottom, left, top, right)
 plot.cor.scores(cor_macro_super_orders, col = super_orders_col,
                 y.axis = FALSE, plot.phylo = FALSE,
-                main = "Species projected onto\ntheir superorders' major axes")
+                main = "B")
 dev.off()
 
 
