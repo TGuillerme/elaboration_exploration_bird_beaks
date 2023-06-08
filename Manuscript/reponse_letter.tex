@@ -514,6 +514,44 @@ $>>$This interpretation rests not he assumption that variation among all bird si
 
 We are not sure how to respond to this comment. Here we assume that this reviewer is wondering why we chose to use an axis of major phenotypic variation (1D) rather than a surface (equivalent of an evolutionary landscape - 2D) or something else (a n-1D “surface”). Although there have been great publications using surfaces rather than axes to describe evolutionary patterns, here we decided to focus on one dimension to describe the major axes rather than a multidimensional solution. This is because, although multidimensional tools can tell maybe more precise information, there is no good way to decide how much to reduce the space between 1D and n-1D. Therefore we chose to use the 1D reduction which we believe is less arbitrary (although still arbitrary) and more consistent for all clades, i.e. different clades can have different numbers of dimensions required to describe their n-1D “surface” but all clades have at least 1 dimension that describe most of their variation.
 
+\section*{\textcolor{blue}{Reviewer 3}}
+
+\textcolor{blue}{The study presents a quantitative framework for investigating the relative contributions of "elaborative" and "innovative" trait evolution on phenotypic diversification, using geometric morphometric data of bird beaks as a case study. Overall, I thought the study provided a compelling synthesis of methodological and empirical advancements, all presented beautifully. In my view, the study would of great interest to evolutionary biologists, particularly those who focus on comparative methods, phenotypic diversification, and avian biology. Admittedly, I did not have a chance to run the code on the data within the period of time I was given to review the paper. However, both the code and data are uploaded to publicly accessible repositories. I have few general comments that I believe should be addressed, followed by more minor ones.}
+
+Thanks for these positive comments!
+
+\subsection*{\textcolor{blue}{General Comments}}
+
+\textcolor{blue}{1. Since the term "megaevolution" is used frequently in the text and is a crucial aspect of the study, I recommend clearly and directly defining "megaevolution" near the beginning of the main text. Based on the methodology, it seems like the study considers megaevolution to desscribe patterns that span the entire avian phylogeny, but clear definition (that is generalizable beyond birds) would be helpful. Related to this point, the discussion section could touch on how the results of this study help define or refine the definition of "megaevolution" beyond the a priori distinction between bird-wide vs. "macroevolutionary" levels. Essentially, I'm curious to understand how "macro" and "mega" evolutionary scales are distinguished conceptually and methodologically.}
+
+We have now clarified our distinction between mega and macro evolutionary level. Throughout this manuscript we follow GG Simpsons’ idea of megaevolution being evolution focusing on clades as evolutionary units and macroevolution being evolution focusing on species as evolutionary units. We have now clarified this in the text lines 64-67:
+
+\noindent\textit{While there is no strict definition that separates macro- and mega-evolution, we define the macroevolutionary scale as species divergence within clades and the megaevolutionary scale as divergence of clades within larger clades. }%@L_mega_macro_def
+
+\textcolor{blue}{2. Does the comparisons of orientation among subclades (Ln 159–162) take into account shifts occurring along a phylogenetic tree; and are the sub-clades compared taking account the phylogenetic distance between these clades? After reading through the manuscript, I wasn't certain if the comparisons were phylogenetically informed. This would be a good information to state clearly in the main text since we would initially expect more closely related clades to exhibit similar orientations.}
+
+Yes, these comparisons take phylogeny (i.e. distance between clades) into account. We have now made this clear by mentioning it in the main text (lines 248-252):  %@L_orientation_phylo
+
+\noindent\textit{Our observations of heterogeneity in the orientation of the phylogenetic major axis of beak variation among clades is further supported by consistent evidence for high amounts of orthogonality of clades relative to the class-wide phylogenetic major axis of beak variation (Fig. 4; Fig. 5; note that these comparisons are based on the evolutionary rate matrix).} %@L_orientation_phylo
+
+\textcolor{blue}{3. To more fully explore the major aims of this study (i.e., relative contributions of "mega" vs "macro"evolutionary phenoma to the overall phenotypic diversity), the rate of beak evolution between "elaboration" and "innovation" should be incorporated into the analysis and reporting. For example, do the data show that "innovations" occur at a faster pace than "elaborations"? In my view, this is a key missing piece of the study that would form a more holistic answer to the main questions being investigated by the study.}
+
+We agree that this would be interesting. Following this reviewer’s comment, we attempted to run analyses using the rate heterogeneity model of \cite{venditti2011multiple} in BayesTraits and ridge regression model of \cite{castiglione2018} in  RRphylo on a single topology. From these we could extract evolutionary rates per species and explore correlations with elaboration and innovation. However, while initial runs in BayesTraits looked promising, we found that only local optima had been explored in the MCMC chain. We identified this from examining three independent analyses each of 500 millions generations in which initially all three chains appeared to converge in parameter space. However, after approximately 400 million generations, one chain moved to new parameter space with a higher likelihood. Further runs are currently stuck on the lower-likelihood parameter space. Because of the size of the dataset, these analyses have not converged after two months since we received the reviewers comments (2nd of April 2023). We are not confident that we will see adequate convergence in a reasonable timeframe based on previous experience on a smaller version of the data set that took >6 months and 2 billion generations to converge (\cite{chira2018correlates}). Similarly, we have not been able to examine output from RRPhylo because the analyses have not completed. Because of the time it is taking to run on one single tree (eventually it will have to be run on the tree distributions) we decided that this extra analysis is out of the scope of this revision as it could take more than a year to complete.
+
+\textcolor{blue}{4. While this study is primarily a methods-focused one, the study would be strengthened by further discussing the biological explanations and implications of the results. For example, how do the results align or contrast with what we know about our mechanistic (e.g., genetic, developmental) understanding of how the beak forms. Do the elaborative vs. innovative changes to the beak correspond to morphological differences linked to certain genes and developmental pathways? Since there is a good corpus of work on beakdevelopment, it could be used to strengthen the biological aspects and implications of the study.}
+
+We agree that linking elaboration and innovation to genes, developmental processes, or biomechanical constraints is an excellent idea and would add biological depth. However, we do not think that there is yet sufficient breadth of understanding of these processes across a wide taxonomic breadth of birds to make meaningful inferences. This would be a fascinating direction to explore in the future by collaborating with experts on such processes.
+
+\subsection*{\textcolor{blue}{Minor Comments}}
+
+\textcolor{blue}{$>$ Ln 69-70: A reference to the G matrix is provided, but would a reference to P matrix be more appropriate here? A paper from 2013 is referenced but the concept of G (and P) matrices go back further, so I suggest citing additional papers, e.g.: Steppan, S. J., Phillips, P. C., \& Houle, D. (2002). Comparative quantitative genetics: evolution of the G matrix. Trends in ecology \& evolution, 17(7), 320-327.}
+
+We have now added the suggested reference.
+
+\textcolor{blue}{$>$ Fig. S5: "Palaeognathes" should be "Palaeognathae" or "palaeognaths"}
+
+Figure S5 has now been moved as figure one in the main manuscript and we have now anglicized the clade name in the caption.
+
 
 \bibliographystyle{naturemag}
 \bibliography{references}
