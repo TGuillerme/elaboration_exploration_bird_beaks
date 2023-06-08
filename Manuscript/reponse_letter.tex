@@ -238,6 +238,282 @@ A clade's $elaboration_{clade}$ and $innovation_{clade}$ scores are measured by 
 The distribution elaboration and innovation scores are taken from the projection of the 4000 pairs of evolutionary rate matrices with each pair being the focal level, e.g. order,and the parent level, e.g. the whole bird phylogeny.}
 
 
+\section*{\textcolor{blue}{Reviewer 2}}
+
+\textcolor{blue}{I appreciate what the paper is trying to quantify, and find the topic quite interesting. Obviously the dataset is stupendous. I support continued consideration of the ms. However, at present it is very confusing. Terms are used inconsistently and the link between analysis and hypotheses is not laid out with sufficient clarity (other than the authors stating that their method is 'powerful'). The text is too short, and there does not seem to be any reason why it must be so concise. It does not place the work in a broader macroevolution context, or speak to the fact that birds are real biological entities that are a field of study in their own right. I am also concerned that the ms as currently written is very confusing, will not speak to a wide audience, and has a great deal of opacity around the methods and concepts. In its current form therefore it is a highly technical piece for a more specialist journal. However, the authors have a lot of scope to improve on this. The work has a great deal of potential and I would like to see the review process continue.}
+
+\textcolor{blue}{I hope that my comments below are useful to the authors in pursuing this. Sorry that I have written so much. I have also made suggestions that may result in changes to the analytical approach. My intention is to be as clear and constructive as possible and I hope that the authors find this helpful.}
+
+Thanks for these comments. Note that in our previous version was written for Science and was transferred to Science Advances without modifications. We fully take advantage of having more space to explain our approach which has improved the manuscript substantially. We detail our changes below.
+
+\subsection*{\textcolor{blue}{Major comments}}
+
+\textcolor{blue}{(1) The methods used assume that the evolutionary lines of least resistance are univariate, and can be derived from data at high taxonomic levels, with some biological meaning. The interpretations start are on soft ground if we thought there might be causes for bivariate or multivariate lines of least resistance at high taxonomic levels. Or even that lines of least resistance inferred at higher taxonomic levels did not have a straightforward biological interpretation. Myself, I'd be a lot more confident in the hypotheses that there are evolutionary lines of least resistance at low taxonomic levels (i.e. among closely related species), but I'm not sure what to make of this hypothesis at high taxonomic levels. Therefore it is challenging for me that the analytical procedure starts with higher-level patterns and interprets lower level pattern in light of those, and not vice versa. The procedure in which major axes of variation for subclades or phenotypic data for species are compared to the whole clade of all birds seems to run backward compared to the reasoning derived from theory. It isn't clear that this means what the authors say it does. The underlying theory seems to be that there are evolutionary lines of least resistance at more local phylogenetic scales (e.g. within a group of closely-related species), and that the morphological variation resulting from shifts in these could be interpreted as innovation. This suggests a procedure that compares patterns among similar-level groups, or compares the patterns at larger phylogenetic scales to the predictions of extrapolating what was found at smaller scales. It may be that the procedure can be done backwards and yield equivalent, interpretable, results. But this needs to be unpacked and explained clearly. I'm concerned about this (see point (1) above).
+Within the current set of analyses, the analysis I find the most useful is the one that compared major axes ('lines of least resistance') among subgroups of approximately equivalent rank, finding them to be generally different to each other. However, this needs development (see my detailed comments) because currently there are unsupported statements such as the statement that evolution can happen in 'any' direction.}
+
+Some of this is related to misunderstandings about our method and how it builds on the previous literature. This was our fault for not fully explaining things in the introduction and we hope we have now explained things more clearly.
+
+First, we chose to work with univariate evolutionary lines of least resistance rather than surfaces or volume because we believe they are more correctly interpreted as directional vectors in any number of dimensions. For example, classically, adaptive landscapes are represented in two dimensions with a third dimension being the theoretical fitness advantage from the covariance between the two said dimensions (e.g. as illustrated here: \url{https://en.wikipedia.org/wiki/Fitness_landscape}). In this context the line of least resistance is the vector pointing towards peaks in the landscape. This has the advantage of working with any number of dimensions (whereas a surface or volume are bound to at least n+1 dimensions) and remains interpretable by biologists (i.e. the ``evolutionary direction'').
+
+Second, evolutionary lines of least resistance are by their nature designed to investigate patterns across higher-levels. However, we agree with the reviewers’ comment that this might be confusing in this specific manuscript. We have thus narrowed down the taxonomic levels presented in the main text and are now only focusing on the $elaboration_{species}$ and $innovation_{species}$ projected on the the eigenvalues of the order’s evolutionary rate matrix which we interpret as similar to lines of least resistance at the micro-evolutionary scale. We have now clarified this throughout the manuscript. E.g. on lines 52-60:
+
+\noindent\textit{At this scale the major axis of phenotypic variation among species \cite{marroig2005size, fasanelli2022allometry} can be estimated from a matrix of divergences in species mean phenotypic traits (e.g. the \textbf{D} matrix of \cite{BlowsHiggie2003, mcglothlin2018adaptive}.
+These matrices do not take into account phylogenetic relationships among species.
+In contrast, the \textbf{R} matrix of \cite{Houle2017} describes the rate of among-species divergence in species traits and explicitly incorporates phylogeny (also see the \textbf{B} matrix of \cite{Machado2020}) %@L_Rmatrix.
+We hereafter refer to this \textbf{R} matrix as the \textit{evolutionary rate matrix}. %TG: TODO: change throughout (that's the VCV matrix now)
+The major axis of the evolutionary rate matrix is a phylogenetic line of least resistance applicable at macro- and mega-evolutionary scales that is analogous to the genetic line of least resistance at microevolutionary scales. }
+
+\textcolor{blue}{(2) The paper is notionally quantitative. And is quite abstract and complicated in the way it was written. But actually, under the surface, a lot of the interpretations are actually qualitative (see several of my comments where I have requested to report a qualitative test of hypothesised interpretations). This should be avoided where possible.}
+
+We acknowledge that some interpretations are qualitative. However, these are based on detailed quantitive analysis generating large posterior distributions of parameter estimates. We have now added references to more supplementary figures providing the exact values from our analyses where appropriate. In the revised main text, Figures 3, 4 (part), 5, and 6, and the new Table 1 provide explicitly quantitative analysis. See details below for further analyses added to the text. We have also improved the clarity of the writing which hopefully helps highlight our quantitative findings.
+
+\textcolor{blue}{(3) A major conclusion is that "Species elaborate, clades innovate". But the difference between species and clade is an arbitrary one. Species are just the arbitrary subset of evolving lineages that cross the present-day time horizon. They have the attribute of being highly over-sampled compared to lineages that occur deeper in the phylogeny. Please envision an unfolding evolutionary process generating phenotypic variation through time. Let's say that 'innovation' by your definition is rare, but makes a directional and general unreversed change (these off-axis changes should be difficult to reverse by chance because we have a wide range of off-axis trait changes we could make so the chance of randomly drawing the 'right' one is low). Int he same process, 'elaboration is common', and is also 'easy' to reverse because it occurs along one univariate axis. If we sample information about a high proportion of lineages alive at some particular time (the present) then we expect to find that the differences between species phenotypes mainly reflect elaboration. But if we sampled fewer, then the difference between species phenotypes will reflect an increasing contribution of innovation. I don't think this a. Big problem for the analyses oft he paper. But I think ti is a problem for the interpretation that arbitrarily- designated taxonomic ranks are important. This rank-based, interpretation makes the present-day into a 'special' time and has little meaning in terms of the evolutionary process.}
+
+We have now nuanced this subtitle by changing it to the following (line 293):
+
+\noindent{\textit{Species elaborate \textit{and} innovate, clades innovate}}
+
+Furthermore, we agree with the reviewers comment on how clades and species are arbitrary cuts of a continuum, they do, in our view, however remain a common and useful tool in research to understand evolutionary biology \cite{baker2021nothing}, particularly in well studied taxa such as birds where high taxa map meaningfully to phylogeny and trait variation. As the reviewer notes, it is possible that the major axes change depending on the specific bracketing of taxa (as would be true using arbitrary timescales). However, here we use two different higher taxonomic levels for comparison and find broadly consistent results when taken together. One additional strength of a taxonomy based approach is that it doesn’t force arbitrary time constraints on interpretation. Indeed, the higher taxa that we focus on span a wide range of timescales. This has enabled us to conduct new analysis (inspired by the reviewers comments) in the supplementary materials showing the distribution of $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$ and $innovation_{clade}$ through time. This new analysis indicates that the magnitude of both elaboration and innovation increases with time since divergence, as would be expected under the commonly used Brownian motion model of evolution. lines 242-243: %@L_ei_through_time_plots
+
+\noindent\textit{Similarly, when measured at the macroevolutionary scale, $innovation_{species}$ and $elaboration_{species}$ increase with species age (see supplementary Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}). }%@L_ei_through_time_plots}
+
+\textcolor{blue}{(4) The ms includes very few citations and is broadly not in conversation with the wider literature. The approach and its conclusions come across as being very abstract in nature. Let's keep a sense of perspective here, the work is about birds, but only a very selective subset of work on bird evolution is cited, primarily by the group who wrote this paper. A lot more could be done to make this work accessible to a wide audience, not only for biologists interested in birds, but also for wider macroevolutionary study. For example, how do the approaches used here connect with other forms of inference? The conceptual framework used here maid numerous references to Endler et al (2005), as though nearly two decade since then provided no useful ideas. It may be true that there has not been much specific, directed work that formalises the concepts of innovation or elaboration. Nevertheless, many other works contain relevant analyses and interpretations and the authors here show little attempt to integrate those works in their synthesis. The contributes to the impression of an opaque and abstract study with little reach.}
+
+We have now updated and added many more references throughout the whole manuscript (from 28 to 63), expanding on the background and giving more context to the Endler et al study. Our previous version was a direct transfer from a journal with a more limited page count so we have been able to fully make use of the available space to expand our ideas, citations and links to the existing literature.
+
+
+\textcolor{blue}{(5) There are some confusing and inconsistent uses of terms (see my detailed comments). Sometimes it seems like unnecessarily elaborate language is used, compounding the issues. For example:}
+
+\textcolor{blue}{ -'Shapespace' would just be 'shape' in most studies. 'Shape' is more appropriate in the statistical model formula because each taxon has 'shape', but does not have 'shapespace'.For example, you wouldn't write out "skull size range $\sim$ body size range", you'd write "skull size $\sim$ body size".}
+
+We respectfully disagree with this comment. Although the reviewer is right that most studies would use the term “shape”, we do like the precision that the term “shapespace” adds to the formula (the correct most precise term would be “position of species in the shapespace”). 
+We do make the distinction that a single species beak has a shape (the raw data from the bird beaks, described using classic gmm approach) and that the shapes of multiple species beaks occupy a shapespace (the transformed and usable data for our analyses after Procrustes superimposition, ordination and dimensionality reduction - lines 363-378). In the skull/body size example provided by the reviewer, naming the terms “skull size range” might actually bring a useful methodological precision (what is the skull or body size) while simply using “skull size” gives the more general idea (comparing the skull to the body size). In our case, since the formula is in the methods section, we chose to emphasise the methodological aspect rather than the general aspect.
+
+\textcolor{blue}{-'Multilinear algebra', is more typically called 'linear algebra'. In fact, it would be better to say what computation was performed e.g. taking the dot product or cross product, or whatever. Here, little attempt has been made to clearly communicate what is being done.}
+
+We have changed multilinear algebra to linear algebra throughout the manuscript. The whole mathematical procedure can be found in the supplementary materials. We have now specified that in the main manuscript along with the previous brief description of what computation was performed (projection). lines 154-158:
+
+\noindent\textit{To assess this we projected the beak shape data for each species onto %@L_linear_algebra_stuff @L_beak_shape
+the major axes of evolutionary rate matrices of their orders (see supplementary materials \ref{Fig:phylogeny_supplement} for projection onto the major axes of beak shape variation from the class-wide phylogenetic major axis of beak variation or their super-order’s phylogenetic major axis of beak variation).}
+
+\textcolor{blue}{-"Species phenotype' is used in many places where the 'beak shape' is actually being referred to. The 'phenotype' is all the morphological and behavioural traits of an organism. Not just the beak shape. It is OK to call it 'phenotypic data', but not 'species phenotype'.}
+
+We have changed “species phenotype” to “species beak shape” throughout.
+
+\textcolor{blue}{(6) Choice of nodes to analyse - order and suborders represent an arbitrary subset of nodes on the tree. Is there a justification for not analysing patterns across all pairs of ancestor and descendent nodes in the full tree? This is important because something the patterns for e.g. orders are compared to each other as though they were meaningful biological units that could be expected to share some features. In fact, they cannot.}
+
+We agree that the choice of nodes to analyse is ultimately an arbitrary decision (see our comment above). We had originally considered analysing every node and agree this would be great. However we decided to use the named nodes (orders and super orders) for the following reasons:
+\begin{itemize}
+\item We estimate that it would take between 5 CPU centuries + 1ZB of RAM (using the normal MCMCglmm framework) or 12 CPU millenia + 2.5 GB of RAM (using the mcmcmcglmmm framework). Both are currently not achievable with modern computers.
+\item Named nodes represent divergence points of interest to biologists (especially ornithologists) and are based on common biological features shared by living species within the orders (namely their beaks).
+\end{itemize}
+
+We’ve added a plot of $elaboration_{clade}$/$innovation_{clade}$ through time per clade (orders and super-orders) to the supplementary materials to give an idea of the time span of the named nodes used in the analysis and how it might affect our results. This plot gives a rough idea on how the nodes are distributed through time (lines 242-243).
+
+\noindent\textit{Similarly, when measured at the macroevolutionary scale, $innovation_{species}$ and $elaboration_{species}$ increase with species age (see supplementary Fig. \ref{Fig:figure_ei_clade_through_time} and \ref{Fig:figure_ei_species_through_time}). }%@L_ei_through_time_plots}
+
+
+\textcolor{blue}{(7) The interpretations emphasise 'levels' of innovation and elaboration. But these absolute amounts cannot be interpreted easily, independent of the total amount of phenotypic variation for a (arbitrarily delimited) subgroup. I'd like to see more transparency about variation the relative importance of each of these effects among groups.}
+
+We are not sure about what the reviewer means by “transparency” in this context. Figure 3 shows the distribution (including the 50 and 95\% CI) of the posterior distribution of the $innovation_{clade}$ and $elaboration_{clade}$ scores. The code and the data to reproduce this figure is made available on GitHub \url{https://github.com/TGuillerme/elaboration_exploration_bird_beaks}. We have now also added a whole new analysis where we test how the amounts of elaboration and innovation relate to overall beak divergence using PGLS models presented in the new Table 1. (lines 311-324)
+
+\noindent\textit{We further tested the contributions of elaboration and innovation at different scales by examining the consequences of elaboration and innovation for the observed divergence of bird beak shapes. Specifically, we calculated the distance to centroid of avian beak morphospace for each species (Fig. \ref{Fig:phylogeny}).
+We then used phylogenetic generalised least squares (PGLS; \cite{phylom}) to model distance to centroid as a function of $elaboration_{species}$, $innovation_{species}$ and $elaboration_{clade}$ and $innovation_{clade}$.
+We ran the PGLS analysis using both single and multiple predictors.
+Our analyses indicate that the majority of variation (r2 = 0.888; Table 1) in beak shape centroid distance can be explained by a combination of $elaboration_{species}$ and $innovation_{species}$.
+When modeled as single predictor models, variation explained is lower for $elaboration_{species}$ than $innovation_{species}$ and $innovation_{species}$ has a steeper slope indicating that although elaboration is overall the dominant model of divergence, innovation leads to greater exploration of morphospace (Table 1).
+In contrast, the combination of $elaboration_{clade}$ and $innovation_{clade}$ alone explains only $>$0.01\% of the total variation in beak shape divergence (Table 1).
+However, $innovation_{clade}$ is nonetheless an important contributor to total beak shape space.
+We reach this conclusion because models with interactions between species and clade metrics provide by far the best model fit overall and removal of terms indicate that the most important interactions are between $innovation_{clade}$  and $innovation_{species}$ followed by $innovation_{clade}$ and $elaboration_{species}$.
+The interaction terms show that the relationship between species metrics ($elaboration_{species}$, $innovation_{clade}$) and distance to centroid becomes steeper as $innovation_{clade}$ increases (Table 1)
+Overall, the models suggest that although most species evolve via elaboration at the macroevolutionary scale, expansions of beak morphospace are also driven by megaevolutionary scale reorientations of trait space.
+}
+
+\textcolor{blue}{(8) The authors choose a computationally-intensive method to find the major axis of variation, and then say they can't do more because of computational intensity. But the decision to take this approach in the first place is not explained. It also isn't clear that the mini-chains or the aggregate result from them has converged because no info about convergence is given. Could their be come comparison to a similar method that requesters less computation power such as phylogenetic PCA, that may validate that the major axes returned are sensible?}
+
+We use the mini-chains approach to account for phylogenetic uncertainty. Our phylogenetic hypothesis comes from a Bayesian analysis so it is not appropriate to perform analyses on just one tree. Therefore a posterior distribution of trees needs to be used. This is not possible within our basic MCMCglmm format without a huge amount of computational time, thus we developed the mini chains approach to make it tractable. Phylogenetic PCA would not provide a solution to this issue as it also uses one tree, nor can it provide results in a nested way as our method does. We have now added a clearer explanation of why the mini chains were used.
+
+We do not provide convergence information between mini-chains since they are considered in our framework as different samples from the same chain. We are thus effectively running single chains for each of the 35 nested clades. Running pairs of chains would just double the amount of computational time and not provide useful information. In fact, this mini-chains method highly favors accuracy over precision, therefore mini-chains with a high level of uncertainty (e.g. because of a small clade size) will always lead to imprecise but accurate results (i.e. two blurry posteriors). This means that convergence will never be useful information as some of the chains will be not converging on anything by design (i.e. the “true” precise solution is unknown but the 95\% posterior accurately contains the “true” solution). We do however include the distribution of effective sample sizes for all chains (supplementary information S3 and S4) which gives a good indication of the posterior distribution containing enough samples to be used as the “true” solution. Note that for all analytical parts in the analysis, we use the entire posterior distribution - we only use the averages from these distributions for plotting and in the new PGLS analyses. We have added this precision in the manuscript (lines 450-454).
+
+\noindent\textit{The full mathematical procedure is described in detail in the supplementary materials (section \ref{supp_projection} - note that the procedure described in the section \ref{supp_projection} is applied to each individual evolutionary rate matrix for each term in the model, e.g. for each 4000 posterior variance matrices individually for each $elaboration_{species}$, $innovation_{species}$, $elaboration_{clade}$ or $innovation_{clade}$ score. %@L_individual_matrices).
+}
+
+
+\subsection*{\textcolor{blue}{Detailed comments}}
+
+\textcolor{blue}{Abstract}
+
+\textcolor{blue}{Lines 7-8: "Here we reconcile major changes in phenotypic diversity at macroevolutionary scales with gradual microevolutionary change"
+>>I read the ms a few times, considering whether the approach used here reconciles the patterns at smaller scales with those at larger scales. I think it is a descriptive method rather than a model of varying processes at different scales. So I'm not comfortable with the statement that it 'reconciles' these things. That reconciliation is done int h msusing verbal argument - and this verbal arguments are based on a much older literature. Consider re-phrasing here.}
+
+We have now reworded the abstract without “reconcile”.
+
+\textcolor{blue}{Lines 8-9: "using new multi-trait models"
+$>>$It isn't clear that these are 'multi-trait models' rather than 'approaches to modelling multivariate traits'. The subject of the current study is beak shape, which arguably is a single multivariate trait rather than multiple traits (implied by 'multi-trait').}
+
+We’ve changed “new multi-trait models” to “new approaches to modelling multivariate traits” as suggested. (line 8)
+
+\textcolor{blue}{Lines 10-11: "We find that elaboration dominates at macroevolutionary scales whereas innovation becomes more prominent at megaevolutionary scales"
+$>>$I quite like these terms 'mega' and 'macro'. But we should probably acknowledge that the distinction is qualitative and arbitrary. Here, it would be more useful to directly state the taxonomic scales of the analyses. That is avoids going too far down the road of abstraction.}
+
+Following this reviewer’s previous comment on arbitrariness, we do agree but find this comment inapplicable (everything we do is arbitrary). Also we disagree on the absence of distinction between “mega” and “macro”, we refer here to “macro” as the species focal level (i.e. using species rather than individuals as the unit of our analyses) and “mega” as the clade level (i.e. using groups of species rather than individual species as the unit of our analyses). We have now specified this one lines 82-83
+
+\noindent\textit{The phylogenetic breadth of the data allows us to compare directions of beak evolution of subclades (e.g. orders) within the class Aves (the megaevolutionary scale) and of species within subclades (the macroevolutionary scale).}%@L_macromega_definition2
+
+\textcolor{blue}{Introduction}
+
+\textcolor{blue}{Lines 24-27: "However, while the evolutionary line of genetic least resistance explicitly reflects genetic constraints, the macroevolutionary major axis of phenotypic variation is an emergent property of genomic and developmental constraints interacting with selection on a moving adaptive landscape"
+$>>$Some inconsistency of language in these statements. The first clause says 'genetic' and the second clause say 'genomic and developmental'. I think that the authors are referring tot he same identical thing twice, but using different words each time. If so, please make this consistent so it is easy for a reader to follow your meaning.}
+
+We have now entirely rewritten the introduction (also following the other reviewers comments). 
+
+\textcolor{blue}{Lines 31-33: "Resolving this conflict requires an understanding of the balance between deep-time reorientation of phenotypic major axes of evolution among clades and the directions of evolution of species within clades"
+$>>$"Balance" here is a metaphor and is potentially confusing. Consider something like "the relative contributions of ..."
+$>>$I also think it is important to say that what they are contributions towards. I suspect you are asking about the relative contributions of these conceptual processes to the total disparity of a large group such as all birds. If so, can you clarify this here, and potentially in other places where this important goal of the study is stated.Lines 41-43: "Relative to elaboration, innovation may be more likely to generate phenotypic novelty, but this need not be synonymous with being a primary driver of phenotypic diversity at broad scales"
+$>>$There is first-pass evidence relevant to this across many fields of evolutionary research (e.g. paleontological study of major evolutionary transitions; island biogeography; developmental biology; many others). Only one area is mentioned (signal evolution), and that relies on one citation from 2005. It seems strange to me that the authors have this pinpoint focus on one item of literature. It makes the while topic seem a lot more esoteric and erudite the it actually is. Could the authors please contemplate broadening their introduction into a wider biological context. The work should be integrative rather than striking out in a unique direction with undue emphasis on one paper from 2005.}
+
+We have now entirely rewritten the introduction (also following the other reviewers comments) to make our motivations clearer. We used the Endler et al. (2005) paper as inspiration for the ideas of innovation and elaboration (hence the focus on a single paper) but acknowledge that this resulted in ignoring a much broader body of research. We have added more references, explained our motivations and how our work sits in the current literature and spent more time explaining the key concepts for this work.
+
+\textcolor{blue}{Lines 43-46: "These core concepts can now be defined using robust multivariate statistics about trait covariance applied at multiple phylogenetic scales and provide a powerful theoretical framework with which to study macro- to megaevolutionary divergence and in particular to determine the relative importance of"
+$>>$These statements are a bit confusing to read. They say that the concepts can "now be defined...". But this is not clear as to whether they are presenting a new method or using an established one. Please write either "We present a new framework for..., which defines X and Y as...", or "Recent work established a framework for...". Also, please avoid describing your own method as 'powerful'. This has many possible meaning. For example, statistical power, explanatory power, or power to test hypotheses that previously couldn't be tested. Not only that (ambiguity), but it also seems self-congratulatory. It is for others to determine if the method is powerful or not (or simulations, depending what is meant by 'power').
+Line 47: "idiosyncratic species-level innovation against clade-level innovation"
+$>>$Are these different things? The 'species-level' in a dataset like this is the arbitrary subset of all the lineages in the phylogeny that happen to cross the present-day time horizon. We have no way of knowing whether those innovations are 'idiosyncratic', or are just the early evidence of what will be in future a clade-level innovation. Also, 'idiosyncratic' is anthropomorphic.
+Lines 49-50: "The contributions of these multivariate, evolutionary pathways"
+$>>$Say contributions to what (e.g. to total clade disparity, or 'phenotypic variation' as generally used in the current work).}
+
+We are grateful for this reviewers’ specific and justified comments. We have now entirely rewritten the introduction (also following the other reviewers comments) and believe that we have clarified the points above. 
+
+\textcolor{blue}{Methods}
+
+\textcolor{blue}{Lines 68-69: "can estimate levels of elaboration and innovation based on that major axis of phenotypic variation (see Methods)"
+$>>$This is a really important sentence. But it isn't working hard enough, and the word 'levels' is vague where it needs to be specific. This is the main place it the ms, when read in sequence, where a reader gets some idea of your approach. It needs to be super- clear what you're doing and how it related to these concepts. Currently it is not. I get to the end of the paragraph and I have a few clues only e.g. (1) it is an analogue of the G matrix - which is not a direct explanation, (2) It can be defined at any phylogenetic level. (3) It provides the basis of all subsequent estimates. Missing is a direct explanation that would allow even a qualitative reader to understand the business end of what you're doing without skipping to the Methods.}
+
+We have moved this line further down in this paragraph and added the following precisions to make it easier to grasp without having to read through the methods section.(lines 135-138)
+
+\noindent\textit{We can then estimate elaboration and innovation based on that major axis: elaboration is defined as the position on the phylogenetic major axis of beak variation and innovation is defined as the distance from the phylogenetic major axis of beak variation (see Methods). %@L_ei_meth_precision.
+}
+
+
+\textcolor{blue}{$>>$The word 'level' is really important in the ms for referring to e.g. 'species-level', 'clade- level'. But you also use it in an entirely different context to refer to 'levels of innovation'. This is naturally confusing. I strongly advise to change this to something like 'contribution of'.}
+
+We have now standardised the use of the word “level” throughout the manuscript. It is now only referring to taxonomic levels (i.e. species, orders, super-orders, the whole phylogeny). 
+
+\textcolor{blue}{Section beginning line 82
+$>>$This section reports the relative contributions of elaboration and innovation to beak shape variation based on comparisons of lower-level data to major axes beak shape variation among higher taxa. I read it a few time and I'm struck that the major axes of variation in higher taxa are not described. This makes it very abstract and detached from reality. It also make it difficult to make sense of statements about hummingbirds and hornbills. The ?mean? beak shapes of these groups are described verbally, but it isn't possible to use this information really without knowing what the large-scale patterns of shape variation are.}
+
+Describing the distribution of the major axes and the elaboration and innovation for each clade would make a really long list which we believe would distract the reader from our key results. This is outside of the scope of this paper. We have added however a list of the distributions of the ellipses in the supplementary materials (Table S1).
+
+\textcolor{blue}{Line 83: "We tested the expectation, derived from adaptive radiation theory"
+$>>$Citations...? There is a rich literature on this that is not really cited closely. This is one example of the scarcity of citations across the whole ms.}
+
+We now cite the following references for this sentence (lines 14-151):
+
+\noindent\textit{We tested the expectation, derived from adaptive radiation theory \cite{schluter1996adaptive,mcglothlin2018adaptive,slater2019hierarchy} %@L_cite_adaptive
+, that species divergence is biased along phylogenetic lines of least resistance by calculating species-specific measures of $elaboration_{species}$ and $innovation_{species}$.}
+
+\textcolor{blue}{Lines 87-88: "To assess this we calculated the multilinear algebraic projection of each species phenotype onto three major axes".
+$>>$Is there a reason to call this 'multilinear algebraic projection of each species phenotype' instead of 'we projected the beak shape data for each species onto...'. I think this is a fairly commonplace projection using conventional linear algebra, and in some other field of science we wouldn't feel the need to use so many syllables.
+$>>$I also don't like this approach to say 'species phenotype', which is a very broad and encompassing term, when you mean 'beak shape'.}
+
+We changed the sentence to the reviewer’s suggestion (see major comments above and lines 154-158 in the manuscript):
+
+\noindent\textit{To assess this we projected the beak shape data for each species onto %@L_linear_algebra_stuff @L_beak_shape
+the major axes of evolutionary rate matrices of their orders (see supplementary materials \ref{Fig:phylogeny_supplement} for projection onto the major axes of beak shape variation from the class-wide phylogenetic major axis of beak variation or their super-order’s phylogenetic major axis of beak variation).}
+
+\textcolor{blue}{Lines 89-91: "We found higher values of elaboration than innovation overall across all levels (Fig 1) and globally more elaboration and innovation at the global phylogenetic and super-order levels compared to the order level"
+$>>$I found this confusing on the first read. It says 'more elaboration... at the global... level'. But the elaboration and innovation are estimated from comparisons of lower-level data to the higher-level major axis. Maybe add a few words of clarification. I think you could mean something like" "great contribution of elaboration to patterns of phenotypic variation at the global..." or something. I'd also myself prefer "beak shape variation" to "phenotypic variation". This is an analysis of beak shape among birds, not of the generalised concept of phenotypic variation among birds. It does not even include, for example, the relative beak size, let alone all phenotype.}
+
+This sentence has been changed due to the overall change of the notation of elaboration and innovation and is hopefully now clearer. (lines 158-159)
+
+\noindent\textit{We found typically higher values of $elaboration_{species}$ than $innovation_{species}$ (Fig. \ref{Fig:phylogeny}) %@L_rephrase_wefound
+}
+
+\textcolor{blue}{Lines 94-95: "However, the extent of both elaboration and innovation tends to reduce as we move from"
+$>$I've been trying to figure out what is so confusing about this. I think the difficulty I've had is that you use a rotation of different terms to refer to the same thing. Here, you discuss 'the extent of' elaboration and innovation. But in other places it was 'levels of'. I strongly advocate that you go through the whole ms and make sure that you already use the same terms so that the reader doesn't get lost and confused. For this specific thing, I think you should go with 'relative contributions of... to phenotypic variation' (or 'beak shape variation'), or 'contributions of...' (Not 'levels of' or 'extent of').}
+
+Following this reviewers’ previous comment, we have now removed any mention of the word “level” if it doesn’t refer to phylogenetic levels (clade, species, etc.).
+
+
+\textcolor{blue}{Lines 103-104: "Overall we found that, as expected from microevolutionary theory, elaboration is the dominant mode of divergence at the species level"
+$>>$'Divergence' here is ambiguous. It could mean population genetic divergence giving rise to speciation. Or it could mean phenotypic divergence. Consider clarifying this. For example, 'dominant mode of phenotypic evolution at the species level' or 'dominant mode of phenotypic divergence at the species level'.}
+
+We have now rephrased it to: “the dominant mode of phenotypic divergence at the species level” as suggested. (lines 192-195)
+
+\noindent\textit{Collectively, our results suggest that elaboration is the most common route by which species beak shape evolves.
+While $elaboration_{species}$ is the main mode of beak shape divergence at the macroevolutionary scale %@L_dominant
+(Fig. \ref{Fig:phylogeny}), it is also commonly positively correlated with $innovation_{species}$ (Fig. \ref{fable_correlations} and S8).} %@L_correlation_figure_link).
+
+\textcolor{blue}{Lines 104-105: "We find no consistent evidence that innovation is either positively correlated, or trades-off, with elaboration"
+$>>$Please refer to the specific test of this with "...as indicated by the [test and results]".}
+
+We have now added two figures in the supplementaries displaying either the median correlation between elaboration and innovation for each species within each super-orders and an extra figure summarising the correlation statistics for all the posterior elaboration and innovation calculations in the supplementary Fig. S6.
+
+\textcolor{blue}{Lines 113-114: "have exceptionally wide beaks relative to length and display high levels of both elaboration"
+$>>$I'm sensing a problem of interpretation here. When I read the text, I can see in context of the total disparity of some subgroup, that a portion of this can be attributed to innovation, and a portion can be attributed to alb oration. All good so far. There is a thirdvariable of interest though, and that is the total phenotypic variation within the subclass. So a group like Hirundinidae could only have high levels of both elaboration and innovation if it also had high total variation. The in-text description at the moment then is missing a piece of information that would allow us to meaningfully compare patterns in Hirundinidae to other subgroups. The comparison can only be meaningful if we can compare both eh absolute amounts and -also- the relative contributions.}
+
+We have now also provided the amounts of species per group (Figure 4), and standard deviation in ellipses orientation per group (Figure 5). 
+
+\textcolor{blue}{$>>$In this context I can see that your description here is focused on 'levels' (absolute amounts). But we also need to know the relative contributions independent of the total disparity of a clade. oOne reason or this is that a clade could have high absolute amounts of both simply by having more time to evolve. This is important given that the clades are chosen arbitrarily based on taxonomic rank, without attempts to standardise for the amount of branch length (or rate of evolution( in the group.}
+
+We have now added a new analysis in the supplementary materials showing the $elaboration_{clade}$ and $innovation_{clade}$ as well as $elaboration_{species}$ and $innovation_{species}$ for each clade through time (Figures S7 and S8). This shows the results somewhat scaled by branch length and put in the evolutionary context of each clade (rather than more arbitrarily referring to named nodes).
+
+\textcolor{blue}{Line 115: "The dominance of elaboration when measured at the species-level"
+$>>$Here you talk about elaboration at the 'species-level'. Ut on lines 89-91 you say "we found higher values of elaboration than innovation overall across all levels (Fig 1) and globally more elaboration and innovation at the global phylogenetic and super-order levels compared to the order level". I'm a bit confused about what is being described each time. This partly results from the ambiguity that there are pairwise comparisons (e.g. between species beak shape and the major axis of global phylogenetic variation among all birds), so 'species-level' doesn't uniquely refer to a particular pairwise comparison. Please thing seriously about how to clarify this. I think the interpretability of your manuscript rests upon making this really clear.}
+
+Following reviewers’ comments we have now standardised many terms throughout the manuscript (see responses to comments above) which hopefully greatly clarifies the manuscript.
+
+\textcolor{blue}{Lines 116-117: "The frequent phylogenetic clustering of species that elaborate, innovate, or both"
+$>>$Please say what hypothesis test (=analysis) this is based on. I can see ways that it might just reflect phylogenetic autocorrelation. Also, the approach to making this inference is not outlined in the Methods. So I haven't got quite enough information from which to decide if it is an interesting inference or just an artefact of method construction.}
+
+We have now removed this sentence from the manuscript to not add another extra analysis here.
+
+\textcolor{blue}{$>>$Also, strictly-speaking, -all- groups do both. There are presumably zero species that have absolutely no 'innovation', or no 'elaboration; as defined here. So sharpen this section top a bit please.}
+
+We have now clarified the actual values of $elaboration_{species}$ and $innovation_{species}$ we are referring to making it clearer that no groups have no elaboration or no innovation. (lines 158-162)
+
+\textcolor{blue}{Lines 124-126: "To investigate the conflict implied by our observations of species-level elaboration and previously reported deep-time jumps in phenotype, we measured the elaboration and innovation of different clades. "
+$>>$Thanks for being patient with me. But is it possible for the difference between the results for species compared to global phylogenetic variation is different to the results for subgroups compared to global phylogenetic variation only because 'elaboration' and 'innovation' are defined differently for these types of analysis? This deserves some attention, if only to clarify.}
+
+We have now rewritten the manuscript to clarify that innovation and elaboration are different depending on whether we focus on species (macro) or clades (mega). However, they are mathematically and theoretically similar, i.e. they are both describing changes along and away from an axis of major phenotypic differences. In the same way, we can also link them to elaboration and innovation at the individual level (micro) as discussed in more details with our responses to reviewer 4). Ultimately all these are the same measurement applied on different focal levels of the same data (specimen data $->$ species data $->$ clade data). Therefore the differences in $elaboration$/$innovation_{species}$ and $elaboration$/$innovation_{clade}$ are not unexpected biologically (i.e. biologists have observed discontinuities and emergent properties at higher levels above the individual) but are also not expected mathematically (i.e. the same measurement on nested subsets should give the same or similar results).
+
+\textcolor{blue}{Lines 133-136: "measured rejection (distance from the major axis of phenotypic variation) as the clade’s innovation score. A high innovation score indicates that the direction of evolution of a clade differs from the direction of its parent clade (e.g. the direction of evolution of an order differs from its parent super-order)"
+$>>$Usually 'distance' means e.g. the Euclidean distance / Procrustes distance in multivariate shape space, or some other measure of distance. Here, from eh context, it sounds like 'distance' in the first sentence is actually a different between angles (implied by the text about the 'direction' of evolution). Please clarify this.}
+
+We have now specified that the distances are indeed Euclidean (lines 218). The relation between elaboration (projection) and innovation (rejection) and the direction comes from the Pythagorean relationship between projection and rejection in a right angle triangle:
+
+\begin{equation}
+\text{direction (angle/orientation)} = arcos\left(\frac{\text{projection}^2 - \text{rejection}^2 + \sqrt{\text{rejection}^2+\text{projection}^2}  }{2\times\text{projection}\times\text{rejection}}\right)
+\end{equation}
+
+\textcolor{blue}{$>>$The term 'rejection' is not defined in the introduction, differing from other terms. It isn't immediately clear what it relates to in macroevolutionary theory.}
+
+We have now specified that we mean linear algebraic projection and linear algebraic rejection (lines 218).
+
+\textcolor{blue}{Line 168: "Evolutionary innovation can arise in any direction in trait space"
+$>>$This sentence is followed by a statement of evidence, which says that none fo the big subgroups are aligned to the major axis of all birds. However that does not indicate that innovation can arise in -any- (literally any) direction. Please clarify this. Ideally present some kind go figure that illustrates the range of angular differences form all bird that are present among subgroups.}
+
+We have changed “any” to “many” and now provide an illustrative example in the supplementary materials Fig S9 (lines 265-269):
+
+\noindent\textit{Evolutionary $innovation_{clade}$ can arise in many directions in trait space (see examples in supplementary Fig. \ref{Fig:mikado}). %@L_any_dir
+}
+
+\textcolor{blue}{Line 174: "This pattern of orthogonality..."
+$>>$This statement follows after an explanation that subgroups have a range of different angles. They can have different angles without being orthogonal, given that orthogonal has a precise geometric meaning. SO it isn't clear what is meant by 'this pattens of orthogonality' - either the word 'orthogonal' is misapplied here, or the pattern was mis- described in the preceding text.}
+
+We have changed “orthogonality” to “amounts of orthogonality” throughout the manuscript with 1 being completely orthogonal and 0 being not orthogonal at all (parallel).
+
+\textcolor{blue}{Lines 180-182: "either highly constrained (varying almost entirely along a single axis; e.g. in Galliformes) or higher-dimensional than expected (there is no clear dominant major axis; e.g. in Podicipediformes)" 
+$>>$There is no analysis that explains how much dimensionality is expected. So I'm not clear on what is meant here. Is it the qualitative expectation of the authors? It is important to explicitly differentiate between this and quantitative analysis. You will note that several fo the comments I made above also seem to be qualitative interpretations that do not refer to quantitative analysis. But in each case, a quantitative analysis is possible, and is arguably important to test the hypothesised interpretations.}
+
+We apologise for sending an earlier version of figure 2 (now figure 3). We have now added the representation dimensionality for each order and super order as intended in figure 3 and rephrased the following section on lines 278-282:
+
+\noindent\textit{beak shape variation is either highly constrained (varying almost entirely along a single axis; e.g. in Galliformes) or higher-dimensional than in some orders or superorder than across the whole class Aves (for example, there is no clear dominant phylogenetic major axis of beak variation; e.g. in Podicipediformes) from the class-wide phylogenetic major axis of beak variation.} %@L_highdimensions
+
+\textcolor{blue}{Lines 183-186: "For example, Accipitriformes (hawks and allies) have major axes of phenotypic variation that mainly align with the second dimension of the shapespace suggesting distinct directions of evolution for the clade relative to the global phylogenetic level but uniformity in their beak shape within the clade"
+$>>$This interpretation rests not he assumption that variation among all bird sis adequately captured by a univariate evolutionary line of least resistance. If not, then it seems relevant that accipitriforms along to 'PC2' of all birds}
+
+We are not sure how to respond to this comment. Here we assume that this reviewer is wondering why we chose to use an axis of major phenotypic variation (1D) rather than a surface (equivalent of an evolutionary landscape - 2D) or something else (a n-1D “surface”). Although there have been great publications using surfaces rather than axes to describe evolutionary patterns, here we decided to focus on one dimension to describe the major axes rather than a multidimensional solution. This is because, although multidimensional tools can tell maybe more precise information, there is no good way to decide how much to reduce the space between 1D and n-1D. Therefore we chose to use the 1D reduction which we believe is less arbitrary (although still arbitrary) and more consistent for all clades, i.e. different clades can have different numbers of dimensions required to describe their n-1D “surface” but all clades have at least 1 dimension that describe most of their variation.
+
 
 \bibliographystyle{naturemag}
 \bibliography{references}
