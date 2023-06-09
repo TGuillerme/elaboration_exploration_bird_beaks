@@ -1,7 +1,7 @@
 \documentclass[12pt,letterpaper]{article}
 %DIF LATEXDIFF DIFFERENCE FILE
 %DIF DEL first_submission.tex   Thu Jun  1 23:54:10 2023
-%DIF ADD main.tex               Thu Jun  8 23:15:54 2023
+%DIF ADD main.tex               Fri Jun  9 11:19:53 2023
 
 %Packages
 % \usepackage{textcomp}
@@ -144,7 +144,7 @@ Jen A. Bright$^{2}$,
 Christopher R. Cooney${^1}$,
 Emma C. Hughes${^1}$,
 %DIF <  Zoe K. Varley${^3}$,
-\DIFaddbegin \DIFadd{Zoe K. Varley${^3}$,
+\DIFaddbegin \DIFadd{Zo\"{e} K. Varley${^3,4}$,
 }\DIFaddend Natalie Cooper$^{3,+}$,
 Andrew P. Beckerman$^{1,+}$,
 and Gavin H. Thomas$^{1,4,+}$}\\
@@ -480,13 +480,12 @@ S\ref{fig_phylogeny_passeriformes}.
 To test this}\DIFaddend , we measured the \DIFdelbegin \DIFdel{elaboration and innovation of different clades.
 To do this we translated the major axes of phenotypic }\DIFdelend \DIFaddbegin \DIFadd{$elaboration_{clade}$ and $innovation_{clade}$ by translating the phylogenetic major axis of beak }\DIFaddend variation of each clade's (i.e. super-orders and orders) \DIFdelbegin \DIFdel{phylogenetic variance-covariance }\DIFdelend \DIFaddbegin \DIFadd{evolutionary rate }\DIFaddend matrix onto the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation so that they shared the same origin in the shapespace.
 We then used \DIFdelbegin \DIFdel{multilinear }\DIFdelend \DIFaddbegin \DIFadd{linear }\DIFaddend algebra to project %DIF > @L_linear_algebra_stuff
-a focal clade's \DIFaddbegin \DIFadd{phylogenetic }\DIFaddend major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation onto the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation (Fig. S\DIFdelbegin \DIFdel{\ref{Fig:cheat_sheet}}\DIFdelend \DIFaddbegin \DIFadd{\ref{Fig:cheatsheet}}\DIFaddend ).
+a focal clade's \DIFaddbegin \DIFadd{phylogenetic }\DIFaddend major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation onto the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation (Fig. \DIFdelbegin \DIFdel{S\ref{Fig:cheat_sheet}}\DIFdelend \DIFaddbegin \DIFadd{\ref{Fig:cheatsheet}}\DIFaddend ).
 We interpret the measured \DIFdelbegin \DIFdel{projection (distance onto }\DIFdelend \DIFaddbegin \DIFadd{linear algebraic projection (Euclidean distance along }\DIFaddend the phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation) as the clade's \DIFdelbegin \DIFdel{elaboration }\DIFdelend \DIFaddbegin \DIFadd{$elaboration_{clade}$ }\DIFaddend score and the measured \DIFdelbegin \DIFdel{rejection (}\DIFdelend \DIFaddbegin \DIFadd{linear algebraic rejection (Euclidean }\DIFaddend distance from the \DIFaddbegin \DIFadd{phylogenetic }\DIFaddend major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation) as the clade's \DIFdelbegin \DIFdel{innovation score. A high innovation }\DIFdelend \DIFaddbegin \DIFadd{$innovation_{clade}$ score. %DIF >  @L_euclidean.
 A high $innovation_{clade}$ }\DIFaddend score indicates that the direction of evolution of a clade differs from the direction of its parent clade (e.g. the direction of evolution of an order differs from its parent super-order).
-These scores were \DIFdelbegin \DIFdel{measured }\DIFdelend \DIFaddbegin \DIFadd{calculated }\DIFaddend for each of 4000 posterior pairs of clade vs.
-\DIFdelbegin \DIFdel{phylogenetic variance-covariance }\DIFdelend \DIFaddbegin \DIFadd{evolutionary rate }\DIFaddend matrix (Fig. \ref{Fig:ellipses} boxplots).
+These scores were \DIFdelbegin \DIFdel{measured }\DIFdelend \DIFaddbegin \DIFadd{calculated }\DIFaddend for each of 4000 posterior pairs of clade \DIFdelbegin \DIFdel{vs. phylogenetic variance-covariance }\DIFdelend \DIFaddbegin \textit{\DIFadd{vs.}} \DIFadd{evolutionary rate }\DIFaddend matrix (Fig. \ref{Fig:ellipses} \DIFdelbegin \DIFdel{boxplots}\DIFdelend \DIFaddbegin \DIFadd{blue and orange lines}\DIFaddend ).
 We found that for most clades the \DIFaddbegin \DIFadd{phylogenetic }\DIFaddend major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation is not aligned with the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation (Fig. \ref{Fig:ellipses}).
-Despite the limitations of representing eight-dimensional space in 2D, our plots of the average elliptical representation of the \DIFdelbegin \DIFdel{phenotypic variance-covariance }\DIFdelend \DIFaddbegin \DIFadd{evolutionary rate }\DIFaddend matrix for the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation and each super-order \DIFdelbegin \DIFdel{(Fig. \ref{Fig:ellipses}a) }\DIFdelend and order (Fig. \ref{Fig:ellipses}b) highlight the striking variation in the orientation of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak shape }\DIFaddend major axes among clades (Fig. \ref{Fig:orthogonality}).
+Despite the limitations of representing eight-dimensional space in 2D, our plots of the average elliptical representation of the \DIFdelbegin \DIFdel{phenotypic variance-covariance }\DIFdelend \DIFaddbegin \DIFadd{evolutionary rate }\DIFaddend matrix for the \DIFdelbegin \DIFdel{global }\DIFdelend \DIFaddbegin \DIFadd{class-wide }\DIFaddend phylogenetic major axis of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak }\DIFaddend variation and each super-order \DIFdelbegin \DIFdel{(Fig. \ref{Fig:ellipses}a) }\DIFdelend and order (Fig. \ref{Fig:ellipses}\DIFdelbegin \DIFdel{b}\DIFdelend ) highlight the striking variation in the orientation of \DIFdelbegin \DIFdel{phenotypic }\DIFdelend \DIFaddbegin \DIFadd{beak shape }\DIFaddend major axes among clades (Fig. \ref{Fig:orthogonality}).
 \DIFdelbegin \DIFdel{Remarkably, more }\DIFdelend \DIFaddbegin \DIFadd{More }\DIFaddend than half of the assessed clades (4/8 super-orders and 15/27 orders) displayed higher median \DIFdelbegin \DIFdel{innovation than median elaboration }\DIFdelend \DIFaddbegin \DIFadd{$innovation_{clade}$ than median $elaboration_{clade}$ }\DIFaddend scores implying that \DIFdelbegin \DIFdel{, contrary to microevolutionary theory \mbox{%DIFAUXCMD
 \cite{schluter1996adaptive,marroig2005size}}\hskip0pt%DIFAUXCMD
 , innovation }\DIFdelend \DIFaddbegin \DIFadd{$innovation_{clade}$ }\DIFaddend is a more common generator of \DIFdelbegin \DIFdel{morphological diversity than elaboration }\DIFdelend \DIFaddbegin \DIFadd{beak shape diversity than $elaboration_{clade}$ }\DIFaddend in deep-time (i.e evidence at the clade scale).
@@ -683,10 +682,10 @@ Overall, the models suggest that although most species evolve via elaboration at
 \begin{landscape}
 \begin{table}[ht]
 \centering
-\small
+\footnotesize
    \begin{tabular}{rrllllllllrr}
      \hline
-    \DIFaddFL{Model }& \DIFaddFL{$E_{species}$ }& \DIFaddFL{$I_{species}$ }& \DIFaddFL{$E_{clade}$ }& \DIFaddFL{$I_{clade}$ }& \DIFaddFL{$E_{species}$ x $I_{clade}$ }& \DIFaddFL{$E_{species}$ x $E_{clade}$ }& \DIFaddFL{$I_{species}$ x $I_{clade}$ }& \DIFaddFL{$I_{species}$ x $E_{clade}$ }& \DIFaddFL{$\Delta$AIC }& \DIFaddFL{Adj. $r^2$ }\\ 
+    \DIFaddFL{Model }& \DIFaddFL{$E_{species}$ }& \DIFaddFL{$I_{species}$ }& \DIFaddFL{$E_{clade}$ }& \DIFaddFL{$I_{clade}$ }& \DIFaddFL{$E_{species}$ $\times$ $I_{clade}$ }& \DIFaddFL{$E_{species}$ $\times$ $E_{clade}$ }& \DIFaddFL{$I_{species}$ $\times$ $I_{clade}$ }& \DIFaddFL{$I_{species}$ $\times$ $E_{clade}$ }& \DIFaddFL{$\Delta$AIC }& \DIFaddFL{Adj. $r^2$ }\\ 
      \hline
    \DIFaddFL{1 }& \DIFaddFL{0.04*** }& \DIFaddFL{-0.139*** }& \DIFaddFL{0.002 }& \DIFaddFL{-0.002 }& \DIFaddFL{0.064*** }& \DIFaddFL{0.045*** }& \DIFaddFL{0.341*** }& \DIFaddFL{0.093*** }& \DIFaddFL{0.00 }& \DIFaddFL{0.92 }\\ 
    \DIFaddFL{2 }& \DIFaddFL{0.257*** }& \DIFaddFL{0.169*** }& \DIFaddFL{0.01 }& \DIFaddFL{0.001 }& \DIFaddFL{0.045*** }&  & \DIFaddFL{0.312*** }& \DIFaddFL{0.034*** }& \DIFaddFL{-691.48 }& \DIFaddFL{0.92 }\\ 
@@ -703,7 +702,7 @@ Overall, the models suggest that although most species evolve via elaboration at
       \hline
    \end{tabular}
 \caption{\DIFaddFL{Elaboration and innovation as predictors of beak shape distance from centroid.
-The table shows parameter estimates of predictors from 12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms; models 6-8 are are multiple regressions including two or more variables and no interaction terms; models 9-12 are single predictor models. Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$ from any individual model) and relative model fit and interpretation of parameters was unaffected. E = elaboration; I = innovation; AIC = Akaike Information Criterion; NS = not significant; - indicates that the term was not included within that model.}}
+The table shows parameter estimates of predictors from 12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms (e.g. model 1 contains all the terms and their interactions); models 6-8 are are multiple regressions including two or more variables and no interaction terms (e.g. model 6 contains all the terms but no interactions); models 9-12 are single predictor models (e.g. model 9 contains only one term). Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$ from any individual model) and relative model fit and interpretation of parameters was unaffected. $E$ = elaboration; $I$ = innovation; AIC = Akaike Information Criterion; *** = p-value $<$ 0.001.}}
 \label{Tab:pgls}
 \end{table}
 \end{landscape}

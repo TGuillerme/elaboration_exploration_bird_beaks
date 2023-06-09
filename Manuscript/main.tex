@@ -56,7 +56,7 @@ Thomas Guillerme$^{1,*}$,
 Jen A. Bright$^{2}$,
 Christopher R. Cooney${^1}$,
 Emma C. Hughes${^1}$,
-Zo\"{e} K. Varley${^3}$,
+Zo\"{e} K. Varley${^3,4}$,
 Natalie Cooper$^{3,+}$,
 Andrew P. Beckerman$^{1,+}$,
 and Gavin H. Thomas$^{1,4,+}$}\\
@@ -255,13 +255,12 @@ Indeed, if divergence can arise simultaneously along multiple axes then this may
 If deep-time jumps in beak shape \cite{cooney2017mega} are the result of innovation we would expect to see changes in the orientation of trait space of clades (i.e. orders or super-orders) relative to the phylogenetic major axis of beak variation of the whole class Aves.
 To test this, we measured the $elaboration_{clade}$ and $innovation_{clade}$ by translating the phylogenetic major axis of beak variation of each clade's (i.e. super-orders and orders) evolutionary rate matrix onto the class-wide phylogenetic major axis of beak variation so that they shared the same origin in the shapespace.
 We then used linear algebra to project %@L_linear_algebra_stuff
-a focal clade's phylogenetic major axis of beak variation onto the class-wide phylogenetic major axis of beak variation (Fig. S\ref{Fig:cheatsheet}).
+a focal clade's phylogenetic major axis of beak variation onto the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:cheatsheet}).
 We interpret the measured linear algebraic projection (Euclidean distance along the phylogenetic major axis of beak variation) as the clade's $elaboration_{clade}$ score and the measured linear algebraic rejection (Euclidean distance from the phylogenetic major axis of beak variation) as the clade's $innovation_{clade}$ score. % @L_euclidean.
 A high $innovation_{clade}$ score indicates that the direction of evolution of a clade differs from the direction of its parent clade (e.g. the direction of evolution of an order differs from its parent super-order).
-These scores were calculated for each of 4000 posterior pairs of clade vs.
-evolutionary rate matrix (Fig. \ref{Fig:ellipses} boxplots).
+These scores were calculated for each of 4000 posterior pairs of clade \textit{vs.} evolutionary rate matrix (Fig. \ref{Fig:ellipses} blue and orange lines).
 We found that for most clades the phylogenetic major axis of beak variation is not aligned with the class-wide phylogenetic major axis of beak variation (Fig. \ref{Fig:ellipses}).
-Despite the limitations of representing eight-dimensional space in 2D, our plots of the average elliptical representation of the evolutionary rate matrix for the class-wide phylogenetic major axis of beak variation and each super-order and order (Fig. \ref{Fig:ellipses}b) highlight the striking variation in the orientation of beak shape major axes among clades (Fig. \ref{Fig:orthogonality}).
+Despite the limitations of representing eight-dimensional space in 2D, our plots of the average elliptical representation of the evolutionary rate matrix for the class-wide phylogenetic major axis of beak variation and each super-order and order (Fig. \ref{Fig:ellipses}) highlight the striking variation in the orientation of beak shape major axes among clades (Fig. \ref{Fig:orthogonality}).
 More than half of the assessed clades (4/8 super-orders and 15/27 orders) displayed higher median $innovation_{clade}$ than median $elaboration_{clade}$ scores implying that $innovation_{clade}$ is a more common generator of beak shape diversity than $elaboration_{clade}$ in deep-time (i.e evidence at the clade scale).
 
 \begin{figure}[!htbp]
@@ -370,10 +369,10 @@ Overall, the models suggest that although most species evolve via elaboration at
 \begin{landscape}
 \begin{table}[ht]
 \centering
-\small
+\footnotesize
    \begin{tabular}{rrllllllllrr}
      \hline
-    Model & $E_{species}$ & $I_{species}$ & $E_{clade}$ & $I_{clade}$ & $E_{species}$ x $I_{clade}$ & $E_{species}$ x $E_{clade}$ & $I_{species}$ x $I_{clade}$ & $I_{species}$ x $E_{clade}$ & $\Delta$AIC & Adj. $r^2$ \\ 
+    Model & $E_{species}$ & $I_{species}$ & $E_{clade}$ & $I_{clade}$ & $E_{species}$ $\times$ $I_{clade}$ & $E_{species}$ $\times$ $E_{clade}$ & $I_{species}$ $\times$ $I_{clade}$ & $I_{species}$ $\times$ $E_{clade}$ & $\Delta$AIC & Adj. $r^2$ \\ 
      \hline
    1 & 0.04*** & -0.139*** & 0.002 & -0.002 & 0.064*** & 0.045*** & 0.341*** & 0.093*** & 0.00 & 0.92 \\ 
    2 & 0.257*** & 0.169*** & 0.01 & 0.001 & 0.045*** &  & 0.312*** & 0.034*** & -691.48 & 0.92 \\ 
@@ -390,7 +389,7 @@ Overall, the models suggest that although most species evolve via elaboration at
       \hline
    \end{tabular}
 \caption{Elaboration and innovation as predictors of beak shape distance from centroid.
-The table shows parameter estimates of predictors from 12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms; models 6-8 are are multiple regressions including two or more variables and no interaction terms; models 9-12 are single predictor models. Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$ from any individual model) and relative model fit and interpretation of parameters was unaffected. E = elaboration; I = innovation; AIC = Akaike Information Criterion; NS = not significant; - indicates that the term was not included within that model.}
+The table shows parameter estimates of predictors from 12 different phylogenetic generalised least squares (PGLS) models with $\Delta$AIC showing relative model fit following removal of terms. Models 1-5 are multiple regressions including all variables and one or more interaction terms (e.g. model 1 contains all the terms and their interactions); models 6-8 are are multiple regressions including two or more variables and no interaction terms (e.g. model 6 contains all the terms but no interactions); models 9-12 are single predictor models (e.g. model 9 contains only one term). Values in the table are based on PGLS in which Pagel’s $\lambda$ was fixed at 1 (i.e. assuming a Brownian motion model of evolution). Fixing $\lambda$ is necessary to allow model comparison with AIC. We also fitted the same models fixing $\lambda$ to 0.727 (the lowest value of $\lambda$ from any individual model) and relative model fit and interpretation of parameters was unaffected. $E$ = elaboration; $I$ = innovation; AIC = Akaike Information Criterion; *** = p-value $<$ 0.001.}
 \label{Tab:pgls}
 \end{table}
 \end{landscape}
