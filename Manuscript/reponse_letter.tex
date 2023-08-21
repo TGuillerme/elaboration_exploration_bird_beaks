@@ -53,22 +53,22 @@ We have revised  the manuscript taking advantage of the extra space and number o
 \begin{itemize}
     \item We now clearly distinguish the two types of elaboration and innovation: $elaboration_{species}$ and $innovation_{species}$ that focuses on the macro-evolutionary scale and $elaboration_{clades}$ and $innovation_{clades}$ that focuses on the mega-evolutionary scale;
     \item For the analyses on elaboration and innovation at the macro scale ($elaboration_{species}$ and $innovation_{species}$), we now only focus on the projection of species onto their order’s major axes;
-    \item We added two new figures and a table in the main text: the cheat sheet figure (previously in the supplementaries, now in the introduction), the correlation figure and a table from the new PGLS results; 
+    \item We added two new figures and a table in the main text: the cheat sheet figure (previously in the supplementaries, now in the introduction), the correlation figure and a table from the new PGLS results and revamped all the previous figures.
     \item We have added several new analyses to the supplementary materials including: correlations between elaboration/innovation, elaboration and innovation through time and random skewers analysis;
     \item We have linked our metrics definitions to previous work in the supplementary materials;
     \item We have made the vocabulary more consistent throughout the manuscript;
     \item We fully rewrote the introduction and most of the results/discussion section.
 \end{itemize}
 
-We fully describe each change below.
+\noindent We fully describe each change below.
 
 \bigskip
 
-Best regards,
+\noindent Best regards,
 
 \bigskip
 
-Thomas Guillerme, on behalf of all co-authors.
+\noindent Thomas Guillerme, on behalf of all co-authors.
 
 \section*{\textcolor{blue}{Reviewer 1}}
 
@@ -599,6 +599,12 @@ Study of high dimensional matrices needs to hit a fine balance to explain abstra
 We have made an attempt to link our elaboration and innovation metrics (for clade and species) to the metrics suggested by this reviewer and put our attempts in the supplementary materials (supplementary materials section 4). Although some are relatively straightforward (e.g. relative eigen value, evolvability which is directly equal to $elaboration_{species}$ or respondability which can be easily calculated using Pythagorean theorems) we are left wondering whether the exercise is actually not beyond the scope of this paper. If we can interpret our approach as using the \textbf{R} matrix (see new intro lines 44-60), then relating elaboration and innovation (for clade or species) depending on the \textbf{R} matrix to metrics based on the \textbf{G} matrix is not straightforward. In fact, even though it seems feasible mathematically, linking these concepts applied at the macro level (focal = species) and mega level (focal = clades) to ones at the individual or population level (micro) is by no means easy in terms of what these concepts represent biologically (as we know this reviewer is well aware!).
 
 Basically, we believe that even though it would be possible to link these metrics, we are not sure what would be the interpretation of it. We illustrate that in the supplementary materials section 4 where we show how linking $elaboration_{species}$ to evolvability (Hanse \& Houle 2008) is trivial ($elaboration_{species}$ = evolvability), linking it to conditional evolvability is going to be very complicated since the concept of autonomy involved in conditional evolvability is directly linked to individuals genetic variation which is hard to mathematically relate to species phenotypic variation (let alone clade’s phenotypic variation). We believe however that digging more into this in the future would be a great potential future direction of research.
+
+We now reflect that in the supplementary materials section 4.5:
+
+\noindent\textit{In \cite{hansen2008measuring}, the inverse of \textbf{G} is defined as ``the fraction of the genetic variation that is independent of potentially constraining characters'' which in our case will be harder to define.
+Although it would technically be possible to use the inverse of the \textbf{R} matrix used here ($VCV_{clade}$), it is unclear what it would represent biologically.}
+
 
 \textcolor{blue}{Second, I suggest authors to use one term for innovation/elaboration across the entire phylogeny and another term for those at the clade-specific levels. For instance, consider using something like Innovation(global as subscript), elaboration(global), Innovation(clade), elaboration(clade). This way, readers will always be informed which levels of innovation or elaboration are referred to throughput this study. This is related to my next point regarding the comparability of i/e scores. That is, Innovation(global) and elaboration(global) should always be comparable because they are defined in the same phenotype space, but Innovation(clade) and elaboration(clade) may not be comparable among clades because they are basically different traits.}
 
