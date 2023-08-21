@@ -74,45 +74,6 @@ and Gavin H. Thomas}
 
 %---------------------------------------------
 %
-%   Glossary   % NC: I think this is not really needed now the text is clearer, also some of the definitions are not 100% correct...
-%
-%---------------------------------------------
-
-%\begin{landscape}
-%\section{Supplementary material 1: glossary}
-
-%We define three evolutionary scales based on the focal elements as follow:
-%\begin{itemize}
-%   \item \textbf{micro}evolutionary scale: the focal elements are \textbf{individual specimen};
- %  \item \textbf{macro}evolutionary scale: the focal elements are \textbf{species} (i.e. groups of individuals);
-  % \item \textbf{mega}evolutionary scale: the focal elements are \textbf{clades} (i.e. groups of species).
-%\end{itemize} 
-
-%\begin{table}[ht]
-%\scriptsize
-%\caption{Glossary of some specific terms in this manuscript}
-%\begin{tabular}{p{0.2\textwidth}p{0.3\textwidth}p{0.3\textwidth}p{0.2\textwidth}p{0.2\textwidth}}
-%  \hline
-% Term in this paper         & definition in this paper & mathematical definition & in macroevolution & in microevolution\\
-%   \hline
-% evolutionary rate matrix &  matrix of rates of among-species divergence in species traits that explicitly incorporates phylogeny  &  & (\textbf{R} matrix of \cite{Houle2017}; \textbf{B} matrix of \cite{Machado2020}) & \\
-% major axis of variation    & the major evolutionary ``direction'' of trait co-evolution & first eigenvector of the evolutionary rate matrix  & allometry & line of genetic least resistance \\
-% clade                      & a monophyletic group of \textbf{species} & a subset of \textbf{shapespace} & Birds & a group of species or a population\\
-% species                    & the lowest evolutionary units in our analysis & a row in the \textbf{shapespace} & \textit{Pauxi pauxi} & an individual\\
-% shapespace                 & all the possible morphological combination (observed or not) & an ordinate and orthonormal matrix & the beak shapespace & a gene space \\
-% novelty                    & morphological variation (either \textbf{innovation} or \textbf{elaboration}) & position of a \textbf{species} or a \textbf{clade} relative to the \textbf{major axis of variation} & & \\
-% elaboration                & morphological variation along the \textbf{major axis of variation} & the algebraic projection on the eigenvector & & \\
-% innovation                 & morphological variation away from the \textbf{major axis of variation} & the algebraic rejection from the eigenvector & & \\
-% variance-covariance matrix & the multidimensional relation between traits & the variation of the dimension within the \textbf{shapespace} taking into account the distance matrix between the observations (the \textbf{phylogeny} or the \textbf{clades}) & & \\
-% nested phylogenetic level  & the different \textbf{clades} used in this study (the class-wide phylogeny $>$ super-orders $>$ orders) & different nested \textbf{variance-covariance matrices} & & \\
-
-% \end{tabular}
-% \label{tab_glossary}
-% \end{table}
-% \end{landscape}
-
-%---------------------------------------------
-%
 %   additional methods 
 %
 %---------------------------------------------
@@ -128,12 +89,10 @@ and Gavin H. Thomas}
 
 \newpage
 
-
- % GT Figure legend needs explanation of whole_space and no_calde
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/axis_selection.pdf}
-\caption{Variance and cumulative variance for each of the eight principal component (PC) axes for each super-order. Note that not all super-orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain at least 95\% of their variance within the shapespace whilst Aequornithes need all eight dimensions to achieve at least the same amount of variance explained.}
+\caption{Variance and cumulative variance for each of the eight principal component (PC) axes for each super-order. Note that not all super-orders have their own variance explained matching the variance explained by the entire ordination. For example, Strisores only need the first three dimensions to explain at least 95\% of their variance within the shapespace whilst Aequornithes need all eight dimensions to achieve at least the same amount of variance explained. $no clade$ is the cumulative variance for species not present in the other displayed clades and $whole\_space$ is the cumulative for all species.}
 \label{Fig:axes_variance}
 \end{figure}
 
@@ -368,7 +327,8 @@ The stars represent the posterior probability of the clade's orientation being d
 The following section contains the detailed definition and procedure of how we measured elaboration and innovation.
 
 We can define the major axis from the variance-covariance matrices and then project and reject each element of interest in the space onto this axis.
-The following steps are generalised to $n$ dimensions and detailed below (as well as the algorithm used in \texttt{dispRity} \cite{dispRity} to perform the transformations):
+The following steps are generalised to $n$ dimensions and detailed below (as well as the algorithm used in \texttt{dispRity} [64]%\cite{dispRity}
+to perform the transformations):
 
 \subsection{Defining the major axis}
 
@@ -414,7 +374,8 @@ We can get $M_{n}$, the matrix containing all the edge coordinates of the 0.95 C
 
 $$M_{n} = [(O'_{n}\sqrt{\lambda}) \times v]^{\text{T}}$$
 
-Finally, we can centre the matrix $M_{n}$ on the estimated solution of each GLMM (\texttt{model\$Sol}, in \texttt{MCMCglmm} \cite{MCMCglmm}) corresponding to the estimation of the position of the variance-covariance matrix in the trait-space.
+Finally, we can centre the matrix $M_{n}$ on the estimated solution of each GLMM (\texttt{model\$Sol}, in \texttt{MCMCglmm} [48]% \cite{MCMCglmm}
+) corresponding to the estimation of the position of the variance-covariance matrix in the trait-space.
 $M_{n}$ then contains all the major axes of the 0.95 hyper-ellipse fitting the variance-covariance matrix.
 We can then define the first row of the matrix, $M_{1,n}$, as the major axis, the second row, $M_{2,n}$, as the second major axis (the minor axis in a 2D ellipse), etc.
 
@@ -521,7 +482,8 @@ Or $\theta = acos (B_x)$ since both $\|\vec{B}\|$ and $\|\vec{\hat{\imath}}\|$ a
 
 \subsection{Algorithm for calculating the projection/rejection of any element in a defined space}
 
-In practice we followed \href{https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions}{this procedure} and applied a modification of \href{https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385}{this implementation} (see \cite{aguilera2004} for the formal generalisation of this algorithm in $n$ dimensions) using the following algorithm implemented in \texttt{dispRity::projections}:
+In practice we followed \href{https://math.stackexchange.com/questions/598750/finding-the-rotation-matrix-in-n-dimensions}{this procedure} and applied a modification of \href{https://stackoverflow.com/questions/42520301/find-rotation-matrix-of-one-vector-to-another-using-r/42542385#42542385}{this implementation} (see [65]% \cite{aguilera2004}
+ for the formal generalisation of this algorithm in $n$ dimensions) using the following algorithm implemented in \texttt{dispRity::projections}:
 
 \begin{enumerate}
  \item In the trait-space, define $\vec{B}$ as the base vector (typically $\vec{B}$ is defined as the pair of coordinates from the major axis described above).
@@ -574,7 +536,8 @@ And the followings for any clade $c$ (withing a parent clade $c-1$):
 
 \subsubsection{Relative eigenvalues dispersion}
 
-\cite{vanvalen1974,watanabe2022} propose to describe a variance-covariance matrix in terms of its eigen dispersion $V_{rel}$ as:
+[44, 66] %\cite{vanvalen1974,watanabe2022}
+propose to describe a variance-covariance matrix in terms of its eigen dispersion $V_{rel}$ as:
 
 \begin{equation}
 V_{rel} = \frac{\sum_{i}^{n}(\lambda_{i} - \sum{\frac{\lambda_{i}}{n}})^2}{n(n-1)\sum{\frac{\lambda_{i}}{n}}^2}
@@ -587,16 +550,19 @@ Using this definition and the definitions above of $\text{elaboration}_{\text{cl
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/elaboration_innovation_dispersion.pdf}
-\caption{Relation between relative eigen dispersion \cite{vanvalen1974,watanabe2022} and $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
+\caption{Relation between relative eigen dispersion [44, 66] %\cite{vanvalen1974,watanabe2022}
+and $\text{elaboration}_{\text{clade}_{c}}$ and $\text{innovation}_{\text{clade}_{c}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
 \label{Fig:eigen_dispersion}
 \end{figure}
 
 \subsubsection{Evolvability and respondability}
 
-\cite{hansen2008measuring} propose to measure the evolvability and respondability of an individual as their ``response to selection in $n$ traits''.
+[42] %\cite{hansen2008measuring}
+propose to measure the evolvability and respondability of an individual as their ``response to selection in $n$ traits''.
 Here, some equivalent can be drawn (albeit cautiously) between the response of an individual or a group (population) to selection pressure and a species.
 Arguably, a species is the end product of this (and many other) selection pressures on a group of individuals.
-If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \cite{hansen2008measuring} for a $species_{x}$ to it's $\text{elaboration}_{\text{species}_{x}}$ and $\text{innovation}_{\text{species}_{x}}$ as follows:
+If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ [42] %\cite{hansen2008measuring}
+for a $species_{x}$ to it's $\text{elaboration}_{\text{species}_{x}}$ and $\text{innovation}_{\text{species}_{x}}$ as follows:
 
 \begin{equation}
 \text{evolvability}_{\text{species}_{x}} = \text{elaboration}_{\text{species}_{x}}
@@ -612,12 +578,15 @@ If so, then, we can relate $\text{evolvability}$ and $\text{respondability}$ \ci
 \begin{figure}[H]
 \centering
    \includegraphics[width=0.9\textwidth]{Figures/respondability.pdf}
-\caption{Relation between respondability \cite{hansen2008measuring} and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
+\caption{Relation between respondability [42] %\cite{hansen2008measuring}
+and $\text{elaboration}_{\text{species}}$ and $\text{innovation}_{\text{species}}$ on the \texttt{charadriiformes} example dataset from the \texttt{dispRity} package.}
 \label{Fig:respondability}
 \end{figure}
 
-Conditional evolvability however will be more complex to determine since it is defined as the relation between evolvability and autonomy which is specific defined in \cite{hansen2008measuring} as the inverse of the \textbf{G} matrix.
-In \cite{hansen2008measuring}, the inverse of \textbf{G} is defined as ``the fraction of the genetic variation that is independent of potentially constraining characters'' which in our case will be harder to define.
+Conditional evolvability however will be more complex to determine since it is defined as the relation between evolvability and autonomy which is specific defined in [42] %\cite{hansen2008measuring}
+ as the inverse of the \textbf{G} matrix.
+In [42] %\cite{hansen2008measuring}
+, the inverse of \textbf{G} is defined as ``the fraction of the genetic variation that is independent of potentially constraining characters'' which in our case will be harder to define.
 Although it would technically be possible to use the inverse of the \textbf{R} matrix used here ($VCV_{clade}$), it is unclear what it would represent biologically.
 
 %---------------------------------------------
@@ -626,7 +595,7 @@ Although it would technically be possible to use the inverse of the \textbf{R} m
 %
 %---------------------------------------------
 
-\bibliographystyle{naturemag}
-\bibliography{references}
+% \bibliographystyle{naturemag}
+% \bibliography{references}
 
 \end{document}
