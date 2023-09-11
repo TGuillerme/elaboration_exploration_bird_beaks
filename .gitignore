@@ -3,6 +3,9 @@
 
 Data/Cluster/shapespace_charadriiformes/*
 Poster/*
+Data/Cluster/*
+Data/Processed/*
+Manuscript/latex_version/*
 
 ## R ignore
 .Rhistory
