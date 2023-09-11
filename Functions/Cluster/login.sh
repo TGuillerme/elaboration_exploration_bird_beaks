@@ -1,1 +1,0 @@
-ssh -X bo1tgu@sharc.shef.ac.uk
