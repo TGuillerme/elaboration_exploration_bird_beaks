@@ -2,20 +2,24 @@
 
 Author(s): [Thomas Guillerme](https://github/TGuillerme), [Jen Bright](https://www.hull.ac.uk/staff-directory/jen-bright), [Christopher Cooney](https://www.cooneylab.co.uk/), Zoë Varley, [Natalie Cooper](http://nhcooper123.github.io/), [Andrew P. Beckerman](https://andbeck.github.io/beckslab/), [Gavin H. Thomas](https://www.sheffield.ac.uk/biosciences/people/academic-staff/gavin-thomas)
 
-This repository contains all the code and data used in [the manuscript](https://www.biorxiv.org/content/10.1101/2022.08.12.503188v1).
+This repository contains all the code and data used in [the paper](https://www.science.org/doi/10.1126/sciadv.adg1641).
 
 [![DOI](https://zenodo.org/badge/337779300.svg)](https://zenodo.org/badge/latestdoi/337779300)
 
+## Poster
+
+ You can find the poster associated to this work [here](https://figshare.com/articles/poster/Innovation_and_elaboration_on_the_avian_tree_of_life/20480754).
+
 ## Supplementary material
 
- <!-- * The supplementary tables and figures mentioned in the main text is available [here](). TODO: add link to published SOM -->
+ * The supplementary tables and figures mentioned in the main text is available from [DOI:10.1126/sciadv.adg1641](https://www.science.org/doi/10.1126/sciadv.adg1641).
  * The supplementary information about the mcmcmcglmmm method is available as a [reproducible vignette](https://raw.rawgit.net/TGuillerme/mcmcmcglmmm/main/inst/MCMCglmm_mini_chains.html).
  * The supplementary information about the elaboration and innovation analysis (or projection analysis) is available as a [reproducible vignette](https://raw.rawgit.net/TGuillerme/dispRity/master/inst/vignettes/Projection_analysis.html).
 
 ## Data
 
-The raw data phylogenetic data is available from [here](https://birdtree.org/).
-<!-- The raw morphological data is available from [here]().TODO: add link to beak data -->
+The raw data phylogenetic data is available from [here](https://birdtree.org
+The raw morphological data is available from [here](https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355).
 You can access the processed data used in this analysis [here](https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355).
 If you use either the processed or raw phylogenetic data in a publication, please cite the following papers [Cooney et al 2017](https://www.nature.com/articles/nature21074), [Chira et al 2020](https://royalsocietypublishing.org/doi/full/10.1098/rspb.2020.1585) and [Hughes et al 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13905).
 
@@ -50,16 +54,16 @@ These are:
 ## Citing this work
 
 To cite the paper, please use:
- * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin H Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188) <!-- TODO: change to published version -->
+ * Thomas Guillerme et al. Innovation and elaboration on the avian tree of life.Sci. Adv.9,eadg1641(2023). [DOI:10.1126/sciadv.adg1641](https://www.science.org/doi/10.1126/sciadv.adg1641)
 
 To cite this repository, please use:
  * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/elaboration_exploration_bird_beaks: v0.1-preprint (v0.1). Zenodo. [https://doi.org/10.5281/zenodo.6984934](https://doi.org/10.5281/zenodo.6984934)
 
 To cite the mcmcmcglmmm method, please use **both**:
- * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin H Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188) <!-- TODO: change to published version -->
+ * Thomas Guillerme et al. Innovation and elaboration on the avian tree of life.Sci. Adv.9,eadg1641(2023). [DOI:10.1126/sciadv.adg1641](https://www.science.org/doi/10.1126/sciadv.adg1641)
  * Thomas Guillerme, & Natalie Cooper. (2022). TGuillerme/mcmcmcglmmm: v0.9 (v0.9). Zenodo. [https://doi.org/10.5281/zenodo.6974582](https://doi.org/10.5281/zenodo.6974582)
 
 To cite the elaboration and innovation method, please use **both**:
- * Thomas Guillerme, Natalie Cooper, Andrew P Beckerman, Gavin H Thomas bioRxiv 2022.08.12.503188; doi: [https://doi.org/10.1101/2022.08.12.503188](https://doi.org/10.1101/2022.08.12.503188) <!-- TODO: change to published version -->
- * Guillerme, T., 2018. dispRity: a modular R package for measuring disparity. Methods in Ecology and Evolution, 9(7), pp.1755-1763. [https://doi.org/10.1111/2041-210X.13022](https://doi.org/10.1111/2041-210X.13022)
+* Thomas Guillerme et al. Innovation and elaboration on the avian tree of life.Sci. Adv.9,eadg1641(2023). [DOI:10.1126/sciadv.adg1641](https://www.science.org/doi/10.1126/sciadv.adg1641)
+* Guillerme, T., 2018. dispRity: a modular R package for measuring disparity. Methods in Ecology and Evolution, 9(7), pp.1755-1763. [https://doi.org/10.1111/2041-210X.13022](https://doi.org/10.1111/2041-210X.13022)
 
