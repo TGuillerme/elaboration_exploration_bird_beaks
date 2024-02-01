@@ -1,0 +1,45 @@
+---
+title: "Updates a Procrustes and a PCA"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_width: 6
+    fig_height: 6
+---
+
+Trying to update a Procrustes superimposition by adding new species to it (i.e. run the Procrustes and then add a new species following the same deformation).
+And doing the same for a PCA (i.e. adding some new data to a previously calculated eigen transformation).
+
+```{r}
+library(Morpho)
+require(landvR) # devtools::install_github("TGuillerme/landvR")
+## Get some 3D data from Morpho
+data(boneData)
+
+## Run a procrustes and PCA
+proc <- procSym(boneLM)
+## Create a new specimens: the average, the median and the minimum, of all bones)
+new_spec <- array(data = c(apply(boneLM, c(1,2), mean),
+                           apply(boneLM, c(1,2), median),
+                           unlist(landvR::select.procrustes(proc$rotated, selector = min))),
+                           dim = c(10, 3, 3))
+## Add them to the procrustes + PCA
+new_proc <- align2procSym(proc, new_spec)
+dimnames(new_proc)[[3]] <- c("mean", "median", "min")
+## Transforming the procrustes arrays into matrices
+proc_matrix <- landvR::array.to(proc$rotated, to = "matrix")
+new_proc_matrix <- landvR::array.to(new_proc, to = "matrix")
+
+## Run a PCA on the original data
+pca <- prcomp(proc_matrix)
+plot(pca$x[,c(1,2)])
+## Note that this is equal to the pca from Morpho but rotated (*-1)
+# plot(proc$PCscores[, c(1,2)]*-1)
+
+## Run the PCA with the added procrustes
+new_pca <- rbind(pca$x, predict(pca, newdata = new_proc_matrix))
+points(new_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5)
+points(new_pca[c(81:83), c(1,2)], pch = 19, col = "red")
+legend("topright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
+```
