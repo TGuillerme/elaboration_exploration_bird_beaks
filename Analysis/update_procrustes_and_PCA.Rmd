@@ -8,6 +8,7 @@ output:
     fig_height: 6
 ---
 
+
 Trying to update a Procrustes superimposition by adding new species to it (i.e. run the Procrustes and then add a new species following the same deformation).
 And doing the same for a PCA (i.e. adding some new data to a previously calculated eigen transformation).
 
