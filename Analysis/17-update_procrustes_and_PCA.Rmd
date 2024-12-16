@@ -1,0 +1,138 @@
+---
+title: "Updates a Procrustes and a PCA"
+author: "Thomas Guillerme"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    fig_width: 6
+    fig_height: 6
+---
+
+In this script we will be looking at how to update both a Procrustes superimposition (GPA) and a PCA by projecting new specimens in it.
+The goal is to use the GPA and PCA from a previous dataset (published with Guillerme et al 2023 - Science Advances) and to project new specimens onto it.
+
+# The pipeline (testing)
+
+Here is an example on how to do it using the `Morpho` package for the base GPA and PCA:
+
+```{r}
+library(Morpho)
+
+## Get some 3D data from Morpho
+data(boneData)
+original_landmarks <- boneLM
+
+## Run the GPA for the original data
+proc_orig <- Morpho::procSym(original_landmarks)
+
+## Run the PCA for the original data
+proc_matrix_orig <- landvR::array.to(proc_orig$rotated, to = "matrix")
+pca_orig <- prcomp(proc_matrix_orig)
+
+## Plot the results
+plot(pca_orig$x[,c(1,2)])
+```
+
+And now let's generate some extra data out of the pipeline.
+Here we're just creating a mean, median and minimum landmark set using the mean, median and minimum landmark coordinates values.
+
+```{r}
+## Create a new specimens: the average, the median and the minimum, of all bones)
+require(landvR) # devtools::install_github("TGuillerme/landvR")
+new_spec <- array(data = c(apply(original_landmarks, c(1,2), mean),
+                           apply(original_landmarks, c(1,2), median),
+                           unlist(landvR::select.procrustes(proc_orig$rotated, selector = min))),
+                           dim = c(10, 3, 3))
+dimnames(new_spec)[[3]] <- paste0("new_", c("mean", "median", "min"))
+
+## Here is what the landmark positions look like in 3D
+op <- par(mfrow = c(2,2))
+plot(original_landmarks[, c(1,2), 1], main = "First specimen\n(reference from real dataset)")
+plot(new_spec[, c(1,2), 1], main = "New specimen 1\n(average)")
+plot(new_spec[, c(1,2), 2], main = "New specimen 2\n(median)")
+plot(new_spec[, c(1,2), 3], main = "New specimen 3\n(weird)")
+par(op)
+```
+
+We can then add these specimens to the GPA and PCA.
+
+```{r}
+## Add them to the procrustes + PCA
+new_proc <- Morpho::align2procSym(proc_orig, new_spec)
+dimnames(new_proc)[[3]] <- c("mean", "median", "min")
+
+## Transforming the procrustes arrays into matrices
+new_proc_matrix <- landvR::array.to(new_proc, to = "matrix")
+
+## Run the PCA with the added procrustes
+new_pca <- rbind(pca_orig$x, predict(pca_orig, newdata = new_proc_matrix))
+
+## Plot all the results
+plot(pca_orig$x[,c(1,2)])
+points(new_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5)
+points(new_pca[c(81:83), c(1,2)], pch = 19, col = "red")
+legend("topright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
+```
+
+Seems to work quiet well!
+All the positions from previous specimens are respected.
+And the two new median and average specimens plot in the centre of the traitspace (as expected) with the weird one plotting on some edge of the traitspace.
+
+The function that does it automatically is now implemented in `landvR`.
+
+# Mapping the chaffinches on the whole traitspace
+
+```{r}
+## Loading the entire bird GPA
+library(Morpho)
+whole_gpa <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
+
+## Reading in the chaffinches
+land_pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
+
+## Read all the chaffinches
+path <- "../Data/Raw/Beak_data/Chaffinch_data/"
+individuals <- list.files(path)
+all_individuals <- list()
+while(length(individuals) != 0) {
+    file <- paste0(path, individuals[1], "/", list.files(paste0(path, individuals[1]))) 
+    if(grepl(".nts", file)) { 
+        ## Does contain a file
+        data <- readland.nts(paste0(path, individuals[1], "/", list.files(paste0(path, individuals[1]))))
+        name <- paste0(strsplit(individuals[1], split = "_")[[1]][1:4], collapse = "_")
+        all_individuals[[length(all_individuals) + 1]] <- data[, , 1]
+        names(all_individuals)[length(all_individuals)] <- name
+    } else {
+        print(paste0(file, ": empty"))
+    }
+    individuals <- individuals[-1]
+}
+
+## The following are missing:
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_africana_14_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_africana_19_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_coelebs_1_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_1_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_21_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_5_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_moreletti_11_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_palmae_13_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_teydea_polatzeki_1_intraspecific/: empty"
+# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_teydea_teydea_10_intraspecific/: empty"
+
+## Converting into an array
+individuals_array <- simplify2array(all_individuals)
+
+## Project them! (*-1 is to flip it around)
+updated_pca <- update.gpa.pca(whole_gpa, individuals_array)*-1
+
+## BUG IN THE NUMBER OF DIMENSIONS!
+dim(updated_pca)[1] == dim(whole_gpa$PCscores)[1] + length(all_individuals)
+dim(updated_pca)[2] == dim(whole_gpa$PCscores)[2]
+
+## SOME SMALL SHIFT!
+plot(whole_gpa$PCscores[,c(1,2)])
+points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5)
+points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "red")
+legend("bottomright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
+```
