@@ -34,43 +34,34 @@ plot(pca_orig$x[,c(1,2)])
 ```
 
 And now let's generate some extra data out of the pipeline.
-Here we're just creating a mean, median and minimum landmark set using the mean, median and minimum landmark coordinates values.
+Here we're just creating a mean, median and minimum landmark set using the mean and median landmark coordinates values as well as one of a specific specimen (42).
 
 ```{r}
 ## Create a new specimens: the average, the median and the minimum, of all bones)
-require(landvR) # devtools::install_github("TGuillerme/landvR")
 new_spec <- array(data = c(apply(original_landmarks, c(1,2), mean),
                            apply(original_landmarks, c(1,2), median),
-                           unlist(landvR::select.procrustes(proc_orig$rotated, selector = min))),
-                           dim = c(10, 3, 3))
-dimnames(new_spec)[[3]] <- paste0("new_", c("mean", "median", "min"))
+                           original_landmarks[,,42]), dim = c(10, 3, 3))
+dimnames(new_spec)[[3]] <- paste0("new_", c("mean", "median", "spec42"))
 
 ## Here is what the landmark positions look like in 3D
 op <- par(mfrow = c(2,2))
 plot(original_landmarks[, c(1,2), 1], main = "First specimen\n(reference from real dataset)")
 plot(new_spec[, c(1,2), 1], main = "New specimen 1\n(average)")
 plot(new_spec[, c(1,2), 2], main = "New specimen 2\n(median)")
-plot(new_spec[, c(1,2), 3], main = "New specimen 3\n(weird)")
+plot(new_spec[, c(1,2), 3], main = "New specimen 3\n(spec 42)")
 par(op)
 ```
 
 We can then add these specimens to the GPA and PCA.
 
 ```{r}
-## Add them to the procrustes + PCA
-new_proc <- Morpho::align2procSym(proc_orig, new_spec)
-dimnames(new_proc)[[3]] <- c("mean", "median", "min")
-
-## Transforming the procrustes arrays into matrices
-new_proc_matrix <- landvR::array.to(new_proc, to = "matrix")
-
-## Run the PCA with the added procrustes
-new_pca <- rbind(pca_orig$x, predict(pca_orig, newdata = new_proc_matrix))
+## Updating the gpa and pca
+updated_pca <- update.gpa.pca(proc_orig, new_spec)
 
 ## Plot all the results
-plot(pca_orig$x[,c(1,2)])
-points(new_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5)
-points(new_pca[c(81:83), c(1,2)], pch = 19, col = "red")
+plot(proc_orig$PCscores[,c(1,2)])
+points(updated_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5)
+points(updated_pca[c(81:83), c(1,2)], pch = 19, col = "red")
 legend("topright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
 ```
 
@@ -102,9 +93,9 @@ while(length(individuals) != 0) {
         name <- paste0(strsplit(individuals[1], split = "_")[[1]][1:4], collapse = "_")
         all_individuals[[length(all_individuals) + 1]] <- data[, , 1]
         names(all_individuals)[length(all_individuals)] <- name
-    } else {
-        print(paste0(file, ": empty"))
-    }
+    } #else {
+        # print(paste0(file, ": empty"))
+    # }
     individuals <- individuals[-1]
 }
 
@@ -124,15 +115,18 @@ while(length(individuals) != 0) {
 individuals_array <- simplify2array(all_individuals)
 
 ## Project them! (*-1 is to flip it around)
-updated_pca <- update.gpa.pca(whole_gpa, individuals_array)*-1
+updated_pca <- update.gpa.pca(whole_gpa, individuals_array, scale.pca = FALSE)
 
 ## BUG IN THE NUMBER OF DIMENSIONS!
 dim(updated_pca)[1] == dim(whole_gpa$PCscores)[1] + length(all_individuals)
 dim(updated_pca)[2] == dim(whole_gpa$PCscores)[2]
 
 ## SOME SMALL SHIFT!
-plot(whole_gpa$PCscores[,c(1,2)])
-points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5)
-points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "red")
-legend("bottomright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
+plot(whole_gpa$PCscores[,c(1,2)], col = "grey")
+points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "grey")
+## Plot the chaffinches to see where they lay:
+fringillas <- which(grepl("Fringilla", rownames(whole_gpa$PCscores)))
+points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
+points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
+legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New specimens"))
 ```
