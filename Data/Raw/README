@@ -2,3 +2,9 @@ This folder contains two sub-folders
 
  * `Beak_data`: which is the scanned beak raw data (accessed through Gavin's google drive)
  * `Tree_data`: which is the Jetz tree
+
+And three data files:
+
+ * `BirdClades.csv`: a list of species for each clade above the passeriformes level
+ * `clade_info_passerines.rda`: two list of species for the two levels of clades in passeriformes (`clade_info_passerines$passerine_big_clades` for the infraorder level and `clade_info_passerines$passerine_small_clades` for the family level)
+ * `ElabInovDataPGLS.csv`: containing different median estimations of elaboration and innovation for each species.
