@@ -351,6 +351,14 @@ ploting_data <- list("median_elaborations" = apply(get.disparity(get.subsets(res
                      "distances_to_centre" = get.disparity(dispRity(get.subsets(superorder_shapespace, subsets = "phylogeny"), metric = dispRity::centroids, centroid = 0))[[1]],
                      "consensus_tree"      = tree) 
 
+## Getting distributions
+elaborations_global <- get.disparity(get.subsets(results$super_results_phylo$position, subsets = "phylogeny"), concatenate = FALSE)[[1]][, sample(1:4000, 100)]
+innovations_global <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]][, sample(1:4000, 100)]
+
+write.csv(elaborations_global, file = "../Data/Processed/elaborations_distributions.csv")
+write.csv(innovations_global, file = "../Data/Processed/elaborations_distributions.csv")
+
+
 ## Get the data at the macro level (with no missing data)
 get.macro.projection <- function(data, what) {
     if(what == "centroids") {
@@ -388,6 +396,17 @@ ploting_data_order <- list(
 save(ploting_data, file = "../Data/Processed/ploting_data.rda")
 save(ploting_data_superorder, file = "../Data/Processed/ploting_data_superorder.rda")
 save(ploting_data_order, file = "../Data/Processed/ploting_data_order.rda")
+
+## Different scales
+elaboration_innovation_scale <- data.frame("median_elaboration_superorder" = ploting_data_superorder$median_elaborations,
+                                           "median_elaboration_order" = ploting_data_order$median_elaborations,
+                                           "median_innovation_superorder" = ploting_data_superorder$median_innovations,
+                                           "median_innovation_order" = ploting_data_order$median_innovations,
+                                           "median_distance_centre_superorder" = ploting_data_superorder$distances_to_centre,
+                                           "median_distance_centre_order" = ploting_data_order$distances_to_centre)
+write.csv(elaboration_innovation_scale, file = "../Data/Processed/elaboration_innovation_scale.csv")
+
+
 
 ## Group info
 super_orders <- lapply(results$super_results_phylo$position$subsets, function(x, data) list(species = rownames(data)[c(x$elements)]), data = results$super_results_phylo$position$matrix[[1]])
