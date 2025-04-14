@@ -17,6 +17,7 @@ Here is an example on how to do it using the `Morpho` package for the base GPA a
 
 ```{r}
 library(Morpho)
+library(landvR) # install from devtools::install_github("TGuillerme/landvR")
 
 ## Get some 3D data from Morpho
 data(boneData)
@@ -69,7 +70,68 @@ Seems to work quiet well!
 All the positions from previous specimens are respected.
 And the two new median and average specimens plot in the centre of the traitspace (as expected) with the weird one plotting on some edge of the traitspace.
 
-The function that does it automatically is now implemented in `landvR`.
+But does it work with the same specimens? I.e. does it place previous specimens in the correct position?
+
+```{r}
+## Old specimens
+old_spec <- array(data = c(original_landmarks[,,1],
+                           original_landmarks[,,2],
+                           original_landmarks[,,3]), dim = c(10, 3, 3))
+dimnames(old_spec)[[3]] <- paste0("old_", c("spec1", "spec2", "spec3"))
+
+## Updating the gpa and pca
+updated_pca <- update.gpa.pca(proc_orig, old_spec, center.pca = TRUE, scale.pca = FALSE)
+
+## Plot all the results
+plot(proc_orig$PCscores[,c(1,2)], col = "grey")
+points(updated_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5, col = "grey")
+
+points(proc_orig$PCscores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
+points(updated_pca[c(81:83),c(1,2)], col = "orange", pch = 19)
+
+legend("topright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "old_spec (target)", "old_spec (results)"))
+```
+
+
+This is not ideal!
+The reason why it doesn't recover them is because it slightly offsets the superimposition which cascades to big changes in the PCA.
+
+For example, when using the same specimens:
+
+```{r}
+## Plotting the landmarks before superimposition
+op <- par(mfrow = c(2,2))
+plot(old_spec[, c(1,2), 1], main = "2D landmarks for spec 1", xlab = "", ylab = "")
+plot(old_spec[, c(1,2), 2], main = "2D landmarks for spec 2", xlab = "", ylab = "")
+plot(old_spec[, c(1,2), 3], main = "2D landmarks for spec 3", xlab = "", ylab = "")
+par(op)
+
+## Project the new specimens on the original GPA
+new_gpa <- Morpho::align2procSym(proc_orig, old_spec, orp = TRUE)
+
+## Slightly off?
+op <- par(mfrow = c(2,2))
+## Spec 1
+plot.offset <- function(id, new_gpa, old_gpa) {
+    main <- paste0("spec ", id, " reprojected onto itself\nTotal offset = ", sum(sqrt((new_gpa[, 1, id] - old_gpa[, 1, id])^2 + (new_gpa[, 2, id] - old_gpa[, 2, id])^2)))
+    plot(new_gpa[, c(1,2), id], main = main, xlab = "", ylab = "")
+    points(old_gpa[, c(1,2), id], pch = 19, cex = 0.5)
+}
+
+plot.offset(id = 1, new_gpa, proc_orig$rotated)
+plot.offset(id = 2, new_gpa, proc_orig$rotated)
+plot.offset(id = 3, new_gpa, proc_orig$rotated)
+
+main <- paste0("spec 1 projected onto spec 2 (for ref.)\nTotal offset = ", sum(sqrt((proc_orig$rotated[, 1, 1] - proc_orig$rotated[, 1, 2])^2 + (proc_orig$rotated[, 2, 1] - proc_orig$rotated[, 2, 2])^2)))
+plot(proc_orig$rotated[, c(1,2), 1], main = main, xlab = "", ylab = "")
+points(proc_orig$rotated[, c(1,2), 2], pch = 19, cex = 0.5)
+
+par(op)
+```
+
+This behaviour is actually highlighted in the notes for `align2procSym`: "this will never yield the same result as a pooled Procrustes analysis because the sample mean is iteratively updated and new data would change the mean."
+
+> TL;DR: it's not working until we find a way to not update the mean.
 
 # Mapping the chaffinches on the whole traitspace
 
@@ -115,13 +177,9 @@ while(length(individuals) != 0) {
 individuals_array <- simplify2array(all_individuals)
 
 ## Project them! (*-1 is to flip it around)
-updated_pca <- update.gpa.pca(whole_gpa, individuals_array, scale.pca = FALSE)
+updated_pca <- update.gpa.pca(whole_gpa, whole_gpa$rotated[,,c(2819, 2820)], scale.pca = FALSE)
 
-## BUG IN THE NUMBER OF DIMENSIONS!
-dim(updated_pca)[1] == dim(whole_gpa$PCscores)[1] + length(all_individuals)
-dim(updated_pca)[2] == dim(whole_gpa$PCscores)[2]
-
-## SOME SMALL SHIFT!
+## Some big shift!
 plot(whole_gpa$PCscores[,c(1,2)], col = "grey")
 points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "grey")
 ## Plot the chaffinches to see where they lay:
@@ -130,3 +188,59 @@ points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
 points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
 legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New specimens"))
 ```
+
+
+
+
+
+```{r}
+library(Morpho)
+
+## Get some 3D data from Morpho
+data(boneData)
+original_landmarks <- boneLM
+
+## Run the GPA for the original data
+proc_orig <- Morpho::procSym(original_landmarks)
+
+## Creating some new specimens (two old ones, for benchmarking the method)
+new_spec <- array(c(original_landmarks[,,1],
+                    original_landmarks[,,2]), dim = c(10, 3, 2))
+
+## Project the new specimens on the original GPA
+new_gpa <- Morpho::align2procSym(proc_orig, new_spec, orp = TRUE)
+
+
+## Slightly off?
+plot.offset <- function(id, new_gpa, old_gpa, main) {
+    main <- paste0(main, "\nTotal offset = ", sum(sqrt((new_gpa[, 1, id] - old_gpa[, 1, id])^2 + (new_gpa[, 2, id] - old_gpa[, 2, id])^2)))
+    plot(new_gpa[, c(1,2), id], main = main, xlab = "", ylab = "")
+    points(old_gpa[, c(1,2), id], pch = 19, cex = 0.5)
+}
+
+op <- par(mfrow = c(2,1))
+plot.offset(id = 1, new_gpa, proc_orig$rotated, main = "Spec 1 projected onto itself")
+plot.offset(id = 2, new_gpa, proc_orig$rotated, main = "Spec 2 projected onto itself")
+par(op)
+
+
+
+
+data(boneData)
+# run procSym on entire data set
+proc <- procSym(boneLM)
+# this is the training data
+array1 <- boneLM[,,1:60]
+proc1 <- procSym(array1)
+newdata <- boneLM[,,1:2]
+newalign <- align2procSym(x = proc1, newdata = newdata)
+
+plot.offset(id = 1, newalign, proc1$rotated, main = "Spec 1 projected onto itself")
+
+
+```
+
+
+TODO: try doing the alignement of some species on the edges of the traitspace and see if it falls back on the edges or if it goes to the middle again.
+
+TODO: check with the `morphospace` package?
