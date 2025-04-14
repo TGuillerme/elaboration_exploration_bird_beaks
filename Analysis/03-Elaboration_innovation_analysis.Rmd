@@ -356,7 +356,7 @@ elaborations_global <- get.disparity(get.subsets(results$super_results_phylo$pos
 innovations_global <- get.disparity(get.subsets(results$super_results_phylo$distance, subsets = "phylogeny"), concatenate = FALSE)[[1]][, sample(1:4000, 100)]
 
 write.csv(elaborations_global, file = "../Data/Processed/elaborations_distributions.csv")
-write.csv(innovations_global, file = "../Data/Processed/elaborations_distributions.csv")
+write.csv(innovations_global, file = "../Data/Processed/innovations_distributions.csv")
 
 
 ## Get the data at the macro level (with no missing data)
