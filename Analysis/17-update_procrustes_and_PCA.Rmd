@@ -99,16 +99,6 @@ points(proc_orig$PCscores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
 points(updated_pca[c(81:83),c(1,2)], col = "orange", pch = 19)
 
 legend("topright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "old_spec (target)", "old_spec (results)"))
-
-
-
-
-
-
-
-
-
-
 ```
 
 
@@ -174,8 +164,7 @@ dimnames(new_spec)[[3]] <- c(paste0("old_", c("spec1", "spec2", "spec3")), "medi
 
 
 ## Run the PCA for the original data
-proc_matrix_orig <- landvR::array.to(proc_orig$rotated, to = "matrix")
-pca_orig <- prcomp(proc_matrix_orig)
+pca_orig <- prcomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
 princomp_orig <- princomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
 
 
@@ -184,13 +173,28 @@ princomp_orig <- princomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
 ## Test the reprojection using princomp
 new_gpa <- Morpho::align2procSym(proc_orig, new_spec)
 new_points <- stats::predict(princomp_orig, newdata = array.to(new_gpa, to = "matrix"))
-plot(original_pca$scores[,c(1,2)], col = "grey")
+plot(princomp_orig$scores[,c(1,2)], col = "grey")
 points(new_points[,c(1,2)], col = "orange", pch = 19)
-points(original_pca$scores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
+points(princomp_orig$scores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
+
+## Thest using prcomp
+new_gpa <- Morpho::align2procSym(proc_orig, new_spec)
+new_points <- stats::predict(pca_orig, newdata = array.to(new_gpa, to = "matrix"))
+plot(pca_orig$x[,c(1,2)], col = "grey")
+points(new_points[,c(1,2)], col = "orange", pch = 19)
+points(pca_orig$x[c(1,2,3),c(1,2)], col = "blue", pch = 21)
+
+## Test with pipeline
+updated_pca <- update.gpa.pca(proc_orig, new_spec)*-1 # TODO: fix the -1
+plot(proc_orig$PCscores[,c(1,2)])
+points(updated_pca[,c(1,2)], col = "grey", pch = 19)
+points(updated_pca[c(81:85),c(1,2)], col = "orange", pch = 19)
+points(updated_pca[c(81:83),c(1,2)], col = "blue", pch = 21)
 
 
+## Not really equal though!
+expect_equal(updated_pca[-c(81:85),c(1,2)], proc_orig$PCscores[,c(1,2)])
 
-## NOW NEEDS TO CHANGE FROM THE MORPHO PCA to PRINCOMP FORMAT AND BACK
 ```
 
 This behaviour is actually highlighted in the notes for `align2procSym`: "this will never yield the same result as a pooled Procrustes analysis because the sample mean is iteratively updated and new data would change the mean."
@@ -225,23 +229,25 @@ while(length(individuals) != 0) {
     individuals <- individuals[-1]
 }
 
-## The following are missing:
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_africana_14_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_africana_19_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_coelebs_1_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_1_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_21_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_gengleri_5_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_moreletti_11_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_coelebs_palmae_13_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_teydea_polatzeki_1_intraspecific/: empty"
-# [1] "../Data/Raw/Beak_data/Chaffinch_data/Fringilla_teydea_teydea_10_intraspecific/: empty"
-
 ## Converting into an array
-individuals_array <- simplify2array(all_individuals)
+new_individuals <- simplify2array(all_individuals)
 
 ## Project them! (*-1 is to flip it around)
-updated_pca <- update.gpa.pca(whole_gpa, whole_gpa$rotated[,,c(2819, 2820)], scale.pca = FALSE)
+updated_pca <- update.gpa.pca(whole_gpa, new_individuals)*-1
+
+# No pipeline
+# Get the CPA
+original_data <- whole_gpa
+new_landmarks <- new_individuals
+original_pca <- prcomp(landvR::array.to(original_data$rotated, to = "matrix")) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+# original_pca <- prcompfast(original_data$tan) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+## Project the new specimens on the original GPA
+new_data <- Morpho::align2procSym(original_data, new_landmarks)
+## Project the new GPAed specimens onto the PCA
+new_pca <- stats::predict(original_pca, newdata = array.to(new_data, to = "matrix"))
+## Combine the new and old matrices for the output PCA
+updated_pca <- rbind(original_pca$x, new_pca) *-1
+
 
 ## Some big shift!
 plot(whole_gpa$PCscores[,c(1,2)], col = "grey")
@@ -254,57 +260,3 @@ legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "
 ```
 
 
-
-
-
-```{r}
-library(Morpho)
-
-## Get some 3D data from Morpho
-data(boneData)
-original_landmarks <- boneLM
-
-## Run the GPA for the original data
-proc_orig <- Morpho::procSym(original_landmarks)
-
-## Creating some new specimens (two old ones, for benchmarking the method)
-new_spec <- array(c(original_landmarks[,,1],
-                    original_landmarks[,,2]), dim = c(10, 3, 2))
-
-## Project the new specimens on the original GPA
-new_gpa <- Morpho::align2procSym(proc_orig, new_spec, orp = TRUE)
-
-
-## Slightly off?
-plot.offset <- function(id, new_gpa, old_gpa, main) {
-    main <- paste0(main, "\nTotal offset = ", sum(sqrt((new_gpa[, 1, id] - old_gpa[, 1, id])^2 + (new_gpa[, 2, id] - old_gpa[, 2, id])^2)))
-    plot(new_gpa[, c(1,2), id], main = main, xlab = "", ylab = "")
-    points(old_gpa[, c(1,2), id], pch = 19, cex = 0.5)
-}
-
-op <- par(mfrow = c(2,1))
-plot.offset(id = 1, new_gpa, proc_orig$rotated, main = "Spec 1 projected onto itself")
-plot.offset(id = 2, new_gpa, proc_orig$rotated, main = "Spec 2 projected onto itself")
-par(op)
-
-
-
-
-data(boneData)
-# run procSym on entire data set
-proc <- procSym(boneLM)
-# this is the training data
-array1 <- boneLM[,,1:60]
-proc1 <- procSym(array1)
-newdata <- boneLM[,,1:2]
-newalign <- align2procSym(x = proc1, newdata = newdata)
-
-plot.offset(id = 1, newalign, proc1$rotated, main = "Spec 1 projected onto itself")
-
-
-```
-
-
-TODO: try doing the alignement of some species on the edges of the traitspace and see if it falls back on the edges or if it goes to the middle again.
-
-TODO: check with the `morphospace` package?
