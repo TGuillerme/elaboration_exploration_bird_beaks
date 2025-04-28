@@ -13,6 +13,15 @@ The goal is to use the GPA and PCA from a previous dataset (published with Guill
 
 # The pipeline (testing)
 
+
+
+
+TODO: TRY CENTERING THE DATA BEFORE DOING THE PCA
+
+
+
+
+
 Here is an example on how to do it using the `Morpho` package for the base GPA and PCA:
 
 ```{r}
@@ -90,6 +99,16 @@ points(proc_orig$PCscores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
 points(updated_pca[c(81:83),c(1,2)], col = "orange", pch = 19)
 
 legend("topright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "old_spec (target)", "old_spec (results)"))
+
+
+
+
+
+
+
+
+
+
 ```
 
 
@@ -127,6 +146,51 @@ plot(proc_orig$rotated[, c(1,2), 1], main = main, xlab = "", ylab = "")
 points(proc_orig$rotated[, c(1,2), 2], pch = 19, cex = 0.5)
 
 par(op)
+```
+
+
+Checking all over again with `princomp`
+
+
+```{r}
+## New test
+library(Morpho)
+library(landvR) # install from devtools::install_github("TGuillerme/landvR")
+
+## Get some 3D data from Morpho
+data(boneData)
+original_landmarks <- boneLM
+
+## Run the GPA for the original data
+proc_orig <- Morpho::procSym(original_landmarks)
+
+## New species (three to anchor and two new ones)
+new_spec <- array(data = c(original_landmarks[,,1],
+                           original_landmarks[,,2],
+                           original_landmarks[,,3],
+                           apply(original_landmarks, c(1,2), median),
+                           apply(original_landmarks, c(1,2), min)),  dim = c(10, 3, 5))
+dimnames(new_spec)[[3]] <- c(paste0("old_", c("spec1", "spec2", "spec3")), "median", "min")
+
+
+## Run the PCA for the original data
+proc_matrix_orig <- landvR::array.to(proc_orig$rotated, to = "matrix")
+pca_orig <- prcomp(proc_matrix_orig)
+princomp_orig <- princomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
+
+
+## THIS PIPELINE SEEMS TO WORK:
+
+## Test the reprojection using princomp
+new_gpa <- Morpho::align2procSym(proc_orig, new_spec)
+new_points <- stats::predict(princomp_orig, newdata = array.to(new_gpa, to = "matrix"))
+plot(original_pca$scores[,c(1,2)], col = "grey")
+points(new_points[,c(1,2)], col = "orange", pch = 19)
+points(original_pca$scores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
+
+
+
+## NOW NEEDS TO CHANGE FROM THE MORPHO PCA to PRINCOMP FORMAT AND BACK
 ```
 
 This behaviour is actually highlighted in the notes for `align2procSym`: "this will never yield the same result as a pooled Procrustes analysis because the sample mean is iteratively updated and new data would change the mean."
