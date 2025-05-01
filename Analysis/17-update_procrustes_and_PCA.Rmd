@@ -13,15 +13,6 @@ The goal is to use the GPA and PCA from a previous dataset (published with Guill
 
 # The pipeline (testing)
 
-
-
-
-TODO: TRY CENTERING THE DATA BEFORE DOING THE PCA
-
-
-
-
-
 Here is an example on how to do it using the `Morpho` package for the base GPA and PCA:
 
 ```{r}
@@ -185,7 +176,7 @@ points(new_points[,c(1,2)], col = "orange", pch = 19)
 points(pca_orig$x[c(1,2,3),c(1,2)], col = "blue", pch = 21)
 
 ## Test with pipeline
-updated_pca <- update.gpa.pca(proc_orig, new_spec)*-1 # TODO: fix the -1
+updated_pca <- update.gpa.pca(proc_orig, new_spec)#*-1 # TODO: fix the -1
 plot(proc_orig$PCscores[,c(1,2)])
 points(updated_pca[,c(1,2)], col = "grey", pch = 19)
 points(updated_pca[c(81:85),c(1,2)], col = "orange", pch = 19)
@@ -235,12 +226,34 @@ new_individuals <- simplify2array(all_individuals)
 ## Project them! (*-1 is to flip it around)
 updated_pca <- update.gpa.pca(whole_gpa, new_individuals)*-1
 
+## From Morpho:
+eigenPCA <- function(data,tol=.Machine$double.eps) {
+    center1 <- colMeans(data,2,mean)
+    datascale <- scale(data,2,scale=FALSE)
+    eigData <- eigen(cov(datascale),symmetric=TRUE)
+    eigData$values <- eigData$values[which(eigData$values > tol)] 
+    sdev <- sqrt(eigData$values)
+    rotation <- eigData$vectors[,1:length(sdev)]
+    x <- t(t(rotation)%*%t(datascale))
+    return(list(x=x,rotation=rotation,sdev=sdev,center=center1))
+}
+
 # No pipeline
 # Get the CPA
 original_data <- whole_gpa
 new_landmarks <- new_individuals
 original_pca <- prcomp(landvR::array.to(original_data$rotated, to = "matrix")) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
-# original_pca <- prcompfast(original_data$tan) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+original_pca <- prcompfast(original_data$tan*-1) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+original_pca <- eigenPCA(original_data$tan)
+
+
+    center1 <- colMeans(data,2,mean)
+    datascale <- scale(data,2,scale=FALSE)
+    eigData <- eigen(cov(datascale),symmetric=TRUE)
+
+
+landvR::array.to(original_data$rotated, to = "matrix")
+
 ## Project the new specimens on the original GPA
 new_data <- Morpho::align2procSym(original_data, new_landmarks)
 ## Project the new GPAed specimens onto the PCA
@@ -258,5 +271,4 @@ points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
 points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
 legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New specimens"))
 ```
-
 
