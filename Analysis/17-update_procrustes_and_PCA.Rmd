@@ -224,42 +224,39 @@ while(length(individuals) != 0) {
 new_individuals <- simplify2array(all_individuals)
 
 ## Project them! (*-1 is to flip it around)
-updated_pca <- update.gpa.pca(whole_gpa, new_individuals)*-1
-
-## From Morpho:
-eigenPCA <- function(data,tol=.Machine$double.eps) {
-    center1 <- colMeans(data,2,mean)
-    datascale <- scale(data,2,scale=FALSE)
-    eigData <- eigen(cov(datascale),symmetric=TRUE)
-    eigData$values <- eigData$values[which(eigData$values > tol)] 
-    sdev <- sqrt(eigData$values)
-    rotation <- eigData$vectors[,1:length(sdev)]
-    x <- t(t(rotation)%*%t(datascale))
-    return(list(x=x,rotation=rotation,sdev=sdev,center=center1))
-}
+# updated_pca <- update.gpa.pca(whole_gpa, new_individuals)*-1
 
 # No pipeline
 # Get the CPA
 original_data <- whole_gpa
 new_landmarks <- new_individuals
-original_pca <- prcomp(landvR::array.to(original_data$rotated, to = "matrix")) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+# original_pca <- prcomp(landvR::array.to(original_data$rotated, to = "matrix")) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
 original_pca <- prcompfast(original_data$tan*-1) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
-original_pca <- eigenPCA(original_data$tan)
+#original_pca <- eigenPCA(landvR::array.to(original_data$rotated, to = "matrix"))
 
-
-    center1 <- colMeans(data,2,mean)
-    datascale <- scale(data,2,scale=FALSE)
-    eigData <- eigen(cov(datascale),symmetric=TRUE)
-
-
-landvR::array.to(original_data$rotated, to = "matrix")
+    # center1 <- colMeans(data,2,mean)
+    # datascale <- scale(data,2,scale=FALSE)
+    # eigData <- eigen(cov(datascale),symmetric=TRUE)
 
 ## Project the new specimens on the original GPA
 new_data <- Morpho::align2procSym(original_data, new_landmarks)
 ## Project the new GPAed specimens onto the PCA
-new_pca <- stats::predict(original_pca, newdata = array.to(new_data, to = "matrix"))
+
+
+## New data needs to be projected on the tangent space because of symmetry.
+# new_procrustes <- array.to(new_data, to = "matrix")
+
+new_proj_symtan <- sweep(new_data, 1:2, whole_gpa$mshape)
+new_proc_tan <- vecx(new_proj_symtan)
+# if (sizeshape) {
+#     meanlogCS <- mean(log(CS))
+#     CSlog <- log(CS) - meanlogCS
+#     tan <- cbind(CSlog,tan)
+# }
+
+new_pca <- stats::predict(original_pca, newdata = new_proc_tan)#array.to(new_proc_tan, to = "matrix"))
 ## Combine the new and old matrices for the output PCA
-updated_pca <- rbind(original_pca$x, new_pca) *-1
+updated_pca <- rbind(original_pca$x*-1, new_pca)
 
 
 ## Some big shift!
@@ -267,8 +264,8 @@ plot(whole_gpa$PCscores[,c(1,2)], col = "grey")
 points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "grey")
 ## Plot the chaffinches to see where they lay:
 fringillas <- which(grepl("Fringilla", rownames(whole_gpa$PCscores)))
-points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
 points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
+points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
 legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New specimens"))
 ```
 
