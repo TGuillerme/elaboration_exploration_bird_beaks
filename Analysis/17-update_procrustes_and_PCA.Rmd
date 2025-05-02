@@ -11,190 +11,51 @@ output:
 In this script we will be looking at how to update both a Procrustes superimposition (GPA) and a PCA by projecting new specimens in it.
 The goal is to use the GPA and PCA from a previous dataset (published with Guillerme et al 2023 - Science Advances) and to project new specimens onto it.
 
-# The pipeline (testing)
-
-Here is an example on how to do it using the `Morpho` package for the base GPA and PCA:
-
-```{r}
-library(Morpho)
-library(landvR) # install from devtools::install_github("TGuillerme/landvR")
-
-## Get some 3D data from Morpho
-data(boneData)
-original_landmarks <- boneLM
-
-## Run the GPA for the original data
-proc_orig <- Morpho::procSym(original_landmarks)
-
-## Run the PCA for the original data
-proc_matrix_orig <- landvR::array.to(proc_orig$rotated, to = "matrix")
-pca_orig <- prcomp(proc_matrix_orig)
-
-## Plot the results
-plot(pca_orig$x[,c(1,2)])
-```
-
-And now let's generate some extra data out of the pipeline.
-Here we're just creating a mean, median and minimum landmark set using the mean and median landmark coordinates values as well as one of a specific specimen (42).
-
-```{r}
-## Create a new specimens: the average, the median and the minimum, of all bones)
-new_spec <- array(data = c(apply(original_landmarks, c(1,2), mean),
-                           apply(original_landmarks, c(1,2), median),
-                           original_landmarks[,,42]), dim = c(10, 3, 3))
-dimnames(new_spec)[[3]] <- paste0("new_", c("mean", "median", "spec42"))
-
-## Here is what the landmark positions look like in 3D
-op <- par(mfrow = c(2,2))
-plot(original_landmarks[, c(1,2), 1], main = "First specimen\n(reference from real dataset)")
-plot(new_spec[, c(1,2), 1], main = "New specimen 1\n(average)")
-plot(new_spec[, c(1,2), 2], main = "New specimen 2\n(median)")
-plot(new_spec[, c(1,2), 3], main = "New specimen 3\n(spec 42)")
-par(op)
-```
-
-We can then add these specimens to the GPA and PCA.
-
-```{r}
-## Updating the gpa and pca
-updated_pca <- update.gpa.pca(proc_orig, new_spec)
-
-## Plot all the results
-plot(proc_orig$PCscores[,c(1,2)])
-points(updated_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5)
-points(updated_pca[c(81:83), c(1,2)], pch = 19, col = "red")
-legend("topright", pch = c(21, 19, 19), col = c("black", "black", "red"), pt.cex = c(1, 0.5, 1), legend = c("original PCA", "updated PCA", "new specimen"))
-```
-
-Seems to work quiet well!
-All the positions from previous specimens are respected.
-And the two new median and average specimens plot in the centre of the traitspace (as expected) with the weird one plotting on some edge of the traitspace.
-
-But does it work with the same specimens? I.e. does it place previous specimens in the correct position?
-
-```{r}
-## Old specimens
-old_spec <- array(data = c(original_landmarks[,,1],
-                           original_landmarks[,,2],
-                           original_landmarks[,,3]), dim = c(10, 3, 3))
-dimnames(old_spec)[[3]] <- paste0("old_", c("spec1", "spec2", "spec3"))
-
-## Updating the gpa and pca
-updated_pca <- update.gpa.pca(proc_orig, old_spec, center.pca = TRUE, scale.pca = FALSE)
-
-## Plot all the results
-plot(proc_orig$PCscores[,c(1,2)], col = "grey")
-points(updated_pca[-c(81:83), c(1,2)], pch = 19, cex = 0.5, col = "grey")
-
-points(proc_orig$PCscores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
-points(updated_pca[c(81:83),c(1,2)], col = "orange", pch = 19)
-
-legend("topright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "old_spec (target)", "old_spec (results)"))
-```
-
-
-This is not ideal!
-The reason why it doesn't recover them is because it slightly offsets the superimposition which cascades to big changes in the PCA.
-
-For example, when using the same specimens:
-
-```{r}
-## Plotting the landmarks before superimposition
-op <- par(mfrow = c(2,2))
-plot(old_spec[, c(1,2), 1], main = "2D landmarks for spec 1", xlab = "", ylab = "")
-plot(old_spec[, c(1,2), 2], main = "2D landmarks for spec 2", xlab = "", ylab = "")
-plot(old_spec[, c(1,2), 3], main = "2D landmarks for spec 3", xlab = "", ylab = "")
-par(op)
-
-## Project the new specimens on the original GPA
-new_gpa <- Morpho::align2procSym(proc_orig, old_spec, orp = TRUE)
-
-## Slightly off?
-op <- par(mfrow = c(2,2))
-## Spec 1
-plot.offset <- function(id, new_gpa, old_gpa) {
-    main <- paste0("spec ", id, " reprojected onto itself\nTotal offset = ", sum(sqrt((new_gpa[, 1, id] - old_gpa[, 1, id])^2 + (new_gpa[, 2, id] - old_gpa[, 2, id])^2)))
-    plot(new_gpa[, c(1,2), id], main = main, xlab = "", ylab = "")
-    points(old_gpa[, c(1,2), id], pch = 19, cex = 0.5)
-}
-
-plot.offset(id = 1, new_gpa, proc_orig$rotated)
-plot.offset(id = 2, new_gpa, proc_orig$rotated)
-plot.offset(id = 3, new_gpa, proc_orig$rotated)
-
-main <- paste0("spec 1 projected onto spec 2 (for ref.)\nTotal offset = ", sum(sqrt((proc_orig$rotated[, 1, 1] - proc_orig$rotated[, 1, 2])^2 + (proc_orig$rotated[, 2, 1] - proc_orig$rotated[, 2, 2])^2)))
-plot(proc_orig$rotated[, c(1,2), 1], main = main, xlab = "", ylab = "")
-points(proc_orig$rotated[, c(1,2), 2], pch = 19, cex = 0.5)
-
-par(op)
-```
-
-
-Checking all over again with `princomp`
-
-
-```{r}
-## New test
-library(Morpho)
-library(landvR) # install from devtools::install_github("TGuillerme/landvR")
-
-## Get some 3D data from Morpho
-data(boneData)
-original_landmarks <- boneLM
-
-## Run the GPA for the original data
-proc_orig <- Morpho::procSym(original_landmarks)
-
-## New species (three to anchor and two new ones)
-new_spec <- array(data = c(original_landmarks[,,1],
-                           original_landmarks[,,2],
-                           original_landmarks[,,3],
-                           apply(original_landmarks, c(1,2), median),
-                           apply(original_landmarks, c(1,2), min)),  dim = c(10, 3, 5))
-dimnames(new_spec)[[3]] <- c(paste0("old_", c("spec1", "spec2", "spec3")), "median", "min")
-
-
-## Run the PCA for the original data
-pca_orig <- prcomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
-princomp_orig <- princomp(landvR::array.to(proc_orig$rotated, to = "matrix"))
-
-
-## THIS PIPELINE SEEMS TO WORK:
-
-## Test the reprojection using princomp
-new_gpa <- Morpho::align2procSym(proc_orig, new_spec)
-new_points <- stats::predict(princomp_orig, newdata = array.to(new_gpa, to = "matrix"))
-plot(princomp_orig$scores[,c(1,2)], col = "grey")
-points(new_points[,c(1,2)], col = "orange", pch = 19)
-points(princomp_orig$scores[c(1,2,3),c(1,2)], col = "blue", pch = 21)
-
-## Thest using prcomp
-new_gpa <- Morpho::align2procSym(proc_orig, new_spec)
-new_points <- stats::predict(pca_orig, newdata = array.to(new_gpa, to = "matrix"))
-plot(pca_orig$x[,c(1,2)], col = "grey")
-points(new_points[,c(1,2)], col = "orange", pch = 19)
-points(pca_orig$x[c(1,2,3),c(1,2)], col = "blue", pch = 21)
-
-## Test with pipeline
-updated_pca <- update.gpa.pca(proc_orig, new_spec)#*-1 # TODO: fix the -1
-plot(proc_orig$PCscores[,c(1,2)])
-points(updated_pca[,c(1,2)], col = "grey", pch = 19)
-points(updated_pca[c(81:85),c(1,2)], col = "orange", pch = 19)
-points(updated_pca[c(81:83),c(1,2)], col = "blue", pch = 21)
-
-
-## Not really equal though!
-expect_equal(updated_pca[-c(81:85),c(1,2)], proc_orig$PCscores[,c(1,2)])
-
-```
-
-This behaviour is actually highlighted in the notes for `align2procSym`: "this will never yield the same result as a pooled Procrustes analysis because the sample mean is iteratively updated and new data would change the mean."
-
-> TL;DR: it's not working until we find a way to not update the mean.
-
 # Mapping the chaffinches on the whole traitspace
 
-```{r}
+```{r, eval = FALSE, echo = FALSE}
+## Get some random shapes for cross-validation
+
+# Read in landmark data and landmark pairs file (necessary for enforcing symmetry later)
+beaks <- readRDS("../Data/Raw/Beak_data/2020_06_19_MMB_LANDMARKS_ALL.rds")
+pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
+
+# Remove some annoying extra labelling on individual beaks
+spp <- gsub("_1|_2|_3|_4|_5|_6", "", beaks$species)
+
+# Get unique names
+uspp <- unique(spp)
+
+# Create empty array and assign species names to each element in the array
+spp_mshape_all <- array(NA, dim=c(79, 3, length(uspp)))
+dimnames(spp_mshape_all)[[3]] <- uspp
+
+# Loop over all species, read in individual user landmarks, apply procrustes alignment, forcing symmetry (other than for species with true asymmetry)
+# Store mean shape configuration for each species as the species levels set of landmarks for downstream analyses
+
+for (i in 1:length(uspp)) {
+    idx <- which(spp==uspp[i])
+    tmp_beaks <- beaks[[1]][,,idx]
+    spp_alig <- procSym(tmp_beaks, CSinit=FALSE, scale=FALSE, pairedLM=as.matrix(pairs))
+    
+    if (sum(grep("Loxia_", uspp[i]),  grep("Anarhynchus_", uspp[i]))>0) {
+        spp_alig <- procSym(tmp_beaks, CSinit=FALSE, scale=FALSE)
+    }
+    spp_mshape <- spp_alig$mshape
+    spp_mshape_all[,,i] <- spp_mshape
+    print(i)
+}
+
+## Selecting 20 random bird
+randoms = c(sample(1:8748, 17), 753, 6077, 918) # hummingbird = 753, flamingo = 6077, shoebill = 918
+testing_projection_shapes <- spp_mshape_all[,, randoms]
+save(testing_projection_shapes, file = "../Data/Processed/testing_projection_shapes.rda")
+```
+
+Here are the new chaffinches projected onto the former traitspace.
+The blue circles are the old chaffinches that were present in the dataset before.
+
+```{r, echo = FALSE}
 ## Loading the entire bird GPA
 library(Morpho)
 whole_gpa <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
@@ -210,7 +71,7 @@ while(length(individuals) != 0) {
     file <- paste0(path, individuals[1], "/", list.files(paste0(path, individuals[1]))) 
     if(grepl(".nts", file)) { 
         ## Does contain a file
-        data <- readland.nts(paste0(path, individuals[1], "/", list.files(paste0(path, individuals[1]))))
+        data <- geomorph::readland.nts(paste0(path, individuals[1], "/", list.files(paste0(path, individuals[1]))))
         name <- paste0(strsplit(individuals[1], split = "_")[[1]][1:4], collapse = "_")
         all_individuals[[length(all_individuals) + 1]] <- data[, , 1]
         names(all_individuals)[length(all_individuals)] <- name
@@ -220,8 +81,15 @@ while(length(individuals) != 0) {
     individuals <- individuals[-1]
 }
 
+
+## Get some random beak shapes for cross validating
+load(file = "../Data/Processed/testing_projection_shapes.rda")
+
 ## Converting into an array
 new_individuals <- simplify2array(all_individuals)
+n_new <- dim(new_individuals)[[3]] 
+## Add the cross validation specimens
+new_individuals <- abind::abind(new_individuals, testing_projection_shapes)
 
 ## Project them! (*-1 is to flip it around)
 # updated_pca <- update.gpa.pca(whole_gpa, new_individuals)*-1
@@ -230,42 +98,49 @@ new_individuals <- simplify2array(all_individuals)
 # Get the CPA
 original_data <- whole_gpa
 new_landmarks <- new_individuals
-# original_pca <- prcomp(landvR::array.to(original_data$rotated, to = "matrix")) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
-original_pca <- prcompfast(original_data$tan*-1) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
-#original_pca <- eigenPCA(landvR::array.to(original_data$rotated, to = "matrix"))
 
-    # center1 <- colMeans(data,2,mean)
-    # datascale <- scale(data,2,scale=FALSE)
-    # eigData <- eigen(cov(datascale),symmetric=TRUE)
+## Running the pca on the tangent space data
+original_pca <- prcompfast(original_data$tan*-1) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
 
 ## Project the new specimens on the original GPA
 new_data <- Morpho::align2procSym(original_data, new_landmarks)
-## Project the new GPAed specimens onto the PCA
-
 
 ## New data needs to be projected on the tangent space because of symmetry.
-# new_procrustes <- array.to(new_data, to = "matrix")
-
 new_proj_symtan <- sweep(new_data, 1:2, whole_gpa$mshape)
 new_proc_tan <- vecx(new_proj_symtan)
-# if (sizeshape) {
-#     meanlogCS <- mean(log(CS))
-#     CSlog <- log(CS) - meanlogCS
-#     tan <- cbind(CSlog,tan)
-# }
 
 new_pca <- stats::predict(original_pca, newdata = new_proc_tan)#array.to(new_proc_tan, to = "matrix"))
 ## Combine the new and old matrices for the output PCA
 updated_pca <- rbind(original_pca$x*-1, new_pca)
 
 
-## Some big shift!
-plot(whole_gpa$PCscores[,c(1,2)], col = "grey")
+## Good locations
+plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "New chaffinches projected onto the former space")
 points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "grey")
+
 ## Plot the chaffinches to see where they lay:
 fringillas <- which(grepl("Fringilla", rownames(whole_gpa$PCscores)))
-points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
+points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1):(dim(updated_pca)[1]-20)[1]), c(1,2)], pch = 19, cex = 0.5, col = "orange")
 points(whole_gpa$PCscores[fringillas,c(1,2)], pch = 21, col = "blue")
-legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New specimens"))
+legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "blue", "orange"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Fringilla (original)", "New chaffinches"))
 ```
 
+Looks all good but then I thought of doing a sanity check: do specimens that were present in the traitspace before get reprojected in the exact same space when running through the pipeline?
+I.e. if the "new" specimens are actually old ones, do they fall back in their exact location (we want the answer to be yes for the results to be exact and reusable).
+Here are twenty spread specimens:
+
+```{r, echo = FALSE}
+## But problem
+## Good locations
+plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
+points(updated_pca[-c((dim(whole_gpa$PCscores)[1]+1): dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "grey")
+
+## Test testing ones
+points(whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)], pch = 21, col = "darkgreen")
+points(updated_pca[c((dim(whole_gpa$PCscores)[1]+1+n_new):dim(updated_pca)[1]), c(1,2)], pch = 19, cex = 0.5, col = "darkgreen")
+legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "darkgreen", "darkgreen"), pt.cex = c(1, 0.5, 1, 0.5), legend = c("original PCA", "updated PCA", "Original spec", "Reprojected spec"))
+```
+
+Unfortunately they don't project where they were supposed to and there is some kind of "pull" to the center of the trait space.
+This is because of the method to reproject the procrustes actually recalculates the mean shape each time.
+I still need to tinker with `Morpho::align2procSym` so that it doesn't.
