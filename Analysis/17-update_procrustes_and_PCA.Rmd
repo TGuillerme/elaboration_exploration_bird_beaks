@@ -11,6 +11,17 @@ output:
 In this script we will be looking at how to update both a Procrustes superimposition (GPA) and a PCA by projecting new specimens in it.
 The goal is to use the GPA and PCA from a previous dataset (published with Guillerme et al 2023 - Science Advances) and to project new specimens onto it.
 
+# The pseudo math:
+
+In pseudo math, the whole procedure is something like:
+
+ 1. Procrustes = multiplying the landmark data `D` by some estimated transformation matrix `M1`.
+ 2. PCA = multiplying the procrustes data `M1*D` by some transformation matrix (the eigvenctors) `M2`.
+
+So we should technically be able to get the numerical values from both transformation matrices and use them to feed in the new data to them to have something like `M2*M1*D'` where `D'` are the new landmarks.
+In that case if `M2*M1*D = traitspace`, then if `D' = D`, we should get the exact same results (a traispace with _n_ species with all the same coordinates).
+And if `D' = D + x` where `x` are _m_ new specimens, we should have a traitspace with the exact same results for `D` and new results of `x` that are "correctly" positioned into that space.
+
 # Mapping the chaffinches on the whole traitspace
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -100,7 +111,7 @@ original_data <- whole_gpa
 new_landmarks <- new_individuals
 
 ## Running the pca on the tangent space data
-original_pca <- prcompfast(original_data$tan*-1) # SOLUTION IS SOMEWHERE BETWEEN THIS AND THE PRCOMPFAST
+original_pca <- prcompfast(original_data$tan*-1)
 
 ## Project the new specimens on the original GPA
 new_data <- Morpho::align2procSym(original_data, new_landmarks)
@@ -144,3 +155,78 @@ legend("bottomright", pch = c(21, 19, 21, 19), col = c("grey", "grey", "darkgree
 Unfortunately they don't project where they were supposed to and there is some kind of "pull" to the center of the trait space.
 This is because of the method to reproject the procrustes actually recalculates the mean shape each time.
 I still need to tinker with `Morpho::align2procSym` so that it doesn't.
+
+
+
+```{r, eval = FALSE, echo = FALSE}
+orp <- function(A, mshape=NULL) { 
+  p <- dim(A)[1]
+  k <- dim(A)[2]
+  n <- dim(A)[3]
+  if (is.null(mshape))
+      mshape <- arrMean3(A)
+  
+  m.size <- cSize(mshape)
+  Xc <- as.vector(mshape/m.size)
+  X <- vecx(A)/m.size
+  ##direction along mshape onto plane
+  XtoPlane <- t(apply(X,1,function(x){x <- t(c(crossprod(x,Xc))*Xc)}))
+  X1 <- X-XtoPlane
+  X1 <- t(X1)+Xc
+  proj <- array(X1, dim=c(p, k, n))*m.size
+  return(proj)
+}
+
+
+## Testing align2procSym without changing the mean
+new_individuals <- testing_projection_shapes
+original_data <- whole_gpa
+new_landmarks <- new_individuals
+
+
+## Internal logic for align2procSym
+n <- dim(new_landmarks)[3]
+atts <- attributes(whole_gpa)
+newdatarot <- new_landmarks
+
+## Centroid Sizing
+mysize <- apply(new_landmarks,3,cSize)
+for (i in 1:n){
+    new_landmarks[,,i] <- new_landmarks[,,i]/mysize[i]
+}
+
+for (i in 1:n) {
+    newdatarot[,,i] <- rotonto(x = whole_gpa$mshape, y =new_landmarks[,,i],scale=atts$scale,reflection=atts$reflect,centerweight=atts$centerweight,weights=atts$weights)$yrot
+}
+
+orpdata <- orp(newdatarot,whole_gpa$mshape)
+noorpda <- newdatarot
+
+
+## New data needs to be projected on the tangent space because of symmetry.
+symtan_orpda <- sweep(orpdata, 1:2, whole_gpa$mshape)
+symtan_noorp <- sweep(noorpda, 1:2, whole_gpa$mshape)
+proctan_ordat <- vecx(symtan_orpda)
+proctan_norop <- vecx(symtan_noorp)
+
+## Running the pca on the tangent space data
+original_pca <- prcompfast(original_data$tan*-1)
+
+## Getting the new PCAs
+new_pca_orpda <- stats::predict(original_pca, newdata = proctan_ordat)#array.to(new_proc_tan, to = "matrix"))
+new_pca_norop <- stats::predict(original_pca, newdata = proctan_norop)#array.to(new_proc_tan, to = "matrix"))
+
+## Combine the new and old matrices for the output PCA
+updated_pca <- original_pca$x*-1
+
+
+
+plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
+points(updated_pca[, c(1,2)], pch = 19, cex = 0.5, col = "grey")
+points(whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)], pch = 21, col = "darkgreen")
+points(new_pca_orpda[, c(1,2)], col = "blue", pch = 19, cex = 0.5)
+points(new_pca_norop[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
+
+
+
+```
