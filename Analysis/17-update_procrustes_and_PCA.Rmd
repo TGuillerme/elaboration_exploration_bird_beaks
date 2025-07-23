@@ -24,9 +24,8 @@ And if `D' = D + x` where `x` are _m_ new specimens, we should have a traitspace
 
 # Mapping the chaffinches on the whole traitspace
 
-```{r, eval = FALSE, echo = FALSE}
+```r #, eval = FALSE, echo = FALSE}
 ## Get some random shapes for cross-validation
-
 # Read in landmark data and landmark pairs file (necessary for enforcing symmetry later)
 beaks <- readRDS("../Data/Raw/Beak_data/2020_06_19_MMB_LANDMARKS_ALL.rds")
 pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
@@ -66,7 +65,7 @@ save(testing_projection_shapes, file = "../Data/Processed/testing_projection_sha
 Here are the new chaffinches projected onto the former traitspace.
 The blue circles are the old chaffinches that were present in the dataset before.
 
-```{r, echo = FALSE}
+```r #, echo = FALSE}
 ## Loading the entire bird GPA
 library(Morpho)
 whole_gpa <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
@@ -140,7 +139,7 @@ Looks all good but then I thought of doing a sanity check: do specimens that wer
 I.e. if the "new" specimens are actually old ones, do they fall back in their exact location (we want the answer to be yes for the results to be exact and reusable).
 Here are twenty spread specimens:
 
-```{r, echo = FALSE}
+```r #, echo = FALSE}
 ## But problem
 ## Good locations
 plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
@@ -158,7 +157,7 @@ I still need to tinker with `Morpho::align2procSym` so that it doesn't.
 
 
 
-```{r, eval = FALSE, echo = FALSE}
+```r #, eval = FALSE, echo = FALSE}
 orp <- function(A, mshape=NULL) { 
   p <- dim(A)[1]
   k <- dim(A)[2]
@@ -189,22 +188,31 @@ n <- dim(new_landmarks)[3]
 atts <- attributes(whole_gpa)
 newdatarot <- new_landmarks
 
-## Centroid Sizing
+# Centroid Sizing -> skipped (cSizes all equal 1 already) -> maybe cSize needs to be a bit smaller? 0.95 seems to be the correct amount to get them to the right dimension.
 mysize <- apply(new_landmarks,3,cSize)
 for (i in 1:n){
     new_landmarks[,,i] <- new_landmarks[,,i]/mysize[i]
 }
 
+## The mean shape from the previously calculated gpa
+
+## This value needs to be multiplied by 1.048-ish for some reason
+prev_mean_shape <- whole_gpa$mshape # * 1.048
+
 for (i in 1:n) {
-    newdatarot[,,i] <- rotonto(x = whole_gpa$mshape, y =new_landmarks[,,i],scale=atts$scale,reflection=atts$reflect,centerweight=atts$centerweight,weights=atts$weights)$yrot
+    newdatarot[,,i]  <- rotonto(x = prev_mean_shape, y = new_landmarks[,,i], scale = atts$scale, reflection = atts$reflect, centerweight = atts$centerweight, weights = atts$weights)$yrot
 }
+
+
+
+
 
 orpdata <- orp(newdatarot,whole_gpa$mshape)
 noorpda <- newdatarot
 
 
 ## New data needs to be projected on the tangent space because of symmetry.
-symtan_orpda <- sweep(orpdata, 1:2, whole_gpa$mshape)
+symtan_orpda <- sweep(orpdata, 1:2, whole_gpa$mshape) 
 symtan_noorp <- sweep(noorpda, 1:2, whole_gpa$mshape)
 proctan_ordat <- vecx(symtan_orpda)
 proctan_norop <- vecx(symtan_noorp)
@@ -213,19 +221,23 @@ proctan_norop <- vecx(symtan_noorp)
 original_pca <- prcompfast(original_data$tan*-1)
 
 ## Getting the new PCAs
-new_pca_orpda <- stats::predict(original_pca, newdata = proctan_ordat)#array.to(new_proc_tan, to = "matrix"))
-new_pca_norop <- stats::predict(original_pca, newdata = proctan_norop)#array.to(new_proc_tan, to = "matrix"))
+new_pca_orpda <- stats::predict(original_pca, newdata = proctan_ordat)
+new_pca_norop <- stats::predict(original_pca, newdata = proctan_norop)
 
 ## Combine the new and old matrices for the output PCA
 updated_pca <- original_pca$x*-1
-
-
 
 plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
 points(updated_pca[, c(1,2)], pch = 19, cex = 0.5, col = "grey")
 points(whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)], pch = 21, col = "darkgreen")
 points(new_pca_orpda[, c(1,2)], col = "blue", pch = 19, cex = 0.5)
 points(new_pca_norop[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
+
+
+points(new_pca_orpda[, c(1,2)]/0.954, col = "blue", pch = 19, cex = 0.5)
+points(new_pca_norop[, c(1,2)]*1.048, col = "orange", pch = 19, cex = 0.5)
+
+## Something with 1.048 (or /0.95) scaling somewhere? Maybe cSize?
 
 
 
