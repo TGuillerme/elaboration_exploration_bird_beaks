@@ -18,7 +18,7 @@ This repository contains all the code and data used in [the paper](https://www.s
 
 ## Data
 
-The raw data phylogenetic data is available from [here](https://birdtree.org
+The raw data phylogenetic data is available from [here](https://birdtree.org).
 The raw morphological data is available from [here](https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355).
 You can access the processed data used in this analysis [here](https://figshare.com/articles/dataset/Innovation_and_elaboration_on_the_avian_tree_of_life/20480355).
 If you use either the processed or raw phylogenetic data in a publication, please cite the following papers [Cooney et al 2017](https://www.nature.com/articles/nature21074), [Chira et al 2020](https://royalsocietypublishing.org/doi/full/10.1098/rspb.2020.1585) and [Hughes et al 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ele.13905).
