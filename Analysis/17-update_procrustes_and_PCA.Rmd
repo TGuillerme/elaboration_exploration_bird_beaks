@@ -196,10 +196,25 @@ for (i in 1:n){
 
 ## The mean shape from the previously calculated gpa
 
-## This value needs to be multiplied by 1.048-ish for some reason
-prev_mean_shape <- whole_gpa$mshape # * 1.048
+## This value needs to be multiplied by 1.048-ish for some reason or 0.954
+prev_mean_shape <- whole_gpa$mshape # / 0.954 # * 1.048
+
+## n Previous specimens = 8748
+## n New specimens = 20
+
+## Kind of works.
+scalars <- seq(from = 0.9538, to = 0.9552, length.out = 20)
 
 for (i in 1:n) {
+
+    ## New shape should be updated each time?
+    prev_mean_shape <- whole_gpa$mshape / scalars[i]
+    ## Test solution: update gpa (and mshape) one spec at the time? Like:
+    # updated_gpa <- previous_gpa
+    # for (i in 1:new_spec) {
+    #     updated_gpa <- update.gpa(updated_gpa, new_specimen)
+    # }
+
     newdatarot[,,i]  <- rotonto(x = prev_mean_shape, y = new_landmarks[,,i], scale = atts$scale, reflection = atts$reflect, centerweight = atts$centerweight, weights = atts$weights)$yrot
 }
 
@@ -223,6 +238,7 @@ original_pca <- prcompfast(original_data$tan*-1)
 ## Getting the new PCAs
 new_pca_orpda <- stats::predict(original_pca, newdata = proctan_ordat)
 new_pca_norop <- stats::predict(original_pca, newdata = proctan_norop)
+        # -> No difference between orp or not
 
 ## Combine the new and old matrices for the output PCA
 updated_pca <- original_pca$x*-1
@@ -231,7 +247,16 @@ plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
 points(updated_pca[, c(1,2)], pch = 19, cex = 0.5, col = "grey")
 points(whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)], pch = 21, col = "darkgreen")
 points(new_pca_orpda[, c(1,2)], col = "blue", pch = 19, cex = 0.5)
-points(new_pca_norop[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
+# points(new_pca_norop[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
+
+ratios_orp <- new_pca_orpda[, c(1,2)] / whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)]
+ratios_noorp <- new_pca_norop[, c(1,2)] / whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)]
+
+plot(sort(ratios_orp[, 1]), type = "l")
+lines(sort(ratios_orp[, 2]), col = "red")
+
+
+points(new_pca_orpda[, c(1,2)] / ratios, col = "blue", pch = 19, cex = 0.5)
 
 
 points(new_pca_orpda[, c(1,2)]/0.954, col = "blue", pch = 19, cex = 0.5)
