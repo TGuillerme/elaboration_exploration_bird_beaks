@@ -188,96 +188,34 @@ n <- dim(new_landmarks)[3]
 atts <- attributes(whole_gpa)
 newdatarot <- new_landmarks
 
-# Centroid Sizing -> skipped (cSizes all equal 1 already) -> maybe cSize needs to be a bit smaller? 0.95 seems to be the correct amount to get them to the right dimension.
+# Centroid Sizing
 mysize <- apply(new_landmarks,3,cSize)
 for (i in 1:n){
     new_landmarks[,,i] <- new_landmarks[,,i]/mysize[i]
 }
 
 ## The mean shape from the previously calculated gpa
-
-## This value needs to be multiplied by 1.048-ish for some reason or 0.954
-prev_mean_shape <- whole_gpa$mshape # / 0.954 # * 1.048
-
 ## n Previous specimens = 8748
 ## n New specimens = 20
 
-## Kind of works.
-scalars <- seq(from = 0.9538, to = 0.9552, length.out = 20)
-
-
-
-
-
-
-
-
-
-
+prev_mean_shape <- whole_gpa$mshape
+new_data_rotated <- list()
 for (i in 1:n) {
+    
+    new_data_rotated[[i]]  <- rotonto(x = prev_mean_shape, y = new_landmarks[,,i], scale = atts$scale, reflection = atts$reflect, centerweight = atts$centerweight, weights = atts$weights)$yrot
 
+    ## Update the shape
+    prev_mean_shape <- arrMean3(simplify2array(c(new_data_rotated[1:i], list(whole_gpa$mshape))))
+    # prev_mean_shape <- arrMean3(simplify2array(list(prev_mean_shape, newdatarot[,,i])))
 
-
-
-
-
-
-
-
-
-
-
-    ## New shape should be updated each time?
-    prev_mean_shape <- whole_gpa$mshape / scalars[i]
-    ## Test solution: update gpa (and mshape) one spec at the time? Like:
-    # updated_gpa <- previous_gpa
-    # for (i in 1:new_spec) {
-    #     updated_gpa <- update.gpa(updated_gpa, new_specimen)
-    # }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    newdatarot[,,i]  <- rotonto(x = prev_mean_shape, y = new_landmarks[,,i], scale = atts$scale, reflection = atts$reflect, centerweight = atts$centerweight, weights = atts$weights)$yrot
+    new_data_rotated[[i]]  <- rotonto(x = prev_mean_shape, y = new_landmarks[,,i], scale = atts$scale, reflection = atts$reflect, centerweight = atts$centerweight, weights = atts$weights)$yrot
 }
 
+newdatarot <- simplify2array(new_data_rotated)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-orpdata <- orp(newdatarot,whole_gpa$mshape)
+orpdata <- orp(newdatarot, whole_gpa$mshape)
 noorpda <- newdatarot
-
 
 ## New data needs to be projected on the tangent space because of symmetry.
 symtan_orpda <- sweep(orpdata, 1:2, whole_gpa$mshape) 
@@ -296,11 +234,38 @@ new_pca_norop <- stats::predict(original_pca, newdata = proctan_norop)
 ## Combine the new and old matrices for the output PCA
 updated_pca <- original_pca$x*-1
 
+
+
+## 1 - basic method
+# new_data <- Morpho::align2procSym(original_data, testing_projection_shapes)
+# new_pca <- stats::predict(original_pca, newdata = vecx(new_data))#array.to(new_proc_tan, to = "matrix"))
+# updated_pca <- rbind(original_pca$x*-1, new_pca)
+
+
+## 2 - Method updating the mean
+tmp_data <- original_data
+new_data <- list()
+for(i in 1:n) {
+    new_data[[i]] <- Morpho::align2procSym(tmp_data, testing_projection_shapes[,, i])
+    ## Updating the mean shape
+    tmp_data$mshape <- arrMean3(simplify2array(c(new_data[1:i], list(tmp_data$mshape))))
+    ## Update the tangent space?
+}
+new_data <- simplify2array(new_data)
+
+## Predict the new PCA
+new_pca <- stats::predict(original_pca, newdata = vecx(new_data))
+## Combine the new and old matrices for the output PCA
+updated_pca <- rbind(original_pca$x*-1, new_pca)
+
+
+
+
 plot(whole_gpa$PCscores[,c(1,2)], col = "grey", main = "Sanity check")
 points(updated_pca[, c(1,2)], pch = 19, cex = 0.5, col = "grey")
 points(whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)], pch = 21, col = "darkgreen")
-points(new_pca_orpda[, c(1,2)], col = "blue", pch = 19, cex = 0.5)
-# points(new_pca_norop[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
+points(new_pca_norop[, c(1,2)], col = "blue", pch = 19, cex = 0.5)
+points(new_pca_orpda[, c(1,2)], col = "orange", pch = 19, cex = 0.5)
 
 ratios_orp <- new_pca_orpda[, c(1,2)] / whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)]
 ratios_noorp <- new_pca_norop[, c(1,2)] / whole_gpa$PCscores[dimnames(testing_projection_shapes)[[3]], c(1,2)]
