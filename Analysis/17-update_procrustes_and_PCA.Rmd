@@ -285,3 +285,13 @@ points(new_pca_norop[, c(1,2)]*1.048, col = "orange", pch = 19, cex = 0.5)
 
 
 ```
+
+
+
+
+
+Reproject idea 2309:
+- measure distance ratio between old and new on old axes and calculate correction matrix
+- run pca with only old, then add new.
+- run pca with old and new, then add new.
+- measure difference between both above.
