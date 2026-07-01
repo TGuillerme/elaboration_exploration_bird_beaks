@@ -27,6 +27,7 @@ And if `D' = D + x` where `x` are _m_ new specimens, we should have a traitspace
 ```r #, eval = FALSE, echo = FALSE}
 ## Get some random shapes for cross-validation
 # Read in landmark data and landmark pairs file (necessary for enforcing symmetry later)
+library(Morpho)
 beaks <- readRDS("../Data/Raw/Beak_data/2020_06_19_MMB_LANDMARKS_ALL.rds")
 pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
 
@@ -43,9 +44,21 @@ dimnames(spp_mshape_all)[[3]] <- uspp
 # Loop over all species, read in individual user landmarks, apply procrustes alignment, forcing symmetry (other than for species with true asymmetry)
 # Store mean shape configuration for each species as the species levels set of landmarks for downstream analyses
 
+multi_spec <- list()
 for (i in 1:length(uspp)) {
+    
     idx <- which(spp==uspp[i])
+    
     tmp_beaks <- beaks[[1]][,,idx]
+
+    name_check <- strsplit(dimnames(tmp_beaks)[[3]][1], split = "_")[[1]][1]
+    if(length(idx) > 4 || name_check == "Fringilla") {
+        ## Save the species
+        dimnames(tmp_beaks)[[3]] <- dimnames(beaks[[1]][,,idx])[[3]]
+        multi_spec[[length(multi_spec) + 1]] <- tmp_beaks
+        names(multi_spec)[length(multi_spec)] <- paste(strsplit(dimnames(tmp_beaks)[[3]][1], split = "_")[[1]][c(1,2)], collapse = "_")
+    }
+
     spp_alig <- procSym(tmp_beaks, CSinit=FALSE, scale=FALSE, pairedLM=as.matrix(pairs))
     
     if (sum(grep("Loxia_", uspp[i]),  grep("Anarhynchus_", uspp[i]))>0) {
@@ -55,6 +68,8 @@ for (i in 1:length(uspp)) {
     spp_mshape_all[,,i] <- spp_mshape
     print(i)
 }
+
+save(multi_spec, file = "../Data/Processed/list_of_landmarks.rda")
 
 ## Selecting 20 random bird
 randoms = c(sample(1:8748, 17), 753, 6077, 918) # hummingbird = 753, flamingo = 6077, shoebill = 918
@@ -478,13 +493,29 @@ boxplot(lapply(scaled_to_center, median), ylab = "median errors")
 
 ```{r}
 ## Project unknow species to the the PCA!
+update.pca <- function(new_landmarks, previous_gpa, corrector) {
+
+    ## Running the projections
+    if(is(new_landmarks, "list")) {
+        new_landmarks <- array(unlist(new_landmarks), dim = c(dim(new_landmarks[[1]])[1], 3, length(new_landmarks)))
+    }
+    new_projections <- Morpho::align2procSym(previous_gpa, new_landmarks)
+
+    ## Getting the PCA
+    original_pca <- prcompfast(previous_gpa$tan)
+    new_pca <- stats::predict(original_pca, newdata = vecx(new_projections))
+
+    ## Correcting the PCA (optional)
+    if(!missing(corrector)) {
+        return(new_pca/corrector)
+    } else {
+        return(new_pca)
+    }
+}
 
 ## Loading the entire bird GPA
 library(Morpho)
 whole_gpa <- readRDS("../Data/Raw/Beak_data/2020_08_07_MMB_MORPHO_SHAPESPACE_FULL.rds")
-
-## Reading in the chaffinches
-land_pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
 
 ## Read all the chaffinches
 path <- "../Data/Raw/Beak_data/Chaffinch_data/"
@@ -504,45 +535,85 @@ while(length(individuals) != 0) {
     individuals <- individuals[-1]
 }
 
-## Running the projections naively
-new_projections <- Morpho::align2procSym(whole_gpa,  array(unlist(new_chanffinches), dim = c(dim(new_chanffinches[[1]])[1], 3, length(new_chanffinches))))
-
-## Updating the PCA naively
-original_pca_from_prcompfast <- prcompfast(whole_gpa$tan)
-new_pca <- stats::predict(original_pca_from_prcompfast, newdata = vecx(new_projections))
-
-## Correcting the PCA
-corrected_pca <- new_pca/corrections["100"][[1]]
+## Updating the data
+new_pca <- update.pca(new_landmarks = new_chanffinches, previous_gpa = whole_gpa, corrector = corrections["100"][[1]])
 
 ## Plotting the results
-plot(original_pca_from_prcompfast$x[, c(1,2)], pch = 21, col = "grey")
+plot(whole_gpa$PCscores[, c(1,2)], pch = 21, col = "grey")
 points(new_pca[, c(1,2)], pch = 19, col = "orange")
-points(original_pca_from_prcompfast$x[which(grepl("Fringilla", rownames(original_pca_from_prcompfast$x))), c(1,2)], pch = 19, col = "blue")
+points(whole_gpa$PCscores[which(grepl("Fringilla", rownames(original_pca_from_prcompfast$x))), c(1,2)], pch = 19, col = "blue")
 legend("bottomright", pch = c(21, 19, 19), col = c("grey", "blue", "orange"), legend = c("original PCA", "Fringilla (original)", "New chaffinches"))
 
-combined_pc <- rbind(original_pca_from_prcompfast$x, corrected_pca)
-rownames(combined_pc)[-c(1:nrow(original_pca_from_prcompfast$x))] <- names(new_chanffinches)
+## Testing with the replicated species
+load(file = "../Data/Processed/list_of_landmarks.rda")
+select <- c("Aceros_comatus", "Anorrhinus_galeritus", "Buceros_hydrocorax", "Bycanistes_brevis", "Ceratogymna_atrata", "Fringilla_coelebs", "Fringilla_montifringilla", "Fringilla_teydea", "Penelopides_affinis", "Rhinoplax_vigil", "Tockus_jacksoni", "Trogon_elegans")
+multi_spec_short <- multi_spec[select]
 
-plot(combined_pc[1:nrow(original_pca_from_prcompfast$x), c(1,2)], pch = 21, col = "grey")
-points(combined_pc[-c(1:nrow(original_pca_from_prcompfast$x)), c(1,2)], pch = 19, col = "orange")
-points(combined_pc[which(grepl("Fringilla", rownames(original_pca_from_prcompfast$x))), c(1,2)], pch = 19, col = "blue")
-legend("bottomright", pch = c(21, 19, 19), col = c("grey", "blue", "orange"), legend = c("original PCA", "Fringilla (original)", "New chaffinches"))
+cols <- grDevices::hcl(h = seq(15, 375, length = length(multi_spec_short) + 1), l = 65, c = 100)[1:length(multi_spec_short)]
 
-## Species pairs to check
 
-rownames(combined_pc)[c(8954, 8957)]
-rownames(combined_pc)[c(3146, 8761)]
-rownames(combined_pc)[c(8835, 4242)] # is different
-rownames(combined_pc)[c(2907, 8757)]
-rownames(combined_pc)[c(8812, 8898)] # is different
-rownames(combined_pc)[c(3207, 8945)]
-rownames(combined_pc)[c(8809, 8775)]
-rownames(combined_pc)[c(7044, 6411)]
-rownames(combined_pc)[c(8981, 8982)]
+pdf(height = 14, width = 14, file = paste0("../Manuscript/Figures/projected_new_specimens.pdf"))
 
+plot(whole_gpa$PCscores[, c(1,2)], pch = 21, col = "grey")
+points(new_pca[,c(1,2)], pch = 19, cex = 0.5, col = "black")
+
+for(i in 1:length(multi_spec_short)) {
+    updated_pca <- update.pca(multi_spec_short[[i]], whole_gpa, corrector = corrections["100"][[1]])
+    points(whole_gpa$PCscores[names(multi_spec_short)[i], c(1,2), drop = FALSE], col = cols[i], pch = 19, cex = 1)
+    points(updated_pca[, c(1,2)], col = cols[i], pch = 19, cex = 0.5)
+    for(j in 1:nrow(updated_pca)) {
+        arrows(x0 = whole_gpa$PCscores[names(multi_spec_short)[i], 1], y0 = whole_gpa$PCscores[names(multi_spec_short)[i], 2], x1 = updated_pca[j, 1], y1 = updated_pca[j, 2], length = 0, lwd = 1, col = cols[i])
+    }
+}
+legend("bottomright", legend = c("Average species", "New Fringilla", select), pch = c(21, 19, rep(19, length(select))), col = c("grey", "black", cols))
+dev.off()
+
+## Get the mean + sd distances to centroids for each species
+spec_list <- list()
+complete_pca <- whole_gpa$PCscores[, 1:9]
+spec_list[[1]] <- c(nrow(complete_pca):(nrow(complete_pca)+nrow(new_pca))) 
+names(spec_list)[[1]] <- "New Fringila"
+complete_pca <- rbind(complete_pca, new_pca[, 1:9])
+
+for(i in 1:length(multi_spec)) {
+    updated_pca <- update.pca(multi_spec[[i]], whole_gpa, corrector = corrections["100"][[1]])
+    spec_list[[1+i]] <- c(nrow(complete_pca):(nrow(complete_pca)+nrow(updated_pca))) 
+    names(spec_list)[[1+i]] <- names(multi_spec)[i]
+    complete_pca <- rbind(complete_pca, updated_pca[, 1:9])
+}
+
+## Adding all Fringila as a group
+spec_list[[length(spec_list)+1]] <- c(spec_list[["Fringilla_coelebs"]], spec_list[["Fringilla_montifringilla"]], spec_list[["Fringilla_teydea"]])
+
+## Measuring the disparity in terms of spread from centroids
+library(dispRity)
+whole_data <- custom.subsets(complete_pca, group = spec_list)
+means <- unlist(get.disparity(dispRity(whole_data, metric = c(mean, centroids))))
+sds <- unlist(get.disparity(dispRity(whole_data, metric = c(sd, centroids))))
+
+pdf(height = 8, width = 8, file = paste0("../Manuscript/Figures/distribution_of_distances.pdf"))
+op <- par(mfrow = c(2,1))
+stat <- means
+hist(stat, main = "Mean distance to centroid per species", xlab = "Average distance between each specimens and their species centroid")
+arrows(x0 = stat[1], y0 = 0, x1 = stat[1], y1 = 20, code = 1, lwd = 2, col = "black")
+text(x = stat[1], y = 20, "New Fringilla")
+arrows(x0 = stat[length(stat)], y0 = 0, x1 = stat[length(stat)], y1 = 15, code = 1, lwd = 2, col = "red")
+text(x = stat[length(stat)], y = 15, "Old Fringilla")
+
+stat <- sds
+hist(stat, main = "Standard deviation of the distance to centroid", xlab = "Sd of the same distances")
+arrows(x0 = stat[1], y0 = 0, x1 = stat[1], y1 = 20, code = 1, lwd = 2, col = "black")
+text(x = stat[1], y = 20, "New Fringilla")
+
+arrows(x0 = stat[length(stat)], y0 = 0, x1 = stat[length(stat)], y1 = 15, code = 1, lwd = 2, col = "red")
+text(x = stat[length(stat)], y = 15, "Old Fringilla")
+par(op)
+dev.off()
 
 
 ```
+
+
 
 
 Reproject idea 2309:
