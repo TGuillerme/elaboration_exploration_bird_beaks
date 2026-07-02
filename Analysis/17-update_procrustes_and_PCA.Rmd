@@ -34,6 +34,12 @@ pairs <- read.table("../Data/Raw/Beak_data/landpairs.txt")
 # Remove some annoying extra labelling on individual beaks
 spp <- gsub("_1|_2|_3|_4|_5|_6", "", beaks$species)
 
+
+start <- Sys.time()
+all_landmarks_align <- procSym(beaks[[1]], CSinit = FALSE, scale = FALSE, pairedLM = as.matrix(pairs))
+end <- Sys.time()
+
+
 # Get unique names
 uspp <- unique(spp)
 
